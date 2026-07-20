@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bag body -->
+    <path d="M155 205 L135 365 L256 435 L377 365 L357 205" />
+    <path d="M205 205 V155 C205 120 228 95 256 95 C284 95 307 120 307 155 V205" />
+    <!-- Smile -->
+    <path d="M195 290 C225 335 287 335 317 290" />
+  </g>
+  <!-- Eye -->
+  <circle cx="320" cy="255" r="16" fill="#ffffff"/>
+</svg>
