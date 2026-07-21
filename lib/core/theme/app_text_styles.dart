@@ -28,6 +28,21 @@ class AppTextStyles {
     fontWeight: FontWeight.w700,
   );
 
+  static TextStyle intro_descrption =
+  TextStyle(
+    fontSize: 13.sp,
+  );
+
+  static TextStyle intro_skip_text =
+  TextStyle(
+    fontSize: 12.sp,
+  );
+
+  static TextStyle intro_next_text =
+  TextStyle(
+    fontSize: 14.sp,
+  );
+
   static TextStyle splashTitle =
   TextStyle(
     fontSize: 28.sp,
