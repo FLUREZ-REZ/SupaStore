@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:supastore/core/theme/app_theme.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
 import 'package:supastore/features/splash_feature/splash_binding.dart';
 import 'app/router/app_router.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
       builder: (_, child) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
           routerConfig: AppRouter.router,
         );
       },
