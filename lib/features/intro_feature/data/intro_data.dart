@@ -14,24 +14,24 @@ class IntroModel {
 final introList = [
 
   IntroModel(
-    image: "assets/images/intro1.png",
+    image: "assets/lottie/outmobile.json",
     title: "خرید آسان و سریع",
     description:
     "محصولات مورد علاقه خود را به راحتی پیدا کنید",
   ),
 
   IntroModel(
-    image: "assets/images/intro2.png",
+    image: "assets/lottie/cart.json",
     title: "ارسال سریع محصولات",
     description:
     "سفارش شما در کوتاه‌ترین زمان ارسال می‌شود",
   ),
 
   IntroModel(
-    image: "assets/images/intro3.png",
+    image: "assets/lottie/offerhand.json",
     title: "تجربه خرید بهتر",
     description:
-    "یک فروشگاه مدرن همیشه همراه شما",
+    "یک فروشگاه آنلاین همیشه همراه شما",
   ),
 
 ];

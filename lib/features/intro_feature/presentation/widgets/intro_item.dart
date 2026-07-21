@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
+import 'package:supastore/core/theme/app_colors.dart';
+import 'package:supastore/core/theme/app_text_styles.dart';
 
 
 
@@ -30,9 +33,11 @@ class IntroItem extends StatelessWidget {
       children: [
 
 
-        Image.asset(
+        Lottie.asset(
           image,
-          height:250.h,
+          height: 280.h,
+          repeat: true,
+          fit: BoxFit.contain,
         ),
 
 
@@ -41,21 +46,25 @@ class IntroItem extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            fontSize:24.sp,
-            fontWeight:FontWeight.bold,
-          ),
+          style: AppTextStyles.intro_title.copyWith(
+
+            color: AppColors.intro_title
+
+          )
         ),
 
 
         SizedBox(height:15.h),
 
 
-        Text(
-          description,
-          textAlign:TextAlign.center,
-          style:TextStyle(
-            fontSize:15.sp,
+        Padding(
+          padding: const EdgeInsets.all(4),
+          child: Text(
+            description,
+            textAlign:TextAlign.center,
+            style:TextStyle(
+              fontSize:13.sp,
+            ),
           ),
         ),
 

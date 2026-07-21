@@ -22,6 +22,12 @@ class AppTextStyles {
 
   // intro page Fonts Theme
 
+  static TextStyle intro_title =
+  TextStyle(
+    fontSize: 22.sp,
+    fontWeight: FontWeight.w700,
+  );
+
   static TextStyle splashTitle =
   TextStyle(
     fontSize: 28.sp,
