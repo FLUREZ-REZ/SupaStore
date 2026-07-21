@@ -14,7 +14,7 @@ class IntroModel {
 final introList = [
 
   IntroModel(
-    image: "assets/lottie/outmobile.json",
+    image: "assets/lottie/bag.json",
     title: "خرید آسان و سریع",
     description:
     "محصولات مورد علاقه خود را به راحتی پیدا کنید",

@@ -25,6 +25,18 @@ class AppColors {
   static const Color intro_background =
   Color(0xFFe5e5e5);
 
+  static const Color intro_description =
+  Color(0xFF000000);
+
+  static const Color intro_skip_text =
+  Color(0xFF000000);
+
+  static const Color intro_indicator_dots =
+  Color(0xFFE6123D);
+
+  static const Color intro_next_text =
+  Color(0xFFE6123D);
+
   static const Color primary =
   Color(0xFFE6123D);
 
