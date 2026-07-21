@@ -19,6 +19,12 @@ class AppColors {
 
   //Intro page Colors Theme :)
 
+  static const Color intro_title =
+  Color(0xFF000000);
+
+  static const Color intro_background =
+  Color(0xFFe5e5e5);
+
   static const Color primary =
   Color(0xFFE6123D);
 
