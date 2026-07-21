@@ -29,12 +29,10 @@ class IntroProvider extends ChangeNotifier {
     final prefs =
     await SharedPreferences.getInstance();
 
-
     await prefs.setBool(
-      "show_intro",
+      'show_intro',
       true,
     );
-
   }
 
 
