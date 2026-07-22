@@ -25,7 +25,7 @@ class AppColors {
     end: Alignment.topCenter,
     colors: [
       Color(0xFFf1faee),
-      Color(0xFFe63946),
+      Color(0xFFd90429),
     ],
   );
 
@@ -39,7 +39,7 @@ class AppColors {
   Color(0xFF000000);
 
   static const Color intro_skip_text =
-  Color(0xFF000000);
+  Color(0xFFFFFFFF);
 
   static const Color intro_indicator_dots =
   Color(0xFFE6123D);
