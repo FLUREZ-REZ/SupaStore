@@ -14,14 +14,14 @@ class IntroModel {
 final introList = [
 
   IntroModel(
-    image: "assets/lottie/bag.json",
+    image: "assets/intro/bag.svg",
     title: "خرید آسان و سریع",
     description:
     "محصولات مورد علاقه خود را به راحتی پیدا کنید",
   ),
 
   IntroModel(
-    image: "assets/lottie/cart.json",
+    image: "assets/intro/bagnoline.svg",
     title: "ارسال سریع محصولات",
     description:
     "سفارش شما در کوتاه‌ترین زمان ارسال می‌شود",
