@@ -19,6 +19,16 @@ class AppColors {
 
   //Intro page Colors Theme :)
 
+  static const LinearGradient intro_background_gradiant =
+  LinearGradient(
+    begin: Alignment.bottomCenter,
+    end: Alignment.topCenter,
+    colors: [
+      Color(0xFFf1faee),
+      Color(0xFFe63946),
+    ],
+  );
+
   static const Color intro_title =
   Color(0xFF000000);
 
