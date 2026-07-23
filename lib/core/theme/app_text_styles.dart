@@ -20,7 +20,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
   );
 
-  // intro page Fonts Theme
+  // intro page Fonts Theme :
 
   static TextStyle intro_title =
   TextStyle(
@@ -41,6 +41,26 @@ class AppTextStyles {
   static TextStyle intro_next_text =
   TextStyle(
     fontSize: 14.sp,
+  );
+
+  // auth page Fonts Theme :
+
+  static TextStyle auth_countinue =
+  TextStyle(
+    fontSize: 10.sp,
+
+  );
+
+  static TextStyle auth_rules =
+  TextStyle(
+    fontSize: 10.sp,
+
+  );
+
+  static TextStyle auth_textfield =
+  TextStyle(
+    fontSize: 14.sp,
+
   );
 
   static TextStyle splashTitle =
@@ -72,4 +92,11 @@ class AppTextStyles {
     fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
+
+  static TextStyle bodyLarge =
+  TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w600,
+  );
 }
+
