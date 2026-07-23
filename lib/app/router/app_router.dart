@@ -1,72 +1,46 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supastore/features/intro_feature/presentation/pages/intro_page.dart';
-import 'package:supastore/features/splash_feature/presentation/pages/splash_page.dart';
-
-class AuthPage extends StatelessWidget {
-  const AuthPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Auth Page'),
-      ),
-    );
-  }
-}
-
-
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Home Page'),
-      ),
-    );
-  }
-}
-
+import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
+import '../../features/splash_feature/presentation/pages/splash_page.dart';
+import '../../features/intro_feature/presentation/pages/intro_page.dart';
+import '../../features/auth_feature/presentation/pages/auth_page.dart';
 
 
 class AppRouter {
+  AppRouter._();
 
-  static final GoRouter router =
-  GoRouter(
-
+  static final GoRouter router = GoRouter(
     initialLocation: '/',
 
     routes: [
 
+      /// Splash
       GoRoute(
         path: '/',
-        builder: (context, state) =>
-        const SplashPage(),
+        name: 'splash',
+        builder: (context, state) => const SplashPage(),
       ),
 
+      /// Intro
       GoRoute(
         path: '/intro',
-        builder: (context, state) =>
-        const IntroPage(),
+        name: 'intro',
+        builder: (context, state) => const IntroPage(),
       ),
 
+      /// Auth
       GoRoute(
         path: '/auth',
-        builder: (context, state) =>
-        const AuthPage(),
+        name: 'auth',
+        builder: (context, state) => const AuthPage(),
       ),
 
+      /// Home
       GoRoute(
         path: '/home',
-        builder: (context, state) =>
-        const HomePage(),
+        name: 'home',
+        builder: (context, state) => const HomePage(),
       ),
 
     ],
-
   );
 }
