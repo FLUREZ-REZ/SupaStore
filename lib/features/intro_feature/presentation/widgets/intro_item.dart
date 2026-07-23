@@ -29,7 +29,7 @@ class IntroItem extends StatelessWidget {
         MainAxisAlignment.center,
         children: [
 
-          Image.asset(image , height: 320.h , fit: BoxFit.contain,),
+          Image.asset(image , height: 400.h , fit: BoxFit.contain,),
 
           SizedBox(height: 32.h),
 
