@@ -81,6 +81,7 @@ flutter:
     - assets/logo/logo.svg
     - assets/intro/offer.webp
     - assets/intro/delivery.webp
+    - assets/intro/card.webp
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

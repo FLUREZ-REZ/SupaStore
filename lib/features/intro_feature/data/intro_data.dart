@@ -28,7 +28,7 @@ final introList = [
   ),
 
   IntroModel(
-    image: "assets/intro/delivery.webp",
+    image: "assets/intro/card.webp",
     title: "تجربه خرید بهتر",
     description:
     "یک فروشگاه آنلاین همیشه همراه شما",
