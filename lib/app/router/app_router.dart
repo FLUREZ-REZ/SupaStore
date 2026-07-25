@@ -1,4 +1,7 @@
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
+import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
 import '../../features/splash_feature/presentation/pages/splash_page.dart';
 import '../../features/intro_feature/presentation/pages/intro_page.dart';
@@ -40,6 +43,8 @@ class AppRouter {
         name: 'home',
         builder: (context, state) => const HomePage(),
       ),
+
+
 
     ],
   );

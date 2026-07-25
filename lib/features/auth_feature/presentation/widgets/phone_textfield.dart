@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
@@ -37,22 +38,18 @@ class PhoneTextField extends StatelessWidget {
 
         maxLength: 10,
 
-
         onChanged: (value) {
 
-          // تبدیل عدد فارسی به انگلیسی
           final phone =
           value.toEnglishDigit();
 
-
-          // ارسال مقدار استاندارد به Provider
           onChanged(phone);
 
         },
 
 
         style:
-        AppTextStyles.bodyLarge,
+        AppTextStyles.auth_textfield,
 
 
         decoration: InputDecoration(
@@ -62,6 +59,9 @@ class PhoneTextField extends StatelessWidget {
 
           hintText:
           '۹۱۲۳۴۵۶۷۸۹',
+          hintStyle: TextStyle(
+            color: Colors.black38
+          ),
 
 
           hintTextDirection:
@@ -83,23 +83,16 @@ class PhoneTextField extends StatelessWidget {
 
               widthFactor: 1,
 
-              child: Text(
-                '+۹۸',
-                style:
-                AppTextStyles.bodyLarge,
-              ),
-
+              child: Icon(
+                CupertinoIcons.device_phone_portrait
+              )
             ),
           ),
 
-
-
           filled: true,
 
-
           fillColor:
-          AppColors.inputBackground,
-
+          AppColors.auth_textfield_background,
 
 
           border:
@@ -114,7 +107,6 @@ class PhoneTextField extends StatelessWidget {
             BorderSide.none,
 
           ),
-
         ),
       ),
     );
