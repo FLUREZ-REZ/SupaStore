@@ -87,14 +87,17 @@ class AuthButton extends StatelessWidget {
 
             :
 
-        const Text(
+        Text(
           'ارسال کد تایید',
+          style: TextStyle(
+            color: enabled
+                ? Colors.white
+                : Colors.black54,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-
       ),
-
     );
-
   }
-
 }

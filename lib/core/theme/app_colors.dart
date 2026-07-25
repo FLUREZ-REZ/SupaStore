@@ -49,15 +49,14 @@ class AppColors {
 
   // auth Theme_Colors
 
-  static const LinearGradient auth_background_gradiant =
-  LinearGradient(
-    begin: Alignment.topRight,
-    end: Alignment.bottomLeft,
-    colors: [
-      Color(0xFFf1faee),
-      Color(0x80d90429),
-    ],
-  );
+  static const Color auth_title_text =
+  Color(0xFFE6123D);
+
+  static const Color auth_background =
+  Color(0x80e5e5e5);
+
+  static const Color auth_textfield_background =
+  Color(0xFFffffff);
 
   static const Color inputBackground =
   Color(0xFFE6123D);

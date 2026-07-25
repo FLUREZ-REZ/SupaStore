@@ -33,7 +33,7 @@ class AuthPage extends StatelessWidget {
             body:
             Container(
               decoration: BoxDecoration(
-                gradient: AppColors.auth_background_gradiant ,
+                color: AppColors.auth_background ,
               ),
               child: SafeArea(
 
@@ -67,6 +67,13 @@ class AuthPage extends StatelessWidget {
                           BlendMode.srcIn
                         ),
                         fit: BoxFit.contain,
+                      ),
+
+                      Text("SupaStore" ,
+
+                        style: AppTextStyles.auth_title_text.copyWith(
+                          color: AppColors.auth_title_text
+                        ),
                       ),
 
                       SizedBox(

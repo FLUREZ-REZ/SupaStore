@@ -45,22 +45,25 @@ class AppTextStyles {
 
   // auth page Fonts Theme :
 
+  static TextStyle auth_title_text =
+  TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.bold
+  );
+
   static TextStyle auth_countinue =
   TextStyle(
     fontSize: 10.sp,
-
   );
 
   static TextStyle auth_rules =
   TextStyle(
     fontSize: 10.sp,
-
   );
 
   static TextStyle auth_textfield =
   TextStyle(
     fontSize: 14.sp,
-
   );
 
   static TextStyle splashTitle =
