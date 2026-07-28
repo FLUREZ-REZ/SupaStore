@@ -25,11 +25,12 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendOtp() async {
+  Future<bool> sendOtp() async {
 
-    if (!isValidPhone) return;
+    if (!isValidPhone) return false;
 
     isLoading = true;
+
     notifyListeners();
 
     try {
@@ -37,17 +38,22 @@ class AuthProvider extends ChangeNotifier {
       final phone =
           '+98${phoneController.text.replaceAll(' ', '')}';
 
-      await _authRepository.sendOtp(phone);
+      await _authRepository.sendOtp(
+        phone: phone,
+      );
 
-      debugPrint("OTP Sent Successfully");
+      return true;
 
     } catch (e) {
 
       debugPrint(e.toString());
 
+      return false;
+
     } finally {
 
       isLoading = false;
+
       notifyListeners();
 
     }

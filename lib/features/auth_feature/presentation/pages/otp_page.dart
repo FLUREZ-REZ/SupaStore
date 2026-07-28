@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_header.dart';
-import 'package:supastore/features/auth_feature/presentation/widgets/otp_resend_button.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_timer.dart';
+import 'package:supastore/features/auth_feature/presentation/widgets/otp_resend_button.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_verify_button.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/tp_pin_field.dart';
-
-import '../providers/otp_provider.dart';
-
-
 
 class OtpPage extends StatefulWidget {
   final String phoneNumber;
@@ -32,7 +29,11 @@ class _OtpPageState extends State<OtpPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OtpProvider>().startTimer();
+      final provider = context.read<OtpProvider>();
+
+      provider.setPhone(widget.phoneNumber);
+
+      provider.startTimer();
     });
   }
 
@@ -62,7 +63,7 @@ class _OtpPageState extends State<OtpPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'کد وارد شده صحیح نیست.',
+                'کد تایید صحیح نیست.',
               ),
             ),
           );
@@ -79,7 +80,7 @@ class _OtpPageState extends State<OtpPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'خطا در ارتباط با اینترنت.',
+                'خطا در ارتباط با سرور.',
               ),
             ),
           );
@@ -101,10 +102,8 @@ class _OtpPageState extends State<OtpPage> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -126,7 +125,7 @@ class _OtpPageState extends State<OtpPage> {
 
                 const OtpTimer(),
 
-                SizedBox(height: 4.h),
+                SizedBox(height: 6.h),
 
                 const OtpResendButton(),
 

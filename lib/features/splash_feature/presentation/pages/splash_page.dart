@@ -38,29 +38,37 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _initialize() async {
 
-
     final provider =
     context.read<SplashProvider>();
 
-    await provider.checkConnection();
+    await provider.initialize();
 
     if (!mounted) return;
 
 
     if (!provider.hasInternet) {
-
       return;
-
     }
+
 
     await Future.delayed(
       const Duration(seconds: 2),
     );
 
 
+    // کاربر قبلا وارد شده
+    if (provider.isLoggedIn) {
+
+      context.go('/home');
+
+      return;
+    }
+
+
+    // فقط وقتی کاربر لاگین نیست intro را بررسی کن
     final prefs =
-    await SharedPreferences
-        .getInstance();
+    await SharedPreferences.getInstance();
+
 
     final seenIntro =
         prefs.getBool(
@@ -68,7 +76,9 @@ class _SplashPageState extends State<SplashPage> {
         ) ??
             false;
 
+
     if (!mounted) return;
+
 
     if (seenIntro) {
 
