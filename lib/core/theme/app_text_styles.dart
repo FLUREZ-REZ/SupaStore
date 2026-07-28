@@ -66,6 +66,28 @@ class AppTextStyles {
     fontSize: 14.sp,
   );
 
+  // otp page Font_Styles
+
+  static TextStyle otp_title =
+  TextStyle(
+    fontSize: 18.sp,
+  );
+
+  static TextStyle otp_sent_code =
+  TextStyle(
+    fontSize: 14.sp,
+  );
+
+  static TextStyle otp_phone_number =
+  TextStyle(
+    fontSize: 14.sp,
+  );
+
+  static TextStyle otp_code_number =
+  TextStyle(
+    fontSize: 20.sp,
+  );
+
   static TextStyle splashTitle =
   TextStyle(
     fontSize: 28.sp,

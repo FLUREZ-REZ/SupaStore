@@ -18,11 +18,11 @@ class OtpPinField extends StatelessWidget {
     final defaultTheme = PinTheme(
       width: 54.w,
       height: 60.h,
-      textStyle: AppTextStyles.titleLarge.copyWith(
-        fontWeight: FontWeight.w700,
+      textStyle: AppTextStyles.otp_code_number.copyWith(
+        fontWeight: FontWeight.w500,
       ),
       decoration: BoxDecoration(
-        color: AppColors.inputBackground,
+        color: AppColors.otp_code_background,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.transparent,

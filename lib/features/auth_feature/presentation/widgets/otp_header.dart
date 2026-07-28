@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 
@@ -12,37 +13,53 @@ class OtpHeader extends StatelessWidget {
     required this.phoneNumber,
   });
 
+
+  String maskPhoneNumber(String phone) {
+    phone = phone.toEnglishDigit();
+    phone = phone.replaceAll(' ', '');
+
+    if (phone.length < 10) return phone;
+
+    return '${phone.substring(0, 4)}*******${phone.substring(8)}';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(height: 24.h),
 
+
         /// عنوان
         Text(
-          'تأیید شماره موبایل',
-          style: AppTextStyles.titleLarge.copyWith(
-            fontWeight: FontWeight.bold,
+          'کد تایید را وارد نمایید',
+          style: AppTextStyles.otp_title.copyWith(
+            color: AppColors.otp_title,
           ),
           textAlign: TextAlign.center,
         ),
 
+
         SizedBox(height: 12.h),
+
 
         /// توضیح
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Text(
-            'کد تأیید ۶ رقمی به شماره زیر ارسال شده است.',
+            'کد تایید به شماره زیر ارسال شد',
             textAlign: TextAlign.center,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.white,
+            style: AppTextStyles.otp_sent_code.copyWith(
+              color: AppColors.otp_send_code,
               height: 1.6,
             ),
           ),
         ),
 
+
         SizedBox(height: 18.h),
+
 
         /// شماره موبایل
         Container(
@@ -52,27 +69,32 @@ class OtpHeader extends StatelessWidget {
           ),
 
           decoration: BoxDecoration(
-            color: AppColors.inputBackground,
+            color: AppColors.otp_phone_background,
             borderRadius: BorderRadius.circular(16.r),
           ),
 
+
           child: Row(
             mainAxisSize: MainAxisSize.min,
+
             children: [
               Icon(
                 Icons.phone_android_rounded,
-                size: 20.sp,
-                color: AppColors.primary,
+                size: 18.sp,
+                color: AppColors.white,
               ),
+
 
               SizedBox(width: 10.w),
 
+
               Text(
-                phoneNumber,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.primary,
+                maskPhoneNumber(phoneNumber).toPersianDigit(),
+
+                style: AppTextStyles.otp_phone_number.copyWith(
+                  color: AppColors.white,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
