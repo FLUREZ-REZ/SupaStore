@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/features/auth_feature/data/repositories/auth_repository_impl.dart';
+
 enum OtpStatus {
   initial,
   loading,
@@ -11,7 +14,14 @@ enum OtpStatus {
 }
 
 class OtpProvider extends ChangeNotifier {
-  final TextEditingController otpController = TextEditingController();
+  OtpProvider({
+    AuthRepository? authRepository,
+  }) : _authRepository = authRepository ?? AuthRepository();
+
+  final AuthRepository _authRepository;
+
+  final TextEditingController otpController =
+  TextEditingController();
 
   static const int _initialSeconds = 60;
 
@@ -23,7 +33,7 @@ class OtpProvider extends ChangeNotifier {
 
   OtpStatus _status = OtpStatus.initial;
 
-
+  String? _phoneNumber;
 
   bool get isLoading => _isLoading;
 
@@ -31,21 +41,28 @@ class OtpProvider extends ChangeNotifier {
 
   bool get canResend => _secondsRemaining == 0;
 
-  bool get isOtpComplete => otpController.text.length == 6;
+  bool get isOtpComplete =>
+      otpController.text.length == 6;
 
   OtpStatus get status => _status;
 
   String get formattedTime {
     final minutes =
-    (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+    (_secondsRemaining ~/ 60)
+        .toString()
+        .padLeft(2, '0');
 
     final seconds =
-    (_secondsRemaining % 60).toString().padLeft(2, '0');
+    (_secondsRemaining % 60)
+        .toString()
+        .padLeft(2, '0');
 
     return '$minutes:$seconds';
   }
 
-
+  void setPhone(String phone) {
+    _phoneNumber = phone;
+  }
 
   void onOtpChanged(String value) {
     notifyListeners();
@@ -76,22 +93,32 @@ class OtpProvider extends ChangeNotifier {
   Future<void> verifyCode() async {
     if (!isOtpComplete) return;
 
+    if (_phoneNumber == null) return;
+
     _isLoading = true;
+
     _status = OtpStatus.loading;
 
     notifyListeners();
 
     try {
-
-      await Future.delayed(
-        const Duration(seconds: 2),
+      final response =
+      await _authRepository.verifyOtp(
+        phone: _phoneNumber!,
+        otp: otpController.text.trim(),
       );
 
-      _status = OtpStatus.success;
+      if (response.session != null) {
+        _status = OtpStatus.success;
+      } else {
+        _status = OtpStatus.invalidOtp;
+      }
+    } on AuthException {
+      _status = OtpStatus.invalidOtp;
     } on TimeoutException {
       _status = OtpStatus.networkError;
     } catch (_) {
-      _status = OtpStatus.invalidOtp;
+      _status = OtpStatus.networkError;
     }
 
     _isLoading = false;
@@ -102,18 +129,19 @@ class OtpProvider extends ChangeNotifier {
   Future<void> resendCode() async {
     if (!canResend) return;
 
+    if (_phoneNumber == null) return;
+
     _isLoading = true;
 
     notifyListeners();
 
     try {
-
-      await Future.delayed(
-        const Duration(seconds: 2),
+      await _authRepository.sendOtp(
+        phone: _phoneNumber!,
       );
 
       startTimer();
-    } finally {
+    } catch (_) {} finally {
       _isLoading = false;
 
       notifyListeners();
@@ -123,7 +151,6 @@ class OtpProvider extends ChangeNotifier {
   void clearStatus() {
     _status = OtpStatus.initial;
   }
-
 
   @override
   void dispose() {

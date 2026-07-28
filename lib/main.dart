@@ -16,16 +16,15 @@ import 'core/di/service_locator.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
-
-  await setupLocator();
-
   await dotenv.load(fileName: ".env");
 
+  
   await Supabase.initialize(
     url: Env.supabaseUrl,
     anonKey: Env.supabaseAnonKey,
   );
+
+  await setupLocator();
 
   await setupInjector();
 

@@ -45,6 +45,21 @@ class AppRouter {
       ),
 
 
+      GoRoute(
+        path: '/otp',
+        builder: (context, state) {
+          final phone = state.extra as String;
+
+          return ChangeNotifierProvider(
+            create: (_) => OtpProvider(),
+
+            child: OtpPage(
+              phoneNumber: phone,
+            ),
+          );
+        },
+      ),
+
 
     ],
   );

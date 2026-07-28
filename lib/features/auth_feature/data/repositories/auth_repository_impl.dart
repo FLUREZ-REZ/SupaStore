@@ -1,9 +1,17 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  AuthRepository({
+    SupabaseClient? client,
+  }) : _client = client ?? Supabase.instance.client;
 
-  Future<void> sendOtp(String phone) async {
+  final SupabaseClient _client;
+
+
+
+  Future<void> sendOtp({
+    required String phone,
+  }) async {
     await _client.auth.signInWithOtp(
       phone: phone,
     );
@@ -12,11 +20,23 @@ class AuthRepository {
   Future<AuthResponse> verifyOtp({
     required String phone,
     required String otp,
-  }) {
-    return _client.auth.verifyOTP(
+  }) async {
+    return await _client.auth.verifyOTP(
       phone: phone,
       token: otp,
       type: OtpType.sms,
     );
   }
+
+  Future<void> signOut() async {
+    await _client.auth.signOut();
+  }
+
+  User? get currentUser => _client.auth.currentUser;
+
+  Session? get currentSession => _client.auth.currentSession;
+
+  bool get isLoggedIn =>
+      _client.auth.currentSession != null;
+
 }
