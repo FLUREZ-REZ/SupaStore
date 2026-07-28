@@ -65,7 +65,25 @@ class AppColors {
   Color(0xFF2C3947);
 
   static const Color auth_continue =
+
   Color(0xFF000000);
+
+  // otp page colors theme :
+
+  static const Color otp_title =
+  Color(0xFF000000);
+
+  static const Color otp_send_code =
+  Color(0xFF000000);
+
+  static const Color otp_phone_background =
+  Color(0xFF0b090a);
+
+  static const Color otp_timer_number =
+  Color(0xFF495057);
+
+  static const Color otp_code_background =
+  Color(0xFFff4d6d);
 
   static const Color primary =
   Color(0xFFE6123D);

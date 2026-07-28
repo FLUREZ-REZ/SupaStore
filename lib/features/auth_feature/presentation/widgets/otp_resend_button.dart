@@ -28,7 +28,7 @@ class OtpResendButton extends StatelessWidget {
                 : 'کد را دریافت نکردید؟',
             style: AppTextStyles.body.copyWith(
               color: state.canResend
-                  ? AppColors.primary
+                  ? AppColors.otp_send_code
                   : AppColors.white,
               fontWeight: FontWeight.w600,
             ),
