@@ -6,15 +6,11 @@ import 'app_colors.dart';
 class AppTheme {
 
   AppTheme._();
-
-
   static ThemeData lightTheme = ThemeData(
 
     useMaterial3: true,
 
-
     fontFamily: "Vazir",
-
 
     scaffoldBackgroundColor:
     AppColors.white,
@@ -25,7 +21,6 @@ class AppTheme {
       seedColor:
       AppColors.primary,
     ),
-
 
 
     textTheme: const TextTheme(
@@ -45,7 +40,6 @@ class AppTheme {
     ),
 
 
-
     appBarTheme:
     const AppBarTheme(
 
@@ -59,10 +53,7 @@ class AppTheme {
         fontWeight:
         FontWeight.w700,
       ),
-
     ),
 
-
   );
-
 }

@@ -4,7 +4,6 @@ import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 
-
 class OtpHeader extends StatelessWidget {
   final String phoneNumber;
 
@@ -12,7 +11,6 @@ class OtpHeader extends StatelessWidget {
     super.key,
     required this.phoneNumber,
   });
-
 
   String maskPhoneNumber(String phone) {
     phone = phone.toEnglishDigit();
@@ -23,15 +21,12 @@ class OtpHeader extends StatelessWidget {
     return '${phone.substring(0, 4)}*******${phone.substring(8)}';
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(height: 24.h),
 
-
-        /// عنوان
         Text(
           'کد تایید را وارد نمایید',
           style: AppTextStyles.otp_title.copyWith(
@@ -40,11 +35,8 @@ class OtpHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
 
-
         SizedBox(height: 12.h),
 
-
-        /// توضیح
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Text(
@@ -57,11 +49,8 @@ class OtpHeader extends StatelessWidget {
           ),
         ),
 
-
         SizedBox(height: 18.h),
 
-
-        /// شماره موبایل
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: 18.w,
@@ -73,7 +62,6 @@ class OtpHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(16.r),
           ),
 
-
           child: Row(
             mainAxisSize: MainAxisSize.min,
 
@@ -84,9 +72,7 @@ class OtpHeader extends StatelessWidget {
                 color: AppColors.white,
               ),
 
-
               SizedBox(width: 10.w),
-
 
               Text(
                 maskPhoneNumber(phoneNumber).toPersianDigit(),
