@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
+import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/banner_slider.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/category_horizontal_list.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_appbar.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_search_bar.dart';
 
@@ -41,8 +43,9 @@ class HomePage extends StatelessWidget {
 
             /// Categories
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 120.h,
+              child: ChangeNotifierProvider(
+                create: (_) => getIt<CategoryProvider>(),
+                child: const CategoryHorizontalList(),
               ),
             ),
 
