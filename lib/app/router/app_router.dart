@@ -7,7 +7,6 @@ import '../../features/splash_feature/presentation/pages/splash_page.dart';
 import '../../features/intro_feature/presentation/pages/intro_page.dart';
 import '../../features/auth_feature/presentation/pages/auth_page.dart';
 
-
 class AppRouter {
   AppRouter._();
 
@@ -59,8 +58,6 @@ class AppRouter {
           );
         },
       ),
-
-
     ],
   );
 }
