@@ -1,12 +1,31 @@
 import 'package:get_it/get_it.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/features/home_feature/data/datasource/banner_remote_datasource.dart';
+import 'package:supastore/features/home_feature/data/repositories/home_repository_impl.dart';
+import 'package:supastore/features/home_feature/domain/repositories/home_repository.dart';
+import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 
-import '../services/supabase_service.dart';
+
 
 final getIt = GetIt.instance;
 
 Future<void> setupInjector() async {
-  getIt.registerLazySingleton<SupabaseClient>(
-        () => SupabaseService.client,
+
+  /// Banner DataSource
+  getIt.registerLazySingleton<BannerRemoteDataSource>(
+        () => BannerRemoteDataSource(),
+  );
+
+  /// Banner Repository
+  getIt.registerLazySingleton<BannerRepository>(
+        () => BannerRepositoryImpl(
+      remoteDataSource: getIt<BannerRemoteDataSource>(),
+    ),
+  );
+
+  /// Banner Provider
+  getIt.registerFactory<BannerProvider>(
+        () => BannerProvider(
+      repository: getIt<BannerRepository>(),
+    ),
   );
 }
