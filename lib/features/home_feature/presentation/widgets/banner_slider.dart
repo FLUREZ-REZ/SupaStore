@@ -79,7 +79,7 @@ class _BannerSliderState extends State<BannerSlider> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(18.r),
                     child: CachedNetworkImage(
-                      imageUrl: banner.imageUrl,
+                      imageUrl: "${banner.imageUrl}?v=${banner.updatedAt}",
                       width: double.infinity,
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(

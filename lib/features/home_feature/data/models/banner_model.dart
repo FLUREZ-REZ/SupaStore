@@ -8,6 +8,7 @@ class BannerModel extends BannerEntity {
     required super.imageUrl,
     required super.sortOrder,
     required super.isActive,
+    required super.updatedAt,
     super.actionType,
     super.actionValue,
   });
@@ -25,6 +26,8 @@ class BannerModel extends BannerEntity {
       actionValue: map['action_value'] as String?,
       sortOrder: map['sort_order'] as int,
       isActive: map['is_active'] as bool,
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+
     );
   }
 
