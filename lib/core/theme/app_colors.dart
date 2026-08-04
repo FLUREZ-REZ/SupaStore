@@ -85,6 +85,20 @@ class AppColors {
   static const Color otp_code_background =
   Color(0xFFff4d6d);
 
+  // section_header Color_styles :)
+
+  static const Color section_header =
+  Color(0xFF0b090a);
+
+  static const Color section_seeAll =
+  Color(0xFFE6123D);
+
+  // product-card :
+
+  static const Color price =
+  Color(0xFF0b090a);
+
+
   static const Color primary =
   Color(0xFFE6123D);
 

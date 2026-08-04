@@ -30,10 +30,10 @@ class CategoryItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 64.w,
-              height: 64.w,
+              width: 58.w,
+              height: 58.w,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+
                 shape: BoxShape.circle,
               ),
               child: ClipOval(
@@ -65,10 +65,9 @@ class CategoryItem extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: AppTextStyles.otp_title.copyWith(
+              style: AppTextStyles.category.copyWith(
                 color: AppColors.black,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
+
               ),
             ),
           ],

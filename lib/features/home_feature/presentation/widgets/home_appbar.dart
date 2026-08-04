@@ -15,56 +15,58 @@ class HomeAppBar extends StatelessWidget {
         horizontal: 20.w,
         vertical: 16.h,
       ),
-      child: Row(
-        children: [
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Row(
+          children: [
 
-          /// User Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
+            /// User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
 
-                Text(
-                  "سلام 👋",
-                  style:
-                  AppTextStyles.body.copyWith(
-                    color: Colors.grey,
+                  Text(
+                    "کاربر",
+                    style:
+                    AppTextStyles.user.copyWith(
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
 
-                SizedBox(
-                  height: 4.h,
-                ),
-
-                Text(
-                  "رضا",
-                  style:
-                  AppTextStyles.otp_title.copyWith(
-                    fontWeight:
-                    FontWeight.bold,
+                  SizedBox(
+                    height: 4.h,
                   ),
-                ),
-              ],
+
+                  Text(
+                    "9123545359",
+                    style:
+                    AppTextStyles.userName.copyWith(
+                      fontWeight: FontWeight.w600
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          /// Notification
-          _IconButton(
-            icon: Icons.notifications_outlined,
-            onTap: () {},
-          ),
+            /// Notification
+            _IconButton(
+              icon: Icons.notifications_outlined,
+              onTap: () {},
+            ),
 
-          SizedBox(
-            width: 12.w,
-          ),
+            SizedBox(
+              width: 12.w,
+            ),
 
-          /// Cart
-          _IconButton(
-            icon: Icons.shopping_cart_outlined,
-            onTap: () {},
-          ),
-        ],
+            /// Cart
+            _IconButton(
+              icon: Icons.shopping_cart_outlined,
+              onTap: () {},
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -82,7 +84,7 @@ class _IconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.black,
+      color: AppColors.primary,
       borderRadius:
       BorderRadius.circular(14.r),
       child: InkWell(
@@ -90,11 +92,12 @@ class _IconButton extends StatelessWidget {
         BorderRadius.circular(14.r),
         onTap: onTap,
         child: SizedBox(
-          width: 48.w,
-          height: 48.h,
+          width: 40.w,
+          height: 40.h,
           child: Icon(
             icon,
-            size: 24.sp,
+            size: 18.sp,
+            color: Colors.white,
           ),
         ),
       ),
