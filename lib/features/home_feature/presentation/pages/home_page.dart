@@ -62,13 +62,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
 
-            /// Best Seller
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 280.h,
-              ),
-            ),
-
             SliverToBoxAdapter(
               child: SectionHeader(
                 title: "جدیدترین محصولات",
@@ -79,6 +72,13 @@ class HomePage extends StatelessWidget {
               child: ChangeNotifierProvider(
                 create: (_) => getIt<ProductProvider>(),
                 child: const _NewestProducts(),
+              ),
+            ),
+
+            /// Best Seller
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 280.h,
               ),
             ),
 

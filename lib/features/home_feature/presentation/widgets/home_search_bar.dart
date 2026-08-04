@@ -16,7 +16,7 @@ class HomeSearchBar extends StatelessWidget {
         vertical: 12.h,
       ),
       child: Material(
-        color: AppColors.black,
+
         borderRadius: BorderRadius.circular(18.r),
         elevation: 0,
         child: InkWell(
@@ -30,39 +30,42 @@ class HomeSearchBar extends StatelessWidget {
             padding: EdgeInsets.symmetric(
               horizontal: 16.w,
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.search,
-                  size: 24.sp,
-                  color: Colors.grey.shade600,
-                ),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    size: 24.sp,
+                    color: Colors.grey.shade600,
+                  ),
 
-                SizedBox(width: 12.w),
+                  SizedBox(width: 12.w),
 
-                Expanded(
-                  child: Text(
-                    "جستجو در سوپاستور",
-                    style: AppTextStyles.body.copyWith(
-                      color: Colors.grey.shade500,
+                  Expanded(
+                    child: Text(
+                      "جستوجو محصول",
+                      style: AppTextStyles.body.copyWith(
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ),
-                ),
 
-                Container(
-                  width: 1.w,
-                  height: 24.h,
-                  color: Colors.grey.shade300,
-                ),
+                  Container(
+                    width: 1.w,
+                    height: 24.h,
+                    color: Colors.grey.shade300,
+                  ),
 
-                SizedBox(width: 12.w),
+                  SizedBox(width: 12.w),
 
-                Icon(
-                  Icons.mic_none_rounded,
-                  size: 24.sp,
-                  color: Colors.grey.shade600,
-                ),
-              ],
+                  Icon(
+                    Icons.mic_none_rounded,
+                    size: 24.sp,
+                    color: Colors.grey.shade600,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

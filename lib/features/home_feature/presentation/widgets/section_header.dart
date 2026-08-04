@@ -30,8 +30,8 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.black,
+              style: AppTextStyles.section_title.copyWith(
+                color: AppColors.section_header,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -50,8 +50,8 @@ class SectionHeader extends StatelessWidget {
                   children: [
                     Text(
                       'مشاهده همه',
-                      style: AppTextStyles.otp_title.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.section_title.copyWith(
+                        color: AppColors.section_seeAll,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -59,7 +59,7 @@ class SectionHeader extends StatelessWidget {
                     SizedBox(width: 2.w),
 
                     Icon(
-                      Icons.chevron_left,
+                      Icons.chevron_right,
                       size: 18.sp,
                       color: AppColors.primary,
                     ),

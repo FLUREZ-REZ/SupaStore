@@ -5,6 +5,7 @@ import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 
 
 class ProductCard extends StatelessWidget {
@@ -46,7 +47,6 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            /// تصویر
             Stack(
               children: [
 
@@ -71,7 +71,6 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                /// علاقه‌مندی
                 Positioned(
                   top: 8,
                   right: 8,
@@ -131,8 +130,8 @@ class ProductCard extends StatelessWidget {
                       product.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: AppTextStyles.productCard.copyWith(
+
                       ),
                     ),
 
@@ -158,7 +157,7 @@ class ProductCard extends StatelessWidget {
 
                         Text(
                           '(${product.reviewCount})',
-                          style: AppTextStyles.auth_textfield.copyWith(
+                          style: AppTextStyles.review_text.copyWith(
                             color: Colors.grey,
                           ),
                         ),
@@ -170,7 +169,7 @@ class ProductCard extends StatelessWidget {
                     if (product.hasDiscount)
                       Text(
                         '${product.price}',
-                        style: AppTextStyles.auth_textfield.copyWith(
+                        style: AppTextStyles.product_prize.copyWith(
                           decoration: TextDecoration.lineThrough,
                           color: Colors.grey,
                         ),
@@ -180,8 +179,8 @@ class ProductCard extends StatelessWidget {
 
                     Text(
                       PriceFormatter.format(product.finalPrice),
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.primary,
+                      style: AppTextStyles.product_prize.copyWith(
+                        color: AppColors.price,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

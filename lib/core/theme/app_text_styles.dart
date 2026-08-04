@@ -94,6 +94,53 @@ class AppTextStyles {
     fontWeight: FontWeight.w700,
   );
 
+  //section_header font_styles :)
+
+  static TextStyle section_title =
+  TextStyle(
+    fontSize: 10.sp,
+
+  );
+
+  //categories :
+
+  static TextStyle category =
+  TextStyle(
+    fontSize: 9.sp,
+
+  );
+
+  // product card :
+
+  static TextStyle productCard =
+  TextStyle(
+    fontSize: 12.sp,
+  );
+
+  static TextStyle review_text =
+  TextStyle(
+    fontSize: 9.sp,
+  );
+
+  static TextStyle product_prize =
+  TextStyle(
+    fontSize: 12.sp,
+  );
+
+  // appbar uesrwelcome :
+
+  static TextStyle user =
+  TextStyle(
+    fontSize: 9.sp,
+
+  );
+
+  static TextStyle userName =
+  TextStyle(
+    fontSize: 12.sp,
+
+  );
+
   static TextStyle titleLarge =
   TextStyle(
     fontSize: 22.sp,
