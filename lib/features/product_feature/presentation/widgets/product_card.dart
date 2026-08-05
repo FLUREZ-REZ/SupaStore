@@ -93,7 +93,6 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                /// تخفیف
                 if (product.hasDiscount)
                   Positioned(
                     left: 8,

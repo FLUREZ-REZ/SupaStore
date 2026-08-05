@@ -18,7 +18,13 @@ class ProductRemoteDataSource {
 
     final response = await _client
         .from('products')
-        .select()
+        .select('''
+      *,
+      brands(
+        name,
+        logo_url
+      )
+    ''')
         .eq('is_available', true)
         .order(
       'created_at',
@@ -42,7 +48,13 @@ class ProductRemoteDataSource {
 
     final response = await _client
         .from('products')
-        .select()
+        .select('''
+      *,
+      brands(
+        name,
+        logo_url
+      )
+    ''')
         .eq('is_available', true)
         .eq('is_featured', true)
         .order(
@@ -67,7 +79,13 @@ class ProductRemoteDataSource {
 
     final response = await _client
         .from('products')
-        .select()
+        .select('''
+      *,
+      brands(
+        name,
+        logo_url
+      )
+    ''')
         .eq('is_available', true)
         .order(
       'created_at',
@@ -91,7 +109,13 @@ class ProductRemoteDataSource {
 
     final response = await _client
         .from('products')
-        .select()
+        .select('''
+      *,
+      brands(
+        name,
+        logo_url
+      )
+    ''')
         .eq('is_available', true)
         .gt('discount_percent', 0)
         .order(
@@ -117,7 +141,13 @@ class ProductRemoteDataSource {
 
     final response = await _client
         .from('products')
-        .select()
+        .select('''
+      *,
+      brands(
+        name,
+        logo_url
+      )
+    ''')
         .eq('category_id', categoryId)
         .eq('is_available', true)
         .order(

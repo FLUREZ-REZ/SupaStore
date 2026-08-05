@@ -7,9 +7,13 @@ import 'package:supastore/features/home_feature/domain/repositories/category_rep
 import 'package:supastore/features/home_feature/domain/repositories/home_repository.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
+import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
+import 'package:supastore/features/product_feature/data/repositories/product_image_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_repository_impl.dart';
+import 'package:supastore/features/product_feature/domain/repositories/product_image_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
+import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 
 
@@ -66,6 +70,22 @@ Future<void> setupInjector() async {
   getIt.registerFactory<ProductProvider>(
         () => ProductProvider(
       repository: getIt<ProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<ProductImageRemoteDataSource>(
+        () => ProductImageRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<ProductImageRepository>(
+        () => ProductImageRepositoryImpl(
+      remoteDataSource: getIt<ProductImageRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<ProductImageProvider>(
+        () => ProductImageProvider(
+      repository: getIt<ProductImageRepository>(),
     ),
   );
 

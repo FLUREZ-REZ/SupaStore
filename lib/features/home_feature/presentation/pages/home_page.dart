@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
@@ -172,14 +173,15 @@ class _NewestProductsState
           provider.products,
 
           onProductTap: (product) {
-
-            debugPrint(product.title);
-
+            context.pushNamed(
+              'product-details',
+              extra: product,
+            );
           },
 
           onFavoriteTap: (product) {
 
-            debugPrint(product.id);
+            debugPrint(product.brandName ?? 'بدون برند');
 
           },
 
