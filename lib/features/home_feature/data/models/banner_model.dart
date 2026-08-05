@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/features/home_feature/domain/entities/banner_entity.dart';
 
+
 class BannerModel extends BannerEntity {
   const BannerModel({
     required super.id,

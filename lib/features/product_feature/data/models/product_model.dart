@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
-import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
 
 class ProductModel extends ProductEntity {
   const ProductModel({

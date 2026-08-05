@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
-import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
 
 class ProductCard extends StatelessWidget {
