@@ -21,6 +21,8 @@ class ProductModel extends ProductEntity {
     required super.createdAt,
     required super.soldCount,
     required super.isNew,
+    required super.brandLogo,
+    required super.brandName
   });
 
   factory ProductModel.fromMap(Map<String, dynamic> map) {
@@ -44,9 +46,16 @@ class ProductModel extends ProductEntity {
       isAvailable: map['is_available'] as bool,
       isFeatured: map['is_featured'] as bool,
       createdAt: DateTime.parse(map['created_at'] as String),
-
       soldCount: map['sold_count'] as int,
       isNew: map['is_new'] as bool,
+      brandName: map['brands']?['name'],
+      brandLogo: map['brands']?['logo_url'] != null
+          ? Supabase.instance.client.storage
+          .from('assets')
+          .getPublicUrl(
+        map['brands']['logo_url'] as String,
+      )
+          : null,
     );
   }
 

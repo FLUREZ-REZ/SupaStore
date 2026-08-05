@@ -34,6 +34,10 @@ class ProductEntity {
 
   final bool isNew;
 
+  final String? brandName;
+
+  final String? brandLogo;
+
   const ProductEntity({
     required this.id,
     required this.categoryId,
@@ -51,7 +55,9 @@ class ProductEntity {
     required this.isFeatured,
     required this.createdAt,
     required this.soldCount,
-    required this.isNew
+    required this.isNew ,
+    required this.brandName,
+    required this.brandLogo,
   });
 
   bool get hasDiscount =>
