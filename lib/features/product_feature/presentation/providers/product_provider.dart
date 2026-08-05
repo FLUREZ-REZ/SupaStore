@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
+import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
 
-import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
-import 'package:supastore/features/home_feature/domain/repositories/product_repository.dart';
 
 class ProductProvider extends ChangeNotifier {
   ProductProvider({

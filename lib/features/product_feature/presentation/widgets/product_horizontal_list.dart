@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_card.dart';
 
-import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
-import 'package:supastore/features/home_feature/presentation/widgets/product_card.dart';
 
 class ProductHorizontalList extends StatelessWidget {
   const ProductHorizontalList({

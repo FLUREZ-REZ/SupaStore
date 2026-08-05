@@ -1,7 +1,7 @@
-import 'package:supastore/features/home_feature/domain/entities/product_entity.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
 abstract class ProductRepository {
-  
+
   Future<List<ProductEntity>> getProducts({
     int page = 0,
     int limit = 10,
