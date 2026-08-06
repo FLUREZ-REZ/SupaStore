@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supastore/core/theme/app_colors.dart';
+import 'package:supastore/core/theme/app_text_styles.dart';
 
 import '../../domain/entities/product_entity.dart';
 import '../providers/product_image_provider.dart';
+import '../providers/product_specification_provider.dart';
 import '../widgets/add_to_cart_bar.dart';
 import '../widgets/product_description_section.dart';
 import '../widgets/product_image_slider.dart';
-import '../widgets/product_price_section.dart';
+
 import '../widgets/product_rating_section.dart';
+import '../widgets/product_specifications_section.dart';
 import '../widgets/product_title_section.dart';
 
-class ProductDetailsPage extends StatefulWidget {
+class ProductDetailsPage extends StatelessWidget {
   const ProductDetailsPage({
     super.key,
     required this.product,
@@ -19,77 +23,65 @@ class ProductDetailsPage extends StatefulWidget {
   final ProductEntity product;
 
   @override
-  State<ProductDetailsPage> createState() =>
-      _ProductDetailsPageState();
-}
-
-class _ProductDetailsPageState
-    extends State<ProductDetailsPage> {
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context
-          .read<ProductImageProvider>()
-          .loadImages(widget.product.id);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Consumer<ProductImageProvider>(
-      builder: (context, provider, child) {
+    final imageProvider =
+    context.watch<ProductImageProvider>();
 
-        final images = provider.images.isEmpty
-            ? [widget.product.thumbnail]
-            : provider.images
-            .map((e) => e.imageUrl)
-            .toList();
+    final specificationProvider =
+    context.watch<ProductSpecificationProvider>();
 
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text(widget.product.title),
-              centerTitle: true,
-            ),
+    final images = imageProvider.images.isEmpty
+        ? [product.thumbnail]
+        : imageProvider.images
+        .map((e) => e.imageUrl)
+        .toList();
 
-            bottomNavigationBar: AddToCartBar(
-              product: widget.product,
-              onAddToCart: () {},
-            ),
-
-            body: ListView(
-              children: [
-
-                ProductImageSlider(
-                  images: images,
-                ),
-
-                ProductTitleSection(
-                  product: widget.product,
-                ),
-
-                ProductPriceSection(
-                  product: widget.product,
-                ),
-
-                ProductRatingSection(
-                  product: widget.product,
-                ),
-
-                ProductDescriptionSection(
-                  product: widget.product,
-                ),
-
-                const SizedBox(height: 20),
-              ],
-            ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          centerTitle: true,
+          title: Text(
+            product.title,
+            style: AppTextStyles.second_title_section,
           ),
-        );
-      },
+        ),
+
+        bottomNavigationBar: AddToCartBar(
+          product: product,
+          onAddToCart: () {},
+        ),
+
+        body: ListView(
+          children: [
+
+            ProductImageSlider(
+              images: images,
+            ),
+
+            ProductTitleSection(
+              product: product,
+            ),
+
+
+            ProductRatingSection(
+              product: product,
+            ),
+
+            ProductDescriptionSection(
+              product: product,
+            ),
+
+            ProductSpecificationsSection(
+              specifications:
+              specificationProvider.specifications,
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }
