@@ -10,15 +10,19 @@ import 'package:supastore/features/home_feature/presentation/providers/category_
 import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_specification_remote_datasource.dart';
+import 'package:supastore/features/product_feature/data/datasource/search_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_image_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_specification_repository_impl.dart';
+import 'package:supastore/features/product_feature/data/repositories/search_repository_impl.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_image_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_specification_repository.dart';
+import 'package:supastore/features/product_feature/domain/repositories/search_repository.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
 
 
 
@@ -107,6 +111,23 @@ Future<void> setupInjector() async {
   getIt.registerFactory<ProductSpecificationProvider>(
         () => ProductSpecificationProvider(
       repository: getIt<ProductSpecificationRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<SearchRemoteDataSource>(
+        () => SearchRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<SearchRepository>(
+        () => SearchRepositoryImpl(
+      remoteDataSource:
+      getIt<SearchRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<SearchProvider>(
+        () => SearchProvider(
+      repository: getIt<SearchRepository>(),
     ),
   );
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
-import 'package:supastore/features/product_feature/presentation/widgets/product_card.dart';
+
+import '../../domain/entities/product_entity.dart';
+import 'horizontal_product_card.dart';
 
 
 class ProductHorizontalList extends StatelessWidget {
+
   const ProductHorizontalList({
     super.key,
     required this.products,
@@ -12,50 +14,101 @@ class ProductHorizontalList extends StatelessWidget {
     this.onFavoriteTap,
   });
 
+
   final List<ProductEntity> products;
 
-  final void Function(ProductEntity product)? onProductTap;
 
-  final void Function(ProductEntity product)? onFavoriteTap;
+  final Function(ProductEntity product)? onProductTap;
+
+
+  final Function(ProductEntity product)? onFavoriteTap;
+
+
 
   @override
   Widget build(BuildContext context) {
+
+
     if (products.isEmpty) {
+
       return SizedBox(
-        height: 300.h,
+        height: 270.h,
         child: const Center(
-          child: Text('محصولی وجود ندارد'),
+          child: Text(
+            "محصولی موجود نیست",
+          ),
         ),
       );
+
     }
 
+
+
     return SizedBox(
-      height: 310.h,
-      child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+
+      height: 270.h,
+
+
+      child: ListView.builder(
+
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
+
+
+        physics:
+        const BouncingScrollPhysics(),
+
+
+        padding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+
 
         itemCount: products.length,
 
-        separatorBuilder: (_, __) => SizedBox(width: 12.w),
 
         itemBuilder: (context, index) {
-          final product = products[index];
 
-          return ProductCard(
-            product: product,
 
-            onTap: () {
-              onProductTap?.call(product);
-            },
+          final product =
+          products[index];
 
-            onFavorite: () {
-              onFavoriteTap?.call(product);
-            },
+
+
+          return Padding(
+
+            padding: EdgeInsets.only(
+              right: 12.w,
+            ),
+
+
+            child: SizedBox(
+
+              width: 170.w,
+
+
+              child: HorizontalProductCard(
+
+                product: product,
+
+
+                onTap: () {
+
+                  onProductTap?.call(product);
+
+                },
+
+              ),
+
+            ),
+
           );
+
         },
+
       ),
+
     );
+
   }
+
 }
