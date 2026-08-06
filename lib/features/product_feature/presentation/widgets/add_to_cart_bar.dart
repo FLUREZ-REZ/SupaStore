@@ -46,9 +46,9 @@ class AddToCartBar extends StatelessWidget {
                   Text(
                     "${product.finalPrice} تومان",
                     style: TextStyle(
-                      fontSize: 22.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red,
+                      color: Colors.green,
                     ),
                   ),
                 ],
@@ -58,7 +58,7 @@ class AddToCartBar extends StatelessWidget {
             SizedBox(width: 16.w),
 
             SizedBox(
-              width: 180.w,
+              width: 160.w,
               height: 52.h,
               child: ElevatedButton.icon(
                 onPressed: product.isAvailable
@@ -67,10 +67,10 @@ class AddToCartBar extends StatelessWidget {
                 icon: const Icon(Icons.shopping_cart_outlined),
                 label: Text(
                   product.isAvailable
-                      ? "افزودن به سبد خرید"
+                      ? "افزودن به سبد"
                       : "ناموجود",
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

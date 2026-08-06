@@ -37,6 +37,8 @@ class AppTheme {
         fontFamily: "Vazir",
       ),
 
+
+
     ),
 
 

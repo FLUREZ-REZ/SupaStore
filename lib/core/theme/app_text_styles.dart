@@ -141,6 +141,20 @@ class AppTextStyles {
 
   );
 
+  // product_detail_title_section :
+
+  static TextStyle title_section =
+  TextStyle(
+    fontSize: 19.sp,
+    fontWeight: FontWeight.bold,
+  );
+
+  static TextStyle second_title_section =
+  TextStyle(
+    fontSize: 14.sp,
+
+  );
+
   static TextStyle titleLarge =
   TextStyle(
     fontSize: 22.sp,

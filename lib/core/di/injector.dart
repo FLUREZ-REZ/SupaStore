@@ -9,12 +9,16 @@ import 'package:supastore/features/home_feature/presentation/providers/banner_pr
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
+import 'package:supastore/features/product_feature/data/datasource/product_specification_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_image_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_repository_impl.dart';
+import 'package:supastore/features/product_feature/data/repositories/product_specification_repository_impl.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_image_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
+import 'package:supastore/features/product_feature/domain/repositories/product_specification_repository.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
 
 
 
@@ -86,6 +90,23 @@ Future<void> setupInjector() async {
   getIt.registerFactory<ProductImageProvider>(
         () => ProductImageProvider(
       repository: getIt<ProductImageRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<ProductSpecificationRemoteDataSource>(
+        () => ProductSpecificationRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<ProductSpecificationRepository>(
+        () => ProductSpecificationRepositoryImpl(
+      remoteDataSource:
+      getIt<ProductSpecificationRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<ProductSpecificationProvider>(
+        () => ProductSpecificationProvider(
+      repository: getIt<ProductSpecificationRepository>(),
     ),
   );
 

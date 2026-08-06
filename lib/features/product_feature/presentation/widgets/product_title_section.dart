@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/theme/app_text_styles.dart';
 
 import '../../domain/entities/product_entity.dart';
 
@@ -23,7 +24,6 @@ class ProductTitleSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// وضعیت موجودی
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: 10.w,
@@ -49,19 +49,13 @@ class ProductTitleSection extends StatelessWidget {
 
           SizedBox(height: 14.h),
 
-          /// عنوان محصول
           Text(
             product.title,
-            style: TextStyle(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
-              height: 1.5,
-            ),
+            style: AppTextStyles.title_section
           ),
 
           SizedBox(height: 14.h),
 
-          /// برند
           if (product.brandName != null &&
               product.brandName!.isNotEmpty)
             Row(
@@ -103,7 +97,7 @@ class ProductTitleSection extends StatelessWidget {
                   child: Text(
                     'برند: ${product.brandName}',
                     style: TextStyle(
-                      fontSize: 15.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey.shade800,
                     ),
@@ -114,7 +108,6 @@ class ProductTitleSection extends StatelessWidget {
 
           SizedBox(height: 14.h),
 
-          /// شناسه محصول
           Row(
             children: [
               const Icon(
