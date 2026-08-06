@@ -8,9 +8,9 @@ import 'package:supastore/features/home_feature/presentation/providers/category_
 import 'package:supastore/features/home_feature/presentation/widgets/banner_slider.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/category_horizontal_list.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_appbar.dart';
-import 'package:supastore/features/home_feature/presentation/widgets/home_search_bar.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/section_header.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/home_search_bar.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_horizontal_list.dart';
 
 
@@ -124,7 +124,7 @@ class _NewestProductsState
 
       context
           .read<ProductProvider>()
-          .loadProducts();
+          .loadNewestProducts();
 
     });
   }

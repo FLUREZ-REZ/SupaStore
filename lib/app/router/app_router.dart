@@ -7,6 +7,7 @@ import 'package:supastore/features/home_feature/presentation/pages/home_page.dar
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 import 'package:supastore/features/product_feature/presentation/pages/product_details_page.dart';
+import 'package:supastore/features/product_feature/presentation/pages/search_page.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
 import '../../features/splash_feature/presentation/pages/splash_page.dart';
@@ -91,6 +92,15 @@ class AppRouter {
           );
         },
       ),
+
+      GoRoute(
+        path: '/search',
+        name: 'search',
+        builder: (context, state) {
+          return const SearchPage();
+        },
+      ),
+
     ],
   );
 }
