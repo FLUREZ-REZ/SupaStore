@@ -10,26 +10,50 @@ class CategoryProvider extends ChangeNotifier {
 
   final CategoryRepository _repository;
 
-  List<CategoryEntity> _categories = [];
+  // =========================
+  // Categories
+  // =========================
+
+  final List<CategoryEntity> _categories = [];
+
+  List<CategoryEntity> get categories =>
+      List.unmodifiable(_categories);
+
+  // =========================
+  // Loading
+  // =========================
 
   bool _isLoading = false;
 
-  String? _error;
-
-  List<CategoryEntity> get categories => _categories;
-
   bool get isLoading => _isLoading;
+
+  // =========================
+  // Error
+  // =========================
+
+  String? _error;
 
   String? get error => _error;
 
+  // =========================
+  // Load Categories
+  // =========================
+
   Future<void> loadCategories() async {
+    if (_isLoading) return;
+
     _isLoading = true;
     _error = null;
 
     notifyListeners();
 
     try {
-      _categories = await _repository.getCategories();
+      final List<CategoryEntity> result =
+      await _repository.getCategories();
+
+      _categories
+        ..clear()
+        ..addAll(result);
     } catch (e) {
       _error = e.toString();
     }

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/cart_page.dart';
-import 'package:supastore/features/home_feature/presentation/pages/category_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/favorite_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/profile_page.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/custom_bottom_navigation_bar.dart';
-
-
 
 class MainPage extends StatefulWidget {
   const MainPage({
@@ -28,7 +26,7 @@ class _MainPageState extends State<MainPage> {
 
     _pages = const [
       HomePage(),
-      CategoryPage(),
+      CategoryListPage(),
       CartPage(),
       FavoritePage(),
       ProfilePage(),

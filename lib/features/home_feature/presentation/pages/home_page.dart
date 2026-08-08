@@ -60,7 +60,14 @@ class HomePage extends StatelessWidget {
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
                 create: (_) => getIt<CategoryProvider>(),
-                child: const CategoryHorizontalList(),
+                child: CategoryHorizontalList(
+                  onCategoryTap: (category) {
+                    context.pushNamed(
+                      'category',
+                      extra: category,
+                    );
+                  },
+                ),
               ),
             ),
 

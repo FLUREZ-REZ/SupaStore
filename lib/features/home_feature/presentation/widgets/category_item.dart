@@ -7,39 +7,38 @@ import 'package:supastore/core/theme/app_text_styles.dart';
 import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 
 class CategoryItem extends StatelessWidget {
-  final CategoryEntity category;
-
   const CategoryItem({
     super.key,
     required this.category,
+    this.onTap,
   });
+
+  final CategoryEntity category;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
-      onTap: () {
-        debugPrint(category.id);
+      onTap: onTap,
 
-        /// بعداً
-        /// context.push('/category/${category.id}');
-      },
       child: SizedBox(
         width: 82.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+
             Container(
               width: 58.w,
               height: 58.w,
-              decoration: BoxDecoration(
-
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
               ),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: category.imageUrl,
                   fit: BoxFit.cover,
+
                   placeholder: (_, __) => Center(
                     child: SizedBox(
                       width: 18.w,
@@ -49,6 +48,7 @@ class CategoryItem extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   errorWidget: (_, __, ___) => Icon(
                     Icons.image_not_supported_outlined,
                     size: 26.sp,
@@ -67,7 +67,6 @@ class CategoryItem extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTextStyles.category.copyWith(
                 color: AppColors.black,
-
               ),
             ),
           ],
