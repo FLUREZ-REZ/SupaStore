@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:supastore/features/category_feature/data/datasources/category_product_remote_datasource.dart';
+import 'package:supastore/features/category_feature/data/repositories/category_product_repository_impl.dart';
+import 'package:supastore/features/category_feature/domain/repositories/category_product_repository.dart';
+import 'package:supastore/features/category_feature/presentation/providers/category_product_provider.dart';
 import 'package:supastore/features/home_feature/data/datasource/banner_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/datasource/category_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/repositories/category_repository_impl.dart';
@@ -128,6 +132,24 @@ Future<void> setupInjector() async {
   getIt.registerFactory<SearchProvider>(
         () => SearchProvider(
       repository: getIt<SearchRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CategoryProductRemoteDataSource>(
+        () => CategoryProductRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<CategoryProductRepository>(
+        () => CategoryProductRepositoryImpl(
+      remoteDataSource:
+      getIt<CategoryProductRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<CategoryProductProvider>(
+        () => CategoryProductProvider(
+      repository:
+      getIt<CategoryProductRepository>(),
     ),
   );
 

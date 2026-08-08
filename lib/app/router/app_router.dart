@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
-import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
+import 'package:supastore/features/category_feature/presentation/pages/category_page.dart';
+import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 import 'package:supastore/features/product_feature/presentation/pages/product_details_page.dart';
@@ -98,6 +99,19 @@ class AppRouter {
         name: 'search',
         builder: (context, state) {
           return const SearchPage();
+        },
+      ),
+
+      GoRoute(
+        name: 'category',
+        path: '/category',
+
+        builder: (context, state) {
+          final category = state.extra as CategoryEntity;
+
+          return CategoryPage(
+            category: category,
+          );
         },
       ),
 
