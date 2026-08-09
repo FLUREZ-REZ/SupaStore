@@ -15,6 +15,10 @@ import 'package:supastore/features/home_feature/domain/repositories/category_rep
 import 'package:supastore/features/home_feature/domain/repositories/home_repository.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
+import 'package:supastore/features/order_feature/data/datasource/order_remote_datasource.dart';
+import 'package:supastore/features/order_feature/data/repositories/order_repository_impl.dart';
+import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
+import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_specification_remote_datasource.dart';
@@ -171,6 +175,24 @@ Future<void> setupInjector() async {
   getIt.registerLazySingleton<CartProvider>(
         () => CartProvider(
       repository: getIt<CartRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<OrderRemoteDataSource>(
+        () => OrderRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<OrderRepository>(
+        () => OrderRepositoryImpl(
+      remoteDataSource:
+      getIt<OrderRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<CheckoutProvider>(
+        () => CheckoutProvider(
+      repository: getIt<OrderRepository>(),
+      cartProvider: getIt<CartProvider>(),
     ),
   );
 

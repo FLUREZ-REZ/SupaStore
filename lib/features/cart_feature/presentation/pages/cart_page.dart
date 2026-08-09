@@ -8,6 +8,7 @@ import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/cart_feature/presentation/widgets/cart_item.dart';
 import 'package:supastore/features/cart_feature/presentation/widgets/cart_summary.dart';
+import 'package:supastore/features/order_feature/presentation/pages/checkout_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({
@@ -154,7 +155,6 @@ class _CartView extends StatelessWidget {
         },
       ),
 
-      /// خلاصه سفارش همیشه پایین صفحه
       bottomNavigationBar: Consumer<CartProvider>(
         builder: (
             context,
@@ -168,8 +168,14 @@ class _CartView extends StatelessWidget {
 
           return CartSummary(
             onCheckout: () {
-              // بعداً صفحه Checkout
-              // اینجا باز می‌شود.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CheckoutPage(
+                    cartItems: provider.items,
+                  ),
+                ),
+              );
             },
           );
         },
