@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 
 import '../../domain/entities/product_entity.dart';
+
+import '../../../cart_feature/presentation/providers/cart_provider.dart';
+
 import '../providers/product_image_provider.dart';
 import '../providers/product_specification_provider.dart';
+
 import '../widgets/add_to_cart_bar.dart';
 import '../widgets/product_description_section.dart';
 import '../widgets/product_image_slider.dart';
-
 import '../widgets/product_rating_section.dart';
 import '../widgets/product_specifications_section.dart';
 import '../widgets/product_title_section.dart';
@@ -50,12 +55,56 @@ class ProductDetailsPage extends StatelessWidget {
 
         bottomNavigationBar: AddToCartBar(
           product: product,
-          onAddToCart: () {},
+          onAddToCart: () async {
+            final user =
+                Supabase.instance.client.auth.currentUser;
+
+            if (user == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'برای افزودن محصول ابتدا وارد حساب کاربری شوید.',
+                  ),
+                ),
+              );
+
+              return;
+            }
+
+            await context.read<CartProvider>().addToCart(
+              userId: user.id,
+              productId: product.id,
+            );
+
+            if (!context.mounted) return;
+
+            final cartProvider =
+            context.read<CartProvider>();
+
+            if (cartProvider.error != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    cartProvider.error!,
+                  ),
+                ),
+              );
+
+              return;
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'محصول به سبد خرید اضافه شد',
+                ),
+              ),
+            );
+          },
         ),
 
         body: ListView(
           children: [
-
             ProductImageSlider(
               images: images,
             ),
@@ -63,7 +112,6 @@ class ProductDetailsPage extends StatelessWidget {
             ProductTitleSection(
               product: product,
             ),
-
 
             ProductRatingSection(
               product: product,
@@ -78,7 +126,9 @@ class ProductDetailsPage extends StatelessWidget {
               specificationProvider.specifications,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(
+              height: 20,
+            ),
           ],
         ),
       ),

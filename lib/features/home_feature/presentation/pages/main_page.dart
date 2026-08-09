@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
+import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
-import 'package:supastore/features/home_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/favorite_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/profile_page.dart';
@@ -12,7 +15,8 @@ class MainPage extends StatefulWidget {
   });
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<MainPage> createState() =>
+      _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
@@ -43,15 +47,19 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+    return ChangeNotifierProvider.value(
+      value: getIt<CartProvider>(),
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _pages,
+        ),
 
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _changeTab,
+        bottomNavigationBar:
+        CustomBottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _changeTab,
+        ),
       ),
     );
   }

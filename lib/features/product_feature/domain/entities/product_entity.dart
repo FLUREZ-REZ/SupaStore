@@ -1,7 +1,6 @@
 class ProductEntity {
   final String id;
 
-
   final String categoryId;
 
   final String? brandId;

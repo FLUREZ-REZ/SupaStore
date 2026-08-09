@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:supastore/features/cart_feature/data/datasource/cart_remote_datasource.dart';
+import 'package:supastore/features/cart_feature/data/repositories/cart_repository_impl.dart';
+import 'package:supastore/features/cart_feature/domain/repositories/cart_repository.dart';
+import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/category_feature/data/datasources/category_product_remote_datasource.dart';
 import 'package:supastore/features/category_feature/data/repositories/category_product_repository_impl.dart';
 import 'package:supastore/features/category_feature/domain/repositories/category_product_repository.dart';
@@ -150,6 +154,23 @@ Future<void> setupInjector() async {
         () => CategoryProductProvider(
       repository:
       getIt<CategoryProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CartRemoteDataSource>(
+        () => CartRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<CartRepository>(
+        () => CartRepositoryImpl(
+      remoteDataSource:
+      getIt<CartRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CartProvider>(
+        () => CartProvider(
+      repository: getIt<CartRepository>(),
     ),
   );
 
