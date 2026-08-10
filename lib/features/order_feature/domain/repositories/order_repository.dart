@@ -31,4 +31,9 @@ abstract class OrderRepository {
   Future<OrderEntity> getOrderById(
       String orderId,
       );
+
+  Future<List<OrderEntity>> getUserOrders(
+      String userId,
+      );
+
 }

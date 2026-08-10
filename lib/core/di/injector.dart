@@ -19,6 +19,7 @@ import 'package:supastore/features/order_feature/data/datasource/order_remote_da
 import 'package:supastore/features/order_feature/data/repositories/order_repository_impl.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
+import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_specification_remote_datasource.dart';
@@ -193,6 +194,13 @@ Future<void> setupInjector() async {
         () => CheckoutProvider(
       repository: getIt<OrderRepository>(),
       cartProvider: getIt<CartProvider>(),
+    ),
+  );
+
+  getIt.registerFactory<OrderProvider>(
+        () => OrderProvider(
+      repository:
+      getIt<OrderRepository>(),
     ),
   );
 
