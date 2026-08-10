@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:supastore/features/order_feature/domain/entities/order_item_entity.dart';
+
 class OrderRemoteDataSource {
   OrderRemoteDataSource({
     SupabaseClient? client,
@@ -8,9 +10,40 @@ class OrderRemoteDataSource {
 
   final SupabaseClient _supabase;
 
-  // ==================================================
+  // ============================================================
+  // ORDER SELECT
+  // ============================================================
+
+  static const String _orderSelect = '''
+    id,
+    user_id,
+    subtotal,
+    discount,
+    shipping_cost,
+    total_price,
+    shipping_address,
+    payment_method,
+    payment_status,
+    status,
+    created_at,
+    updated_at,
+    order_items (
+      id,
+      order_id,
+      product_id,
+      product_title,
+      product_thumbnail,
+      quantity,
+      unit_price,
+      discount_price,
+      total_price,
+      created_at
+    )
+  ''';
+
+  // ============================================================
   // CHECKOUT
-  // ==================================================
+  // ============================================================
 
   Future<Map<String, dynamic>> checkout({
     required String userId,
@@ -20,33 +53,23 @@ class OrderRemoteDataSource {
     required int totalPrice,
     required String shippingAddress,
     required String paymentMethod,
-    required List<Map<String, dynamic>> items,
+    required List<OrderItemEntity> items,
   }) async {
-    final response =
-    await _supabase.rpc(
-      'checkout_order',
-      params: {
-        'p_user_id': userId,
-        'p_subtotal': subtotal,
-        'p_discount': discount,
-        'p_shipping_cost': shippingCost,
-        'p_total_price': totalPrice,
-        'p_shipping_address':
-        shippingAddress,
-        'p_payment_method':
-        paymentMethod,
-        'p_items': items,
-      },
-    );
-
-    return Map<String, dynamic>.from(
-      response,
+    return createOrder(
+      userId: userId,
+      subtotal: subtotal,
+      discount: discount,
+      shippingCost: shippingCost,
+      totalPrice: totalPrice,
+      shippingAddress: shippingAddress,
+      paymentMethod: paymentMethod,
+      items: items,
     );
   }
 
-  // ==================================================
+  // ============================================================
   // CREATE ORDER
-  // ==================================================
+  // ============================================================
 
   Future<Map<String, dynamic>> createOrder({
     required String userId,
@@ -56,33 +79,98 @@ class OrderRemoteDataSource {
     required int totalPrice,
     required String shippingAddress,
     required String paymentMethod,
-    required List<Map<String, dynamic>> items,
+    required List<OrderItemEntity> items,
   }) async {
-    final response =
-    await _supabase.rpc(
-      'checkout_order',
-      params: {
-        'p_user_id': userId,
-        'p_subtotal': subtotal,
-        'p_discount': discount,
-        'p_shipping_cost': shippingCost,
-        'p_total_price': totalPrice,
-        'p_shipping_address':
-        shippingAddress,
-        'p_payment_method':
-        paymentMethod,
-        'p_items': items,
-      },
-    );
+    // ----------------------------------------------------------
+    // Create Order
+    // ----------------------------------------------------------
+
+    final orderResponse =
+    await _supabase
+        .from('orders')
+        .insert({
+      'user_id': userId,
+      'subtotal': subtotal,
+      'discount': discount,
+      'shipping_cost': shippingCost,
+      'total_price': totalPrice,
+      'shipping_address':
+      shippingAddress,
+      'payment_method':
+      paymentMethod,
+      'payment_status':
+      'pending',
+      'status':
+      'pending',
+    })
+        .select(_orderSelect)
+        .single();
+
+    final orderId =
+    orderResponse['id'] as String;
+
+    // ----------------------------------------------------------
+    // Create Order Items
+    // ----------------------------------------------------------
+
+    if (items.isNotEmpty) {
+      final orderItems =
+      items.map(
+            (item) {
+          return {
+            'order_id': orderId,
+
+            'product_id':
+            item.productId,
+
+            'product_title':
+            item.productTitle,
+
+            'product_thumbnail':
+            item.productThumbnail,
+
+            'quantity':
+            item.quantity,
+
+            'unit_price':
+            item.unitPrice,
+
+            'discount_price':
+            item.discountPrice,
+
+            'total_price':
+            item.totalPrice,
+          };
+        },
+      ).toList();
+
+      await _supabase
+          .from('order_items')
+          .insert(orderItems);
+    }
+
+    // ----------------------------------------------------------
+    // Get Complete Order
+    // ----------------------------------------------------------
+
+    final result =
+    await _supabase
+        .from('orders')
+        .select(_orderSelect)
+        .eq(
+      'id',
+      orderId,
+    )
+        .single();
 
     return Map<String, dynamic>.from(
-      response,
+      result,
     );
   }
 
-  // ==================================================
+  // ============================================================
   // GET ORDERS
-  // ==================================================
+  // ============================================================
 
   Future<List<Map<String, dynamic>>>
   getOrders(
@@ -91,32 +179,7 @@ class OrderRemoteDataSource {
     final response =
     await _supabase
         .from('orders')
-        .select('''
-              id,
-              user_id,
-              status,
-              payment_status,
-              payment_method,
-              subtotal,
-              discount,
-              shipping_cost,
-              total_price,
-              shipping_address,
-              created_at,
-              updated_at,
-              order_items (
-                id,
-                order_id,
-                product_id,
-                product_title,
-                product_thumbnail,
-                quantity,
-                unit_price,
-                discount_price,
-                total_price,
-                created_at
-              )
-            ''')
+        .select(_orderSelect)
         .eq(
       'user_id',
       userId,
@@ -132,9 +195,20 @@ class OrderRemoteDataSource {
     );
   }
 
-  // ==================================================
+  // ============================================================
+  // GET USER ORDERS
+  // ============================================================
+
+  Future<List<Map<String, dynamic>>>
+  getUserOrders(
+      String userId,
+      ) async {
+    return getOrders(userId);
+  }
+
+  // ============================================================
   // GET ORDER BY ID
-  // ==================================================
+  // ============================================================
 
   Future<Map<String, dynamic>>
   getOrderById(
@@ -143,32 +217,7 @@ class OrderRemoteDataSource {
     final response =
     await _supabase
         .from('orders')
-        .select('''
-              id,
-              user_id,
-              status,
-              payment_status,
-              payment_method,
-              subtotal,
-              discount,
-              shipping_cost,
-              total_price,
-              shipping_address,
-              created_at,
-              updated_at,
-              order_items (
-                id,
-                order_id,
-                product_id,
-                product_title,
-                product_thumbnail,
-                quantity,
-                unit_price,
-                discount_price,
-                total_price,
-                created_at
-              )
-            ''')
+        .select(_orderSelect)
         .eq(
       'id',
       orderId,

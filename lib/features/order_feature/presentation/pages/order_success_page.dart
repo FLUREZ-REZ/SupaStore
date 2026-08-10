@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
+import 'package:supastore/features/order_feature/presentation/pages/orders_page.dart';
 
 class OrderSuccessPage extends StatelessWidget {
   const OrderSuccessPage({
@@ -141,18 +142,18 @@ class OrderSuccessPage extends StatelessWidget {
                   height: 52.h,
                   child: OutlinedButton(
                     onPressed: () {
-                      // مرحله بعد:
-                      // OrderDetailsPage
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const OrdersPage(),
+                        ),
+                      );
                     },
-                    style:
-                    OutlinedButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
                       side: BorderSide(
                         color: AppColors.primary,
                       ),
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
                           14.r,
                         ),
                       ),

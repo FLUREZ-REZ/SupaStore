@@ -6,8 +6,9 @@ import 'package:supastore/features/cart_feature/presentation/providers/cart_prov
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/favorite_page.dart';
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
-import 'package:supastore/features/home_feature/presentation/pages/profile_page.dart';
+
 import 'package:supastore/features/home_feature/presentation/widgets/custom_bottom_navigation_bar.dart';
+import 'package:supastore/features/profile_feature/presentation/pages/profile_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({
