@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/theme/app_colors.dart';
+
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
+import 'package:supastore/features/favorite_feature/presentation/pages/favorites_page.dart';
 import 'package:supastore/features/order_feature/presentation/pages/orders_page.dart';
 
 import '../widgets/profile_header.dart';
@@ -28,7 +30,6 @@ class ProfilePage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-
         appBar: AppBar(
           title: const Text(
             'پروفایل',
@@ -37,35 +38,34 @@ class ProfilePage extends StatelessWidget {
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
-
         body: ListView(
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.only(
             bottom: 30.h,
           ),
           children: [
-            // ==============================
-            // Profile Header
-            // ==============================
+            // ============================================================
+            // PROFILE HEADER
+            // ============================================================
 
             ProfileHeader(
               email: email,
               userId: user.id,
             ),
 
-            // ==============================
-            // Account
-            // ==============================
+            // ============================================================
+            // ACCOUNT
+            // ============================================================
 
-            _SectionTitle(
+            const _SectionTitle(
               title: 'حساب کاربری',
             ),
 
             _MenuContainer(
               children: [
-                // ==========================
-                // My Orders
-                // ==========================
+                // ========================================================
+                // ORDERS
+                // ========================================================
 
                 ProfileMenuItem(
                   icon: Icons.receipt_long_outlined,
@@ -79,9 +79,25 @@ class ProfilePage extends StatelessWidget {
                   },
                 ),
 
-                // ==========================
-                // Cart
-                // ==========================
+                // ========================================================
+                // FAVORITES
+                // ========================================================
+
+                ProfileMenuItem(
+                  icon: Icons.favorite_border,
+                  title: 'علاقه‌مندی‌های من',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const FavoritesPage(),
+                      ),
+                    );
+                  },
+                ),
+
+                // ========================================================
+                // CART
+                // ========================================================
 
                 ProfileMenuItem(
                   icon: Icons.shopping_cart_outlined,
@@ -98,11 +114,11 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
 
-            // ==============================
-            // Settings
-            // ==============================
+            // ============================================================
+            // SETTINGS
+            // ============================================================
 
-            _SectionTitle(
+            const _SectionTitle(
               title: 'تنظیمات',
             ),
 
@@ -125,11 +141,11 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
 
-            // ==============================
-            // Account
-            // ==============================
+            // ============================================================
+            // ACCOUNT
+            // ============================================================
 
-            _SectionTitle(
+            const _SectionTitle(
               title: 'حساب',
             ),
 
@@ -149,9 +165,9 @@ class ProfilePage extends StatelessWidget {
 
             SizedBox(height: 20.h),
 
-            // ==============================
-            // Version
-            // ==============================
+            // ============================================================
+            // VERSION
+            // ============================================================
 
             Center(
               child: Text(
@@ -353,7 +369,7 @@ class _NotLoggedInView extends StatelessWidget {
                 SizedBox(height: 8.h),
 
                 Text(
-                  'برای مشاهده سفارش‌ها و اطلاعات حساب خود ابتدا وارد شوید.',
+                  'برای مشاهده سفارش‌ها، علاقه‌مندی‌ها و اطلاعات حساب خود ابتدا وارد شوید.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13.sp,

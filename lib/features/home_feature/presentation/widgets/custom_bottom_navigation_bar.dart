@@ -66,14 +66,6 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       onTap: onTap,
                     ),
 
-                    _NavItem(
-                      icon: Icons.favorite_border,
-                      activeIcon: Icons.favorite,
-                      label: 'علاقه‌مندی',
-                      index: 3,
-                      currentIndex: currentIndex,
-                      onTap: onTap,
-                    ),
 
                     _NavItem(
                       icon: Icons.person_outline,

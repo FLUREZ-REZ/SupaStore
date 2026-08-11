@@ -14,9 +14,11 @@ class ProductHorizontalList extends StatelessWidget {
 
   final List<ProductEntity> products;
 
-  final Function(ProductEntity product)? onProductTap;
+  final Function(ProductEntity product)?
+  onProductTap;
 
-  final Function(ProductEntity product)? onFavoriteTap;
+  final Function(ProductEntity product)?
+  onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -37,32 +39,39 @@ class ProductHorizontalList extends StatelessWidget {
         textDirection: TextDirection.rtl,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-
-          physics: const BouncingScrollPhysics(),
-
+          physics:
+          const BouncingScrollPhysics(),
           padding: EdgeInsets.symmetric(
             horizontal: 16.w,
           ),
-
           itemCount: products.length,
-
           separatorBuilder: (_, __) {
             return SizedBox(
               width: 12.w,
             );
           },
-
-          itemBuilder: (context, index) {
-            final product = products[index];
+          itemBuilder: (
+              context,
+              index,
+              ) {
+            final product =
+            products[index];
 
             return SizedBox(
               width: 170.w,
-
               child: HorizontalProductCard(
                 product: product,
 
                 onTap: () {
-                  onProductTap?.call(product);
+                  onProductTap?.call(
+                    product,
+                  );
+                },
+
+                onFavorite: () {
+                  onFavoriteTap?.call(
+                    product,
+                  );
                 },
               ),
             );

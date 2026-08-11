@@ -7,6 +7,10 @@ import 'package:supastore/features/category_feature/data/datasources/category_pr
 import 'package:supastore/features/category_feature/data/repositories/category_product_repository_impl.dart';
 import 'package:supastore/features/category_feature/domain/repositories/category_product_repository.dart';
 import 'package:supastore/features/category_feature/presentation/providers/category_product_provider.dart';
+import 'package:supastore/features/favorite_feature/data/datasource/favorite_remote_datasource.dart';
+import 'package:supastore/features/favorite_feature/data/repositories/favorite_repository_impl.dart';
+import 'package:supastore/features/favorite_feature/domain/repositories/favorite_repository.dart';
+import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 import 'package:supastore/features/home_feature/data/datasource/banner_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/datasource/category_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/repositories/category_repository_impl.dart';
@@ -201,6 +205,24 @@ Future<void> setupInjector() async {
         () => OrderProvider(
       repository:
       getIt<OrderRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<FavoriteRemoteDataSource>(
+        () => FavoriteRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<FavoriteRepository>(
+        () => FavoriteRepositoryImpl(
+      remoteDataSource:
+      getIt<FavoriteRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<FavoriteProvider>(
+        () => FavoriteProvider(
+      repository:
+      getIt<FavoriteRepository>(),
     ),
   );
 

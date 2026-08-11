@@ -4,21 +4,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/config/env.dart';
-import 'package:supastore/core/config/supabase_config.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_theme.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
 import 'package:supastore/features/splash_feature/splash_binding.dart';
+import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 import 'app/router/app_router.dart';
 import 'core/di/service_locator.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(
+    fileName: ".env",
+  );
 
-  
   await Supabase.initialize(
     url: Env.supabaseUrl,
     anonKey: Env.supabaseAnonKey,
@@ -34,6 +34,10 @@ Future<void> main() async {
         ...SplashBinding.providers,
 
         ...IntroBinding.providers,
+
+        ChangeNotifierProvider<FavoriteProvider>(
+          create: (_) => getIt<FavoriteProvider>(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -41,12 +45,17 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(390, 844),
+      designSize: const Size(
+        390,
+        844,
+      ),
       minTextAdapt: true,
       builder: (_, child) {
         return MaterialApp.router(

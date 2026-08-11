@@ -12,4 +12,5 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<AppLaunchService>(
         () => AppLaunchService(),
   );
+
 }
