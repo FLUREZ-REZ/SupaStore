@@ -4,7 +4,7 @@ import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
-import 'package:supastore/features/home_feature/presentation/pages/favorite_page.dart';
+
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
 
 import 'package:supastore/features/home_feature/presentation/widgets/custom_bottom_navigation_bar.dart';
@@ -33,7 +33,6 @@ class _MainPageState extends State<MainPage> {
       HomePage(),
       CategoryListPage(),
       CartPage(),
-      FavoritePage(),
       ProfilePage(),
     ];
   }

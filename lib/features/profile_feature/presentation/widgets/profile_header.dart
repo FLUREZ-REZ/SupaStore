@@ -6,13 +6,18 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.email,
     required this.userId,
+    this.onEdit,
   });
 
   final String email;
   final String userId;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor =
+        Theme.of(context).colorScheme.primary;
+
     return Container(
       margin: EdgeInsets.all(16.w),
       padding: EdgeInsets.all(20.w),
@@ -25,26 +30,31 @@ class ProfileHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // ============================================================
+          // PROFILE ICON
+          // ============================================================
+
           Container(
             width: 64.w,
             height: 64.w,
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.1),
+              color: primaryColor.withValues(
+                alpha: 0.1,
+              ),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.person_outline,
               size: 34.sp,
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary,
+              color: primaryColor,
             ),
           ),
 
           SizedBox(width: 14.w),
+
+          // ============================================================
+          // USER INFORMATION
+          // ============================================================
 
           Expanded(
             child: Column(
@@ -70,8 +80,7 @@ class ProfileHeader extends StatelessWidget {
                   TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color:
-                    Colors.grey.shade600,
+                    color: Colors.grey.shade600,
                   ),
                 ),
 
@@ -79,15 +88,46 @@ class ProfileHeader extends StatelessWidget {
 
                 Text(
                   'شناسه: ${_shortUserId(userId)}',
+                  maxLines: 1,
+                  overflow:
+                  TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11.sp,
-                    color:
-                    Colors.grey.shade500,
+                    color: Colors.grey.shade500,
                   ),
                 ),
               ],
             ),
           ),
+
+          // ============================================================
+          // EDIT BUTTON
+          // ============================================================
+
+          if (onEdit != null) ...[
+            SizedBox(width: 8.w),
+
+            Material(
+              color: primaryColor.withValues(
+                alpha: 0.08,
+              ),
+              borderRadius:
+              BorderRadius.circular(12.r),
+              child: InkWell(
+                onTap: onEdit,
+                borderRadius:
+                BorderRadius.circular(12.r),
+                child: Padding(
+                  padding: EdgeInsets.all(9.w),
+                  child: Icon(
+                    Icons.edit_outlined,
+                    size: 20.sp,
+                    color: primaryColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
