@@ -40,6 +40,13 @@ import 'package:supastore/features/product_feature/presentation/providers/produc
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
+import 'package:supastore/features/profile_feature/data/datasources/profile_remote_data_source.dart';
+import 'package:supastore/features/profile_feature/data/repositories/profile_repository_impl.dart';
+import 'package:supastore/features/profile_feature/domain/repositories/profile_repository.dart';
+import 'package:supastore/features/profile_feature/domain/usecases/create_profile_use_case.dart';
+import 'package:supastore/features/profile_feature/domain/usecases/get_profile_use_case.dart';
+import 'package:supastore/features/profile_feature/domain/usecases/update_profile_use_case.dart';
+import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
 
 
@@ -223,6 +230,48 @@ Future<void> setupInjector() async {
         () => FavoriteProvider(
       repository:
       getIt<FavoriteRepository>(),
+    ),
+  );
+
+  //profile feature :
+
+  getIt.registerLazySingleton<ProfileRemoteDataSource>(
+        () => ProfileRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<ProfileRepository>(
+        () => ProfileRepositoryImpl(
+      remoteDataSource:
+      getIt<ProfileRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetProfileUseCase>(
+        () => GetProfileUseCase(
+      repository: getIt<ProfileRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CreateProfileUseCase>(
+        () => CreateProfileUseCase(
+      repository: getIt<ProfileRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateProfileUseCase>(
+        () => UpdateProfileUseCase(
+      repository: getIt<ProfileRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<ProfileProvider>(
+        () => ProfileProvider(
+      getProfileUseCase:
+      getIt<GetProfileUseCase>(),
+      createProfileUseCase:
+      getIt<CreateProfileUseCase>(),
+      updateProfileUseCase:
+      getIt<UpdateProfileUseCase>(),
     ),
   );
 
