@@ -71,7 +71,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
                       icon: Icons.person_outline,
                       activeIcon: Icons.person,
                       label: 'پروفایل',
-                      index: 4,
+                      index: 3,
                       currentIndex: currentIndex,
                       onTap: onTap,
                     ),
