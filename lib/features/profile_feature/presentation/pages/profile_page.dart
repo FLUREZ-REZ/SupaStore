@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
+import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
+
 import 'package:supastore/features/favorite_feature/presentation/pages/favorites_page.dart';
+import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
+
 import 'package:supastore/features/order_feature/presentation/pages/orders_page.dart';
 
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 import 'package:supastore/features/profile_feature/presentation/widgets/profile_header.dart';
 import 'package:supastore/features/profile_feature/presentation/widgets/profile_menu_item.dart';
+import 'package:supastore/features/settings_feature/presentation/pages/settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
@@ -24,7 +30,6 @@ class ProfilePage extends StatelessWidget {
     final user =
         Supabase.instance.client.auth.currentUser;
 
-    // کاربر وارد نشده
     if (user == null) {
       return const Scaffold(
         body: Center(
@@ -36,30 +41,30 @@ class ProfilePage extends StatelessWidget {
     }
 
     return ChangeNotifierProvider(
-      create: (_) {
-        final provider =
-        getIt<ProfileProvider>();
-
-        provider.loadProfile(
+      create: (_) =>
+      getIt<ProfileProvider>()
+        ..loadProfile(
           userId: user.id,
-        );
-
-        return provider;
-      },
-      child: const _ProfileView(),
+        ),
+      child: _ProfileView(
+        user: user,
+      ),
     );
   }
 }
 
-// ============================================================
-// PROFILE VIEW
-// ============================================================
-
 class _ProfileView extends StatelessWidget {
-  const _ProfileView();
+  const _ProfileView({
+    required this.user,
+  });
+
+  final User user;
 
   @override
   Widget build(BuildContext context) {
+    final provider =
+    context.watch<ProfileProvider>();
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -70,361 +75,327 @@ class _ProfileView extends StatelessWidget {
             'پروفایل',
           ),
           centerTitle: true,
+          backgroundColor: Colors.white,
           elevation: 0,
-          backgroundColor: Colors.grey.shade50,
         ),
 
-        body: Consumer<ProfileProvider>(
-          builder: (
-              context,
-              provider,
-              child,
-              ) {
-            // ==================================================
-            // LOADING
-            // ==================================================
-
-            if (provider.isLoading &&
-                provider.profile == null) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            // ==================================================
-            // ERROR
-            // ==================================================
-
-            if (provider.error != null &&
-                provider.profile == null) {
-              return _ProfileError(
-                error: provider.error!,
-                onRetry: () {
-                  final user = Supabase
-                      .instance
-                      .client
-                      .auth
-                      .currentUser;
-
-                  if (user == null) {
-                    return;
-                  }
-
-                  provider.loadProfile(
-                    userId: user.id,
-                  );
-                },
-              );
-            }
-
-            // ==================================================
-            // CURRENT USER
-            // ==================================================
-
-            final user = Supabase
-                .instance
-                .client
-                .auth
-                .currentUser;
-
-            if (user == null) {
-              return const Center(
-                child: Text(
-                  'کاربر وارد نشده است',
-                ),
-              );
-            }
-
-            // ==================================================
-            // PROFILE
-            // ==================================================
-
-            final profile =
-                provider.profile;
-
-            // ==================================================
-            // MAIN CONTENT
-            // ==================================================
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                await provider.loadProfile(
-                  userId: user.id,
-                );
-              },
-
-              child: ListView(
-                physics:
-                const AlwaysScrollableScrollPhysics(
-                  parent:
-                  BouncingScrollPhysics(),
-                ),
-
-                padding: EdgeInsets.only(
-                  bottom: 30.h,
-                ),
-
-                children: [
-
-                  // ==================================================
-                  // PROFILE HEADER
-                  // ==================================================
-
-                  ProfileHeader(
-                    email: user.email ?? '',
-                    userId: user.id,
-                    profile: profile,
-                  ),
-
-                  SizedBox(
-                    height: 8.h,
-                  ),
-
-                  // ==================================================
-                  // ACCOUNT
-                  // ==================================================
-
-                  const _SectionTitle(
-                    title: 'حساب کاربری',
-                  ),
-
-                  _MenuContainer(
-                    children: [
-
-                      // EDIT PROFILE
-                      ProfileMenuItem(
-                        icon:
-                        Icons.edit_outlined,
-                        title:
-                        'ویرایش پروفایل',
-
-                        onTap: () async {
-                          await Navigator.of(
-                            context,
-                          ).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ChangeNotifierProvider.value(
-                                    value: provider,
-                                    child:
-                                    const EditProfilePage(),
-                                  ),
-                            ),
-                          );
-
-                          if (!context.mounted) {
-                            return;
-                          }
-
-                          final user = Supabase
-                              .instance
-                              .client
-                              .auth
-                              .currentUser;
-
-                          if (user == null) {
-                            return;
-                          }
-
-                          await provider
-                              .refreshProfile(
-                            userId: user.id,
-                          );
-                        },
-                      ),
-
-                      const Divider(
-                        height: 1,
-                      ),
-
-                      // ORDERS
-                      ProfileMenuItem(
-                        icon:
-                        Icons.shopping_bag_outlined,
-                        title:
-                        'سفارش‌های من',
-
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                              const OrdersPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const Divider(
-                        height: 1,
-                      ),
-
-                      // FAVORITES
-                      ProfileMenuItem(
-                        icon:
-                        Icons.favorite_border,
-                        title:
-                        'علاقه‌مندی‌های من',
-
-                        iconColor:
-                        Colors.red,
-
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                              const FavoritesPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const Divider(
-                        height: 1,
-                      ),
-
-                      // CART
-                      ProfileMenuItem(
-                        icon:
-                        Icons.shopping_cart_outlined,
-                        title:
-                        'سبد خرید',
-
-                        onTap: () {
-                          Navigator.of(
-                            context,
-                          ).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                              const CartPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(
-                    height: 18.h,
-                  ),
-
-                  // ==================================================
-                  // SETTINGS
-                  // ==================================================
-
-                  const _SectionTitle(
-                    title: 'تنظیمات',
-                  ),
-
-                  _MenuContainer(
-                    children: [
-
-                      // ADDRESSES
-                      ProfileMenuItem(
-                        icon:
-                        Icons.location_on_outlined,
-                        title:
-                        'آدرس‌های من',
-
-                        onTap: () {
-                          // مرحله بعد
-                        },
-                      ),
-
-                      const Divider(
-                        height: 1,
-                      ),
-
-                      // SETTINGS
-                      ProfileMenuItem(
-                        icon:
-                        Icons.settings_outlined,
-                        title:
-                        'تنظیمات',
-
-                        onTap: () {
-                          // مرحله بعد
-                        },
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(
-                    height: 18.h,
-                  ),
-
-                  // ==================================================
-                  // ACCOUNT ACTIONS
-                  // ==================================================
-
-                  const _SectionTitle(
-                    title: 'حساب',
-                  ),
-
-                  _MenuContainer(
-                    children: [
-
-                      // LOGOUT
-                      ProfileMenuItem(
-                        icon:
-                        Icons.logout,
-                        title:
-                        'خروج از حساب',
-
-                        iconColor:
-                        Colors.red,
-                        onTap: () {
-                          _showLogoutDialog(
-                            context,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(
-                    height: 25.h,
-                  ),
-
-                  // ==================================================
-                  // APP NAME
-                  // ==================================================
-
-                  Center(
-                    child: Text(
-                      'SupaStore',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color:
-                        Colors.grey.shade500,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(
-                    height: 10.h,
-                  ),
-                ],
-              ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await provider.refreshProfile(
+              userId: user.id,
             );
           },
+
+          child: ListView(
+            physics:
+            const AlwaysScrollableScrollPhysics(
+              parent:
+              BouncingScrollPhysics(),
+            ),
+
+            padding: EdgeInsets.only(
+              bottom: 30.h,
+            ),
+
+            children: [
+              // ========================================
+              // PROFILE HEADER
+              // ========================================
+
+              if (provider.isLoading)
+                SizedBox(
+                  height: 150.h,
+                  child: const Center(
+                    child:
+                    CircularProgressIndicator(),
+                  ),
+                )
+              else
+                ProfileHeader(
+                  email: user.email ?? '',
+                  userId: user.id,
+                  profile: provider.profile,
+                ),
+
+              SizedBox(
+                height: 8.h,
+              ),
+
+              // ========================================
+              // ACCOUNT
+              // ========================================
+
+              const _SectionTitle(
+                title: 'حساب کاربری',
+              ),
+
+              Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                ),
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.circular(16.r),
+                  border: Border.all(
+                    color:
+                    Colors.grey.shade200,
+                  ),
+                ),
+
+                child: Column(
+                  children: [
+                    // EDIT PROFILE
+
+                    ProfileMenuItem(
+                      icon:
+                      Icons.edit_outlined,
+                      title:
+                      'ویرایش پروفایل',
+
+                      onTap: () async {
+                        await Navigator.of(
+                          context,
+                        ).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ChangeNotifierProvider
+                                    .value(
+                                  value: provider,
+                                  child:
+                                  const EditProfilePage(),
+                                ),
+                          ),
+                        );
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        await provider
+                            .refreshProfile(
+                          userId: user.id,
+                        );
+                      },
+                    ),
+
+                    const Divider(
+                      height: 1,
+                    ),
+
+                    // ORDERS
+
+                    ProfileMenuItem(
+                      icon:
+                      Icons.shopping_bag_outlined,
+                      title:
+                      'سفارش‌های من',
+
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                            const OrdersPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const Divider(
+                      height: 1,
+                    ),
+
+                    // FAVORITES
+
+                    ProfileMenuItem(
+                      icon:
+                      Icons.favorite_border,
+                      title:
+                      'علاقه‌مندی‌های من',
+                      iconColor:
+                      Colors.red,
+
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                            const FavoritesPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const Divider(
+                      height: 1,
+                    ),
+
+                    // CART
+
+                    ProfileMenuItem(
+                      icon: Icons
+                          .shopping_cart_outlined,
+                      title:
+                      'سبد خرید',
+
+                      onTap: () {
+                        Navigator.of(
+                          context,
+                        ).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                            const CartPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: 20.h,
+              ),
+
+              // ========================================
+              // SETTINGS
+              // ========================================
+
+              const _SectionTitle(
+                title: 'تنظیمات',
+              ),
+
+              Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                ),
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.circular(16.r),
+                  border: Border.all(
+                    color:
+                    Colors.grey.shade200,
+                  ),
+                ),
+
+                child: Column(
+                  children: [
+                    // ADDRESSES
+
+                    ProfileMenuItem(
+                      icon: Icons
+                          .location_on_outlined,
+                      title:
+                      'آدرس‌های من',
+
+                      onTap: () {
+                        // TODO:
+                        // صفحه آدرس‌ها
+                      },
+                    ),
+
+                    const Divider(
+                      height: 1,
+                    ),
+
+                    // SETTINGS
+
+                    ProfileMenuItem(
+                      icon: Icons.settings_outlined,
+                      title: 'تنظیمات',
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                            const SettingsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: 20.h,
+              ),
+
+              // ========================================
+              // LOGOUT
+              // ========================================
+
+              Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                ),
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.circular(16.r),
+                  border: Border.all(
+                    color:
+                    Colors.grey.shade200,
+                  ),
+                ),
+
+                child: ProfileMenuItem(
+                  icon: Icons.logout,
+                  title:
+                  'خروج از حساب',
+                  iconColor:
+                  Colors.red,
+
+                  onTap: () {
+                    _showLogoutDialog(
+                      context,
+                    );
+                  },
+                ),
+              ),
+
+              SizedBox(
+                height: 30.h,
+              ),
+
+              // ========================================
+              // APP NAME
+              // ========================================
+
+              Center(
+                child: Text(
+                  'Supastore',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color:
+                    Colors.grey.shade500,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ============================================================
+  // ====================================================
   // LOGOUT DIALOG
-  // ============================================================
+  // ====================================================
 
-  void _showLogoutDialog(
+  Future<void> _showLogoutDialog(
       BuildContext context,
-      ) {
-    showDialog(
+      ) async {
+    final confirmed =
+    await showDialog<bool>(
       context: context,
+
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text(
@@ -436,13 +407,11 @@ class _ProfileView extends StatelessWidget {
           ),
 
           actions: [
-
-            // CANCEL
             TextButton(
               onPressed: () {
                 Navigator.of(
                   dialogContext,
-                ).pop();
+                ).pop(false);
               },
 
               child: const Text(
@@ -450,40 +419,19 @@ class _ProfileView extends StatelessWidget {
               ),
             ),
 
-            // LOGOUT
             TextButton(
-              onPressed: () async {
+              onPressed: () {
                 Navigator.of(
                   dialogContext,
-                ).pop();
-
-                try {
-                  await Supabase
-                      .instance
-                      .client
-                      .auth
-                      .signOut();
-                } catch (e) {
-                  if (!context.mounted) {
-                    return;
-                  }
-
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'خطا در خروج از حساب: $e',
-                      ),
-                    ),
-                  );
-                }
+                ).pop(true);
               },
 
               child: const Text(
                 'خروج',
                 style: TextStyle(
                   color: Colors.red,
+                  fontWeight:
+                  FontWeight.bold,
                 ),
               ),
             ),
@@ -491,12 +439,124 @@ class _ProfileView extends StatelessWidget {
         );
       },
     );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    await _logout(
+      context,
+      user.id,
+    );
+  }
+
+  // ====================================================
+  // LOGOUT
+  // ====================================================
+
+  Future<void> _logout(
+      BuildContext context,
+      String userId,
+      ) async {
+    // ================================================
+    // LOADING
+    // ================================================
+
+    showDialog<void>(
+      context: context,
+
+      barrierDismissible: false,
+
+      builder: (_) {
+        return const Center(
+          child:
+          CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      // ==============================================
+      // CLEAR PROFILE
+      // ==============================================
+
+      context
+          .read<ProfileProvider>()
+          .clearProfile();
+
+      // ==============================================
+      // CLEAR FAVORITES
+      // ==============================================
+
+      getIt<FavoriteProvider>()
+          .clearFavorites();
+
+      // ==============================================
+      // CLEAR CART
+      //
+      // CartProvider فعلی تو userId می‌خواهد
+      // ==============================================
+
+      await getIt<CartProvider>()
+          .clearCart(userId);
+
+      // ==============================================
+      // SIGN OUT FROM SUPABASE
+      // ==============================================
+
+      await Supabase
+          .instance
+          .client
+          .auth
+          .signOut();
+
+      if (!context.mounted) {
+        return;
+      }
+
+      // ==============================================
+      // CLOSE LOADING
+      // ==============================================
+
+      Navigator.of(context).pop();
+
+      // ==============================================
+      // GO TO AUTH PAGE
+      // ==============================================
+
+      context.goNamed('auth');
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+
+      // ==============================================
+      // CLOSE LOADING
+      // ==============================================
+
+      Navigator.of(context).pop();
+
+      // ==============================================
+      // SHOW ERROR
+      // ==============================================
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            'خطا در خروج از حساب: $e',
+          ),
+          backgroundColor:
+          Colors.red,
+        ),
+      );
+    }
   }
 }
 
-// ============================================================
+// ====================================================
 // SECTION TITLE
-// ============================================================
+// ====================================================
 
 class _SectionTitle
     extends StatelessWidget {
@@ -507,137 +567,23 @@ class _SectionTitle
   final String title;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 6.h,
+      padding: EdgeInsets.only(
+        right: 20.w,
+        bottom: 8.h,
       ),
 
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 13.sp,
+          fontSize: 14.sp,
           fontWeight:
           FontWeight.bold,
           color:
-          Colors.grey.shade600,
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// MENU CONTAINER
-// ============================================================
-
-class _MenuContainer
-    extends StatelessWidget {
-  const _MenuContainer({
-    required this.children,
-  });
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-        BorderRadius.circular(16.r),
-
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
-
-      child: Column(
-        children: children,
-      ),
-    );
-  }
-}
-
-// ============================================================
-// ERROR
-// ============================================================
-
-class _ProfileError
-    extends StatelessWidget {
-  const _ProfileError({
-    required this.error,
-    required this.onRetry,
-  });
-
-  final String error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
-
-        child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
-
-          children: [
-
-            Icon(
-              Icons.error_outline,
-              size: 55.sp,
-              color: Colors.red,
-            ),
-
-            SizedBox(
-              height: 16.h,
-            ),
-
-            const Text(
-              'خطا در دریافت اطلاعات پروفایل',
-              textAlign:
-              TextAlign.center,
-              style: TextStyle(
-                fontWeight:
-                FontWeight.bold,
-              ),
-            ),
-
-            SizedBox(
-              height: 10.h,
-            ),
-
-            Text(
-              error,
-              textAlign:
-              TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color:
-                Colors.grey.shade600,
-              ),
-            ),
-
-            SizedBox(
-              height: 20.h,
-            ),
-
-            ElevatedButton(
-              onPressed: onRetry,
-
-              child: const Text(
-                'تلاش مجدد',
-              ),
-            ),
-          ],
+          Colors.grey.shade700,
         ),
       ),
     );

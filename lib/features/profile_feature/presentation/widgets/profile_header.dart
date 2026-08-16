@@ -148,68 +148,46 @@ class _Avatar extends StatelessWidget {
     final primaryColor =
         Theme.of(context).colorScheme.primary;
 
-    // ================================================================
-    // NO AVATAR
-    // ================================================================
-
-    if (avatarUrl == null || avatarUrl!.isEmpty) {
-      return _DefaultAvatar(
-        color: primaryColor,
+    // اگر آواتار از assets خود برنامه است
+    if (avatarUrl != null &&
+        avatarUrl!.isNotEmpty &&
+        avatarUrl!.startsWith('assets/')) {
+      return ClipOval(
+        child: Image.asset(
+          avatarUrl!,
+          width: 64.w,
+          height: 64.w,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return _DefaultAvatar(
+              color: primaryColor,
+            );
+          },
+        ),
       );
     }
 
-    // ================================================================
-    // AVATAR IMAGE
-    // ================================================================
+    // اگر در آینده URL اینترنتی داشتیم
+    if (avatarUrl != null &&
+        avatarUrl!.isNotEmpty) {
+      return ClipOval(
+        child: Image.network(
+          avatarUrl!,
+          key: ValueKey(avatarUrl),
+          width: 64.w,
+          height: 64.w,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return _DefaultAvatar(
+              color: primaryColor,
+            );
+          },
+        ),
+      );
+    }
 
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: avatarUrl!,
-        width: 64.w,
-        height: 64.w,
-        fit: BoxFit.cover,
-
-        // ------------------------------------------------------------
-        // LOADING
-        // ------------------------------------------------------------
-
-        placeholder: (
-            context,
-            url,
-            ) {
-          return Container(
-            width: 64.w,
-            height: 64.w,
-            color: primaryColor.withValues(
-              alpha: 0.08,
-            ),
-            child: Center(
-              child: SizedBox(
-                width: 22.w,
-                height: 22.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: primaryColor,
-                ),
-              ),
-            ),
-          );
-        },
-
-        // ------------------------------------------------------------
-        // ERROR
-        // ------------------------------------------------------------
-
-        errorWidget: (
-            context,
-            url,
-            error,
-            ) {
-          return _DefaultAvatar(
-            color: primaryColor,
-          );
-        },
-      ),
+    return _DefaultAvatar(
+      color: primaryColor,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supastore/features/cart_feature/data/datasource/cart_remote_datasource.dart';
 import 'package:supastore/features/cart_feature/data/repositories/cart_repository_impl.dart';
 import 'package:supastore/features/cart_feature/domain/repositories/cart_repository.dart';
@@ -47,6 +48,8 @@ import 'package:supastore/features/profile_feature/domain/usecases/create_profil
 import 'package:supastore/features/profile_feature/domain/usecases/get_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/domain/usecases/update_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
+import 'package:supastore/features/settings_feature/data/datasources/settings_local_data_source.dart';
+import 'package:supastore/features/settings_feature/presentation/providers/settings_provider.dart';
 
 
 
@@ -184,7 +187,7 @@ Future<void> setupInjector() async {
     ),
   );
 
-  getIt.registerLazySingleton<CartProvider>(
+  getIt.registerFactory<CartProvider>(
         () => CartProvider(
       repository: getIt<CartRepository>(),
     ),
@@ -272,6 +275,21 @@ Future<void> setupInjector() async {
       getIt<CreateProfileUseCase>(),
       updateProfileUseCase:
       getIt<UpdateProfileUseCase>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      SettingsLocalDataSource>(
+        () => SettingsLocalDataSource(
+      preferences: getIt<SharedPreferences>(),
+    ),
+  );
+
+  getIt.registerFactory<
+      SettingsProvider>(
+        () => SettingsProvider(
+      localDataSource:
+      getIt<SettingsLocalDataSource>(),
     ),
   );
 
