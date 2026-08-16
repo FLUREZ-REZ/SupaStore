@@ -57,6 +57,14 @@ final getIt = GetIt.instance;
 
 Future<void> setupInjector() async {
 
+
+  final sharedPreferences =
+  await SharedPreferences.getInstance();
+
+  getIt.registerSingleton<SharedPreferences>(
+    sharedPreferences,
+  );
+
   /// Banner DataSource
   getIt.registerLazySingleton<BannerRemoteDataSource>(
         () => BannerRemoteDataSource(),
