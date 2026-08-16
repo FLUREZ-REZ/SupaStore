@@ -47,8 +47,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: getIt<CartProvider>(),
+    return ChangeNotifierProvider(
+      create: (_) => getIt<CartProvider>(),
       child: Scaffold(
         body: IndexedStack(
           index: _currentIndex,
