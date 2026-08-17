@@ -19,6 +19,15 @@ class CheckoutProvider extends ChangeNotifier {
   final CartProvider _cartProvider;
 
 
+  @override
+  void dispose() {
+    debugPrint(
+      '!!!!!!!!!! CHECKOUT PROVIDER DISPOSE !!!!!!!!!!',
+    );
+
+    super.dispose();
+  }
+
   List<CartItemEntity> _cartItems = [];
 
   List<CartItemEntity> get cartItems =>
@@ -123,10 +132,15 @@ class CheckoutProvider extends ChangeNotifier {
   }
 
 
+
   void initialize({
+
+
     required List<CartItemEntity> items,
     AddressEntity? selectedAddress,
   }) {
+
+
     _cartItems =
     List<CartItemEntity>.from(
       items,
@@ -188,6 +202,11 @@ class CheckoutProvider extends ChangeNotifier {
   Future<bool> placeOrder({
     required String userId,
   }) async {
+
+    debugPrint(
+      '!!!!!!!!!! REAL placeOrder() EXECUTED !!!!!!!!!!',
+    );
+
     if (!canSubmit) {
       _error =
       'لطفاً یک آدرس برای ارسال انتخاب کنید';
@@ -269,17 +288,48 @@ class CheckoutProvider extends ChangeNotifier {
         orderItems,
       );
 
+      debugPrint('!!!!!!!!!!!! THIS IS MY CURRENT CHECKOUT PROVIDER !!!!!!!!!!!!');
+
       _order = createdOrder;
 
-      await _cartProvider.clearCart(
-        userId,
-      );
+
+      debugPrint('========== CART CLEAR TEST ==========');
+      debugPrint('Before clearCart');
+
+      try {
+
+        debugPrint('========== BEFORE CART CLEAR ==========');
+        debugPrint('CartProvider instance: ${_cartProvider.hashCode}');
+        debugPrint('Cart items before clear: ${_cartProvider.items.length}');
+
+        await _cartProvider.clearCart(
+          userId,
+        );
+
+        debugPrint('========== AFTER CART CLEAR ==========');
+        debugPrint('CartProvider instance: ${_cartProvider.hashCode}');
+        debugPrint('Cart items after clear: ${_cartProvider.items.length}');
+
+        debugPrint('After clearCart - SUCCESS');
+      } catch (e) {
+        debugPrint(
+          'Cart clear failed after successful order: $e',
+        );
+      }
+
+      debugPrint('========== CART CLEAR TEST END ==========');
 
       _cartItems.clear();
+
+      debugPrint('========== BEFORE PROVIDER NOTIFY ==========');
+      debugPrint('CheckoutProvider still executing');
 
       _isLoading = false;
 
       notifyListeners();
+
+      debugPrint('========== AFTER PROVIDER NOTIFY ==========');
+      debugPrint('CheckoutProvider finished notifyListeners');
 
       return true;
     } catch (e) {
