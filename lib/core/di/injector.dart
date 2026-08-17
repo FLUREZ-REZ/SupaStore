@@ -1,5 +1,15 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supastore/features/address_feature/data/datasources/address_remote_data_source.dart';
+import 'package:supastore/features/address_feature/data/repositories/address_repository_impl.dart';
+import 'package:supastore/features/address_feature/domain/repositories/address_repository.dart';
+import 'package:supastore/features/address_feature/domain/usecases/add_address_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/delete_address_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/get_addresses_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/get_default_address_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
+import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
 import 'package:supastore/features/cart_feature/data/datasource/cart_remote_datasource.dart';
 import 'package:supastore/features/cart_feature/data/repositories/cart_repository_impl.dart';
 import 'package:supastore/features/cart_feature/domain/repositories/cart_repository.dart';
@@ -298,6 +308,88 @@ Future<void> setupInjector() async {
         () => SettingsProvider(
       localDataSource:
       getIt<SettingsLocalDataSource>(),
+    ),
+  );
+
+
+    // ADDRESS FEATURE
+
+
+  getIt.registerLazySingleton<AddressRemoteDataSource>(
+        () => AddressRemoteDataSource(),
+  );
+
+  /// Address Repository
+  getIt.registerLazySingleton<AddressRepository>(
+        () => AddressRepositoryImpl(
+      remoteDataSource:
+      getIt<AddressRemoteDataSource>(),
+    ),
+  );
+
+  /// Get Addresses UseCase
+  getIt.registerLazySingleton<GetAddressesUseCase>(
+        () => GetAddressesUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Get Default Address UseCase
+  getIt.registerLazySingleton<GetDefaultAddressUseCase>(
+        () => GetDefaultAddressUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Add Address UseCase
+  getIt.registerLazySingleton<AddAddressUseCase>(
+        () => AddAddressUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Update Address UseCase
+  getIt.registerLazySingleton<UpdateAddressUseCase>(
+        () => UpdateAddressUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Delete Address UseCase
+  getIt.registerLazySingleton<DeleteAddressUseCase>(
+        () => DeleteAddressUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Set Default Address UseCase
+  getIt.registerLazySingleton<SetDefaultAddressUseCase>(
+        () => SetDefaultAddressUseCase(
+      repository:
+      getIt<AddressRepository>(),
+    ),
+  );
+
+  /// Address Provider
+  getIt.registerFactory<AddressProvider>(
+        () => AddressProvider(
+      getAddressesUseCase:
+      getIt<GetAddressesUseCase>(),
+      getDefaultAddressUseCase:
+      getIt<GetDefaultAddressUseCase>(),
+      addAddressUseCase:
+      getIt<AddAddressUseCase>(),
+      updateAddressUseCase:
+      getIt<UpdateAddressUseCase>(),
+      deleteAddressUseCase:
+      getIt<DeleteAddressUseCase>(),
+      setDefaultAddressUseCase:
+      getIt<SetDefaultAddressUseCase>(),
     ),
   );
 

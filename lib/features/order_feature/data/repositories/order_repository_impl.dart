@@ -10,13 +10,10 @@ class OrderRepositoryImpl implements OrderRepository {
 
   final OrderRemoteDataSource _remoteDataSource;
 
-  // ============================================================
-  // CHECKOUT
-  // ============================================================
-
   @override
   Future<OrderEntity> checkout({
     required String userId,
+    required String addressId,
     required int subtotal,
     required int discount,
     required int shippingCost,
@@ -28,6 +25,7 @@ class OrderRepositoryImpl implements OrderRepository {
     final result =
     await _remoteDataSource.checkout(
       userId: userId,
+      addressId: addressId,
       subtotal: subtotal,
       discount: discount,
       shippingCost: shippingCost,
@@ -40,13 +38,10 @@ class OrderRepositoryImpl implements OrderRepository {
     return _mapOrder(result);
   }
 
-  // ============================================================
-  // CREATE ORDER
-  // ============================================================
-
   @override
   Future<OrderEntity> createOrder({
     required String userId,
+    required String addressId,
     required int subtotal,
     required int discount,
     required int shippingCost,
@@ -58,6 +53,7 @@ class OrderRepositoryImpl implements OrderRepository {
     final result =
     await _remoteDataSource.createOrder(
       userId: userId,
+      addressId: addressId,
       subtotal: subtotal,
       discount: discount,
       shippingCost: shippingCost,
@@ -69,10 +65,6 @@ class OrderRepositoryImpl implements OrderRepository {
 
     return _mapOrder(result);
   }
-
-  // ============================================================
-  // GET ORDERS
-  // ============================================================
 
   @override
   Future<List<OrderEntity>> getOrders(
@@ -88,10 +80,6 @@ class OrderRepositoryImpl implements OrderRepository {
         .toList();
   }
 
-  // ============================================================
-  // GET ORDER BY ID
-  // ============================================================
-
   @override
   Future<OrderEntity> getOrderById(
       String orderId,
@@ -103,10 +91,6 @@ class OrderRepositoryImpl implements OrderRepository {
 
     return _mapOrder(result);
   }
-
-  // ============================================================
-  // GET USER ORDERS
-  // ============================================================
 
   @override
   Future<List<OrderEntity>> getUserOrders(
@@ -122,10 +106,6 @@ class OrderRepositoryImpl implements OrderRepository {
         .map(_mapOrder)
         .toList();
   }
-
-  // ============================================================
-  // MAP ORDER
-  // ============================================================
 
   OrderEntity _mapOrder(
       Map<String, dynamic> map,
@@ -153,6 +133,11 @@ class OrderRepositoryImpl implements OrderRepository {
       userId:
       map['user_id'] as String,
 
+
+      addressId:
+      map['address_id'] as String?,
+
+
       subtotal:
       map['subtotal'] as int,
 
@@ -165,13 +150,15 @@ class OrderRepositoryImpl implements OrderRepository {
       totalPrice:
       map['total_price'] as int,
 
+
       shippingAddress:
       map['shipping_address']
-      as String,
+      as String?,
+
 
       paymentMethod:
       map['payment_method']
-      as String,
+      as String?,
 
       paymentStatus:
       map['payment_status']
@@ -179,6 +166,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
       status:
       map['status'] as String,
+
 
       createdAt:
       DateTime.parse(
@@ -195,10 +183,6 @@ class OrderRepositoryImpl implements OrderRepository {
       items: items,
     );
   }
-
-  // ============================================================
-  // MAP ORDER ITEM
-  // ============================================================
 
   OrderItemEntity _mapOrderItem(
       Map<String, dynamic> map,

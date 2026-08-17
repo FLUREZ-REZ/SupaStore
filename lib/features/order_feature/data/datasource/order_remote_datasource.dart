@@ -10,13 +10,10 @@ class OrderRemoteDataSource {
 
   final SupabaseClient _supabase;
 
-  // ============================================================
-  // ORDER SELECT
-  // ============================================================
-
   static const String _orderSelect = '''
     id,
     user_id,
+    address_id,
     subtotal,
     discount,
     shipping_cost,
@@ -41,22 +38,25 @@ class OrderRemoteDataSource {
     )
   ''';
 
-  // ============================================================
-  // CHECKOUT
-  // ============================================================
-
   Future<Map<String, dynamic>> checkout({
     required String userId,
+
+    required String addressId,
+
     required int subtotal,
     required int discount,
     required int shippingCost,
     required int totalPrice,
+
     required String shippingAddress,
+
     required String paymentMethod,
+
     required List<OrderItemEntity> items,
   }) async {
     return createOrder(
       userId: userId,
+      addressId: addressId,
       subtotal: subtotal,
       discount: discount,
       shippingCost: shippingCost,
@@ -67,51 +67,53 @@ class OrderRemoteDataSource {
     );
   }
 
-  // ============================================================
-  // CREATE ORDER
-  // ============================================================
-
   Future<Map<String, dynamic>> createOrder({
     required String userId,
+
+    /// ID آدرس انتخاب‌شده
+    required String addressId,
+
     required int subtotal,
     required int discount,
     required int shippingCost,
     required int totalPrice,
+
+    /// آدرس ذخیره‌شده در لحظه خرید
     required String shippingAddress,
+
     required String paymentMethod,
+
     required List<OrderItemEntity> items,
   }) async {
-    // ----------------------------------------------------------
-    // Create Order
-    // ----------------------------------------------------------
 
     final orderResponse =
     await _supabase
         .from('orders')
         .insert({
       'user_id': userId,
+
+      // آدرس انتخاب‌شده
+      'address_id': addressId,
+
       'subtotal': subtotal,
       'discount': discount,
       'shipping_cost': shippingCost,
       'total_price': totalPrice,
-      'shipping_address':
-      shippingAddress,
-      'payment_method':
-      paymentMethod,
-      'payment_status':
-      'pending',
-      'status':
-      'pending',
+
+      // Snapshot آدرس
+      'shipping_address': shippingAddress,
+
+      'payment_method': paymentMethod,
+
+      'payment_status': 'pending',
+
+      'status': 'pending',
     })
         .select(_orderSelect)
         .single();
 
     final orderId =
     orderResponse['id'] as String;
-
-    // ----------------------------------------------------------
-    // Create Order Items
-    // ----------------------------------------------------------
 
     if (items.isNotEmpty) {
       final orderItems =
@@ -149,10 +151,6 @@ class OrderRemoteDataSource {
           .insert(orderItems);
     }
 
-    // ----------------------------------------------------------
-    // Get Complete Order
-    // ----------------------------------------------------------
-
     final result =
     await _supabase
         .from('orders')
@@ -167,10 +165,6 @@ class OrderRemoteDataSource {
       result,
     );
   }
-
-  // ============================================================
-  // GET ORDERS
-  // ============================================================
 
   Future<List<Map<String, dynamic>>>
   getOrders(
@@ -195,20 +189,12 @@ class OrderRemoteDataSource {
     );
   }
 
-  // ============================================================
-  // GET USER ORDERS
-  // ============================================================
-
   Future<List<Map<String, dynamic>>>
   getUserOrders(
       String userId,
       ) async {
     return getOrders(userId);
   }
-
-  // ============================================================
-  // GET ORDER BY ID
-  // ============================================================
 
   Future<Map<String, dynamic>>
   getOrderById(

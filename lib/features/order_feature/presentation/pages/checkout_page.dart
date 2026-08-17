@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/constants/price_formatter.dart';
+import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
+import 'package:supastore/features/address_feature/presentation/pages/addresses_page.dart';
+import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/order_feature/presentation/pages/order_success_page.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
@@ -32,22 +34,41 @@ class CheckoutPage extends StatelessWidget {
       );
     }
 
-    return ChangeNotifierProvider(
-      create: (_) => getIt<CheckoutProvider>()
-        ..initialize(
-          items: cartItems,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) =>
+          getIt<AddressProvider>()
+            ..loadAddresses(
+              userId: user.id,
+            ),
         ),
-      child: const _CheckoutView(),
+
+        ChangeNotifierProvider(
+          create: (_) =>
+          getIt<CheckoutProvider>()
+            ..initialize(
+              items: cartItems,
+            ),
+        ),
+      ],
+      child: _CheckoutView(
+        userId: user.id,
+      ),
     );
   }
 }
 
 class _CheckoutView extends StatelessWidget {
-  const _CheckoutView();
+  const _CheckoutView({
+    required this.userId,
+  });
+
+  final String userId;
 
   @override
   Widget build(BuildContext context) {
-    final provider =
+    final checkoutProvider =
     context.watch<CheckoutProvider>();
 
     return Directionality(
@@ -60,7 +81,7 @@ class _CheckoutView extends StatelessWidget {
           centerTitle: true,
         ),
 
-        body: provider.isLoading
+        body: checkoutProvider.isLoading
             ? const Center(
           child: CircularProgressIndicator(),
         )
@@ -82,7 +103,9 @@ class _CheckoutView extends StatelessWidget {
               title: 'آدرس ارسال',
             ),
 
-            const _AddressSection(),
+            _AddressSection(
+              userId: userId,
+            ),
 
             SizedBox(height: 12.h),
 
@@ -110,10 +133,10 @@ class _CheckoutView extends StatelessWidget {
 
             SizedBox(height: 20.h),
 
-            if (provider.error != null)
+            if (checkoutProvider.error != null)
               _ErrorMessage(
                 message:
-                provider.error!,
+                checkoutProvider.error!,
               ),
 
             SizedBox(height: 20.h),
@@ -121,7 +144,7 @@ class _CheckoutView extends StatelessWidget {
         ),
 
         bottomNavigationBar:
-        provider.isLoading
+        checkoutProvider.isLoading
             ? null
             : const _CheckoutBottomBar(),
       ),
@@ -183,7 +206,8 @@ class _CheckoutItemsSection
                 item.product;
 
             return Padding(
-              padding: EdgeInsets.symmetric(
+              padding:
+              EdgeInsets.symmetric(
                 vertical: 8.h,
               ),
               child: Row(
@@ -243,7 +267,9 @@ class _CheckoutItemsSection
                           ),
                         ),
 
-                        SizedBox(height: 6.h),
+                        SizedBox(
+                          height: 6.h,
+                        ),
 
                         Text(
                           '${item.quantity} عدد',
@@ -282,36 +308,147 @@ class _CheckoutItemsSection
 }
 
 class _AddressSection
-    extends StatefulWidget {
-  const _AddressSection();
+    extends StatelessWidget {
+  const _AddressSection({
+    required this.userId,
+  });
 
-  @override
-  State<_AddressSection> createState() =>
-      _AddressSectionState();
-}
-
-class _AddressSectionState
-    extends State<_AddressSection> {
-  final TextEditingController
-  _controller =
-  TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final String userId;
 
   @override
   Widget build(BuildContext context) {
-    final provider =
-    context.read<CheckoutProvider>();
+    final addressProvider =
+    context.watch<AddressProvider>();
+
+    final checkoutProvider =
+    context.watch<CheckoutProvider>();
+
+
+
+    if (addressProvider.isLoading) {
+      return Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (addressProvider.isEmpty) {
+      return Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.location_off_outlined,
+              size: 42.sp,
+              color: Colors.grey.shade500,
+            ),
+
+            SizedBox(height: 10.h),
+
+            Text(
+              'هنوز آدرسی ثبت نکرده‌اید',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight:
+                FontWeight.w600,
+              ),
+            ),
+
+            SizedBox(height: 6.h),
+
+            Text(
+              'برای ادامه سفارش ابتدا یک آدرس اضافه کنید.',
+              textAlign:
+              TextAlign.center,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color:
+                Colors.grey.shade600,
+              ),
+            ),
+
+            SizedBox(height: 14.h),
+
+            SizedBox(
+              width: double.infinity,
+              height: 46.h,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const AddressesPage(),
+                    ),
+                  );
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  await context
+                      .read<AddressProvider>()
+                      .loadAddresses(
+                    userId: userId,
+                  );
+                },
+                icon: const Icon(
+                  Icons.add,
+                ),
+                label: const Text(
+                  'افزودن آدرس',
+                ),
+                style:
+                ElevatedButton.styleFrom(
+                  backgroundColor:
+                  AppColors.primary,
+                  foregroundColor:
+                  Colors.white,
+                  elevation: 0,
+                  shape:
+                  RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(
+                      12.r,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 16.w,
       ),
-      padding: EdgeInsets.all(14.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
@@ -320,24 +457,326 @@ class _AddressSectionState
           color: Colors.grey.shade200,
         ),
       ),
-      child: TextField(
-        controller: _controller,
-        maxLines: 3,
-        onChanged:
-        provider.setShippingAddress,
-        textDirection:
-        TextDirection.rtl,
-        decoration: InputDecoration(
-          hintText:
-          'آدرس کامل محل تحویل را وارد کنید',
-          prefixIcon: const Icon(
-            Icons.location_on_outlined,
+      child: Column(
+        children: [
+          ...addressProvider.addresses.map(
+                (address) {
+              final isSelected =
+                  checkoutProvider
+                      .selectedAddress
+                      ?.id ==
+                      address.id;
+
+              return Padding(
+                padding:
+                EdgeInsets.only(
+                  bottom: 8.h,
+                ),
+                child: InkWell(
+                  borderRadius:
+                  BorderRadius.circular(
+                    12.r,
+                  ),
+                  onTap: () {
+                    context
+                        .read<
+                        CheckoutProvider>()
+                        .setAddress(
+                      address,
+                    );
+                  },
+                  child: Container(
+                    padding:
+                    EdgeInsets.all(12.w),
+                    decoration:
+                    BoxDecoration(
+                      color: isSelected
+                          ? AppColors
+                          .primary
+                          .withValues(
+                        alpha: 0.06,
+                      )
+                          : Colors.white,
+                      borderRadius:
+                      BorderRadius
+                          .circular(
+                        12.r,
+                      ),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors
+                            .primary
+                            : Colors
+                            .grey
+                            .shade200,
+                        width: isSelected
+                            ? 1.5
+                            : 1,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment:
+                      CrossAxisAlignment
+                          .start,
+                      children: [
+                        Radio<String>(
+                          value:
+                          address.id,
+                          groupValue:
+                          checkoutProvider
+                              .selectedAddress
+                              ?.id,
+                          activeColor:
+                          AppColors
+                              .primary,
+                          onChanged:
+                              (_) {
+                            context
+                                .read<
+                                CheckoutProvider>()
+                                .setAddress(
+                              address,
+                            );
+                          },
+                        ),
+
+                        SizedBox(
+                          width: 4.w,
+                        ),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child:
+                                    Text(
+                                      address
+                                          .title,
+                                      style:
+                                      TextStyle(
+                                        fontSize:
+                                        14.sp,
+                                        fontWeight:
+                                        FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+
+                                  if (address
+                                      .isDefault)
+                                    Container(
+                                      padding:
+                                      EdgeInsets
+                                          .symmetric(
+                                        horizontal:
+                                        8.w,
+                                        vertical:
+                                        4.h,
+                                      ),
+                                      decoration:
+                                      BoxDecoration(
+                                        color: Colors
+                                            .green
+                                            .withValues(
+                                          alpha:
+                                          0.1,
+                                        ),
+                                        borderRadius:
+                                        BorderRadius
+                                            .circular(
+                                          8.r,
+                                        ),
+                                      ),
+                                      child:
+                                      Text(
+                                        'پیش‌فرض',
+                                        style:
+                                        TextStyle(
+                                          fontSize:
+                                          10.sp,
+                                          color:
+                                          Colors.green,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              SizedBox(
+                                height: 6.h,
+                              ),
+
+                              Text(
+                                address
+                                    .receiverName,
+                                style:
+                                TextStyle(
+                                  fontSize:
+                                  12.sp,
+                                  fontWeight:
+                                  FontWeight.w600,
+                                ),
+                              ),
+
+                              SizedBox(
+                                height: 4.h,
+                              ),
+
+                              Text(
+                                address
+                                    .phone,
+                                style:
+                                TextStyle(
+                                  fontSize:
+                                  11.sp,
+                                  color: Colors
+                                      .grey
+                                      .shade600,
+                                ),
+                              ),
+
+                              SizedBox(
+                                height: 6.h,
+                              ),
+
+                              Text(
+                                '${address.province}، ${address.city}',
+                                style:
+                                TextStyle(
+                                  fontSize:
+                                  11.sp,
+                                  color: Colors
+                                      .grey
+                                      .shade700,
+                                ),
+                              ),
+
+                              SizedBox(
+                                height: 4.h,
+                              ),
+
+                              Text(
+                                address
+                                    .address,
+                                maxLines: 3,
+                                overflow:
+                                TextOverflow
+                                    .ellipsis,
+                                style:
+                                TextStyle(
+                                  fontSize:
+                                  12.sp,
+                                  color: Colors
+                                      .grey
+                                      .shade700,
+                                  height:
+                                  1.5,
+                                ),
+                              ),
+
+                              SizedBox(
+                                height: 4.h,
+                              ),
+
+                              Text(
+                                'کد پستی: ${address.postalCode}',
+                                style:
+                                TextStyle(
+                                  fontSize:
+                                  11.sp,
+                                  color: Colors
+                                      .grey
+                                      .shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          border: OutlineInputBorder(
-            borderRadius:
-            BorderRadius.circular(12.r),
+
+          SizedBox(height: 4.h),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                    const AddressesPage(),
+                  ),
+                );
+
+                if (!context.mounted) {
+                  return;
+                }
+
+                await context
+                    .read<AddressProvider>()
+                    .loadAddresses(
+                  userId: userId,
+                );
+
+                if (!context.mounted) {
+                  return;
+                }
+
+                final addressProvider =
+                context.read<
+                    AddressProvider>();
+
+                final selected =
+                    addressProvider
+                        .selectedAddress;
+
+                if (selected != null) {
+                  context
+                      .read<
+                      CheckoutProvider>()
+                      .setAddress(
+                    selected,
+                  );
+                }
+              },
+              icon: const Icon(
+                Icons.edit_location_alt_outlined,
+              ),
+              label: const Text(
+                'مدیریت آدرس‌ها',
+              ),
+              style:
+              OutlinedButton.styleFrom(
+                foregroundColor:
+                AppColors.primary,
+                side: BorderSide(
+                  color:
+                  AppColors.primary,
+                ),
+                shape:
+                RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(
+                    12.r,
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -461,7 +900,8 @@ class _OrderSummary
         children: [
           _SummaryRow(
             title: 'جمع کالاها',
-            value: provider.subtotal,
+            value:
+            provider.subtotal,
           ),
 
           SizedBox(height: 10.h),
@@ -524,8 +964,7 @@ class _SummaryRow
             isTotal
                 ? FontWeight.bold
                 : FontWeight.normal,
-            color:
-            isDiscount
+            color: isDiscount
                 ? Colors.green
                 : Colors.black87,
           ),
@@ -542,8 +981,7 @@ class _SummaryRow
             isTotal ? 16.sp : 13.sp,
             fontWeight:
             FontWeight.bold,
-            color:
-            isDiscount
+            color: isDiscount
                 ? Colors.green
                 : isTotal
                 ? AppColors.price
@@ -555,7 +993,8 @@ class _SummaryRow
   }
 }
 
-class _CheckoutBottomBar extends StatelessWidget {
+class _CheckoutBottomBar
+    extends StatelessWidget {
   const _CheckoutBottomBar();
 
   @override
@@ -583,7 +1022,8 @@ class _CheckoutBottomBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
+            color:
+            Colors.black.withValues(
               alpha: 0.06,
             ),
             blurRadius: 12.r,
@@ -604,28 +1044,24 @@ class _CheckoutBottomBar extends StatelessWidget {
             provider.canSubmit &&
                 user != null
                 ? () async {
-              debugPrint(
-                'CHECKOUT START',
-              );
-
               final success =
-              await provider.placeOrder(
-                userId: user.id,
+              await provider
+                  .placeOrder(
+                userId:
+                user.id,
               );
 
-              debugPrint(
-                'CHECKOUT RESULT: $success',
-              );
-
-              debugPrint(
-                'ORDER: ${provider.order}',
-              );
+              if (!context
+                  .mounted) {
+                return;
+              }
 
               if (!success) {
                 scaffoldMessenger
                     .showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content:
+                    Text(
                       provider.error ??
                           'ثبت سفارش ناموفق بود',
                     ),
@@ -638,11 +1074,13 @@ class _CheckoutBottomBar extends StatelessWidget {
               final order =
                   provider.order;
 
-              if (order == null) {
+              if (order ==
+                  null) {
                 scaffoldMessenger
                     .showSnackBar(
                   const SnackBar(
-                    content: Text(
+                    content:
+                    Text(
                       'سفارش ثبت شد اما اطلاعات آن دریافت نشد.',
                     ),
                   ),
@@ -651,19 +1089,13 @@ class _CheckoutBottomBar extends StatelessWidget {
                 return;
               }
 
-              debugPrint(
-                'ORDER ID: ${order.id}',
-              );
-
-              debugPrint(
-                'NAVIGATING...',
-              );
-
-              navigator.pushReplacement(
+              navigator
+                  .pushReplacement(
                 MaterialPageRoute(
                   builder: (_) =>
                       OrderSuccessPage(
-                        order: order,
+                        order:
+                        order,
                       ),
                 ),
               );

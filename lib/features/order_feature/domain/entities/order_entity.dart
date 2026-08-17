@@ -4,6 +4,8 @@ class OrderEntity {
   final String id;
   final String userId;
 
+  final String? addressId;
+
   final String status;
   final String paymentStatus;
   final String? paymentMethod;
@@ -23,6 +25,7 @@ class OrderEntity {
   const OrderEntity({
     required this.id,
     required this.userId,
+    this.addressId,
     required this.status,
     required this.paymentStatus,
     this.paymentMethod,
@@ -39,6 +42,7 @@ class OrderEntity {
   OrderEntity copyWith({
     String? id,
     String? userId,
+    String? addressId,
     String? status,
     String? paymentStatus,
     String? paymentMethod,
@@ -54,6 +58,7 @@ class OrderEntity {
     return OrderEntity(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      addressId: addressId ?? this.addressId,
       status: status ?? this.status,
       paymentStatus:
       paymentStatus ?? this.paymentStatus,
@@ -61,10 +66,8 @@ class OrderEntity {
       paymentMethod ?? this.paymentMethod,
       subtotal: subtotal ?? this.subtotal,
       discount: discount ?? this.discount,
-      shippingCost:
-      shippingCost ?? this.shippingCost,
-      totalPrice:
-      totalPrice ?? this.totalPrice,
+      shippingCost: shippingCost ?? this.shippingCost,
+      totalPrice: totalPrice ?? this.totalPrice,
       shippingAddress:
       shippingAddress ?? this.shippingAddress,
       createdAt:

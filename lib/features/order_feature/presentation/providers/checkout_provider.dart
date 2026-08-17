@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 
@@ -17,25 +18,35 @@ class CheckoutProvider extends ChangeNotifier {
   final OrderRepository _repository;
   final CartProvider _cartProvider;
 
+
   List<CartItemEntity> _cartItems = [];
 
   List<CartItemEntity> get cartItems =>
       List.unmodifiable(_cartItems);
 
-  String? _shippingAddress;
+
+  AddressEntity? _selectedAddress;
+
+  AddressEntity? get selectedAddress =>
+      _selectedAddress;
+
+  String? get addressId =>
+      _selectedAddress?.id;
 
   String? get shippingAddress =>
-      _shippingAddress;
+      _selectedAddress?.address;
 
   String _paymentMethod = 'online';
 
   String get paymentMethod =>
       _paymentMethod;
 
+
   int _shippingCost = 0;
 
   int get shippingCost =>
       _shippingCost;
+
 
   bool _isLoading = false;
 
@@ -47,10 +58,12 @@ class CheckoutProvider extends ChangeNotifier {
   String? get error =>
       _error;
 
+
   OrderEntity? _order;
 
   OrderEntity? get order =>
       _order;
+
 
   int get totalItems {
     return _cartItems.fold(
@@ -99,24 +112,28 @@ class CheckoutProvider extends ChangeNotifier {
         shippingCost;
   }
 
+
   bool get canSubmit {
     return _cartItems.isNotEmpty &&
-        _shippingAddress != null &&
-        _shippingAddress!
-            .trim()
+        _selectedAddress != null &&
+        _selectedAddress!
+            .id
             .isNotEmpty &&
         !_isLoading;
   }
 
+
   void initialize({
     required List<CartItemEntity> items,
+    AddressEntity? selectedAddress,
   }) {
     _cartItems =
     List<CartItemEntity>.from(
       items,
     );
 
-    _shippingAddress = null;
+    _selectedAddress =
+        selectedAddress;
 
     _paymentMethod = 'online';
 
@@ -131,11 +148,19 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setShippingAddress(
-      String address,
+
+  void setAddress(
+      AddressEntity address,
       ) {
-    _shippingAddress =
-        address.trim();
+    _selectedAddress = address;
+
+    _error = null;
+
+    notifyListeners();
+  }
+
+  void clearAddress() {
+    _selectedAddress = null;
 
     notifyListeners();
   }
@@ -165,7 +190,7 @@ class CheckoutProvider extends ChangeNotifier {
   }) async {
     if (!canSubmit) {
       _error =
-      'لطفاً اطلاعات سفارش را کامل کنید';
+      'لطفاً یک آدرس برای ارسال انتخاب کنید';
 
       notifyListeners();
 
@@ -216,18 +241,32 @@ class CheckoutProvider extends ChangeNotifier {
       final createdOrder =
       await _repository.checkout(
         userId: userId,
-        subtotal: subtotal,
+
+        // مهم
+        addressId:
+        _selectedAddress!.id,
+
+        subtotal:
+        subtotal,
+
         discount:
         totalDiscount,
+
         shippingCost:
         shippingCost,
+
         totalPrice:
         totalPrice,
+
+        // Snapshot آدرس در زمان ثبت سفارش
         shippingAddress:
-        _shippingAddress!,
+        _selectedAddress!.address,
+
         paymentMethod:
         _paymentMethod,
-        items: orderItems,
+
+        items:
+        orderItems,
       );
 
       _order = createdOrder;
@@ -256,6 +295,24 @@ class CheckoutProvider extends ChangeNotifier {
 
   void clearError() {
     _error = null;
+
+    notifyListeners();
+  }
+
+  void reset() {
+    _cartItems = [];
+
+    _selectedAddress = null;
+
+    _paymentMethod = 'online';
+
+    _shippingCost = 0;
+
+    _isLoading = false;
+
+    _error = null;
+
+    _order = null;
 
     notifyListeners();
   }
