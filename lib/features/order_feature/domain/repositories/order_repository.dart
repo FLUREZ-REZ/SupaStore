@@ -2,8 +2,10 @@ import 'package:supastore/features/order_feature/domain/entities/order_entity.da
 import 'package:supastore/features/order_feature/domain/entities/order_item_entity.dart';
 
 abstract class OrderRepository {
+
   Future<OrderEntity> checkout({
     required String userId,
+    required String addressId,
     required int subtotal,
     required int discount,
     required int shippingCost,
@@ -15,6 +17,7 @@ abstract class OrderRepository {
 
   Future<OrderEntity> createOrder({
     required String userId,
+    required String addressId,
     required int subtotal,
     required int discount,
     required int shippingCost,
@@ -35,5 +38,4 @@ abstract class OrderRepository {
   Future<List<OrderEntity>> getUserOrders(
       String userId,
       );
-
 }
