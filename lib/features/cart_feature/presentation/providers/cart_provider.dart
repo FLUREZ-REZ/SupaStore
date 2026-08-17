@@ -91,6 +91,9 @@ class CartProvider extends ChangeNotifier {
         userId,
       );
 
+      debugPrint('========== LOAD CART AFTER CHECKOUT ==========');
+      debugPrint('Loaded cart items: ${result.length}');
+
       _items
         ..clear()
         ..addAll(result);

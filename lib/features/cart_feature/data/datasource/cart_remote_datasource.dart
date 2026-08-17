@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
+
 
 class CartRemoteDataSource {
   CartRemoteDataSource();
@@ -178,15 +180,15 @@ class CartRemoteDataSource {
   }
 
   /// خالی کردن Cart
-  Future<void> clearCart(
-      String userId,
-      ) async {
-    await _supabase
+  Future<void> clearCart(String userId) async {
+    final response = await _supabase
         .from('cart_items')
         .delete()
-        .eq(
-      'user_id',
-      userId,
-    );
+        .eq('user_id', userId)
+        .select();
+
+    debugPrint('========== DELETE CART TEST ==========');
+    debugPrint('Deleted rows: ${response.length}');
+    debugPrint('Response: $response');
   }
 }

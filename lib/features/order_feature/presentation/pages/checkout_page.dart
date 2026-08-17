@@ -71,6 +71,10 @@ class _CheckoutView extends StatelessWidget {
     final checkoutProvider =
     context.watch<CheckoutProvider>();
 
+    debugPrint(
+      '========== CHECKOUT VIEW BUILD ==========',
+    );
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -81,16 +85,14 @@ class _CheckoutView extends StatelessWidget {
           centerTitle: true,
         ),
 
-        body: checkoutProvider.isLoading
-            ? const Center(
-          child: CircularProgressIndicator(),
-        )
-            : ListView(
-          padding: EdgeInsets.only(
-            top: 12.h,
-            bottom: 120.h,
-          ),
+        body: Stack(
           children: [
+        ListView(
+        padding: EdgeInsets.only(
+        top: 12.h,
+          bottom: 120.h,
+        ),
+        children: [
             const _SectionTitle(
               title: 'محصولات سفارش',
             ),
@@ -139,14 +141,26 @@ class _CheckoutView extends StatelessWidget {
                 checkoutProvider.error!,
               ),
 
-            SizedBox(height: 20.h),
+          SizedBox(height: 20.h),
+        ],
+        ),
+
+            if (checkoutProvider.isLoading)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(
+                    alpha: 0.15,
+                  ),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
           ],
         ),
 
         bottomNavigationBar:
-        checkoutProvider.isLoading
-            ? null
-            : const _CheckoutBottomBar(),
+        const _CheckoutBottomBar(),
       ),
     );
   }
@@ -1002,6 +1016,10 @@ class _CheckoutBottomBar
     final provider =
     context.watch<CheckoutProvider>();
 
+    debugPrint(
+      '========== BOTTOM BAR BUILD ==========',
+    );
+
     final user =
         Supabase.instance.client.auth.currentUser;
 
@@ -1044,19 +1062,73 @@ class _CheckoutBottomBar
             provider.canSubmit &&
                 user != null
                 ? () async {
-              final success =
-              await provider
-                  .placeOrder(
-                userId:
-                user.id,
+
+
+              debugPrint(
+                'PROVIDER RUNTIME TYPE: ${provider.runtimeType}',
               );
 
-              if (!context
-                  .mounted) {
+              debugPrint(
+                'PROVIDER HASH: ${provider.hashCode}',
+              );
+
+              debugPrint(
+                'PROVIDER CAN SUBMIT: ${provider.canSubmit}',
+              );
+
+              final success =
+              await provider.placeOrder(
+                userId: user.id,
+              );
+
+              // =================================================
+              // TEST 3
+              // بعد از placeOrder
+              // =================================================
+
+              debugPrint(
+                  'TEST 3: placeOrder returned'
+              );
+
+              debugPrint(
+                  'success: $success'
+              );
+
+              debugPrint(
+                  'provider.isLoading: ${provider.isLoading}'
+              );
+
+
+
+              debugPrint(
+                  'provider.error: ${provider.error}'
+              );
+
+              debugPrint(
+                  'provider.order: ${provider.order}'
+              );
+
+              debugPrint(
+                'BOTTOM BAR AFTER AWAIT - mounted: ${context.mounted}',
+              );
+
+              if (!context.mounted) {
+                debugPrint(
+                    'TEST 4: context is NOT mounted'
+                );
+
                 return;
               }
 
+              debugPrint(
+                  'TEST 4: context is mounted'
+              );
+
               if (!success) {
+                debugPrint(
+                    'TEST 5: ORDER FAILED'
+                );
+
                 scaffoldMessenger
                     .showSnackBar(
                   SnackBar(
@@ -1068,14 +1140,30 @@ class _CheckoutBottomBar
                   ),
                 );
 
+                debugPrint(
+                    '========== CHECKOUT TEST END =========='
+                );
+
                 return;
               }
 
               final order =
                   provider.order;
 
+              debugPrint(
+                  'TEST 6: ORDER SUCCESS'
+              );
+
+              debugPrint(
+                  'order == null: ${order == null}'
+              );
+
               if (order ==
                   null) {
+                debugPrint(
+                    'TEST 7: ORDER IS NULL'
+                );
+
                 scaffoldMessenger
                     .showSnackBar(
                   const SnackBar(
@@ -1086,18 +1174,41 @@ class _CheckoutBottomBar
                   ),
                 );
 
+                debugPrint(
+                    '========== CHECKOUT TEST END =========='
+                );
+
                 return;
               }
 
-              navigator
-                  .pushReplacement(
+              // =================================================
+              // TEST 8
+              // اینجا باید دقیقاً قبل از رفتن به Success Page باشیم
+              // =================================================
+
+              debugPrint(
+                  'TEST 8: navigating to OrderSuccessPage'
+              );
+
+              debugPrint(
+                  'order.id: ${order.id}'
+              );
+
+              navigator.pushReplacement(
                 MaterialPageRoute(
                   builder: (_) =>
                       OrderSuccessPage(
-                        order:
-                        order,
+                        order: order,
                       ),
                 ),
+              );
+
+              debugPrint(
+                  'TEST 9: pushReplacement CALLED'
+              );
+
+              debugPrint(
+                  '========== CHECKOUT TEST END =========='
               );
             }
                 : null,
