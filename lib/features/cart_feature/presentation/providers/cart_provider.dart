@@ -253,8 +253,6 @@ class CartProvider extends ChangeNotifier {
   Future<void> clearCart(
       String userId,
       ) async {
-    if (_items.isEmpty) return;
-
     _error = null;
     _isUpdating = true;
 

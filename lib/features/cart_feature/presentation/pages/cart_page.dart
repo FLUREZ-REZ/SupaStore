@@ -38,11 +38,7 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  @override
-  void dispose() {
-    _cartProvider.dispose();
-    super.dispose();
-  }
+
 
   @override
   Widget build(BuildContext context) {

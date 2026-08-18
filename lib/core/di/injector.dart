@@ -205,7 +205,7 @@ Future<void> setupInjector() async {
     ),
   );
 
-  getIt.registerFactory<CartProvider>(
+  getIt.registerLazySingleton<CartProvider>(
         () => CartProvider(
       repository: getIt<CartRepository>(),
     ),
