@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
+
 import 'package:supastore/features/address_feature/presentation/pages/addresses_page.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
+
 import 'package:supastore/features/order_feature/presentation/pages/order_success_page.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
+
+import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
+import 'package:supastore/features/shipping_feature/presentation/providers/shipping_provider.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({
@@ -36,7 +43,7 @@ class CheckoutPage extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<AddressProvider>(
           create: (_) =>
           getIt<AddressProvider>()
             ..loadAddresses(
@@ -44,7 +51,13 @@ class CheckoutPage extends StatelessWidget {
             ),
         ),
 
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<ShippingProvider>(
+          create: (_) =>
+          getIt<ShippingProvider>()
+            ..loadShippingMethods(),
+        ),
+
+        ChangeNotifierProvider<CheckoutProvider>(
           create: (_) =>
           getIt<CheckoutProvider>()
             ..initialize(
@@ -58,6 +71,10 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// CHECKOUT VIEW
+// ============================================================
 
 class _CheckoutView extends StatelessWidget {
   const _CheckoutView({
@@ -87,63 +104,95 @@ class _CheckoutView extends StatelessWidget {
 
         body: Stack(
           children: [
-        ListView(
-        padding: EdgeInsets.only(
-        top: 12.h,
-          bottom: 120.h,
-        ),
-        children: [
-            const _SectionTitle(
-              title: 'محصولات سفارش',
-            ),
-
-            const _CheckoutItemsSection(),
-
-            SizedBox(height: 12.h),
-
-            const _SectionTitle(
-              title: 'آدرس ارسال',
-            ),
-
-            _AddressSection(
-              userId: userId,
-            ),
-
-            SizedBox(height: 12.h),
-
-            const _SectionTitle(
-              title: 'روش ارسال',
-            ),
-
-            const _ShippingSection(),
-
-            SizedBox(height: 12.h),
-
-            const _SectionTitle(
-              title: 'روش پرداخت',
-            ),
-
-            const _PaymentSection(),
-
-            SizedBox(height: 12.h),
-
-            const _SectionTitle(
-              title: 'خلاصه سفارش',
-            ),
-
-            const _OrderSummary(),
-
-            SizedBox(height: 20.h),
-
-            if (checkoutProvider.error != null)
-              _ErrorMessage(
-                message:
-                checkoutProvider.error!,
+            ListView(
+              padding: EdgeInsets.only(
+                top: 12.h,
+                bottom: 120.h,
               ),
+              children: [
+                // ==================================================
+                // PRODUCTS
+                // ==================================================
 
-          SizedBox(height: 20.h),
-        ],
-        ),
+                const _SectionTitle(
+                  title: 'محصولات سفارش',
+                ),
+
+                const _CheckoutItemsSection(),
+
+                SizedBox(
+                  height: 12.h,
+                ),
+
+                // ==================================================
+                // ADDRESS
+                // ==================================================
+
+                const _SectionTitle(
+                  title: 'آدرس ارسال',
+                ),
+
+                _AddressSection(
+                  userId: userId,
+                ),
+
+                SizedBox(
+                  height: 12.h,
+                ),
+
+                // ==================================================
+                // SHIPPING
+                // ==================================================
+
+                const _SectionTitle(
+                  title: 'روش ارسال',
+                ),
+
+                const _ShippingSection(),
+
+                SizedBox(
+                  height: 12.h,
+                ),
+
+                // ==================================================
+                // PAYMENT
+                // ==================================================
+
+                const _SectionTitle(
+                  title: 'روش پرداخت',
+                ),
+
+                const _PaymentSection(),
+
+                SizedBox(
+                  height: 12.h,
+                ),
+
+                // ==================================================
+                // SUMMARY
+                // ==================================================
+
+                const _SectionTitle(
+                  title: 'خلاصه سفارش',
+                ),
+
+                const _OrderSummary(),
+
+                SizedBox(
+                  height: 20.h,
+                ),
+
+                if (checkoutProvider.error != null)
+                  _ErrorMessage(
+                    message:
+                    checkoutProvider.error!,
+                  ),
+
+                SizedBox(
+                  height: 20.h,
+                ),
+              ],
+            ),
 
             if (checkoutProvider.isLoading)
               Positioned.fill(
@@ -152,7 +201,8 @@ class _CheckoutView extends StatelessWidget {
                     alpha: 0.15,
                   ),
                   child: const Center(
-                    child: CircularProgressIndicator(),
+                    child:
+                    CircularProgressIndicator(),
                   ),
                 ),
               ),
@@ -165,6 +215,10 @@ class _CheckoutView extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// SECTION TITLE
+// ============================================================
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
@@ -190,6 +244,10 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// CHECKOUT ITEMS
+// ============================================================
 
 class _CheckoutItemsSection
     extends StatelessWidget {
@@ -260,7 +318,9 @@ class _CheckoutItemsSection
                     ),
                   ),
 
-                  SizedBox(width: 12.w),
+                  SizedBox(
+                    width: 12.w,
+                  ),
 
                   Expanded(
                     child: Column(
@@ -298,6 +358,10 @@ class _CheckoutItemsSection
                     ),
                   ),
 
+                  SizedBox(
+                    width: 8.w,
+                  ),
+
                   Text(
                     PriceFormatter.format(
                       product.finalPrice *
@@ -321,6 +385,10 @@ class _CheckoutItemsSection
   }
 }
 
+// ============================================================
+// ADDRESS SECTION
+// ============================================================
+
 class _AddressSection
     extends StatelessWidget {
   const _AddressSection({
@@ -337,7 +405,9 @@ class _AddressSection
     final checkoutProvider =
     context.watch<CheckoutProvider>();
 
-
+    // ==========================================================
+    // LOADING
+    // ==========================================================
 
     if (addressProvider.isLoading) {
       return Container(
@@ -354,10 +424,15 @@ class _AddressSection
           ),
         ),
         child: const Center(
-          child: CircularProgressIndicator(),
+          child:
+          CircularProgressIndicator(),
         ),
       );
     }
+
+    // ==========================================================
+    // EMPTY
+    // ==========================================================
 
     if (addressProvider.isEmpty) {
       return Container(
@@ -381,7 +456,9 @@ class _AddressSection
               color: Colors.grey.shade500,
             ),
 
-            SizedBox(height: 10.h),
+            SizedBox(
+              height: 10.h,
+            ),
 
             Text(
               'هنوز آدرسی ثبت نکرده‌اید',
@@ -392,7 +469,9 @@ class _AddressSection
               ),
             ),
 
-            SizedBox(height: 6.h),
+            SizedBox(
+              height: 6.h,
+            ),
 
             Text(
               'برای ادامه سفارش ابتدا یک آدرس اضافه کنید.',
@@ -405,12 +484,15 @@ class _AddressSection
               ),
             ),
 
-            SizedBox(height: 14.h),
+            SizedBox(
+              height: 14.h,
+            ),
 
             SizedBox(
               width: double.infinity,
               height: 46.h,
-              child: ElevatedButton.icon(
+              child:
+              ElevatedButton.icon(
                 onPressed: () async {
                   await Navigator.push(
                     context,
@@ -425,7 +507,8 @@ class _AddressSection
                   }
 
                   await context
-                      .read<AddressProvider>()
+                      .read<
+                      AddressProvider>()
                       .loadAddresses(
                     userId: userId,
                   );
@@ -457,6 +540,10 @@ class _AddressSection
         ),
       );
     }
+
+    // ==========================================================
+    // ADDRESS LIST
+    // ==========================================================
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -512,8 +599,7 @@ class _AddressSection
                       )
                           : Colors.white,
                       borderRadius:
-                      BorderRadius
-                          .circular(
+                      BorderRadius.circular(
                         12.r,
                       ),
                       border: Border.all(
@@ -635,7 +721,8 @@ class _AddressSection
                                   fontSize:
                                   12.sp,
                                   fontWeight:
-                                  FontWeight.w600,
+                                  FontWeight
+                                      .w600,
                                 ),
                               ),
 
@@ -644,8 +731,7 @@ class _AddressSection
                               ),
 
                               Text(
-                                address
-                                    .phone,
+                                address.phone,
                                 style:
                                 TextStyle(
                                   fontSize:
@@ -677,8 +763,7 @@ class _AddressSection
                               ),
 
                               Text(
-                                address
-                                    .address,
+                                address.address,
                                 maxLines: 3,
                                 overflow:
                                 TextOverflow
@@ -690,8 +775,7 @@ class _AddressSection
                                   color: Colors
                                       .grey
                                       .shade700,
-                                  height:
-                                  1.5,
+                                  height: 1.5,
                                 ),
                               ),
 
@@ -721,11 +805,14 @@ class _AddressSection
             },
           ),
 
-          SizedBox(height: 4.h),
+          SizedBox(
+            height: 4.h,
+          ),
 
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
+            child:
+            OutlinedButton.icon(
               onPressed: () async {
                 await Navigator.push(
                   context,
@@ -749,12 +836,12 @@ class _AddressSection
                   return;
                 }
 
-                final addressProvider =
+                final updatedProvider =
                 context.read<
                     AddressProvider>();
 
                 final selected =
-                    addressProvider
+                    updatedProvider
                         .selectedAddress;
 
                 if (selected != null) {
@@ -767,7 +854,8 @@ class _AddressSection
                 }
               },
               icon: const Icon(
-                Icons.edit_location_alt_outlined,
+                Icons
+                    .edit_location_alt_outlined,
               ),
               label: const Text(
                 'مدیریت آدرس‌ها',
@@ -796,18 +884,170 @@ class _AddressSection
   }
 }
 
+// ============================================================
+// SHIPPING SECTION
+// ============================================================
+
 class _ShippingSection
     extends StatelessWidget {
   const _ShippingSection();
 
   @override
   Widget build(BuildContext context) {
-    final provider =
+    final shippingProvider =
+    context.watch<ShippingProvider>();
+
+    final checkoutProvider =
     context.watch<CheckoutProvider>();
+
+    // ==========================================================
+    // LOADING
+    // ==========================================================
+
+    if (shippingProvider.isLoading) {
+      return Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: const Center(
+          child:
+          CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // ==========================================================
+    // ERROR
+    // ==========================================================
+
+    if (shippingProvider.error != null) {
+      return Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          borderRadius:
+          BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.red.shade100,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons
+                  .error_outline,
+              color:
+              Colors.red.shade600,
+              size: 40.sp,
+            ),
+
+            SizedBox(
+              height: 8.h,
+            ),
+
+            Text(
+              shippingProvider.error!,
+              textAlign:
+              TextAlign.center,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color:
+                Colors.red.shade700,
+              ),
+            ),
+
+            SizedBox(
+              height: 12.h,
+            ),
+
+            OutlinedButton(
+              onPressed:
+              shippingProvider
+                  .refresh,
+              child: const Text(
+                'تلاش مجدد',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ==========================================================
+    // EMPTY
+    // ==========================================================
+
+    if (!shippingProvider.hasShippingMethods) {
+      return Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 16.w,
+        ),
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(16.r),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons
+                  .local_shipping_outlined,
+              size: 42.sp,
+              color:
+              Colors.grey.shade500,
+            ),
+
+            SizedBox(
+              height: 10.h,
+            ),
+
+            const Text(
+              'روش ارسالی موجود نیست',
+            ),
+
+            SizedBox(
+              height: 12.h,
+            ),
+
+            OutlinedButton(
+              onPressed:
+              shippingProvider
+                  .refresh,
+              child: const Text(
+                'تلاش مجدد',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ==========================================================
+    // SHIPPING METHODS
+    // ==========================================================
 
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 16.w,
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: 4.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -817,30 +1057,195 @@ class _ShippingSection
           color: Colors.grey.shade200,
         ),
       ),
-      child: RadioListTile<int>(
-        value: 0,
-        groupValue:
-        provider.shippingCost,
-        onChanged: (value) {
-          if (value != null) {
-            provider.setShippingCost(
-              value,
+      child: Column(
+        children: shippingProvider
+            .shippingMethods
+            .map(
+              (method) {
+            final isSelected =
+                shippingProvider
+                    .selectedShippingMethod
+                    ?.id ==
+                    method.id;
+
+            return _ShippingMethodTile(
+              method: method,
+              isSelected:
+              isSelected,
+              onTap: () {
+                shippingProvider
+                    .selectShippingMethod(
+                  method,
+                );
+
+                checkoutProvider
+                    .setShippingCost(
+                  method.cost,
+                );
+              },
             );
-          }
-        },
-        title: const Text(
-          'ارسال معمولی',
+          },
+        )
+            .toList(),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SHIPPING METHOD TILE
+// ============================================================
+
+class _ShippingMethodTile
+    extends StatelessWidget {
+  const _ShippingMethodTile({
+    required this.method,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final ShippingMethodEntity method;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 8.w,
+          vertical: 4.h,
         ),
-        subtitle: const Text(
-          'ارسال با هزینه رایگان',
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary
+              .withValues(
+            alpha: 0.06,
+          )
+              : Colors.white,
+          borderRadius:
+          BorderRadius.circular(12.r),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : Colors.grey.shade200,
+            width:
+            isSelected ? 1.5 : 1,
+          ),
         ),
-        secondary: const Icon(
-          Icons.local_shipping_outlined,
+        child: Row(
+          children: [
+            Radio<String>(
+              value: method.id,
+              groupValue: isSelected
+                  ? method.id
+                  : null,
+              activeColor:
+              AppColors.primary,
+              onChanged: (_) {
+                onTap();
+              },
+            ),
+
+            SizedBox(
+              width: 4.w,
+            ),
+
+            Container(
+              width: 42.w,
+              height: 42.w,
+              decoration: BoxDecoration(
+                color: AppColors.primary
+                    .withValues(
+                  alpha: 0.08,
+                ),
+                borderRadius:
+                BorderRadius.circular(
+                  10.r,
+                ),
+              ),
+              child: Icon(
+                Icons
+                    .local_shipping_outlined,
+                color:
+                AppColors.primary,
+              ),
+            ),
+
+            SizedBox(
+              width: 12.w,
+            ),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment
+                    .start,
+                children: [
+                  Text(
+                    method.title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight:
+                      FontWeight.bold,
+                    ),
+                  ),
+
+                  if (method.description !=
+                      null &&
+                      method.description!
+                          .isNotEmpty) ...[
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    Text(
+                      method.description!,
+                      maxLines: 2,
+                      overflow:
+                      TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: Colors
+                            .grey
+                            .shade600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            SizedBox(
+              width: 8.w,
+            ),
+
+            Text(
+              method.cost == 0
+                  ? 'رایگان'
+                  : PriceFormatter.format(
+                method.cost,
+              ),
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight:
+                FontWeight.bold,
+                color: method.cost == 0
+                    ? Colors.green
+                    : AppColors.price,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+// ============================================================
+// PAYMENT SECTION
+// ============================================================
 
 class _PaymentSection
     extends StatelessWidget {
@@ -888,14 +1293,32 @@ class _PaymentSection
   }
 }
 
+// ============================================================
+// ORDER SUMMARY
+// ============================================================
+
 class _OrderSummary
     extends StatelessWidget {
   const _OrderSummary();
 
   @override
   Widget build(BuildContext context) {
-    final provider =
+    final checkoutProvider =
     context.watch<CheckoutProvider>();
+
+    final shippingProvider =
+    context.watch<ShippingProvider>();
+
+    final shippingCost =
+        shippingProvider
+            .selectedShippingMethod
+            ?.cost ??
+            0;
+
+    final totalPrice =
+        checkoutProvider.subtotal -
+            checkoutProvider.totalDiscount +
+            shippingCost;
 
     return Container(
       margin: EdgeInsets.symmetric(
@@ -915,24 +1338,29 @@ class _OrderSummary
           _SummaryRow(
             title: 'جمع کالاها',
             value:
-            provider.subtotal,
+            checkoutProvider
+                .subtotal,
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(
+            height: 10.h,
+          ),
 
           _SummaryRow(
             title: 'تخفیف',
             value:
-            provider.totalDiscount,
+            checkoutProvider
+                .totalDiscount,
             isDiscount: true,
           ),
 
-          SizedBox(height: 10.h),
+          SizedBox(
+            height: 10.h,
+          ),
 
           _SummaryRow(
             title: 'هزینه ارسال',
-            value:
-            provider.shippingCost,
+            value: shippingCost,
           ),
 
           Divider(
@@ -941,8 +1369,7 @@ class _OrderSummary
 
           _SummaryRow(
             title: 'مبلغ قابل پرداخت',
-            value:
-            provider.totalPrice,
+            value: totalPrice,
             isTotal: true,
           ),
         ],
@@ -950,6 +1377,10 @@ class _OrderSummary
     );
   }
 }
+
+// ============================================================
+// SUMMARY ROW
+// ============================================================
 
 class _SummaryRow
     extends StatelessWidget {
@@ -974,8 +1405,7 @@ class _SummaryRow
           style: TextStyle(
             fontSize:
             isTotal ? 15.sp : 13.sp,
-            fontWeight:
-            isTotal
+            fontWeight: isTotal
                 ? FontWeight.bold
                 : FontWeight.normal,
             color: isDiscount
@@ -1007,14 +1437,21 @@ class _SummaryRow
   }
 }
 
+// ============================================================
+// CHECKOUT BOTTOM BAR
+// ============================================================
+
 class _CheckoutBottomBar
     extends StatelessWidget {
   const _CheckoutBottomBar();
 
   @override
   Widget build(BuildContext context) {
-    final provider =
+    final checkoutProvider =
     context.watch<CheckoutProvider>();
+
+    final shippingProvider =
+    context.watch<ShippingProvider>();
 
     debugPrint(
       '========== BOTTOM BAR BUILD ==========',
@@ -1023,11 +1460,14 @@ class _CheckoutBottomBar
     final user =
         Supabase.instance.client.auth.currentUser;
 
-    final navigator =
-    Navigator.of(context);
+    final selectedShipping =
+        shippingProvider
+            .selectedShippingMethod;
 
-    final scaffoldMessenger =
-    ScaffoldMessenger.of(context);
+    final canSubmit =
+        checkoutProvider.canSubmit &&
+            selectedShipping != null &&
+            !shippingProvider.isLoading;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -1059,53 +1499,72 @@ class _CheckoutBottomBar
           height: 52.h,
           child: ElevatedButton(
             onPressed:
-            provider.canSubmit &&
+            canSubmit &&
                 user != null
                 ? () async {
+              // ==========================================
+              // SYNC SHIPPING COST
+              // ==========================================
 
-
-              debugPrint(
-                'PROVIDER RUNTIME TYPE: ${provider.runtimeType}',
+              checkoutProvider
+                  .setShippingCost(
+                selectedShipping
+                    .cost,
               );
 
               debugPrint(
-                'PROVIDER HASH: ${provider.hashCode}',
+                '========== CHECKOUT TEST START ==========',
               );
 
               debugPrint(
-                'PROVIDER CAN SUBMIT: ${provider.canSubmit}',
+                'Selected shipping: ${selectedShipping.title}',
               );
+
+              debugPrint(
+                'Shipping cost: ${selectedShipping.cost}',
+              );
+
+              debugPrint(
+                'Provider runtime type: ${checkoutProvider.runtimeType}',
+              );
+
+              debugPrint(
+                'Provider hash: ${checkoutProvider.hashCode}',
+              );
+
+              debugPrint(
+                'Provider canSubmit: ${checkoutProvider.canSubmit}',
+              );
+
+              // ==========================================
+              // PLACE ORDER
+              // ==========================================
 
               final success =
-              await provider.placeOrder(
-                userId: user.id,
-              );
-
-              // =================================================
-              // TEST 3
-              // بعد از placeOrder
-              // =================================================
-
-              debugPrint(
-                  'TEST 3: placeOrder returned'
+              await checkoutProvider
+                  .placeOrder(
+                userId:
+                user.id,
               );
 
               debugPrint(
-                  'success: $success'
+                'TEST: placeOrder returned',
               );
 
               debugPrint(
-                  'provider.isLoading: ${provider.isLoading}'
-              );
-
-
-
-              debugPrint(
-                  'provider.error: ${provider.error}'
+                'success: $success',
               );
 
               debugPrint(
-                  'provider.order: ${provider.order}'
+                'provider.isLoading: ${checkoutProvider.isLoading}',
+              );
+
+              debugPrint(
+                'provider.error: ${checkoutProvider.error}',
+              );
+
+              debugPrint(
+                'provider.order: ${checkoutProvider.order}',
               );
 
               debugPrint(
@@ -1114,87 +1573,75 @@ class _CheckoutBottomBar
 
               if (!context.mounted) {
                 debugPrint(
-                    'TEST 4: context is NOT mounted'
+                  'Context is NOT mounted',
                 );
-
                 return;
               }
 
-              debugPrint(
-                  'TEST 4: context is mounted'
-              );
-
               if (!success) {
                 debugPrint(
-                    'TEST 5: ORDER FAILED'
+                  'ORDER FAILED',
                 );
 
-                scaffoldMessenger
+                ScaffoldMessenger
+                    .of(context)
                     .showSnackBar(
                   SnackBar(
-                    content:
-                    Text(
-                      provider.error ??
+                    content: Text(
+                      checkoutProvider
+                          .error ??
                           'ثبت سفارش ناموفق بود',
                     ),
                   ),
                 );
 
                 debugPrint(
-                    '========== CHECKOUT TEST END =========='
+                  '========== CHECKOUT TEST END ==========',
                 );
 
                 return;
               }
 
               final order =
-                  provider.order;
+                  checkoutProvider
+                      .order;
 
               debugPrint(
-                  'TEST 6: ORDER SUCCESS'
+                'ORDER SUCCESS',
               );
 
               debugPrint(
-                  'order == null: ${order == null}'
+                'order == null: ${order == null}',
               );
 
-              if (order ==
-                  null) {
-                debugPrint(
-                    'TEST 7: ORDER IS NULL'
-                );
-
-                scaffoldMessenger
+              if (order == null) {
+                ScaffoldMessenger
+                    .of(context)
                     .showSnackBar(
                   const SnackBar(
-                    content:
-                    Text(
+                    content: Text(
                       'سفارش ثبت شد اما اطلاعات آن دریافت نشد.',
                     ),
                   ),
                 );
 
                 debugPrint(
-                    '========== CHECKOUT TEST END =========='
+                  '========== CHECKOUT TEST END ==========',
                 );
 
                 return;
               }
 
-              // =================================================
-              // TEST 8
-              // اینجا باید دقیقاً قبل از رفتن به Success Page باشیم
-              // =================================================
-
               debugPrint(
-                  'TEST 8: navigating to OrderSuccessPage'
+                'Navigating to OrderSuccessPage',
               );
 
               debugPrint(
-                  'order.id: ${order.id}'
+                'order.id: ${order.id}',
               );
 
-              navigator.pushReplacement(
+              Navigator.of(context)
+                  .pushReplacement(
                 MaterialPageRoute(
                   builder: (_) =>
                       OrderSuccessPage(
@@ -1204,11 +1651,11 @@ class _CheckoutBottomBar
               );
 
               debugPrint(
-                  'TEST 9: pushReplacement CALLED'
+                'pushReplacement CALLED',
               );
 
               debugPrint(
-                  '========== CHECKOUT TEST END =========='
+                '========== CHECKOUT TEST END ==========',
               );
             }
                 : null,
@@ -1242,6 +1689,10 @@ class _CheckoutBottomBar
   }
 }
 
+// ============================================================
+// ERROR MESSAGE
+// ============================================================
+
 class _ErrorMessage
     extends StatelessWidget {
   const _ErrorMessage({
@@ -1264,10 +1715,12 @@ class _ErrorMessage
       ),
       child: Text(
         message,
-        textAlign: TextAlign.center,
+        textAlign:
+        TextAlign.center,
         style: TextStyle(
           fontSize: 12.sp,
-          color: Colors.red.shade700,
+          color:
+          Colors.red.shade700,
         ),
       ),
     );

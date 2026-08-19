@@ -60,6 +60,10 @@ import 'package:supastore/features/profile_feature/domain/usecases/update_profil
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 import 'package:supastore/features/settings_feature/data/datasources/settings_local_data_source.dart';
 import 'package:supastore/features/settings_feature/presentation/providers/settings_provider.dart';
+import 'package:supastore/features/shipping_feature/data/datasources/shipping_remote_data_source.dart';
+import 'package:supastore/features/shipping_feature/data/repositories/shipping_repository_impl.dart';
+import 'package:supastore/features/shipping_feature/domain/repositories/shipping_repository.dart';
+import 'package:supastore/features/shipping_feature/presentation/providers/shipping_provider.dart';
 
 
 
@@ -390,6 +394,27 @@ Future<void> setupInjector() async {
       getIt<DeleteAddressUseCase>(),
       setDefaultAddressUseCase:
       getIt<SetDefaultAddressUseCase>(),
+    ),
+  );
+
+
+  //shipping feature :
+
+  getIt.registerLazySingleton<ShippingRemoteDataSource>(
+        () => ShippingRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<ShippingRepository>(
+        () => ShippingRepositoryImpl(
+      remoteDataSource:
+      getIt<ShippingRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<ShippingProvider>(
+        () => ShippingProvider(
+      repository:
+      getIt<ShippingRepository>(),
     ),
   );
 
