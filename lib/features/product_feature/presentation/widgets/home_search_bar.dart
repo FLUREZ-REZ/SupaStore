@@ -19,46 +19,75 @@ class HomeSearchBar extends StatelessWidget {
           horizontal: 20.w,
           vertical: 12.h,
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16.r),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () {
             context.pushNamed('search');
           },
-          child: IgnorePointer(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "جستجوی محصول...",
-                hintStyle: AppTextStyles.auth_textfield.copyWith(
-                  color: Colors.grey,
-                ),
-
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.grey,
-                ),
-
-                filled: true,
-                fillColor: Colors.white,
-
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 16.h,
-                ),
-
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16.r),
-                  borderSide: BorderSide(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16.r),
-                  borderSide: const BorderSide(
-                    color: AppColors.primary,
-                    width: 1.5,
-                  ),
-                ),
+          child: Container(
+            height: 65.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: Colors.grey.shade200,
+                width: 1,
               ),
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: 10.w),
+
+                // Search Icon
+                Container(
+                  width: 34.w,
+                  height: 34.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(
+                    Icons.search_rounded,
+                    size: 20.sp,
+                    color: AppColors.primary,
+                  ),
+                ),
+
+                SizedBox(width: 12.w),
+
+                // Hint
+                Expanded(
+                  child: RichText(
+                    textDirection: TextDirection.rtl,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'جستجو در ',
+                          style: AppTextStyles.auth_textfield.copyWith(
+                            color: Colors.grey.shade500,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'سوپااستور',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontFamily: 'roosta',
+                            fontWeight: FontWeight.w700,
+                          ).copyWith(
+                            fontSize: 22.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 16.w),
+              ],
             ),
           ),
         ),

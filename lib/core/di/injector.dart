@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/features/address_feature/data/datasources/address_remote_data_source.dart';
 import 'package:supastore/features/address_feature/data/repositories/address_repository_impl.dart';
 import 'package:supastore/features/address_feature/domain/repositories/address_repository.dart';
@@ -22,6 +23,11 @@ import 'package:supastore/features/favorite_feature/data/datasource/favorite_rem
 import 'package:supastore/features/favorite_feature/data/repositories/favorite_repository_impl.dart';
 import 'package:supastore/features/favorite_feature/domain/repositories/favorite_repository.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
+import 'package:supastore/features/flash_sale_feature/data/datasource/flash_sale_remote_data_source.dart';
+import 'package:supastore/features/flash_sale_feature/data/repositories/flash_sale_repository_impl.dart';
+import 'package:supastore/features/flash_sale_feature/domain/repositories/flash_sale_repository.dart';
+import 'package:supastore/features/flash_sale_feature/domain/usecases/get_active_flash_sales_use_case.dart';
+import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
 import 'package:supastore/features/home_feature/data/datasource/banner_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/datasource/category_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/repositories/category_repository_impl.dart';
@@ -415,6 +421,43 @@ Future<void> setupInjector() async {
         () => ShippingProvider(
       repository:
       getIt<ShippingRepository>(),
+    ),
+  );
+
+
+  //flash_sale ;
+
+// FLASH SALE FEATURE
+
+  /// Flash Sale Remote DataSource
+  getIt.registerLazySingleton<FlashSaleRemoteDataSource>(
+        () => FlashSaleRemoteDataSourceImpl(
+      supabase: Supabase.instance.client,
+    ),
+  );
+
+  /// Flash Sale Repository
+  getIt.registerLazySingleton<FlashSaleRepository>(
+        () => FlashSaleRepositoryImpl(
+      remoteDataSource:
+      getIt<FlashSaleRemoteDataSource>(),
+    ),
+  );
+
+  /// Get Active Flash Sale Products UseCase
+  getIt.registerLazySingleton<
+      GetActiveFlashSaleProductsUseCase>(
+        () => GetActiveFlashSaleProductsUseCase(
+      repository:
+      getIt<FlashSaleRepository>(),
+    ),
+  );
+
+  /// Flash Sale Provider
+  getIt.registerFactory<FlashSaleProvider>(
+        () => FlashSaleProvider(
+      getActiveFlashSaleProductsUseCase:
+      getIt<GetActiveFlashSaleProductsUseCase>(),
     ),
   );
 

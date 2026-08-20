@@ -99,6 +99,14 @@ class AppColors {
   Color(0xFF0b090a);
 
 
+  //homepage :
+
+  static const Color home_header =
+  Color(0xFFe9ecef);
+
+  static const Color home_header_background =
+  Color(0xFFE6123D);
+
   static const Color primary =
   Color(0xFFE6123D);
 

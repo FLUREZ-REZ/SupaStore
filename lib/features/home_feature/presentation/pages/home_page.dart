@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
+import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/banner_slider.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/category_horizontal_list.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/flash_sale_section.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_appbar.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/section_header.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
@@ -116,8 +118,22 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 280.h,
+              child: ChangeNotifierProvider(
+                create: (_) =>
+                    getIt<FlashSaleProvider>(),
+                child: FlashSaleSection(
+                  onProductTap: (product) {
+                    context.pushNamed(
+                      'product-details',
+                      extra: product,
+                    );
+                  },
+                  onSeeAll: () {
+                    debugPrint(
+                      'See All Flash Sales',
+                    );
+                  },
+                ),
               ),
             ),
 
