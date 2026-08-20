@@ -84,7 +84,7 @@ class _IconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.primary,
+      color: AppColors.home_header_background,
       borderRadius:
       BorderRadius.circular(14.r),
       child: InkWell(
@@ -92,12 +92,12 @@ class _IconButton extends StatelessWidget {
         BorderRadius.circular(14.r),
         onTap: onTap,
         child: SizedBox(
-          width: 40.w,
-          height: 40.h,
+          width: 35.w,
+          height: 35.h,
           child: Icon(
             icon,
-            size: 18.sp,
-            color: Colors.white,
+            size: 20.sp,
+            color: AppColors.home_header,
           ),
         ),
       ),
