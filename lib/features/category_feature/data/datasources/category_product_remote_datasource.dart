@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/features/home_feature/data/models/category_model.dart';
 import 'package:supastore/features/product_feature/data/models/product_model.dart';
 
 class CategoryProductRemoteDataSource {
@@ -33,4 +34,17 @@ class CategoryProductRemoteDataSource {
     )
         .toList();
   }
+
+  Future<CategoryModel> getCategoryById(
+      String categoryId,
+      ) async {
+    final response = await _client
+        .from('categories')
+        .select()
+        .eq('id', categoryId)
+        .single();
+
+    return CategoryModel.fromMap(response);
+  }
+
 }

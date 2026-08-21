@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 
 import '../../../product_feature/domain/entities/product_entity.dart';
 import '../../domain/repositories/category_product_repository.dart';
@@ -137,4 +138,21 @@ class CategoryProductProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<CategoryEntity?> getCategoryById(
+      String categoryId,
+      ) async {
+    try {
+      return await _repository.getCategoryById(
+        categoryId,
+      );
+    } catch (e) {
+      debugPrint(
+        '❌ Get category by id error: $e',
+      );
+
+      return null;
+    }
+  }
+
 }

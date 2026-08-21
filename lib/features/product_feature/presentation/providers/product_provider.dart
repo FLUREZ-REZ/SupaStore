@@ -198,4 +198,21 @@ class ProductProvider extends ChangeNotifier {
     await loadProducts();
 
   }
+
+  Future<ProductEntity?> getProductById(
+      String productId,
+      ) async {
+    try {
+      return await _repository.getProductById(
+        productId,
+      );
+    } catch (e) {
+      debugPrint(
+        '❌ Get product by id error: $e',
+      );
+
+      return null;
+    }
+  }
+
 }

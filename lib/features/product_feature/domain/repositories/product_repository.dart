@@ -27,4 +27,6 @@ abstract class ProductRepository {
     int page = 0,
     int limit = 10,
   });
+
+  Future<ProductEntity> getProductById(String productId);
 }
