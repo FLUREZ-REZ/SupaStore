@@ -67,4 +67,14 @@ class ProductRepositoryImpl implements ProductRepository {
       limit: limit,
     );
   }
+
+  @override
+  Future<ProductEntity> getProductById(
+      String productId,
+      ) async {
+    return _remoteDataSource.getProductById(
+      productId,
+    );
+  }
+
 }

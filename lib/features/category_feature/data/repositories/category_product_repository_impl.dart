@@ -2,6 +2,7 @@
 
 import 'package:supastore/features/category_feature/data/datasources/category_product_remote_datasource.dart';
 import 'package:supastore/features/category_feature/domain/repositories/category_product_repository.dart';
+import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
 class CategoryProductRepositoryImpl
@@ -28,4 +29,16 @@ class CategoryProductRepositoryImpl
     );
 
   }
+
+  @override
+  Future<CategoryEntity> getCategoryById(
+      String categoryId,
+      ) async {
+    return _remoteDataSource.getCategoryById(
+      categoryId,
+    );
+  }
+
+
+
 }

@@ -162,4 +162,23 @@ class ProductRemoteDataSource {
     )
         .toList();
   }
+
+  Future<ProductModel> getProductById(
+      String productId,
+      ) async {
+    final response = await _client
+        .from('products')
+        .select('''
+        *,
+        brands (
+          name,
+          logo_url
+        )
+      ''')
+        .eq('id', productId)
+        .single();
+
+    return ProductModel.fromMap(response);
+  }
+
 }

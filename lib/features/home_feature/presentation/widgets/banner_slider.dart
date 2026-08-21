@@ -5,137 +5,276 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import 'package:supastore/features/home_feature/presentation/utils/banner_navigation_handler.dart';
 
 import '../providers/banner_provider.dart';
 
 class BannerSlider extends StatefulWidget {
-  const BannerSlider({super.key});
+  const BannerSlider({
+    super.key,
+  });
 
   @override
-  State<BannerSlider> createState() => _BannerSliderState();
+  State<BannerSlider> createState() =>
+      _BannerSliderState();
 }
 
 class _BannerSliderState extends State<BannerSlider> {
-  int currentIndex = 0;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BannerProvider>().loadBanners();
+      if (!mounted) return;
+
+      context
+          .read<BannerProvider>()
+          .loadHeroBanners();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<BannerProvider>(
-      builder: (context, provider, child) {
+      builder: (
+          context,
+          provider,
+          child,
+          ) {
+        // ============================================
+        // Loading
+        // ============================================
 
-        if (provider.isLoading) {
+        if (provider.isHeroLoading) {
           return SizedBox(
-            height: 180.h,
+            height: 210.h,
             child: const Center(
               child: CircularProgressIndicator(),
             ),
           );
         }
 
-        if (provider.error != null) {
+        // ============================================
+        // Error
+        // ============================================
+
+        if (provider.heroError != null) {
           return SizedBox(
             height: 180.h,
             child: Center(
-              child: Text(provider.error!),
+              child: Text(
+                provider.heroError!,
+              ),
             ),
           );
         }
 
-        if (provider.banners.isEmpty) {
+        final banners = provider.heroBanners;
+
+        // ============================================
+        // Empty
+        // ============================================
+
+        if (banners.isEmpty) {
           return SizedBox(
             height: 180.h,
             child: const Center(
-              child: Text("بنری وجود ندارد"),
+              child: Text(
+                'بنری وجود ندارد',
+              ),
             ),
           );
         }
 
+        // ============================================
+        // Prevent invalid indicator index
+        // ============================================
+
+        if (_currentIndex >= banners.length) {
+          _currentIndex = 0;
+        }
+
+        // ============================================
+        // Slider
+        // ============================================
+
         return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+              ),
+              child: CarouselSlider.builder(
+                itemCount: banners.length,
 
-            CarouselSlider.builder(
+                itemBuilder: (
+                    context,
+                    index,
+                    realIndex,
+                    ) {
+                  final banner =
+                  banners[index];
 
-              itemCount: provider.banners.length,
-
-              itemBuilder: (context, index, realIndex) {
-                final banner = provider.banners[index];
-
-                return GestureDetector(
-                  onTap: () {
-                    /// بعداً
-                    /// category
-                    /// product
-                    /// url
-                  },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18.r),
-                    child: CachedNetworkImage(
-                      imageUrl: "${banner.imageUrl}?v=${banner.updatedAt}",
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(
-                        color: Colors.grey.shade200,
-                      ),
-                      errorWidget: (_, __, ___) =>
-                      const Icon(Icons.error),
-                    ),
-                  ),
-                );
-              },
-
-              options: CarouselOptions(
-
-                height: 180.h,
-
-                viewportFraction: 0.92,
-
-                autoPlay: true,
-
-                autoPlayInterval:
-                const Duration(seconds: 4),
-
-                enlargeCenterPage: true,
-
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    currentIndex = index;
-                  });
+                  return _BannerItem(
+                    imageUrl:
+                    '${banner.imageUrl}?v=${banner.updatedAt.millisecondsSinceEpoch}',
+                    onTap: () {
+                      BannerNavigationHandler.handle(
+                        context: context,
+                        banner: banner,
+                      );
+                    },
+                  );
                 },
+
+                options: CarouselOptions(
+                  // ==================================
+                  // One banner only
+                  // ==================================
+
+                  height: 180.h,
+
+                  viewportFraction: 1.0,
+
+                  // ==================================
+                  // Auto Play
+                  // ==================================
+
+                  autoPlay: banners.length > 1,
+
+                  autoPlayInterval:
+                  const Duration(
+                    seconds: 4,
+                  ),
+
+                  autoPlayAnimationDuration:
+                  const Duration(
+                    milliseconds: 600,
+                  ),
+
+                  autoPlayCurve:
+                  Curves.easeInOut,
+
+                  // ==================================
+                  // No side banners
+                  // ==================================
+
+                  enlargeCenterPage: false,
+
+                  // ==================================
+                  // Page changed
+                  // ==================================
+
+                  onPageChanged: (
+                      index,
+                      reason,
+                      ) {
+                    if (!mounted) return;
+
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                ),
               ),
             ),
+
+            // ========================================
+            // Indicator
+            // ========================================
 
             SizedBox(
               height: 14.h,
             ),
 
             AnimatedSmoothIndicator(
-
-              activeIndex: currentIndex,
-
-              count: provider.banners.length,
-
+              activeIndex: _currentIndex,
+              count: banners.length,
               effect: ExpandingDotsEffect(
-
                 dotHeight: 8.h,
-
                 dotWidth: 8.w,
-
                 expansionFactor: 3,
-
               ),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+// ==================================================
+// Banner Item
+// ==================================================
+
+class _BannerItem extends StatelessWidget {
+  const _BannerItem({
+    required this.imageUrl,
+    required this.onTap,
+  });
+
+  final String imageUrl;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius:
+        BorderRadius.circular(18.r),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+
+          width: double.infinity,
+
+          fit: BoxFit.cover,
+
+          // ========================================
+          // Memory cache
+          // ========================================
+
+          memCacheWidth: 1080,
+
+          // ========================================
+          // Disk cache
+          // ========================================
+
+          maxWidthDiskCache: 1440,
+
+          // ========================================
+          // Placeholder
+          // ========================================
+
+          placeholder: (
+              context,
+              url,
+              ) {
+            return Container(
+              color: Colors.grey.shade200,
+            );
+          },
+
+          // ========================================
+          // Error
+          // ========================================
+
+          errorWidget: (
+              context,
+              url,
+              error,
+              ) {
+            return const Center(
+              child: Icon(
+                Icons.error_outline,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

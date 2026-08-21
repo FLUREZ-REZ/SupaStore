@@ -12,6 +12,7 @@ import 'package:supastore/features/home_feature/presentation/widgets/banner_slid
 import 'package:supastore/features/home_feature/presentation/widgets/category_horizontal_list.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/flash_sale_section.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_appbar.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/promotional_banner_grid.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/section_header.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/home_search_bar.dart';
@@ -138,8 +139,10 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 280.h,
+              child: ChangeNotifierProvider(
+                create: (_) => getIt<BannerProvider>()
+                  ..loadPromotionalBanners(),
+                child: const _PromotionalBanners(),
               ),
             ),
 
@@ -154,6 +157,43 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+class _PromotionalBanners extends StatelessWidget {
+  const _PromotionalBanners();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<BannerProvider>(
+      builder: (
+          context,
+          provider,
+          child,
+          ) {
+        if (provider.isPromotionalLoading) {
+          return SizedBox(
+            height: 180.h,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (provider.promotionalError != null) {
+          return const SizedBox.shrink();
+        }
+
+        if (provider.promotionalBanners.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return PromotionalBannerGrid(
+          banners: provider.promotionalBanners,
+        );
+      },
+    );
+  }
+}
+
 
 class _NewestProducts extends StatefulWidget {
   const _NewestProducts();
