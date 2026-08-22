@@ -35,10 +35,9 @@ class _FlashSaleCountdownState
   }
 
   void _calculateRemaining() {
-    final remaining =
-    widget.endAt.toLocal().difference(
-      DateTime.now(),
-    );
+    final remaining = widget.endAt
+        .toLocal()
+        .difference(DateTime.now());
 
     if (remaining.isNegative) {
       _timer?.cancel();
@@ -60,7 +59,24 @@ class _FlashSaleCountdownState
   }
 
   String _format(int value) {
-    return value.toString().padLeft(2, '0');
+    final formatted = value.toString().padLeft(2, '0');
+
+    return _toPersianDigits(formatted);
+  }
+
+  String _toPersianDigits(String value) {
+    const englishDigits = '0123456789';
+    const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+
+    return value.split('').map((char) {
+      final index = englishDigits.indexOf(char);
+
+      if (index == -1) {
+        return char;
+      }
+
+      return persianDigits[index];
+    }).join();
   }
 
   @override

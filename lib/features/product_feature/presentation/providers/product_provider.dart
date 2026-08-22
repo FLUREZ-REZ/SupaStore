@@ -215,4 +215,38 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
+
+  //baraye feature soldout hast
+
+  Future<void> loadPopularProducts() async {
+    if (_isLoading) return;
+
+    _isLoading = true;
+    _error = null;
+
+    _products.clear();
+
+    notifyListeners();
+
+    try {
+      final result =
+      await _repository.getPopularProducts(
+        page: 0,
+        limit: _pageSize,
+      );
+
+      _products.addAll(result);
+    } catch (e) {
+      _error = e.toString();
+
+      debugPrint(
+        '❌ Popular products error: $e',
+      );
+    }
+
+    _isLoading = false;
+
+    notifyListeners();
+  }
+
 }

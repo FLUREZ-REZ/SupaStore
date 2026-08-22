@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/constants/price_formatter.dart';
 
 import 'package:supastore/core/theme/app_colors.dart';
+
 import 'package:supastore/features/flash_sale_feature/domain/entities/flash_sale_product_entity.dart';
 
 class FlashSaleProductCard extends StatelessWidget {
@@ -16,71 +18,69 @@ class FlashSaleProductCard extends StatelessWidget {
 
   final VoidCallback? onTap;
 
-  String _formatPrice(int price) {
-    return price
-        .toString()
-        .replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-          (match) => ',',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final product = item.product;
 
-    final originalPrice =
-        item.originalPrice;
-
-    final discountPrice =
-        item.discountPrice;
-
-    final discountPercent =
-        item.discountPercent;
+    final originalPrice = item.originalPrice;
+    final discountPrice = item.discountPrice;
+    final discountPercent = item.discountPercent;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 165.w,
+
+        // در RTL فاصله از سمت راست
         margin: EdgeInsets.only(
-          left: 8.w,
+          right: 8.w,
         ),
+
         padding: EdgeInsets.all(8.w),
+
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius:
-          BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(14.r),
         ),
+
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// IMAGE
+            // ─────────────────────────────────
+            // IMAGE
+            // ─────────────────────────────────
+
             Expanded(
               child: Stack(
                 children: [
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius:
-                      BorderRadius.circular(11.r),
+                      borderRadius: BorderRadius.circular(11.r),
                       child: CachedNetworkImage(
-                        imageUrl:
-                        product.thumbnail,
+                        imageUrl: product.thumbnail,
                         fit: BoxFit.contain,
-                        placeholder:
-                            (context, url) {
+
+                        memCacheWidth: 500,
+                        maxWidthDiskCache: 600,
+
+                        placeholder: (
+                            context,
+                            url,
+                            ) {
                           return const Center(
-                            child:
-                            CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               strokeWidth: 2,
                             ),
                           );
                         },
-                        errorWidget:
-                            (context, url, error) {
+
+                        errorWidget: (
+                            context,
+                            url,
+                            error,
+                            ) {
                           return Icon(
-                            Icons
-                                .image_not_supported_outlined,
+                            Icons.image_not_supported_outlined,
                             size: 32.sp,
                             color: Colors.grey,
                           );
@@ -89,33 +89,29 @@ class FlashSaleProductCard extends StatelessWidget {
                     ),
                   ),
 
-                  /// DISCOUNT
+                  // ─────────────────────────────
+                  // DISCOUNT
+                  // ─────────────────────────────
+
                   if (discountPercent > 0)
                     Positioned(
                       top: 4.h,
                       right: 4.w,
                       child: Container(
-                        padding:
-                        EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 7.w,
                           vertical: 4.h,
                         ),
-                        decoration:
-                        BoxDecoration(
-                          color:
-                          AppColors.primary,
-                          borderRadius:
-                          BorderRadius.circular(
-                            8.r,
-                          ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Text(
-                          '$discountPercent٪',
+                          '${PriceFormatter.number(discountPercent)}٪',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 11.sp,
-                            fontWeight:
-                            FontWeight.w800,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -126,12 +122,14 @@ class FlashSaleProductCard extends StatelessWidget {
 
             SizedBox(height: 8.h),
 
-            /// TITLE
+            // ─────────────────────────────────
+            // TITLE
+            // ─────────────────────────────────
+
             Text(
               product.title,
               maxLines: 2,
-              overflow:
-              TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
@@ -141,40 +139,43 @@ class FlashSaleProductCard extends StatelessWidget {
 
             SizedBox(height: 6.h),
 
-            /// ORIGINAL PRICE
+            // ─────────────────────────────────
+            // ORIGINAL PRICE
+            // ─────────────────────────────────
+
             if (discountPercent > 0)
               Text(
-                '${_formatPrice(originalPrice)} تومان',
+                PriceFormatter.format(
+                  originalPrice,
+                ),
                 maxLines: 1,
-                overflow:
-                TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 10.sp,
                   color: Colors.grey,
-                  decoration:
-                  TextDecoration.lineThrough,
+                  decoration: TextDecoration.lineThrough,
                 ),
               ),
 
             SizedBox(height: 3.h),
 
-            /// FINAL PRICE
+            // ─────────────────────────────────
+            // FINAL PRICE
+            // ─────────────────────────────────
+
             Row(
-              crossAxisAlignment:
-              CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
                   child: Text(
-                    _formatPrice(
+                    PriceFormatter.number(
                       discountPrice,
                     ),
                     maxLines: 1,
-                    overflow:
-                    TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight:
-                      FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -185,8 +186,7 @@ class FlashSaleProductCard extends StatelessWidget {
                   'تومان',
                   style: TextStyle(
                     fontSize: 9.sp,
-                    color:
-                    Colors.grey.shade600,
+                    color: Colors.grey.shade600,
                   ),
                 ),
               ],

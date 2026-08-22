@@ -12,10 +12,12 @@ import 'package:supastore/features/home_feature/presentation/widgets/banner_slid
 import 'package:supastore/features/home_feature/presentation/widgets/category_horizontal_list.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/flash_sale_section.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/home_appbar.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/home_footer.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/promotional_banner_grid.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/section_header.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/home_search_bar.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/popular_products_section.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_horizontal_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -139,6 +141,12 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SliverToBoxAdapter(
+              child: SizedBox(
+                height: 25.h,
+              ),
+            ),
+
+            SliverToBoxAdapter(
               child: ChangeNotifierProvider(
                 create: (_) => getIt<BannerProvider>()
                   ..loadPromotionalBanners(),
@@ -146,11 +154,44 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            SliverPadding(
-              padding: EdgeInsets.only(
-                bottom: 30.h,
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 25.h,
               ),
             ),
+
+            SliverToBoxAdapter(
+              child: SectionHeader(
+                title: 'پرفروش ترین ها',
+                onSeeAll: () {
+                  debugPrint(
+                    'See All Categories',
+                  );
+                },
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: const PopularProductsSection(),
+            ),
+
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 20.h,
+              ),
+            ),
+
+
+            SliverToBoxAdapter(
+              child: const HomeFooter(),
+            ),
+
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 20.h,
+              ),
+            ),
+
           ],
         ),
       ),
