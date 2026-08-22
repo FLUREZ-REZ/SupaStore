@@ -181,4 +181,37 @@ class ProductRemoteDataSource {
     return ProductModel.fromMap(response);
   }
 
+
+  // soldout feature poplure hast !
+
+  Future<List<ProductModel>> getPopularProducts({
+    int page = 0,
+    int limit = 10,
+  }) async {
+    final from = page * limit;
+    final to = from + limit - 1;
+
+    final response = await _client
+        .from('products')
+        .select('''
+        *,
+        brands(
+          name,
+          logo_url
+        )
+      ''')
+        .eq('is_available', true)
+        .order(
+      'sold_count',
+      ascending: false,
+    )
+        .range(from, to);
+
+    return response
+        .map<ProductModel>(
+          (json) => ProductModel.fromMap(json),
+    )
+        .toList();
+  }
+
 }

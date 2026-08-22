@@ -77,4 +77,17 @@ class ProductRepositoryImpl implements ProductRepository {
     );
   }
 
+  // baraye feature soldout hast !
+
+  @override
+  Future<List<ProductEntity>> getPopularProducts({
+    int page = 0,
+    int limit = 10,
+  }) async {
+    return await _remoteDataSource.getPopularProducts(
+      page: page,
+      limit: limit,
+    );
+  }
+
 }

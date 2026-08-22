@@ -29,4 +29,11 @@ abstract class ProductRepository {
   });
 
   Future<ProductEntity> getProductById(String productId);
+
+  // baraye feature soldout hast !
+
+  Future<List<ProductEntity>> getPopularProducts({
+    int page = 0,
+    int limit = 10,
+  });
 }

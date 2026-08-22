@@ -15,8 +15,7 @@ class FlashSaleSection extends StatefulWidget {
     this.onSeeAll,
   });
 
-  final void Function(ProductEntity product)?
-  onProductTap;
+  final void Function(ProductEntity product)? onProductTap;
 
   final VoidCallback? onSeeAll;
 
@@ -25,19 +24,18 @@ class FlashSaleSection extends StatefulWidget {
       _FlashSaleSectionState();
 }
 
-class _FlashSaleSectionState
-    extends State<FlashSaleSection> {
+class _FlashSaleSectionState extends State<FlashSaleSection> {
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-        context
-            .read<FlashSaleProvider>()
-            .fetchFlashSales();
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context
+          .read<FlashSaleProvider>()
+          .fetchFlashSales();
+    });
   }
 
   @override
@@ -48,7 +46,10 @@ class _FlashSaleSectionState
           provider,
           child,
           ) {
-        /// LOADING
+        // ─────────────────────────────────────
+        // Loading
+        // ─────────────────────────────────────
+
         if (provider.isLoading) {
           return SizedBox(
             height: 320.h,
@@ -58,7 +59,10 @@ class _FlashSaleSectionState
           );
         }
 
-        /// ERROR
+        // ─────────────────────────────────────
+        // Error
+        // ─────────────────────────────────────
+
         if (provider.errorMessage != null) {
           return SizedBox(
             height: 200.h,
@@ -70,13 +74,15 @@ class _FlashSaleSectionState
           );
         }
 
-        /// EMPTY
+        // ─────────────────────────────────────
+        // Empty
+        // ─────────────────────────────────────
+
         if (!provider.hasData) {
           return const SizedBox.shrink();
         }
 
-        final endAt =
-            provider.items.first.endAt;
+        final endAt = provider.items.first.endAt;
 
         return Container(
           margin: EdgeInsets.only(
@@ -89,14 +95,15 @@ class _FlashSaleSectionState
           ),
           decoration: BoxDecoration(
             color: Colors.red.shade600,
-            borderRadius:
-            BorderRadius.circular(18.r),
+            borderRadius: BorderRadius.circular(18.r),
           ),
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// HEADER
+              // ─────────────────────────────────
+              // Header
+              // ─────────────────────────────────
+
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -107,27 +114,22 @@ class _FlashSaleSectionState
                       child: Row(
                         children: [
                           Icon(
-                            Icons
-                                .local_fire_department,
+                            Icons.local_fire_department,
                             color: Colors.white,
                             size: 22.sp,
                           ),
-
                           SizedBox(width: 6.w),
-
                           Text(
                             'شگفت‌انگیز',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 17.sp,
-                              fontWeight:
-                              FontWeight.w800,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     FlashSaleCountdown(
                       endAt: endAt,
                     ),
@@ -137,48 +139,52 @@ class _FlashSaleSectionState
 
               SizedBox(height: 14.h),
 
-              /// PRODUCTS
+              // ─────────────────────────────────
+              // Products
+              // ─────────────────────────────────
+
               SizedBox(
                 height: 275.h,
-                child: ListView.builder(
-                  scrollDirection:
-                  Axis.horizontal,
-                  physics:
-                  const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                  ),
-                  itemCount:
-                  provider.items.length,
-                  itemBuilder: (
-                      context,
-                      index,
-                      ) {
-                    final item =
-                    provider.items[index];
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                    ),
+                    itemCount: provider.items.length,
+                    itemBuilder: (
+                        context,
+                        index,
+                        ) {
+                      final item = provider.items[index];
 
-                    return FlashSaleProductCard(
-                      item: item,
-                      onTap: () {
-                        widget.onProductTap?.call(
-                          item.product,
-                        );
-                      },
-                    );
-                  },
+                      return FlashSaleProductCard(
+                        item: item,
+                        onTap: () {
+                          widget.onProductTap?.call(
+                            item.product,
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
 
               SizedBox(height: 8.h),
 
-              /// SEE ALL
+              // ─────────────────────────────────
+              // See All
+              // ─────────────────────────────────
+
               if (widget.onSeeAll != null)
                 Center(
                   child: GestureDetector(
                     onTap: widget.onSeeAll,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         vertical: 4.h,
                       ),
                       child: Text(
@@ -186,8 +192,7 @@ class _FlashSaleSectionState
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12.sp,
-                          fontWeight:
-                          FontWeight.w600,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
