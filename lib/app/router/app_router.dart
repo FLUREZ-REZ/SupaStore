@@ -12,6 +12,8 @@ import 'package:supastore/features/product_feature/presentation/pages/product_de
 import 'package:supastore/features/product_feature/presentation/pages/search_page.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
+import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
+import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 import '../../features/splash_feature/presentation/pages/splash_page.dart';
 import '../../features/intro_feature/presentation/pages/intro_page.dart';
 import '../../features/auth_feature/presentation/pages/auth_page.dart';
@@ -49,7 +51,12 @@ class AppRouter {
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const MainPage(),
+        builder: (context, state) {
+          return ChangeNotifierProvider<ProfileProvider>(
+            create: (_) => getIt<ProfileProvider>(),
+            child: const MainPage(),
+          );
+        },
       ),
 
 
@@ -117,6 +124,17 @@ class AppRouter {
 
           return CategoryPage(
             category: category,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/edit-profile',
+        name: 'edit-profile',
+        builder: (context, state) {
+          return ChangeNotifierProvider<ProfileProvider>(
+            create: (_) => getIt<ProfileProvider>(),
+            child: const EditProfilePage(),
           );
         },
       ),
