@@ -40,15 +40,8 @@ class ProfilePage extends StatelessWidget {
       );
     }
 
-    return ChangeNotifierProvider(
-      create: (_) =>
-      getIt<ProfileProvider>()
-        ..loadProfile(
-          userId: user.id,
-        ),
-      child: _ProfileView(
-        user: user,
-      ),
+    return _ProfileView(
+      user: user,
     );
   }
 }
