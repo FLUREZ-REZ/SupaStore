@@ -5,6 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
+
+import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
+import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
+
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
@@ -32,16 +36,44 @@ class HomeAppBar extends StatelessWidget {
     );
   }
 
+  // ============================================================
+  // OPEN CART
+  // ============================================================
+
+  Future<void> _openCart(
+      BuildContext context,
+      ) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const CartPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user =
         Supabase.instance.client.auth.currentUser;
+
+    // ============================================================
+    // PROFILE PROVIDER
+    // ============================================================
 
     final profileProvider =
     context.watch<ProfileProvider>();
 
     final profile =
         profileProvider.profile;
+
+    // ============================================================
+    // CART PROVIDER
+    // ============================================================
+
+    final cartProvider =
+    context.watch<CartProvider>();
+
+    final cartCount =
+        cartProvider.totalItems;
 
     // ============================================================
     // USER INFO
@@ -87,20 +119,22 @@ class HomeAppBar extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      // ==========================================================
-      // BACKGROUND COLOR OF ENTIRE HEADER
-      // ==========================================================
-
       decoration: BoxDecoration(
-        color: AppColors.home_header_background,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24.r),
-          bottomRight: Radius.circular(24.r),
+        color:
+        AppColors.home_header_background,
+
+        borderRadius:
+        BorderRadius.only(
+          bottomLeft:
+          Radius.circular(24.r),
+          bottomRight:
+          Radius.circular(24.r),
         ),
       ),
 
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
+        padding:
+        EdgeInsets.fromLTRB(
           20.w,
           14.h,
           20.w,
@@ -108,13 +142,14 @@ class HomeAppBar extends StatelessWidget {
         ),
 
         child: Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection:
+          TextDirection.rtl,
 
           child: Row(
             children: [
-              // ====================================================
+              // ==================================================
               // USER AVATAR
-              // ====================================================
+              // ==================================================
 
               _UserAvatar(
                 isLoading:
@@ -122,7 +157,9 @@ class HomeAppBar extends StatelessWidget {
                     profile == null,
 
                 onTap: () {
-                  _openEditProfile(context);
+                  _openEditProfile(
+                    context,
+                  );
                 },
               ),
 
@@ -130,20 +167,25 @@ class HomeAppBar extends StatelessWidget {
                 width: 10.w,
               ),
 
-              // ====================================================
+              // ==================================================
               // USER INFO
-              // ====================================================
+              // ==================================================
 
               Expanded(
                 child: Material(
-                  color: Colors.transparent,
+                  color:
+                  Colors.transparent,
 
                   child: InkWell(
                     borderRadius:
-                    BorderRadius.circular(12.r),
+                    BorderRadius.circular(
+                      12.r,
+                    ),
 
                     onTap: () {
-                      _openEditProfile(context);
+                      _openEditProfile(
+                        context,
+                      );
                     },
 
                     child: Padding(
@@ -160,18 +202,11 @@ class HomeAppBar extends StatelessWidget {
                         MainAxisSize.min,
 
                         children: [
-                          // ========================================
-                          // NAME
-                          // ========================================
-
                           Text(
                             title,
-
                             maxLines: 1,
-
                             overflow:
                             TextOverflow.ellipsis,
-
                             style:
                             AppTextStyles.user
                                 .copyWith(
@@ -187,18 +222,11 @@ class HomeAppBar extends StatelessWidget {
                             height: 3.h,
                           ),
 
-                          // ========================================
-                          // PHONE
-                          // ========================================
-
                           Text(
                             subtitle,
-
                             maxLines: 1,
-
                             overflow:
                             TextOverflow.ellipsis,
-
                             style:
                             AppTextStyles.userName
                                 .copyWith(
@@ -220,15 +248,14 @@ class HomeAppBar extends StatelessWidget {
                 width: 12.w,
               ),
 
-              // ====================================================
+              // ==================================================
               // NOTIFICATION
-              // ====================================================
+              // ==================================================
 
               _HeaderIconButton(
                 icon:
                 Icons
                     .notifications_none_rounded,
-
                 onTap: () {
                   // TODO:
                   // NotificationsPage
@@ -239,18 +266,14 @@ class HomeAppBar extends StatelessWidget {
                 width: 8.w,
               ),
 
-              // ====================================================
+              // ==================================================
               // CART
-              // ====================================================
+              // ==================================================
 
-              _HeaderIconButton(
-                icon:
-                Icons
-                    .shopping_cart_outlined,
-
+              _CartIconButton(
+                count: cartCount,
                 onTap: () {
-                  // TODO:
-                  // CartPage
+                  _openCart(context);
                 },
               ),
             ],
@@ -277,12 +300,15 @@ class _UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color:
+      Colors.transparent,
 
-      shape: const CircleBorder(),
+      shape:
+      const CircleBorder(),
 
       child: InkWell(
-        customBorder: const CircleBorder(),
+        customBorder:
+        const CircleBorder(),
 
         onTap: onTap,
 
@@ -299,7 +325,8 @@ class _UserAvatar extends StatelessWidget {
 
             border: Border.all(
               color:
-              AppColors.primary.withValues(
+              AppColors.primary
+                  .withValues(
                 alpha: 0.08,
               ),
             ),
@@ -309,23 +336,105 @@ class _UserAvatar extends StatelessWidget {
               ? Padding(
             padding:
             EdgeInsets.all(12.w),
-
             child:
             const CircularProgressIndicator(
               strokeWidth: 2,
             ),
           )
               : Icon(
-            Icons.person_outline_rounded,
-
+            Icons
+                .person_outline_rounded,
             size: 20.sp,
-
-            color:
-            AppColors
+            color: AppColors
                 .home_header_background,
           ),
         ),
       ),
+    );
+  }
+}
+
+// ==================================================================
+// CART ICON BUTTON
+// ==================================================================
+
+class _CartIconButton
+    extends StatelessWidget {
+  const _CartIconButton({
+    required this.count,
+    required this.onTap,
+  });
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    return Stack(
+      clipBehavior:
+      Clip.none,
+
+      children: [
+        _HeaderIconButton(
+          icon:
+          Icons.shopping_cart_outlined,
+          onTap: onTap,
+        ),
+
+        // فقط وقتی سبد خالی نیست عدد را نمایش بده
+        if (count > 0)
+          Positioned(
+            top: -6.h,
+            right: -6.w,
+
+            child: Container(
+              constraints:
+              BoxConstraints(
+                minWidth: 17.w,
+                minHeight: 17.w,
+              ),
+
+              padding:
+              EdgeInsets.symmetric(
+                horizontal: 4.w,
+              ),
+
+              decoration:
+              BoxDecoration(
+                color:
+                AppColors.white,
+
+                shape:
+                BoxShape.circle,
+
+                border:
+                Border.all(
+                  color: AppColors
+                      .home_header_background,
+                  width: 1.5,
+                ),
+              ),
+
+              child: Center(
+                child: Text(
+                  count > 99
+                      ? '99+'
+                      : count.toString(),
+
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    fontWeight:
+                    FontWeight.w800,
+                    color:
+                    Colors.red,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -345,17 +454,23 @@ class _HeaderIconButton
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Material(
       color:
       AppColors.home_header,
 
       borderRadius:
-      BorderRadius.circular(13.r),
+      BorderRadius.circular(
+        13.r,
+      ),
 
       child: InkWell(
         borderRadius:
-        BorderRadius.circular(13.r),
+        BorderRadius.circular(
+          13.r,
+        ),
 
         onTap: onTap,
 
@@ -365,11 +480,8 @@ class _HeaderIconButton
 
           child: Icon(
             icon,
-
             size: 20.sp,
-
-            color:
-            AppColors
+            color: AppColors
                 .home_header_background,
           ),
         ),
