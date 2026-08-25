@@ -134,13 +134,9 @@ class _HomePageState extends State<HomePage> {
 
               SliverToBoxAdapter(
                 child: SectionHeader(
-                  title:
-                  'دسته‌بندی‌ها',
-
+                  title: 'دسته‌بندی‌ها',
                   onSeeAll: () {
-                    debugPrint(
-                      'See All Categories',
-                    );
+                    context.pushNamed('categories');
                   },
                 ),
               ),

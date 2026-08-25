@@ -4,6 +4,7 @@ import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
+import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
 import 'package:supastore/features/category_feature/presentation/pages/category_page.dart';
 import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
@@ -136,6 +137,15 @@ class AppRouter {
             create: (_) => getIt<ProfileProvider>(),
             child: const EditProfilePage(),
           );
+        },
+      ),
+
+     // see more category part :
+      GoRoute(
+        name: 'categories',
+        path: '/categories',
+        builder: (context, state) {
+          return const CategoryListPage();
         },
       ),
 
