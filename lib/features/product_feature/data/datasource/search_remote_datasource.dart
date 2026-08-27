@@ -9,12 +9,19 @@ class SearchRemoteDataSource {
 
   final SupabaseClient _client;
 
-  Future<List<ProductModel>> searchProducts(
-      String query,
-      ) async {
-    if (query.trim().isEmpty) {
+  Future<List<ProductModel>> searchProducts({
+    required String query,
+    int page = 0,
+    int limit = 10,
+  }) async {
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isEmpty) {
       return [];
     }
+
+    final from = page * limit;
+    final to = from + limit - 1;
 
     final response = await _client
         .from('products')
@@ -28,11 +35,15 @@ class SearchRemoteDataSource {
         .eq('is_available', true)
         .ilike(
       'title',
-      '%${query.trim()}%',
+      '%$trimmedQuery%',
     )
         .order(
       'created_at',
       ascending: false,
+    )
+        .range(
+      from,
+      to,
     );
 
     return response

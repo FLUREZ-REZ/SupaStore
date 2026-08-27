@@ -51,7 +51,7 @@ class CategoryProductProvider extends ChangeNotifier {
 
   int get page => _page;
 
-  static const int _pageSize = 10;
+  static const int _pageSize = 5;
 
   int get pageSize => _pageSize;
 

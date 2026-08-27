@@ -191,7 +191,7 @@ class _Pagination extends StatelessWidget {
           // ========================================================
 
           _PageButton(
-            icon: Icons.chevron_right_rounded,
+            icon: Icons.chevron_left_rounded,
             enabled:
             provider.hasPreviousPage &&
                 !provider.isLoading,
@@ -240,7 +240,7 @@ class _Pagination extends StatelessWidget {
           // ========================================================
 
           _PageButton(
-            icon: Icons.chevron_left_rounded,
+            icon: Icons.chevron_right_rounded,
             enabled:
             provider.hasNextPage &&
                 !provider.isLoading,
