@@ -10,9 +10,15 @@ class SearchRepositoryImpl implements SearchRepository {
   final SearchRemoteDataSource _remoteDataSource;
 
   @override
-  Future<List<ProductEntity>> searchProducts(
-      String query,
-      ) {
-    return _remoteDataSource.searchProducts(query);
+  Future<List<ProductEntity>> searchProducts({
+    required String query,
+    int page = 0,
+    int limit = 10,
+  }) {
+    return _remoteDataSource.searchProducts(
+      query: query,
+      page: page,
+      limit: limit,
+    );
   }
 }
