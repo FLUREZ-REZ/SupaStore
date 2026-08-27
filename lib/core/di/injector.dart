@@ -53,6 +53,8 @@ import 'package:supastore/features/product_feature/domain/repositories/product_i
 import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_specification_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/search_repository.dart';
+import 'package:supastore/features/product_feature/presentation/providers/latest_products_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/popular_products_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
@@ -461,6 +463,24 @@ Future<void> setupInjector() async {
     ),
   );
 
+
+  // ============================================================
+  // LATEST PRODUCTS PROVIDER
+  // ============================================================
+
+  getIt.registerFactory<LatestProductsProvider>(
+        () => LatestProductsProvider(
+      repository: getIt<ProductRepository>(),
+    ),
+  );
+
+  //baraye bakhsh populer sell homepage page see all :
+
+  getIt.registerFactory<PopularProductsProvider>(
+        () => PopularProductsProvider(
+      repository: getIt<ProductRepository>(),
+    ),
+  );
 
 
 }
