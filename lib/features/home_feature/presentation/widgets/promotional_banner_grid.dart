@@ -37,7 +37,7 @@ class PromotionalBannerGrid extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 10.w,
           mainAxisSpacing: 10.h,
-          childAspectRatio: 2.0,
+          childAspectRatio: 1.2,
         ),
         itemBuilder: (context, index) {
           final banner = visibleBanners[index];
@@ -73,8 +73,7 @@ class PromotionalBannerGrid extends StatelessWidget {
         break;
 
       case 'category':
-      // فعلاً بعد از اینکه CategoryProvider
-      // را بررسی کردیم این قسمت را کامل می‌کنیم.
+
         break;
 
       default:
