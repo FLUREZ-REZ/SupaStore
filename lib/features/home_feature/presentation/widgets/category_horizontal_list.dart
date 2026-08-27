@@ -85,7 +85,7 @@ class _CategoryHorizontalListState
 
               separatorBuilder: (_, __) {
                 return SizedBox(
-                  width: 14.w,
+                  width: 2.w,
                 );
               },
 

@@ -9,10 +9,12 @@ import 'package:supastore/features/category_feature/presentation/pages/category_
 import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
+import 'package:supastore/features/product_feature/presentation/pages/popular_products_page.dart';
 import 'package:supastore/features/product_feature/presentation/pages/product_details_page.dart';
 import 'package:supastore/features/product_feature/presentation/pages/search_page.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/latest_products_page.dart';
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 import '../../features/splash_feature/presentation/pages/splash_page.dart';
@@ -146,6 +148,30 @@ class AppRouter {
         path: '/categories',
         builder: (context, state) {
           return const CategoryListPage();
+        },
+      ),
+
+
+      GoRoute(
+        name: 'latest-products',
+        path: '/latest-products',
+        builder: (
+            context,
+            state,
+            ) {
+          return const LatestProductsPage();
+        },
+      ),
+
+
+      GoRoute(
+        name: 'popular-products',
+        path: '/popular-products',
+        builder: (
+            context,
+            state,
+            ) {
+          return const PopularProductsPage();
         },
       ),
 

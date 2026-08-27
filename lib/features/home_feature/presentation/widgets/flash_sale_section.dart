@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
@@ -94,8 +95,8 @@ class _FlashSaleSectionState extends State<FlashSaleSection> {
             bottom: 14.h,
           ),
           decoration: BoxDecoration(
-            color: Colors.red.shade600,
-            borderRadius: BorderRadius.circular(18.r),
+            color: AppColors.home_header_background,
+
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -167,10 +167,17 @@ class _HomePageState extends State<HomePage> {
               // NEWEST PRODUCTS HEADER
               // ==================================================
 
+
+
+
               SliverToBoxAdapter(
                 child: SectionHeader(
-                  title:
-                  'جدیدترین محصولات',
+                  title: 'جدیدترین محصولات',
+                  onSeeAll: () {
+                    context.pushNamed(
+                      'latest-products',
+                    );
+                  },
                 ),
               ),
 
@@ -257,12 +264,10 @@ class _HomePageState extends State<HomePage> {
 
               SliverToBoxAdapter(
                 child: SectionHeader(
-                  title:
-                  'پرفروش ترین ها',
-
+                  title: 'پرفروش‌ترین محصولات',
                   onSeeAll: () {
-                    debugPrint(
-                      'See All Categories',
+                    context.pushNamed(
+                      'popular-products',
                     );
                   },
                 ),
