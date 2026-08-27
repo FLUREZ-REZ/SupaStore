@@ -168,7 +168,29 @@ class _HomePageState extends State<HomePage> {
               // ==================================================
 
 
+              SliverToBoxAdapter(
+                child: ChangeNotifierProvider(
+                  create: (_) =>
+                      getIt<FlashSaleProvider>(),
 
+                  child:
+                  FlashSaleSection(
+                    onProductTap:
+                        (product) {
+                      context.pushNamed(
+                        'product-details',
+                        extra: product,
+                      );
+                    },
+
+                    onSeeAll: () {
+                      debugPrint(
+                        'See All Flash Sales',
+                      );
+                    },
+                  ),
+                ),
+              ),
 
               SliverToBoxAdapter(
                 child: SectionHeader(
@@ -199,29 +221,7 @@ class _HomePageState extends State<HomePage> {
               // FLASH SALE
               // ==================================================
 
-              SliverToBoxAdapter(
-                child: ChangeNotifierProvider(
-                  create: (_) =>
-                      getIt<FlashSaleProvider>(),
 
-                  child:
-                  FlashSaleSection(
-                    onProductTap:
-                        (product) {
-                      context.pushNamed(
-                        'product-details',
-                        extra: product,
-                      );
-                    },
-
-                    onSeeAll: () {
-                      debugPrint(
-                        'See All Flash Sales',
-                      );
-                    },
-                  ),
-                ),
-              ),
 
               // ==================================================
               // SPACE
