@@ -4,7 +4,10 @@ import '../models/flash_sale_product_model.dart';
 
 abstract class FlashSaleRemoteDataSource {
   Future<List<FlashSaleProductModel>>
-  getActiveFlashSaleProducts();
+  getActiveFlashSaleProducts({
+    int page = 0,
+    int limit = 20,
+  });
 }
 
 class FlashSaleRemoteDataSourceImpl
@@ -17,8 +20,31 @@ class FlashSaleRemoteDataSourceImpl
 
   @override
   Future<List<FlashSaleProductModel>>
-  getActiveFlashSaleProducts() async {
-    final now = DateTime.now().toUtc().toIso8601String();
+  getActiveFlashSaleProducts({
+    int page = 0,
+    int limit = 20,
+  }) async {
+
+    // ============================================================
+    // PAGINATION
+    // ============================================================
+
+    final from = page * limit;
+
+    final to = from + limit - 1;
+
+
+    // ============================================================
+    // CURRENT TIME
+    // ============================================================
+
+    final now =
+    DateTime.now().toUtc().toIso8601String();
+
+
+    // ============================================================
+    // SUPABASE QUERY
+    // ============================================================
 
     final response = await supabase
         .from('flash_sale_products')
@@ -31,6 +57,7 @@ class FlashSaleRemoteDataSourceImpl
           is_active,
           sort_order,
           created_at,
+
           products (
             id,
             category_id,
@@ -49,25 +76,70 @@ class FlashSaleRemoteDataSourceImpl
             created_at,
             sold_count,
             is_new,
+
             brands (
               name,
               logo_url
             )
           )
         ''')
-        .eq('is_active', true)
-        .lte('start_at', now)
-        .gte('end_at', now)
+
+    // ========================================================
+    // ONLY ACTIVE FLASH SALES
+    // ========================================================
+
+        .eq(
+      'is_active',
+      true,
+    )
+
+    // ========================================================
+    // FLASH SALE HAS STARTED
+    // ========================================================
+
+        .lte(
+      'start_at',
+      now,
+    )
+
+    // ========================================================
+    // FLASH SALE HAS NOT EXPIRED
+    // ========================================================
+
+        .gte(
+      'end_at',
+      now,
+    )
+
+    // ========================================================
+    // ORDER
+    // ========================================================
+
         .order(
       'sort_order',
       ascending: true,
+    )
+
+    // ========================================================
+    // PAGINATION
+    // ========================================================
+
+        .range(
+      from,
+      to,
     );
+
+
+    // ============================================================
+    // CONVERT RESPONSE TO MODEL
+    // ============================================================
 
     return (response as List)
         .map(
-          (item) => FlashSaleProductModel.fromMap(
-        Map<String, dynamic>.from(item),
-      ),
+          (item) =>
+          FlashSaleProductModel.fromMap(
+            Map<String, dynamic>.from(item),
+          ),
     )
         .toList();
   }

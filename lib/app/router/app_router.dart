@@ -6,6 +6,7 @@ import 'package:supastore/features/auth_feature/presentation/providers/otp_provi
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
 import 'package:supastore/features/category_feature/presentation/pages/category_page.dart';
+import 'package:supastore/features/flash_sale_feature/presentation/pages/flash_sale_page.dart';
 import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
@@ -172,6 +173,15 @@ class AppRouter {
             state,
             ) {
           return const PopularProductsPage();
+        },
+      ),
+
+ // flash sale all see page
+      GoRoute(
+        name: 'flash-sale',
+        path: '/flash-sale',
+        builder: (context, state) {
+          return const FlashSalePage();
         },
       ),
 

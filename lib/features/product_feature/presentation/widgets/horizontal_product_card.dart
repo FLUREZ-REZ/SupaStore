@@ -41,8 +41,7 @@ class HorizontalProductCard extends StatelessWidget {
           ),
         ),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ==================================================
             // IMAGE
@@ -51,8 +50,7 @@ class HorizontalProductCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius:
-                  BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(16.r),
                   ),
                   child: SizedBox(
@@ -61,15 +59,16 @@ class HorizontalProductCard extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: product.thumbnail,
                       fit: BoxFit.cover,
-                      placeholder: (_, __) =>
-                      const Center(
-                        child:
-                        CircularProgressIndicator(),
-                      ),
-                      errorWidget: (_, __, ___) =>
-                      const Icon(
-                        Icons.image_not_supported,
-                      ),
+                      placeholder: (_, __) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                      errorWidget: (_, __, ___) {
+                        return const Icon(
+                          Icons.image_not_supported,
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -81,22 +80,19 @@ class HorizontalProductCard extends StatelessWidget {
                 Positioned(
                   top: 8.h,
                   right: 8.w,
-                  child:
-                  Consumer<FavoriteProvider>(
+                  child: Consumer<FavoriteProvider>(
                     builder: (
                         context,
                         favoriteProvider,
                         child,
                         ) {
                       final bool isFavorite =
-                      favoriteProvider
-                          .isFavorite(
+                      favoriteProvider.isFavorite(
                         product.id,
                       );
 
                       final bool isLoading =
-                      favoriteProvider
-                          .isProductLoading(
+                      favoriteProvider.isProductLoading(
                         product.id,
                       );
 
@@ -105,8 +101,7 @@ class HorizontalProductCard extends StatelessWidget {
                         shape: const CircleBorder(),
                         elevation: 2,
                         child: InkWell(
-                          customBorder:
-                          const CircleBorder(),
+                          customBorder: const CircleBorder(),
                           onTap: isLoading
                               ? null
                               : () async {
@@ -117,23 +112,20 @@ class HorizontalProductCard extends StatelessWidget {
                                     .auth
                                     .currentUser;
 
-                            if (user ==
-                                null) {
+                            if (user == null) {
                               return;
                             }
 
                             await favoriteProvider
                                 .toggleFavorite(
                               userId: user.id,
-                              productId:
-                              product.id,
+                              productId: product.id,
                             );
 
                             onFavorite?.call();
                           },
                           child: Padding(
-                            padding:
-                            EdgeInsets.all(6.w),
+                            padding: EdgeInsets.all(6.w),
                             child: isLoading
                                 ? SizedBox(
                               width: 18.sp,
@@ -146,8 +138,7 @@ class HorizontalProductCard extends StatelessWidget {
                                 : Icon(
                               isFavorite
                                   ? Icons.favorite
-                                  : Icons
-                                  .favorite_border,
+                                  : Icons.favorite_border,
                               size: 20.sp,
                               color: Colors.red,
                             ),
@@ -171,29 +162,45 @@ class HorizontalProductCard extends StatelessWidget {
                   crossAxisAlignment:
                   CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      product.title,
-                      maxLines: 2,
-                      overflow:
-                      TextOverflow.ellipsis,
-                      style:
-                      AppTextStyles.productCard,
+                    // ==================================================
+                    // TITLE
+                    // ==================================================
+
+                    SizedBox(
+                      height: 40.h,
+                      child: Text(
+                        product.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.productCard,
+                      ),
                     ),
 
                     SizedBox(
                       height: 8.h,
                     ),
 
-                    Text(
-                      PriceFormatter.format(
-                        product.finalPrice,
-                      ),
-                      style: AppTextStyles
-                          .product_prize
-                          .copyWith(
-                        color: AppColors.price,
-                        fontWeight:
-                        FontWeight.bold,
+                    const Spacer(),
+
+                    // ==================================================
+                    // PRICE
+                    // ==================================================
+
+                    SizedBox(
+                      height: 24.h,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          PriceFormatter.format(
+                            product.finalPrice,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.product_prize.copyWith(
+                            color: AppColors.price,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
