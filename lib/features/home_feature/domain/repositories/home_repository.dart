@@ -4,4 +4,6 @@ abstract class BannerRepository {
   Future<List<BannerEntity>> getHeroBanners();
 
   Future<List<BannerEntity>> getPromotionalBanners();
+
+  Future<List<BannerEntity>> getSingleBanners();
 }

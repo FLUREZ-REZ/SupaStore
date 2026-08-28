@@ -10,9 +10,9 @@ class BannerProvider extends ChangeNotifier {
 
   final BannerRepository _repository;
 
-  // ─────────────────────────────────────────────
-  // Hero Banners
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // HERO
+  // ============================================================
 
   List<BannerEntity> _heroBanners = [];
 
@@ -20,15 +20,18 @@ class BannerProvider extends ChangeNotifier {
 
   String? _heroError;
 
-  List<BannerEntity> get heroBanners => _heroBanners;
+  List<BannerEntity> get heroBanners =>
+      _heroBanners;
 
-  bool get isHeroLoading => _isHeroLoading;
+  bool get isHeroLoading =>
+      _isHeroLoading;
 
-  String? get heroError => _heroError;
+  String? get heroError =>
+      _heroError;
 
-  // ─────────────────────────────────────────────
-  // Promotional Banners
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // PROMOTIONAL
+  // ============================================================
 
   List<BannerEntity> _promotionalBanners = [];
 
@@ -45,9 +48,28 @@ class BannerProvider extends ChangeNotifier {
   String? get promotionalError =>
       _promotionalError;
 
-  // ─────────────────────────────────────────────
-  // Load Hero Banners
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // SINGLE
+  // ============================================================
+
+  List<BannerEntity> _singleBanners = [];
+
+  bool _isSingleLoading = false;
+
+  String? _singleError;
+
+  List<BannerEntity> get singleBanners =>
+      _singleBanners;
+
+  bool get isSingleLoading =>
+      _isSingleLoading;
+
+  String? get singleError =>
+      _singleError;
+
+  // ============================================================
+  // LOAD HERO
+  // ============================================================
 
   Future<void> loadHeroBanners() async {
     if (_isHeroLoading) {
@@ -71,9 +93,9 @@ class BannerProvider extends ChangeNotifier {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // Load Promotional Banners
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // LOAD PROMOTIONAL
+  // ============================================================
 
   Future<void> loadPromotionalBanners() async {
     if (_isPromotionalLoading) {
@@ -87,7 +109,8 @@ class BannerProvider extends ChangeNotifier {
 
     try {
       _promotionalBanners =
-      await _repository.getPromotionalBanners();
+      await _repository
+          .getPromotionalBanners();
     } catch (e) {
       _promotionalError = e.toString();
     } finally {
@@ -95,5 +118,43 @@ class BannerProvider extends ChangeNotifier {
 
       notifyListeners();
     }
+  }
+
+  // ============================================================
+  // LOAD SINGLE
+  // ============================================================
+
+  Future<void> loadSingleBanners() async {
+    if (_isSingleLoading) {
+      return;
+    }
+
+    _isSingleLoading = true;
+    _singleError = null;
+
+    notifyListeners();
+
+    try {
+      _singleBanners =
+      await _repository.getSingleBanners();
+    } catch (e) {
+      _singleError = e.toString();
+    } finally {
+      _isSingleLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // LOAD ALL
+  // ============================================================
+
+  Future<void> loadAllBanners() async {
+    await Future.wait([
+      loadHeroBanners(),
+      loadPromotionalBanners(),
+      loadSingleBanners(),
+    ]);
   }
 }
