@@ -121,7 +121,7 @@ class HomeAppBar extends StatelessWidget {
 
       decoration: BoxDecoration(
         color:
-        AppColors.home_header_background,
+        AppColors.home_header,
 
         borderRadius:
         BorderRadius.only(
@@ -214,7 +214,7 @@ class HomeAppBar extends StatelessWidget {
                               fontWeight:
                               FontWeight.w500,
                               color:
-                              Colors.white,
+                              Colors.black,
                             ),
                           ),
 
@@ -234,7 +234,7 @@ class HomeAppBar extends StatelessWidget {
                               fontWeight:
                               FontWeight.w700,
                               color:
-                              Colors.white,
+                              Colors.black54,
                             ),
                           ),
                         ],
@@ -318,7 +318,7 @@ class _UserAvatar extends StatelessWidget {
 
           decoration: BoxDecoration(
             color:
-            AppColors.home_header,
+            AppColors.home_header_background,
 
             shape:
             BoxShape.circle,
@@ -346,7 +346,7 @@ class _UserAvatar extends StatelessWidget {
                 .person_outline_rounded,
             size: 20.sp,
             color: AppColors
-                .home_header_background,
+                .home_header,
           ),
         ),
       ),
@@ -459,7 +459,7 @@ class _HeaderIconButton
       ) {
     return Material(
       color:
-      AppColors.home_header,
+      AppColors.home_header_background,
 
       borderRadius:
       BorderRadius.circular(
@@ -482,7 +482,7 @@ class _HeaderIconButton
             icon,
             size: 20.sp,
             color: AppColors
-                .home_header_background,
+                .home_header,
           ),
         ),
       ),
