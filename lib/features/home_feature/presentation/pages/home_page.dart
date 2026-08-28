@@ -22,6 +22,7 @@ import 'package:supastore/features/home_feature/presentation/widgets/home_appbar
 import 'package:supastore/features/home_feature/presentation/widgets/home_footer.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/promotional_banner_grid.dart';
 import 'package:supastore/features/home_feature/presentation/widgets/section_header.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/single_banner.dart';
 
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/home_search_bar.dart';
@@ -115,13 +116,14 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // ==================================================
-              // BANNER
+              // HERO BANNER
               // ==================================================
 
               SliverToBoxAdapter(
                 child: ChangeNotifierProvider(
                   create: (_) =>
-                      getIt<BannerProvider>(),
+                  getIt<BannerProvider>()
+                    ..loadHeroBanners(),
 
                   child:
                   const BannerSlider(),
@@ -135,8 +137,11 @@ class _HomePageState extends State<HomePage> {
               SliverToBoxAdapter(
                 child: SectionHeader(
                   title: 'دسته‌بندی‌ها',
+
                   onSeeAll: () {
-                    context.pushNamed('categories');
+                    context.pushNamed(
+                      'categories',
+                    );
                   },
                 ),
               ),
@@ -150,8 +155,7 @@ class _HomePageState extends State<HomePage> {
                   create: (_) =>
                       getIt<CategoryProvider>(),
 
-                  child:
-                  CategoryHorizontalList(
+                  child: CategoryHorizontalList(
                     onCategoryTap:
                         (category) {
                       context.pushNamed(
@@ -164,9 +168,8 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // ==================================================
-              // NEWEST PRODUCTS HEADER
+              // FLASH SALE
               // ==================================================
-
 
               SliverToBoxAdapter(
                 child: ChangeNotifierProvider(
@@ -175,7 +178,8 @@ class _HomePageState extends State<HomePage> {
                     ..fetchFlashSales(),
 
                   child: FlashSaleSection(
-                    onProductTap: (product) {
+                    onProductTap:
+                        (product) {
                       context.pushNamed(
                         'product-details',
                         extra: product,
@@ -191,9 +195,14 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
+              // ==================================================
+              // NEWEST PRODUCTS HEADER
+              // ==================================================
+
               SliverToBoxAdapter(
                 child: SectionHeader(
                   title: 'جدیدترین محصولات',
+
                   onSeeAll: () {
                     context.pushNamed(
                       'latest-products',
@@ -215,12 +224,6 @@ class _HomePageState extends State<HomePage> {
                   const _NewestProducts(),
                 ),
               ),
-
-              // ==================================================
-              // FLASH SALE
-              // ==================================================
-
-
 
               // ==================================================
               // SPACE
@@ -264,6 +267,7 @@ class _HomePageState extends State<HomePage> {
               SliverToBoxAdapter(
                 child: SectionHeader(
                   title: 'پرفروش‌ترین محصولات',
+
                   onSeeAll: () {
                     context.pushNamed(
                       'popular-products',
@@ -292,12 +296,36 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // ==================================================
-              // FOOTER
+              // SINGLE BANNER
               // ==================================================
 
               SliverToBoxAdapter(
-                child:
-                const HomeFooter(),
+                child: ChangeNotifierProvider(
+                  create: (_) =>
+                  getIt<BannerProvider>()
+                    ..loadSingleBanners(),
+
+                  child:
+                  const _SingleBannerSection(),
+                ),
+              ),
+
+              // ==================================================
+              // SPACE
+              // ==================================================
+
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 24.h,
+                ),
+              ),
+
+              // ==================================================
+              // FOOTER
+              // ==================================================
+
+              const SliverToBoxAdapter(
+                child: HomeFooter(),
               ),
 
               // ==================================================
@@ -323,6 +351,7 @@ class _HomePageState extends State<HomePage> {
 
 class _PromotionalBanners
     extends StatelessWidget {
+
   const _PromotionalBanners();
 
   @override
@@ -335,9 +364,16 @@ class _PromotionalBanners
           provider,
           child,
           ) {
-        if (provider.isPromotionalLoading) {
+
+        // ========================================================
+        // LOADING
+        // ========================================================
+
+        if (provider.isPromotionalLoading &&
+            provider.promotionalBanners.isEmpty) {
           return SizedBox(
             height: 180.h,
+
             child: const Center(
               child:
               CircularProgressIndicator(),
@@ -345,17 +381,122 @@ class _PromotionalBanners
           );
         }
 
-        if (provider.promotionalError != null) {
+        // ========================================================
+        // ERROR
+        // ========================================================
+
+        if (provider.promotionalError != null &&
+            provider.promotionalBanners.isEmpty) {
+
+          debugPrint(
+            'Promotional Banner Error: '
+                '${provider.promotionalError}',
+          );
+
           return const SizedBox.shrink();
         }
+
+        // ========================================================
+        // EMPTY
+        // ========================================================
 
         if (provider.promotionalBanners.isEmpty) {
           return const SizedBox.shrink();
         }
 
+        // ========================================================
+        // GRID
+        // ========================================================
+
         return PromotionalBannerGrid(
           banners:
           provider.promotionalBanners,
+        );
+      },
+    );
+  }
+}
+
+// ==================================================================
+// SINGLE BANNER
+// ==================================================================
+
+class _SingleBannerSection
+    extends StatelessWidget {
+
+  const _SingleBannerSection();
+
+  @override
+  Widget build(
+      BuildContext context,
+      ) {
+    return Consumer<BannerProvider>(
+      builder: (
+          context,
+          provider,
+          child,
+          ) {
+
+        // ========================================================
+        // LOADING
+        // ========================================================
+
+        if (provider.isSingleLoading &&
+            provider.singleBanners.isEmpty) {
+
+          return SizedBox(
+            height: 180.h,
+
+            child: const Center(
+              child:
+              CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // ========================================================
+        // ERROR
+        // ========================================================
+
+        if (provider.singleError != null &&
+            provider.singleBanners.isEmpty) {
+
+          debugPrint(
+            'Single Banner Error: '
+                '${provider.singleError}',
+          );
+
+          return const SizedBox.shrink();
+        }
+
+        // ========================================================
+        // EMPTY
+        // ========================================================
+
+        if (provider.singleBanners.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // ========================================================
+        // GET FIRST SINGLE BANNER
+        // ========================================================
+
+        final banner =
+            provider.singleBanners.first;
+
+        // ========================================================
+        // SINGLE BANNER WIDGET
+        // ========================================================
+
+        return SingleBanner(
+          banner: banner,
+
+          onTap: () {
+            debugPrint(
+              'Single Banner: '
+                  '${banner.title}',
+            );
+          },
         );
       },
     );
@@ -368,6 +509,7 @@ class _PromotionalBanners
 
 class _NewestProducts
     extends StatefulWidget {
+
   const _NewestProducts();
 
   @override
@@ -384,6 +526,7 @@ class _NewestProductsState
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) {
+
       context
           .read<ProductProvider>()
           .loadNewestProducts();
@@ -400,9 +543,16 @@ class _NewestProductsState
           provider,
           child,
           ) {
+
+        // ========================================================
+        // LOADING
+        // ========================================================
+
         if (provider.isLoading) {
+
           return SizedBox(
             height: 300.h,
+
             child: const Center(
               child:
               CircularProgressIndicator(),
@@ -410,9 +560,15 @@ class _NewestProductsState
           );
         }
 
+        // ========================================================
+        // ERROR
+        // ========================================================
+
         if (provider.error != null) {
+
           return SizedBox(
             height: 300.h,
+
             child: Center(
               child: Text(
                 provider.error!,
@@ -421,6 +577,27 @@ class _NewestProductsState
           );
         }
 
+        // ========================================================
+        // EMPTY
+        // ========================================================
+
+        if (provider.products.isEmpty) {
+
+          return SizedBox(
+            height: 200.h,
+
+            child: const Center(
+              child: Text(
+                'محصولی یافت نشد',
+              ),
+            ),
+          );
+        }
+
+        // ========================================================
+        // PRODUCT LIST
+        // ========================================================
+
         return ProductHorizontalList(
           products:
           provider.products,
@@ -428,6 +605,7 @@ class _NewestProductsState
           onProductTap: (
               product,
               ) {
+
             context.pushNamed(
               'product-details',
               extra: product,
@@ -437,6 +615,7 @@ class _NewestProductsState
           onFavoriteTap: (
               product,
               ) {
+
             debugPrint(
               'Favorite: ${product.id}',
             );

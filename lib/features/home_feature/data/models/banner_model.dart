@@ -28,8 +28,7 @@ class BannerModel extends BannerEntity {
     return BannerModel(
       id: map['id'] as String,
 
-      title:
-      map['title'] as String,
+      title: map['title'] as String,
 
       description:
       map['description'] as String?,
@@ -51,7 +50,7 @@ class BannerModel extends BannerEntity {
       map['action_value'] as String?,
 
       sortOrder:
-      map['sort_order'] as int,
+      (map['sort_order'] as num).toInt(),
 
       isActive:
       map['is_active'] as bool,

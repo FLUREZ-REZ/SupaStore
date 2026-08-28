@@ -2,27 +2,39 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/features/home_feature/data/models/banner_model.dart';
 
-class BannerRemoteDataSource {
-  BannerRemoteDataSource({
+abstract class BannerRemoteDataSource {
+  Future<List<BannerModel>> getHeroBanners();
+
+  Future<List<BannerModel>> getPromotionalBanners();
+
+  Future<List<BannerModel>> getSingleBanners();
+}
+
+class BannerRemoteDataSourceImpl
+    implements BannerRemoteDataSource {
+  BannerRemoteDataSourceImpl({
     SupabaseClient? client,
-  }) : _client = client ?? Supabase.instance.client;
+  }) : _client =
+      client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
-  /// Hero banners
-  ///
-  /// Used by the main banner slider on Home.
-  Future<List<BannerModel>> getHeroBanners() async {
+  String get _now =>
+      DateTime.now().toUtc().toIso8601String();
+
+  Future<List<BannerModel>> _getBanners({
+    required String bannerType,
+  }) async {
     final response = await _client
         .from('banners')
         .select()
-        .eq('banner_type', 'hero')
+        .eq('banner_type', bannerType)
         .eq('is_active', true)
         .or(
-      'start_date.is.null,start_date.lte.${DateTime.now().toIso8601String()}',
+      'start_date.is.null,start_date.lte.$_now',
     )
         .or(
-      'end_date.is.null,end_date.gte.${DateTime.now().toIso8601String()}',
+      'end_date.is.null,end_date.gte.$_now',
     )
         .order(
       'sort_order',
@@ -31,35 +43,34 @@ class BannerRemoteDataSource {
 
     return response
         .map<BannerModel>(
-          (json) => BannerModel.fromMap(json),
+          (json) => BannerModel.fromMap(
+        Map<String, dynamic>.from(json),
+      ),
     )
         .toList();
   }
 
-  /// Promotional banners
-  ///
-  /// Used by the 2x2 promotional banner grid on Home.
-  Future<List<BannerModel>> getPromotionalBanners() async {
-    final response = await _client
-        .from('banners')
-        .select()
-        .eq('banner_type', 'promotional')
-        .eq('is_active', true)
-        .or(
-      'start_date.is.null,start_date.lte.${DateTime.now().toIso8601String()}',
-    )
-        .or(
-      'end_date.is.null,end_date.gte.${DateTime.now().toIso8601String()}',
-    )
-        .order(
-      'sort_order',
-      ascending: true,
+  @override
+  Future<List<BannerModel>>
+  getHeroBanners() {
+    return _getBanners(
+      bannerType: 'hero',
     );
+  }
 
-    return response
-        .map<BannerModel>(
-          (json) => BannerModel.fromMap(json),
-    )
-        .toList();
+  @override
+  Future<List<BannerModel>>
+  getPromotionalBanners() {
+    return _getBanners(
+      bannerType: 'promotional',
+    );
+  }
+
+  @override
+  Future<List<BannerModel>>
+  getSingleBanners() {
+    return _getBanners(
+      bannerType: 'bottom_home',
+    );
   }
 }

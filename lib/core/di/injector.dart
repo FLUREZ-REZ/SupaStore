@@ -1,6 +1,11 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+// ============================================================
+// ADDRESS FEATURE
+// ============================================================
+
 import 'package:supastore/features/address_feature/data/datasources/address_remote_data_source.dart';
 import 'package:supastore/features/address_feature/data/repositories/address_repository_impl.dart';
 import 'package:supastore/features/address_feature/domain/repositories/address_repository.dart';
@@ -11,54 +16,98 @@ import 'package:supastore/features/address_feature/domain/usecases/get_default_a
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+
+// ============================================================
+// CART FEATURE
+// ============================================================
+
 import 'package:supastore/features/cart_feature/data/datasource/cart_remote_datasource.dart';
 import 'package:supastore/features/cart_feature/data/repositories/cart_repository_impl.dart';
 import 'package:supastore/features/cart_feature/domain/repositories/cart_repository.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
+
+// ============================================================
+// CATEGORY FEATURE
+// ============================================================
+
 import 'package:supastore/features/category_feature/data/datasources/category_product_remote_datasource.dart';
 import 'package:supastore/features/category_feature/data/repositories/category_product_repository_impl.dart';
 import 'package:supastore/features/category_feature/domain/repositories/category_product_repository.dart';
 import 'package:supastore/features/category_feature/presentation/providers/category_product_provider.dart';
+
+// ============================================================
+// FAVORITE FEATURE
+// ============================================================
+
 import 'package:supastore/features/favorite_feature/data/datasource/favorite_remote_datasource.dart';
 import 'package:supastore/features/favorite_feature/data/repositories/favorite_repository_impl.dart';
 import 'package:supastore/features/favorite_feature/domain/repositories/favorite_repository.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
+
+// ============================================================
+// FLASH SALE FEATURE
+// ============================================================
+
 import 'package:supastore/features/flash_sale_feature/data/datasource/flash_sale_remote_data_source.dart';
 import 'package:supastore/features/flash_sale_feature/data/repositories/flash_sale_repository_impl.dart';
 import 'package:supastore/features/flash_sale_feature/domain/repositories/flash_sale_repository.dart';
 import 'package:supastore/features/flash_sale_feature/domain/usecases/get_active_flash_sales_use_case.dart';
 import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
+
+// ============================================================
+// HOME FEATURE - BANNER
+// ============================================================
+
 import 'package:supastore/features/home_feature/data/datasource/banner_remote_datasource.dart';
 import 'package:supastore/features/home_feature/data/datasource/category_remote_datasource.dart';
-import 'package:supastore/features/home_feature/data/repositories/category_repository_impl.dart';
 import 'package:supastore/features/home_feature/data/repositories/home_repository_impl.dart';
-import 'package:supastore/features/home_feature/domain/repositories/category_repository.dart';
+import 'package:supastore/features/home_feature/data/repositories/category_repository_impl.dart';
+import 'package:supastore/features/home_feature/domain/get_single_banners_use_case.dart';
 import 'package:supastore/features/home_feature/domain/repositories/home_repository.dart';
+import 'package:supastore/features/home_feature/domain/repositories/category_repository.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
+
+// ============================================================
+// ORDER FEATURE
+// ============================================================
+
 import 'package:supastore/features/order_feature/data/datasource/order_remote_datasource.dart';
 import 'package:supastore/features/order_feature/data/repositories/order_repository_impl.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
 import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
+
+// ============================================================
+// PRODUCT FEATURE
+// ============================================================
+
 import 'package:supastore/features/product_feature/data/datasource/product_image_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/product_specification_remote_datasource.dart';
 import 'package:supastore/features/product_feature/data/datasource/search_remote_datasource.dart';
+
 import 'package:supastore/features/product_feature/data/repositories/product_image_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/product_specification_repository_impl.dart';
 import 'package:supastore/features/product_feature/data/repositories/search_repository_impl.dart';
+
 import 'package:supastore/features/product_feature/domain/repositories/product_image_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/product_specification_repository.dart';
 import 'package:supastore/features/product_feature/domain/repositories/search_repository.dart';
+
 import 'package:supastore/features/product_feature/presentation/providers/latest_products_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/popular_products_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
+
+// ============================================================
+// PROFILE FEATURE
+// ============================================================
+
 import 'package:supastore/features/profile_feature/data/datasources/profile_remote_data_source.dart';
 import 'package:supastore/features/profile_feature/data/repositories/profile_repository_impl.dart';
 import 'package:supastore/features/profile_feature/domain/repositories/profile_repository.dart';
@@ -66,19 +115,38 @@ import 'package:supastore/features/profile_feature/domain/usecases/create_profil
 import 'package:supastore/features/profile_feature/domain/usecases/get_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/domain/usecases/update_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
+
+// ============================================================
+// SETTINGS FEATURE
+// ============================================================
+
 import 'package:supastore/features/settings_feature/data/datasources/settings_local_data_source.dart';
 import 'package:supastore/features/settings_feature/presentation/providers/settings_provider.dart';
+
+// ============================================================
+// SHIPPING FEATURE
+// ============================================================
+
 import 'package:supastore/features/shipping_feature/data/datasources/shipping_remote_data_source.dart';
 import 'package:supastore/features/shipping_feature/data/repositories/shipping_repository_impl.dart';
 import 'package:supastore/features/shipping_feature/domain/repositories/shipping_repository.dart';
 import 'package:supastore/features/shipping_feature/presentation/providers/shipping_provider.dart';
 
-
+// ============================================================
+// GET IT
+// ============================================================
 
 final getIt = GetIt.instance;
 
-Future<void> setupInjector() async {
 
+// ============================================================
+// SETUP INJECTOR
+// ============================================================
+
+Future<void> setupInjector() async {
+  // ==========================================================
+  // SHARED PREFERENCES
+  // ==========================================================
 
   final sharedPreferences =
   await SharedPreferences.getInstance();
@@ -87,24 +155,43 @@ Future<void> setupInjector() async {
     sharedPreferences,
   );
 
-  /// Banner DataSource
+  // ==========================================================
+  // BANNER FEATURE
+  // ==========================================================
+// ============================================================
+// BANNER FEATURE
+// ============================================================
+
+  // ============================================================
+// BANNER FEATURE
+// ============================================================
+
+  /// Banner Remote DataSource
   getIt.registerLazySingleton<BannerRemoteDataSource>(
-        () => BannerRemoteDataSource(),
+        () => BannerRemoteDataSourceImpl(
+      client: Supabase.instance.client,
+    ),
   );
 
   /// Banner Repository
   getIt.registerLazySingleton<BannerRepository>(
         () => BannerRepositoryImpl(
-      remoteDataSource: getIt<BannerRemoteDataSource>(),
+      remoteDataSource:
+      getIt<BannerRemoteDataSource>(),
     ),
   );
 
   /// Banner Provider
   getIt.registerFactory<BannerProvider>(
         () => BannerProvider(
-      repository: getIt<BannerRepository>(),
+      repository:
+      getIt<BannerRepository>(),
     ),
   );
+
+  // ==========================================================
+  // CATEGORY FEATURE
+  // ==========================================================
 
   getIt.registerLazySingleton<CategoryRemoteDataSource>(
         () => CategoryRemoteDataSource(),
@@ -112,7 +199,8 @@ Future<void> setupInjector() async {
 
   getIt.registerLazySingleton<CategoryRepository>(
         () => CategoryRepositoryImpl(
-      remoteDataSource: getIt<CategoryRemoteDataSource>(),
+      remoteDataSource:
+      getIt<CategoryRemoteDataSource>(),
     ),
   );
 
@@ -122,13 +210,18 @@ Future<void> setupInjector() async {
     ),
   );
 
+  // ==========================================================
+  // PRODUCT FEATURE
+  // ==========================================================
+
   getIt.registerLazySingleton<ProductRemoteDataSource>(
         () => ProductRemoteDataSource(),
   );
 
   getIt.registerLazySingleton<ProductRepository>(
         () => ProductRepositoryImpl(
-      remoteDataSource: getIt<ProductRemoteDataSource>(),
+      remoteDataSource:
+      getIt<ProductRemoteDataSource>(),
     ),
   );
 
@@ -138,27 +231,39 @@ Future<void> setupInjector() async {
     ),
   );
 
+  // ==========================================================
+  // PRODUCT IMAGE
+  // ==========================================================
+
   getIt.registerLazySingleton<ProductImageRemoteDataSource>(
         () => ProductImageRemoteDataSource(),
   );
 
   getIt.registerLazySingleton<ProductImageRepository>(
         () => ProductImageRepositoryImpl(
-      remoteDataSource: getIt<ProductImageRemoteDataSource>(),
+      remoteDataSource:
+      getIt<ProductImageRemoteDataSource>(),
     ),
   );
 
   getIt.registerFactory<ProductImageProvider>(
         () => ProductImageProvider(
-      repository: getIt<ProductImageRepository>(),
+      repository:
+      getIt<ProductImageRepository>(),
     ),
   );
 
-  getIt.registerLazySingleton<ProductSpecificationRemoteDataSource>(
+  // ==========================================================
+  // PRODUCT SPECIFICATION
+  // ==========================================================
+
+  getIt.registerLazySingleton<
+      ProductSpecificationRemoteDataSource>(
         () => ProductSpecificationRemoteDataSource(),
   );
 
-  getIt.registerLazySingleton<ProductSpecificationRepository>(
+  getIt.registerLazySingleton<
+      ProductSpecificationRepository>(
         () => ProductSpecificationRepositoryImpl(
       remoteDataSource:
       getIt<ProductSpecificationRemoteDataSource>(),
@@ -167,9 +272,14 @@ Future<void> setupInjector() async {
 
   getIt.registerFactory<ProductSpecificationProvider>(
         () => ProductSpecificationProvider(
-      repository: getIt<ProductSpecificationRepository>(),
+      repository:
+      getIt<ProductSpecificationRepository>(),
     ),
   );
+
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
 
   getIt.registerLazySingleton<SearchRemoteDataSource>(
         () => SearchRemoteDataSource(),
@@ -184,11 +294,17 @@ Future<void> setupInjector() async {
 
   getIt.registerFactory<SearchProvider>(
         () => SearchProvider(
-      repository: getIt<SearchRepository>(),
+      repository:
+      getIt<SearchRepository>(),
     ),
   );
 
-  getIt.registerLazySingleton<CategoryProductRemoteDataSource>(
+  // ==========================================================
+  // CATEGORY PRODUCT
+  // ==========================================================
+
+  getIt.registerLazySingleton<
+      CategoryProductRemoteDataSource>(
         () => CategoryProductRemoteDataSource(),
   );
 
@@ -206,6 +322,10 @@ Future<void> setupInjector() async {
     ),
   );
 
+  // ==========================================================
+  // CART
+  // ==========================================================
+
   getIt.registerLazySingleton<CartRemoteDataSource>(
         () => CartRemoteDataSource(),
   );
@@ -219,9 +339,14 @@ Future<void> setupInjector() async {
 
   getIt.registerLazySingleton<CartProvider>(
         () => CartProvider(
-      repository: getIt<CartRepository>(),
+      repository:
+      getIt<CartRepository>(),
     ),
   );
+
+  // ==========================================================
+  // ORDER
+  // ==========================================================
 
   getIt.registerLazySingleton<OrderRemoteDataSource>(
         () => OrderRemoteDataSource(),
@@ -236,8 +361,10 @@ Future<void> setupInjector() async {
 
   getIt.registerFactory<CheckoutProvider>(
         () => CheckoutProvider(
-      repository: getIt<OrderRepository>(),
-      cartProvider: getIt<CartProvider>(),
+      repository:
+      getIt<OrderRepository>(),
+      cartProvider:
+      getIt<CartProvider>(),
     ),
   );
 
@@ -247,6 +374,10 @@ Future<void> setupInjector() async {
       getIt<OrderRepository>(),
     ),
   );
+
+  // ==========================================================
+  // FAVORITE
+  // ==========================================================
 
   getIt.registerLazySingleton<FavoriteRemoteDataSource>(
         () => FavoriteRemoteDataSource(),
@@ -266,7 +397,9 @@ Future<void> setupInjector() async {
     ),
   );
 
-  //profile feature :
+  // ==========================================================
+  // PROFILE
+  // ==========================================================
 
   getIt.registerLazySingleton<ProfileRemoteDataSource>(
         () => ProfileRemoteDataSource(),
@@ -281,19 +414,22 @@ Future<void> setupInjector() async {
 
   getIt.registerLazySingleton<GetProfileUseCase>(
         () => GetProfileUseCase(
-      repository: getIt<ProfileRepository>(),
+      repository:
+      getIt<ProfileRepository>(),
     ),
   );
 
   getIt.registerLazySingleton<CreateProfileUseCase>(
         () => CreateProfileUseCase(
-      repository: getIt<ProfileRepository>(),
+      repository:
+      getIt<ProfileRepository>(),
     ),
   );
 
   getIt.registerLazySingleton<UpdateProfileUseCase>(
         () => UpdateProfileUseCase(
-      repository: getIt<ProfileRepository>(),
+      repository:
+      getIt<ProfileRepository>(),
     ),
   );
 
@@ -308,30 +444,32 @@ Future<void> setupInjector() async {
     ),
   );
 
-  getIt.registerLazySingleton<
-      SettingsLocalDataSource>(
+  // ==========================================================
+  // SETTINGS
+  // ==========================================================
+
+  getIt.registerLazySingleton<SettingsLocalDataSource>(
         () => SettingsLocalDataSource(
-      preferences: getIt<SharedPreferences>(),
+      preferences:
+      getIt<SharedPreferences>(),
     ),
   );
 
-  getIt.registerFactory<
-      SettingsProvider>(
+  getIt.registerFactory<SettingsProvider>(
         () => SettingsProvider(
       localDataSource:
       getIt<SettingsLocalDataSource>(),
     ),
   );
 
-
-    // ADDRESS FEATURE
-
+  // ==========================================================
+  // ADDRESS
+  // ==========================================================
 
   getIt.registerLazySingleton<AddressRemoteDataSource>(
         () => AddressRemoteDataSource(),
   );
 
-  /// Address Repository
   getIt.registerLazySingleton<AddressRepository>(
         () => AddressRepositoryImpl(
       remoteDataSource:
@@ -339,7 +477,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Get Addresses UseCase
   getIt.registerLazySingleton<GetAddressesUseCase>(
         () => GetAddressesUseCase(
       repository:
@@ -347,7 +484,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Get Default Address UseCase
   getIt.registerLazySingleton<GetDefaultAddressUseCase>(
         () => GetDefaultAddressUseCase(
       repository:
@@ -355,7 +491,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Add Address UseCase
   getIt.registerLazySingleton<AddAddressUseCase>(
         () => AddAddressUseCase(
       repository:
@@ -363,7 +498,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Update Address UseCase
   getIt.registerLazySingleton<UpdateAddressUseCase>(
         () => UpdateAddressUseCase(
       repository:
@@ -371,7 +505,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Delete Address UseCase
   getIt.registerLazySingleton<DeleteAddressUseCase>(
         () => DeleteAddressUseCase(
       repository:
@@ -379,7 +512,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Set Default Address UseCase
   getIt.registerLazySingleton<SetDefaultAddressUseCase>(
         () => SetDefaultAddressUseCase(
       repository:
@@ -387,7 +519,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Address Provider
   getIt.registerFactory<AddressProvider>(
         () => AddressProvider(
       getAddressesUseCase:
@@ -405,8 +536,9 @@ Future<void> setupInjector() async {
     ),
   );
 
-
-  //shipping feature :
+  // ==========================================================
+  // SHIPPING
+  // ==========================================================
 
   getIt.registerLazySingleton<ShippingRemoteDataSource>(
         () => ShippingRemoteDataSource(),
@@ -426,19 +558,17 @@ Future<void> setupInjector() async {
     ),
   );
 
+  // ==========================================================
+  // FLASH SALE
+  // ==========================================================
 
-  //flash_sale ;
-
-// FLASH SALE FEATURE
-
-  /// Flash Sale Remote DataSource
   getIt.registerLazySingleton<FlashSaleRemoteDataSource>(
         () => FlashSaleRemoteDataSourceImpl(
-      supabase: Supabase.instance.client,
+      supabase:
+      Supabase.instance.client,
     ),
   );
 
-  /// Flash Sale Repository
   getIt.registerLazySingleton<FlashSaleRepository>(
         () => FlashSaleRepositoryImpl(
       remoteDataSource:
@@ -446,7 +576,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Get Active Flash Sale Products UseCase
   getIt.registerLazySingleton<
       GetActiveFlashSaleProductsUseCase>(
         () => GetActiveFlashSaleProductsUseCase(
@@ -455,7 +584,6 @@ Future<void> setupInjector() async {
     ),
   );
 
-  /// Flash Sale Provider
   getIt.registerFactory<FlashSaleProvider>(
         () => FlashSaleProvider(
       getActiveFlashSaleProductsUseCase:
@@ -463,24 +591,25 @@ Future<void> setupInjector() async {
     ),
   );
 
-
-  // ============================================================
-  // LATEST PRODUCTS PROVIDER
-  // ============================================================
+  // ==========================================================
+  // LATEST PRODUCTS
+  // ==========================================================
 
   getIt.registerFactory<LatestProductsProvider>(
         () => LatestProductsProvider(
-      repository: getIt<ProductRepository>(),
+      repository:
+      getIt<ProductRepository>(),
     ),
   );
 
-  //baraye bakhsh populer sell homepage page see all :
+  // ==========================================================
+  // POPULAR PRODUCTS
+  // ==========================================================
 
   getIt.registerFactory<PopularProductsProvider>(
         () => PopularProductsProvider(
-      repository: getIt<ProductRepository>(),
+      repository:
+      getIt<ProductRepository>(),
     ),
   );
-
-
 }
