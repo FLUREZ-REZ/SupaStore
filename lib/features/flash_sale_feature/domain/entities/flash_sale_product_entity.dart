@@ -10,16 +10,37 @@ class FlashSaleProductEntity {
     required this.flashSale,
   });
 
+  // ============================================================
+  // ORIGINAL PRICE
+  // ============================================================
+
   int get originalPrice {
     return product.price;
   }
+
+  // ============================================================
+  // FLASH SALE PRICE
+  // ============================================================
 
   int get discountPrice {
     return flashSale.discountPrice;
   }
 
+  // ============================================================
+  // VALID DISCOUNT
+  // ============================================================
+
+  bool get hasValidDiscount {
+    return discountPrice > 0 &&
+        discountPrice < originalPrice;
+  }
+
+  // ============================================================
+  // DISCOUNT PERCENT
+  // ============================================================
+
   int get discountPercent {
-    if (originalPrice <= 0) {
+    if (!hasValidDiscount) {
       return 0;
     }
 
@@ -31,13 +52,25 @@ class FlashSaleProductEntity {
     return percent.round().clamp(0, 100);
   }
 
+  // ============================================================
+  // START
+  // ============================================================
+
   DateTime get startAt {
     return flashSale.startAt;
   }
 
+  // ============================================================
+  // END
+  // ============================================================
+
   DateTime get endAt {
     return flashSale.endAt;
   }
+
+  // ============================================================
+  // RUNNING
+  // ============================================================
 
   bool get isRunning {
     return flashSale.isRunning;

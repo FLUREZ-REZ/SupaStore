@@ -171,12 +171,11 @@ class _HomePageState extends State<HomePage> {
               SliverToBoxAdapter(
                 child: ChangeNotifierProvider(
                   create: (_) =>
-                      getIt<FlashSaleProvider>(),
+                  getIt<FlashSaleProvider>()
+                    ..fetchFlashSales(),
 
-                  child:
-                  FlashSaleSection(
-                    onProductTap:
-                        (product) {
+                  child: FlashSaleSection(
+                    onProductTap: (product) {
                       context.pushNamed(
                         'product-details',
                         extra: product,
@@ -184,8 +183,8 @@ class _HomePageState extends State<HomePage> {
                     },
 
                     onSeeAll: () {
-                      debugPrint(
-                        'See All Flash Sales',
+                      context.pushNamed(
+                        'flash-sale',
                       );
                     },
                   ),

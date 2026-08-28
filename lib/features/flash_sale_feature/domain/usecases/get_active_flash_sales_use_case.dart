@@ -8,7 +8,13 @@ class GetActiveFlashSaleProductsUseCase {
     required this.repository,
   });
 
-  Future<List<FlashSaleProductEntity>> call() {
-    return repository.getActiveFlashSaleProducts();
+  Future<List<FlashSaleProductEntity>> call({
+    int page = 0,
+    int limit = 20,
+  }) {
+    return repository.getActiveFlashSaleProducts(
+      page: page,
+      limit: limit,
+    );
   }
 }
