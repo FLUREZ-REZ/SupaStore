@@ -116,6 +116,13 @@ import 'package:supastore/features/profile_feature/domain/usecases/create_profil
 import 'package:supastore/features/profile_feature/domain/usecases/get_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/domain/usecases/update_profile_use_case.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
+import 'package:supastore/features/review_feature/data/datasources/blocked_word_remote_data_source.dart';
+import 'package:supastore/features/review_feature/data/datasources/review_remote_data_source.dart';
+import 'package:supastore/features/review_feature/data/repositories/blocked_word_repository_impl.dart';
+import 'package:supastore/features/review_feature/data/repositories/review_repository_impl.dart';
+import 'package:supastore/features/review_feature/domain/repositories/blocked_word_repository.dart';
+import 'package:supastore/features/review_feature/domain/repositories/review_repository.dart';
+import 'package:supastore/features/review_feature/presentation/providers/review_provider.dart';
 
 // ============================================================
 // SETTINGS FEATURE
@@ -622,6 +629,47 @@ Future<void> setupInjector() async {
         () => RelatedProductsProvider(
       repository:
       getIt<ProductRepository>(),
+    ),
+  );
+
+
+  //baraye bakhsh review :
+
+  getIt.registerLazySingleton<ReviewRemoteDataSource>(
+        () => ReviewRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<ReviewRepository>(
+        () => ReviewRepositoryImpl(
+      remoteDataSource:
+      getIt<ReviewRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<ReviewProvider>(
+        () => ReviewProvider(
+      repository: getIt<ReviewRepository>(),
+      blockedWordRepository:
+      getIt<BlockedWordRepository>(),
+    ),
+  );
+
+// ==========================================================
+// BLOCKED WORD
+// ==========================================================
+
+  getIt.registerLazySingleton<
+      BlockedWordRemoteDataSource>(
+        () => BlockedWordRemoteDataSource(
+      client: Supabase.instance.client,
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      BlockedWordRepository>(
+        () => BlockedWordRepositoryImpl(
+      remoteDataSource:
+      getIt<BlockedWordRemoteDataSource>(),
     ),
   );
 
