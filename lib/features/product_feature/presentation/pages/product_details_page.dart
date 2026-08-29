@@ -23,6 +23,9 @@ import 'package:supastore/features/product_feature/presentation/widgets/product_
 import 'package:supastore/features/product_feature/presentation/widgets/product_title_section.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/related_products_section.dart';
 
+import 'package:supastore/features/review_feature/presentation/providers/review_provider.dart';
+import 'package:supastore/features/review_feature/presentation/widgets/reviews_section.dart';
+
 class ProductDetailsPage extends StatelessWidget {
   const ProductDetailsPage({
     super.key,
@@ -147,6 +150,20 @@ class ProductDetailsPage extends StatelessWidget {
             return provider;
           },
         ),
+
+        // ====================================================
+        // REVIEW PROVIDER
+        // ====================================================
+
+        ChangeNotifierProvider<ReviewProvider>(
+          create: (_) {
+            final provider = getIt<ReviewProvider>();
+
+            provider.loadReviews(product.id);
+
+            return provider;
+          },
+        ),
       ],
 
       child: Directionality(
@@ -176,6 +193,10 @@ class ProductDetailsPage extends StatelessWidget {
 
             actions: [
 
+              // ==============================================
+              // FAVORITE
+              // ==============================================
+
               IconButton(
                 onPressed: () {},
 
@@ -184,6 +205,10 @@ class ProductDetailsPage extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
+
+              // ==============================================
+              // SHARE
+              // ==============================================
 
               IconButton(
                 onPressed: () {},
@@ -204,6 +229,7 @@ class ProductDetailsPage extends StatelessWidget {
           RepaintBoundary(
             child: AddToCartBar(
               product: product,
+
               onAddToCart: () {
                 _addToCart(context);
               },
@@ -317,6 +343,7 @@ class _ProductImageArea
         imageProvider.images.isEmpty) {
       return Container(
         width: double.infinity,
+
         color: Colors.white,
 
         child: const Center(
@@ -346,6 +373,7 @@ class _ProductImageArea
     if (images.isEmpty) {
       return Container(
         width: double.infinity,
+
         color: Colors.white,
 
         child: ProductImageSlider(
@@ -362,6 +390,7 @@ class _ProductImageArea
 
     return Container(
       width: double.infinity,
+
       color: Colors.white,
 
       child: ProductImageSlider(
@@ -418,9 +447,11 @@ class _ProductContentCard
 
             child: Container(
               width: 42.w,
+
               height: 4.h,
 
-              decoration: BoxDecoration(
+              decoration:
+              BoxDecoration(
                 color:
                 Colors.grey.shade400,
 
@@ -479,6 +510,18 @@ class _ProductContentCard
                 specifications.cast(),
               );
             },
+          ),
+
+          // ==================================================
+          // REVIEWS
+          // ==================================================
+
+          ReviewsSection(
+            productId: product.id,
+          ),
+
+          SizedBox(
+            height: 16.h,
           ),
 
           // ==================================================
