@@ -1,7 +1,6 @@
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
 abstract class ProductRepository {
-
   Future<List<ProductEntity>> getProducts({
     int page = 0,
     int limit = 10,
@@ -28,7 +27,19 @@ abstract class ProductRepository {
     int limit = 10,
   });
 
-  Future<ProductEntity> getProductById(String productId);
+  // =========================================================
+  // RELATED PRODUCTS
+  // =========================================================
+
+  Future<List<ProductEntity>> getRelatedProducts({
+    required String categoryId,
+    required String productId,
+    int limit = 10,
+  });
+
+  Future<ProductEntity> getProductById(
+      String productId,
+      );
 
   // baraye feature soldout hast !
 

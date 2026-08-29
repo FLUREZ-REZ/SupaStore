@@ -18,13 +18,35 @@ class ProductImageSlider extends StatefulWidget {
 
 class _ProductImageSliderState
     extends State<ProductImageSlider> {
+
   late final PageController _pageController;
+
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
 
     _pageController = PageController();
+  }
+
+  @override
+  void didUpdateWidget(
+      covariant ProductImageSlider oldWidget,
+      ) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.images.length != oldWidget.images.length) {
+      _currentIndex = 0;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        if (_pageController.hasClients) {
+          _pageController.jumpToPage(0);
+        }
+      });
+    }
   }
 
   @override
@@ -81,6 +103,7 @@ class _ProductImageSliderState
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 20.w,
+        vertical: 8.h,
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -89,9 +112,12 @@ class _ProductImageSliderState
         },
         child: CachedNetworkImage(
           imageUrl: widget.images[index],
+
           fit: BoxFit.contain,
+
           memCacheWidth: 900,
           memCacheHeight: 900,
+
           placeholder: (
               context,
               url,
@@ -106,15 +132,18 @@ class _ProductImageSliderState
               ),
             );
           },
+
           errorWidget: (
               context,
               url,
               error,
               ) {
-            return Icon(
-              Icons.image_not_supported_outlined,
-              size: 60.sp,
-              color: Colors.grey,
+            return Center(
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                size: 60.sp,
+                color: Colors.grey,
+              ),
             );
           },
         ),
@@ -124,6 +153,7 @@ class _ProductImageSliderState
 
   @override
   Widget build(BuildContext context) {
+
     // =========================================================
     // NO IMAGE
     // =========================================================
@@ -142,9 +172,12 @@ class _ProductImageSliderState
       );
     }
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Container(
+    // =========================================================
+    // SINGLE IMAGE
+    // =========================================================
+
+    if (widget.images.length == 1) {
+      return Container(
         width: double.infinity,
         height: double.infinity,
         color: Colors.white,
@@ -152,65 +185,92 @@ class _ProductImageSliderState
           top: 8.h,
           bottom: 18.h,
         ),
-        child: Column(
-          children: [
-            // =================================================
-            // SINGLE IMAGE
-            // =================================================
+        child: _buildImage(0),
+      );
+    }
 
-            if (widget.images.length == 1)
-              Expanded(
-                child: _buildImage(0),
-              )
+    // =========================================================
+    // MULTIPLE IMAGES
+    // =========================================================
 
-            // =================================================
-            // MULTIPLE IMAGES
-            // =================================================
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Colors.white,
+      padding: EdgeInsets.only(
+        top: 8.h,
+        bottom: 12.h,
+      ),
+      child: Column(
+        children: [
 
-            else
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: widget.images.length,
+          // =====================================================
+          // PAGE VIEW
+          // =====================================================
 
-                  // RTL
-                  // Swipe راست -> چپ
-                  reverse: false,
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
 
-                  physics:
-                  const PageScrollPhysics(),
+              itemCount: widget.images.length,
 
-                  itemBuilder: (
-                      context,
-                      index,
-                      ) {
-                    return _buildImage(index);
-                  },
+              reverse: false,
+
+              physics:
+              const BouncingScrollPhysics(),
+
+              onPageChanged: (index) {
+                if (!mounted) return;
+
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+
+              itemBuilder: (
+                  context,
+                  index,
+                  ) {
+                return _buildImage(index);
+              },
+            ),
+          ),
+
+          // =====================================================
+          // INDICATOR
+          // =====================================================
+
+          SizedBox(
+            height: 22.h,
+            child: Center(
+              child: AnimatedSmoothIndicator(
+                activeIndex: _currentIndex,
+                count: widget.images.length,
+
+                effect: ExpandingDotsEffect(
+                  dotHeight: 7.h,
+                  dotWidth: 7.w,
+                  expansionFactor: 3,
+                  spacing: 5.w,
                 ),
-              ),
 
-            // =================================================
-            // INDICATOR
-            // =================================================
+                onDotClicked: (index) {
+                  if (!_pageController.hasClients) {
+                    return;
+                  }
 
-            if (widget.images.length > 1)
-              SizedBox(
-                height: 16.h,
-                child: Center(
-                  child: SmoothPageIndicator(
-                    controller: _pageController,
-                    count: widget.images.length,
-                    effect: ExpandingDotsEffect(
-                      dotHeight: 7.h,
-                      dotWidth: 7.w,
-                      expansionFactor: 3,
-                      spacing: 5.w,
+                  _pageController.animateToPage(
+                    index,
+                    duration: const Duration(
+                      milliseconds: 300,
                     ),
-                  ),
-                ),
+                    curve: Curves.easeInOut,
+                  );
+                },
               ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -237,6 +297,7 @@ class _ProductImageViewer extends StatefulWidget {
 
 class _ProductImageViewerState
     extends State<_ProductImageViewer> {
+
   late final PageController _pageController;
 
   late int _currentIndex;
@@ -258,74 +319,78 @@ class _ProductImageViewerState
     super.dispose();
   }
 
+  void _close() {
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+
       body: SafeArea(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Stack(
-            children: [
-              // =================================================
-              // IMAGE VIEWER
-              // =================================================
+        child: Stack(
+          children: [
 
-              PageView.builder(
-                controller: _pageController,
-                itemCount: widget.images.length,
+            // ===================================================
+            // ZOOM IMAGE VIEWER
+            // ===================================================
 
-                // همان جهت صفحه اصلی
-                // راست -> چپ
-                reverse: false,
+            PageView.builder(
+              controller: _pageController,
 
-                physics:
-                const PageScrollPhysics(),
+              itemCount: widget.images.length,
 
-                onPageChanged: (index) {
-                  if (!mounted) return;
+              // 🔥 جهت اسلاید در صفحه زوم برعکس صفحه اصلی
+              reverse: true,
 
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
+              physics:
+              const BouncingScrollPhysics(),
 
-                itemBuilder: (
-                    context,
-                    index,
-                    ) {
-                  return Center(
-                    child: _ZoomableImage(
-                      imageUrl:
-                      widget.images[index],
-                    ),
-                  );
-                },
-              ),
+              onPageChanged: (index) {
+                if (!mounted) return;
 
-              // =================================================
-              // CLOSE BUTTON
-              // =================================================
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
 
-              Positioned(
-                top: 12.h,
-                right: 16.w,
-                child: GestureDetector(
-                  behavior:
-                  HitTestBehavior.opaque,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
+              itemBuilder: (
+                  context,
+                  index,
+                  ) {
+                return Center(
+                  child: _ZoomableImage(
+                    imageUrl: widget.images[index],
+                  ),
+                );
+              },
+            ),
+
+            // ===================================================
+            // CLOSE BUTTON
+            // ===================================================
+
+            Positioned(
+              top: 12.h,
+              right: 16.w,
+
+              child: Material(
+                color: Colors.white.withValues(
+                  alpha: 0.15,
+                ),
+
+                shape: const CircleBorder(),
+
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+
+                  onTap: _close,
+
+                  child: SizedBox(
                     width: 44.w,
                     height: 44.w,
-                    decoration: BoxDecoration(
-                      color:
-                      Colors.white.withValues(
-                        alpha: 0.15,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
+
                     child: Icon(
                       Icons.close,
                       color: Colors.white,
@@ -334,68 +399,69 @@ class _ProductImageViewerState
                   ),
                 ),
               ),
+            ),
 
-              // =================================================
-              // COUNTER
-              // =================================================
+            // ===================================================
+            // COUNTER
+            // ===================================================
 
-              if (widget.images.length > 1)
-                Positioned(
-                  top: 18.h,
-                  left: 20.w,
-                  child: Container(
-                    padding:
-                    EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 6.h,
+            if (widget.images.length > 1)
+              Positioned(
+                top: 18.h,
+                left: 20.w,
+
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
+
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(
+                      alpha: 0.15,
                     ),
-                    decoration: BoxDecoration(
-                      color:
-                      Colors.white.withValues(
-                        alpha: 0.15,
-                      ),
-                      borderRadius:
-                      BorderRadius.circular(
-                        20.r,
-                      ),
-                    ),
-                    child: Text(
-                      '${_currentIndex + 1} / ${widget.images.length}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                        fontWeight:
-                        FontWeight.w600,
-                      ),
+
+                    borderRadius:
+                    BorderRadius.circular(20.r),
+                  ),
+
+                  child: Text(
+                    '${_currentIndex + 1} / ${widget.images.length}',
+
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
+              ),
 
-              // =================================================
-              // INDICATOR
-              // =================================================
+            // ===================================================
+            // INDICATOR
+            // ===================================================
 
-              if (widget.images.length > 1)
-                Positioned(
-                  bottom: 20.h,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: SmoothPageIndicator(
-                      controller:
-                      _pageController,
-                      count:
-                      widget.images.length,
-                      effect: WormEffect(
-                        dotHeight: 7.h,
-                        dotWidth: 7.w,
-                        spacing: 5.w,
-                      ),
+            if (widget.images.length > 1)
+              Positioned(
+                bottom: 20.h,
+                left: 0,
+                right: 0,
+
+                child: Center(
+                  child: AnimatedSmoothIndicator(
+                    activeIndex: _currentIndex,
+
+                    count: widget.images.length,
+
+                    effect: WormEffect(
+                      dotHeight: 7.h,
+                      dotWidth: 7.w,
+                      spacing: 5.w,
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -421,32 +487,27 @@ class _ZoomableImage extends StatefulWidget {
 
 class _ZoomableImageState
     extends State<_ZoomableImage> {
+
   final TransformationController
-  _controller =
+  _transformationController =
   TransformationController();
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  // =============================================================
+  // ===========================================================
   // RESET
-  // =============================================================
+  // ===========================================================
 
   void _resetImage() {
-    _controller.value =
+    _transformationController.value =
         Matrix4.identity();
   }
 
-  // =============================================================
+  // ===========================================================
   // DOUBLE TAP
-  // =============================================================
+  // ===========================================================
 
   void _handleDoubleTap() {
     final scale =
-    _controller.value
+    _transformationController.value
         .getMaxScaleOnAxis();
 
     if (scale > 1.01) {
@@ -454,9 +515,15 @@ class _ZoomableImageState
       return;
     }
 
-    _controller.value =
+    _transformationController.value =
     Matrix4.identity()
       ..scale(2.5);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -470,25 +537,15 @@ class _ZoomableImageState
 
       child: InteractiveViewer(
         transformationController:
-        _controller,
-
-        // =======================================================
-        // ZOOM
-        // =======================================================
+        _transformationController,
 
         minScale: 1.0,
+
         maxScale: 3.0,
 
-        // =======================================================
-        // PAN
-        // =======================================================
-
         panEnabled: true,
-        scaleEnabled: true,
 
-        // =======================================================
-        // LIMIT
-        // =======================================================
+        scaleEnabled: true,
 
         boundaryMargin:
         EdgeInsets.zero,
@@ -498,24 +555,16 @@ class _ZoomableImageState
         clipBehavior:
         Clip.hardEdge,
 
-        // =======================================================
-        // RESET
-        // =======================================================
-
-        onInteractionEnd:
-            (details) {
+        onInteractionEnd: (_) {
           final scale =
-          _controller.value
+          _transformationController
+              .value
               .getMaxScaleOnAxis();
 
           if (scale <= 1.01) {
             _resetImage();
           }
         },
-
-        // =======================================================
-        // IMAGE
-        // =======================================================
 
         child: CachedNetworkImage(
           imageUrl:
@@ -544,8 +593,7 @@ class _ZoomableImageState
               error,
               ) {
             return Icon(
-              Icons
-                  .image_not_supported_outlined,
+              Icons.image_not_supported_outlined,
               color: Colors.white,
               size: 70.sp,
             );

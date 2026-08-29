@@ -3,24 +3,27 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 
-import '../../domain/entities/product_entity.dart';
+import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 
-import '../../../cart_feature/presentation/providers/cart_provider.dart';
+import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 
-import '../providers/product_image_provider.dart';
-import '../providers/product_specification_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/related_products_provider.dart';
 
-import '../widgets/add_to_cart_bar.dart';
-import '../widgets/product_description_section.dart';
-import '../widgets/product_image_slider.dart';
-import '../widgets/product_rating_section.dart';
-import '../widgets/product_specifications_section.dart';
-import '../widgets/product_title_section.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/add_to_cart_bar.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_description_section.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_image_slider.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_rating_section.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_specifications_section.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/product_title_section.dart';
+import 'package:supastore/features/product_feature/presentation/widgets/related_products_section.dart';
 
-class ProductDetailsPage extends StatefulWidget {
+class ProductDetailsPage extends StatelessWidget {
   const ProductDetailsPage({
     super.key,
     required this.product,
@@ -28,192 +31,259 @@ class ProductDetailsPage extends StatefulWidget {
 
   final ProductEntity product;
 
-  @override
-  State<ProductDetailsPage> createState() =>
-      _ProductDetailsPageState();
-}
+  // ==========================================================
+  // ADD TO CART
+  // ==========================================================
 
-class _ProductDetailsPageState
-    extends State<ProductDetailsPage> {
+  Future<void> _addToCart(
+      BuildContext context,
+      ) async {
+    final user =
+        Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'برای افزودن محصول ابتدا وارد حساب کاربری شوید.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    await context.read<CartProvider>().addToCart(
+      userId: user.id,
+      productId: product.id,
+    );
+
+    if (!context.mounted) return;
+
+    final cartProvider =
+    context.read<CartProvider>();
+
+    if (cartProvider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            cartProvider.error!,
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'محصول به سبد خرید اضافه شد',
+        ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
+
   @override
   Widget build(BuildContext context) {
-    final product = widget.product;
+    return MultiProvider(
+      providers: [
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        // ====================================================
+        // PRODUCT IMAGE PROVIDER
+        // ====================================================
 
-        // =====================================================
-        // APP BAR
-        // =====================================================
+        ChangeNotifierProvider<ProductImageProvider>(
+          create: (_) {
+            final provider =
+            getIt<ProductImageProvider>();
 
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          elevation: 0,
-          centerTitle: true,
+            provider.loadImages(
+              product.id,
+            );
 
-          title: Text(
-            'جزئیات محصول',
-            style: AppTextStyles.second_title_section,
-          ),
-
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.favorite_border,
-                color: Colors.white,
-              ),
-            ),
-
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.share_outlined,
-                color: Colors.white,
-              ),
-            ),
-          ],
+            return provider;
+          },
         ),
 
-        // =====================================================
-        // ADD TO CART BAR
-        // =====================================================
+        // ====================================================
+        // PRODUCT SPECIFICATION PROVIDER
+        // ====================================================
 
-        bottomNavigationBar: RepaintBoundary(
-          child: AddToCartBar(
-            product: product,
+        ChangeNotifierProvider<
+            ProductSpecificationProvider>(
+          create: (_) {
+            final provider =
+            getIt<ProductSpecificationProvider>();
 
-            onAddToCart: () async {
-              final user =
-                  Supabase.instance.client.auth.currentUser;
+            provider.loadSpecifications(
+              product.id,
+            );
 
-              // -------------------------------------------------
-              // USER NOT LOGGED IN
-              // -------------------------------------------------
-
-              if (user == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'برای افزودن محصول ابتدا وارد حساب کاربری شوید.',
-                    ),
-                  ),
-                );
-
-                return;
-              }
-
-              // -------------------------------------------------
-              // ADD TO CART
-              // -------------------------------------------------
-
-              await context.read<CartProvider>().addToCart(
-                userId: user.id,
-                productId: product.id,
-              );
-
-              if (!context.mounted) return;
-
-              final cartProvider =
-              context.read<CartProvider>();
-
-              // -------------------------------------------------
-              // ERROR
-              // -------------------------------------------------
-
-              if (cartProvider.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      cartProvider.error!,
-                    ),
-                  ),
-                );
-
-                return;
-              }
-
-              // -------------------------------------------------
-              // SUCCESS
-              // -------------------------------------------------
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'محصول به سبد خرید اضافه شد',
-                  ),
-                ),
-              );
-            },
-          ),
+            return provider;
+          },
         ),
 
-        // =====================================================
-        // BODY
-        // =====================================================
+        // ====================================================
+        // RELATED PRODUCTS PROVIDER
+        // ====================================================
 
-        body: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+        ChangeNotifierProvider<
+            RelatedProductsProvider>(
+          create: (_) {
+            final provider =
+            getIt<RelatedProductsProvider>();
 
-          slivers: [
+            provider.loadRelatedProducts(
+              categoryId: product.categoryId,
+              productId: product.id,
+              limit: 6,
+            );
 
-            // =================================================
-            // PRODUCT IMAGE GALLERY
-            // =================================================
+            return provider;
+          },
+        ),
+      ],
 
-            SliverAppBar(
-              automaticallyImplyLeading: false,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
 
-              pinned: false,
-              floating: false,
-              snap: false,
+        child: Scaffold(
+          backgroundColor:
+          const Color(0xFFF5F5F5),
 
-              stretch: false,
+          // ==================================================
+          // APP BAR
+          // ==================================================
 
-              elevation: 0,
+          appBar: AppBar(
+            backgroundColor:
+            AppColors.primary,
 
-              backgroundColor: Colors.white,
+            elevation: 0,
 
-              expandedHeight: 420.h,
+            centerTitle: true,
 
-              toolbarHeight: 0,
+            title: Text(
+              'جزئیات محصول',
+              style:
+              AppTextStyles.second_title_section,
+            ),
 
-              collapsedHeight: 0,
+            actions: [
 
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode:
-                CollapseMode.parallax,
+              IconButton(
+                onPressed: () {},
 
-                background: RepaintBoundary(
-                  child: _ProductImageArea(
-                    product: product,
+                icon: const Icon(
+                  Icons.favorite_border,
+                  color: Colors.white,
+                ),
+              ),
+
+              IconButton(
+                onPressed: () {},
+
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+
+          // ==================================================
+          // ADD TO CART BAR
+          // ==================================================
+
+          bottomNavigationBar:
+          RepaintBoundary(
+            child: AddToCartBar(
+              product: product,
+              onAddToCart: () {
+                _addToCart(context);
+              },
+            ),
+          ),
+
+          // ==================================================
+          // BODY
+          // ==================================================
+
+          body: CustomScrollView(
+            physics:
+            const BouncingScrollPhysics(),
+
+            slivers: [
+
+              // =================================================
+              // PRODUCT IMAGE
+              // =================================================
+
+              SliverAppBar(
+                automaticallyImplyLeading:
+                false,
+
+                pinned: false,
+
+                floating: false,
+
+                snap: false,
+
+                stretch: false,
+
+                elevation: 0,
+
+                backgroundColor:
+                Colors.white,
+
+                expandedHeight: 420.h,
+
+                toolbarHeight: 0,
+
+                collapsedHeight: 0,
+
+                flexibleSpace:
+                FlexibleSpaceBar(
+                  collapseMode:
+                  CollapseMode.parallax,
+
+                  background:
+                  RepaintBoundary(
+                    child:
+                    _ProductImageArea(
+                      product: product,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // =================================================
-            // PRODUCT CONTENT
-            // =================================================
+              // =================================================
+              // PRODUCT CONTENT
+              // =================================================
 
-            SliverToBoxAdapter(
-              child: _ProductContentCard(
-                product: product,
+              SliverToBoxAdapter(
+                child:
+                _ProductContentCard(
+                  product: product,
+                ),
               ),
-            ),
 
-            // =================================================
-            // BOTTOM SPACE
-            // =================================================
+              // =================================================
+              // BOTTOM SPACE
+              // =================================================
 
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 30.h,
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 30.h,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -227,6 +297,7 @@ class _ProductDetailsPageState
 
 class _ProductImageArea
     extends StatelessWidget {
+
   const _ProductImageArea({
     required this.product,
   });
@@ -238,19 +309,59 @@ class _ProductImageArea
     final imageProvider =
     context.watch<ProductImageProvider>();
 
-    final images = imageProvider.images.isEmpty
-        ? <String>[
-      product.thumbnail,
-    ]
-        : imageProvider.images
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    if (imageProvider.isLoading &&
+        imageProvider.images.isEmpty) {
+      return Container(
+        width: double.infinity,
+        color: Colors.white,
+
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // =========================================================
+    // IMAGES
+    // =========================================================
+
+    final List<String> images =
+    imageProvider.images
         .map(
           (image) => image.imageUrl,
     )
+        .where(
+          (url) => url.isNotEmpty,
+    )
         .toList();
+
+    // =========================================================
+    // FALLBACK
+    // =========================================================
+
+    if (images.isEmpty) {
+      return Container(
+        width: double.infinity,
+        color: Colors.white,
+
+        child: ProductImageSlider(
+          images: [
+            product.thumbnail,
+          ],
+        ),
+      );
+    }
+
+    // =========================================================
+    // REAL PRODUCT IMAGES
+    // =========================================================
 
     return Container(
       width: double.infinity,
-
       color: Colors.white,
 
       child: ProductImageSlider(
@@ -267,6 +378,7 @@ class _ProductImageArea
 
 class _ProductContentCard
     extends StatelessWidget {
+
   const _ProductContentCard({
     required this.product,
   });
@@ -279,21 +391,24 @@ class _ProductContentCard
       width: double.infinity,
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color:
+        const Color(0xFFF5F5F5),
 
-        borderRadius: BorderRadius.vertical(
+        borderRadius:
+        BorderRadius.vertical(
           top: Radius.circular(24.r),
         ),
       ),
 
-      clipBehavior: Clip.antiAlias,
+      clipBehavior:
+      Clip.antiAlias,
 
       child: Column(
         children: [
 
-          // ===================================================
-          // TOP HANDLE
-          // ===================================================
+          // ==================================================
+          // HANDLE
+          // ==================================================
 
           Padding(
             padding: EdgeInsets.only(
@@ -306,50 +421,44 @@ class _ProductContentCard
               height: 4.h,
 
               decoration: BoxDecoration(
-                color: Colors.grey.shade400,
+                color:
+                Colors.grey.shade400,
 
                 borderRadius:
-                BorderRadius.circular(20.r),
+                BorderRadius.circular(
+                  20.r,
+                ),
               ),
             ),
           ),
 
-          // ===================================================
+          // ==================================================
           // TITLE
-          // ===================================================
+          // ==================================================
 
           ProductTitleSection(
             product: product,
           ),
 
-          // ===================================================
+          // ==================================================
           // RATING
-          // ===================================================
-
-          // ===================================================
-          // RATING & REVIEWS
-          // ===================================================
+          // ==================================================
 
           ProductRatingSection(
             product: product,
-            onTap: () {
-              debugPrint(
-                'Open reviews: ${product.id}',
-              );
-            },
           ),
 
-          // ===================================================
+          // ==================================================
           // DESCRIPTION
-          // ===================================================
+          // ==================================================
 
           ProductDescriptionSection(
             product: product,
           ),
 
-          // ===================================================
+          // ==================================================
           // SPECIFICATIONS
-          // ===================================================
+          // ==================================================
 
           Selector<
               ProductSpecificationProvider,
@@ -368,6 +477,76 @@ class _ProductContentCard
               return ProductSpecificationsSection(
                 specifications:
                 specifications.cast(),
+              );
+            },
+          ),
+
+          // ==================================================
+          // RELATED PRODUCTS
+          // ==================================================
+
+          Selector<
+              RelatedProductsProvider,
+              List<ProductEntity>>(
+            selector: (
+                _,
+                provider,
+                ) =>
+            provider.products,
+
+            builder: (
+                context,
+                products,
+                child,
+                ) {
+
+              // ==============================================
+              // LOADING
+              // ==============================================
+
+              if (products.isEmpty) {
+                final provider =
+                context.read<
+                    RelatedProductsProvider>();
+
+                if (provider.isLoading) {
+                  return Padding(
+                    padding:
+                    EdgeInsets.symmetric(
+                      vertical: 25.h,
+                    ),
+
+                    child:
+                    const Center(
+                      child:
+                      CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              }
+
+              // ==============================================
+              // RELATED PRODUCTS
+              // ==============================================
+
+              return RelatedProductsSection(
+                products: products,
+
+                onProductTap: (
+                    relatedProduct,
+                    ) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ProductDetailsPage(
+                            product:
+                            relatedProduct,
+                          ),
+                    ),
+                  );
+                },
               );
             },
           ),
