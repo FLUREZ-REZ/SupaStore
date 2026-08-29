@@ -102,6 +102,7 @@ import 'package:supastore/features/product_feature/presentation/providers/popula
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
+import 'package:supastore/features/product_feature/presentation/providers/related_products_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
 
 // ============================================================
@@ -612,4 +613,16 @@ Future<void> setupInjector() async {
       getIt<ProductRepository>(),
     ),
   );
+
+  // ==========================================================
+  // RELATED PRODUCTS
+  // ==========================================================
+
+  getIt.registerFactory<RelatedProductsProvider>(
+        () => RelatedProductsProvider(
+      repository:
+      getIt<ProductRepository>(),
+    ),
+  );
+
 }

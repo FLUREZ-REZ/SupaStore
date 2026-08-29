@@ -90,4 +90,18 @@ class ProductRepositoryImpl implements ProductRepository {
     );
   }
 
+
+  @override
+  Future<List<ProductEntity>> getRelatedProducts({
+    required String categoryId,
+    required String productId,
+    int limit = 10,
+  }) async {
+    return await _remoteDataSource.getProductsByCategory(
+      categoryId: categoryId,
+      excludeProductId: productId,
+      limit: limit,
+    );
+  }
+
 }
