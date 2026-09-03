@@ -27,6 +27,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     final user =
         Supabase.instance.client.auth.currentUser;
 
@@ -53,8 +56,14 @@ class _ProfileView extends StatelessWidget {
 
   final User user;
 
+
+
+
   @override
   Widget build(BuildContext context) {
+
+
+
     final provider =
     context.watch<ProfileProvider>();
 
@@ -371,6 +380,9 @@ class _ProfileView extends StatelessWidget {
                   ),
                 ),
               ),
+
+
+
             ],
           ),
         ),
