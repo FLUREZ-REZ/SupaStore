@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
-import 'package:supastore/core/theme/app_colors.dart';
-import 'package:supastore/core/theme/app_text_styles.dart';
 
 class OtpHeader extends StatelessWidget {
   final String phoneNumber;
@@ -25,65 +23,93 @@ class OtpHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 24.h),
-
-        Text(
-          'کد تایید را وارد نمایید',
-          style: AppTextStyles.otp_title.copyWith(
-            color: AppColors.otp_title,
-          ),
-          textAlign: TextAlign.center,
+        SizedBox(
+          height: 20.h,
         ),
 
-        SizedBox(height: 12.h),
+        // --------------------------------------------------
+        // Icon
+        // --------------------------------------------------
 
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+        Container(
+          width: 58.w,
+          height: 58.w,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(18.r),
+          ),
+          child: Icon(
+            Icons.sms_rounded,
+            color: Colors.white,
+            size: 27.sp,
+          ),
+        ),
+
+        SizedBox(
+          height: 22.h,
+        ),
+
+        // --------------------------------------------------
+        // Title
+        // --------------------------------------------------
+
+
+
+        SizedBox(
+          height: 10.h,
+        ),
+
+        // --------------------------------------------------
+        // Description
+        // --------------------------------------------------
+
+        Text(
+          'کد تأیید برای شماره موبایل زیر ارسال شد',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12.5.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+            height: 1.7,
+          ),
+        ),
+
+        SizedBox(
+          height: 18.h,
+        ),
+
+        // --------------------------------------------------
+        // Phone number
+        // --------------------------------------------------
+
+        Directionality(
+          textDirection: TextDirection.ltr,
           child: Text(
-            'کد تایید به شماره زیر ارسال شد',
+            maskPhoneNumber(phoneNumber).toPersianDigit(),
             textAlign: TextAlign.center,
-            style: AppTextStyles.otp_sent_code.copyWith(
-              color: AppColors.otp_send_code,
-              height: 1.6,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.black54,
+              letterSpacing: 1,
             ),
           ),
         ),
 
-        SizedBox(height: 18.h),
+        SizedBox(
+          height: 8.h,
+        ),
+
+        // --------------------------------------------------
+        // Small divider
+        // --------------------------------------------------
 
         Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 18.w,
-            vertical: 12.h,
-          ),
-
+          width: 100.w,
+          height: 3.h,
           decoration: BoxDecoration(
-            color: AppColors.otp_phone_background,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-
-            children: [
-              Icon(
-                Icons.phone_android_rounded,
-                size: 18.sp,
-                color: AppColors.white,
-              ),
-
-              SizedBox(width: 10.w),
-
-              Text(
-                maskPhoneNumber(phoneNumber).toPersianDigit(),
-
-                style: AppTextStyles.otp_phone_number.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ],
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(10.r),
           ),
         ),
       ],

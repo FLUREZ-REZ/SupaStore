@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 class HomeFooter extends StatelessWidget {
   const HomeFooter({
@@ -115,9 +116,7 @@ class _StoreHeader extends StatelessWidget {
           width: 52.w,
           height: 52.w,
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .primary,
+            color: AppColors.orders_page_redi ,
             borderRadius:
             BorderRadius.circular(16.r),
           ),

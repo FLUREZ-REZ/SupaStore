@@ -57,7 +57,7 @@ class _CategoryListPageState extends State<CategoryListPage> {
           backgroundColor: Colors.white,
 
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.white,
             elevation: 0,
             scrolledUnderElevation: 0,
             automaticallyImplyLeading: false,
@@ -65,7 +65,7 @@ class _CategoryListPageState extends State<CategoryListPage> {
             title: Text(
               'دسته‌بندی‌ها',
               style: AppTextStyles.second_title_section.copyWith(
-                color: AppColors.black,
+                color: AppColors.home_header_background,
               ),
             ),
           ),

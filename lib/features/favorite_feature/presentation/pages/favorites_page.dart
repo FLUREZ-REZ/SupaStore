@@ -55,6 +55,7 @@ class _FavoritesView
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: AppColors.favorite_page_redi,
           title: const Text(
             'علاقه‌مندی‌های من',
           ),

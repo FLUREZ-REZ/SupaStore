@@ -22,6 +22,7 @@ class OrderDetailsPage extends StatelessWidget {
         backgroundColor: Colors.grey.shade50,
 
         appBar: AppBar(
+          backgroundColor: AppColors.orders_page_redi,
           title: const Text(
             'جزئیات سفارش',
           ),

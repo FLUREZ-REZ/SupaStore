@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 class PrivacyPage extends StatelessWidget {
   const PrivacyPage({
@@ -29,7 +30,7 @@ class PrivacyPage extends StatelessWidget {
           ),
           centerTitle: true,
           backgroundColor:
-          Colors.white,
+          AppColors.privacy_page_redi ,
           elevation: 0,
         ),
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({
@@ -29,7 +30,7 @@ class AboutPage extends StatelessWidget {
           ),
           centerTitle: true,
           backgroundColor:
-          Colors.white,
+          AppColors.about_us_page_redi,
           elevation: 0,
         ),
 
@@ -58,17 +59,14 @@ class AboutPage extends StatelessWidget {
                 height: 100.w,
 
                 decoration: BoxDecoration(
-                  color: primaryColor
-                      .withValues(
-                    alpha: 0.10,
-                  ),
+                  color: AppColors.about_us_page_redi ,
                   shape: BoxShape.circle,
                 ),
 
                 child: Icon(
                   Icons.storefront_outlined,
                   size: 52.sp,
-                  color: primaryColor,
+                  color: AppColors.white,
                 ),
               ),
 
