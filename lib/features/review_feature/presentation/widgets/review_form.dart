@@ -14,13 +14,10 @@ class ReviewForm extends StatefulWidget {
   final String productId;
 
   @override
-  State<ReviewForm> createState() =>
-      _ReviewFormState();
+  State<ReviewForm> createState() => _ReviewFormState();
 }
 
-class _ReviewFormState
-    extends State<ReviewForm> {
-
+class _ReviewFormState extends State<ReviewForm> {
   // ==========================================================
   // CONTROLLERS
   // ==========================================================
@@ -32,7 +29,7 @@ class _ReviewFormState
   TextEditingController();
 
   // ==========================================================
-  // FORM KEY
+  // FORM
   // ==========================================================
 
   final GlobalKey<FormState> _formKey =
@@ -52,7 +49,6 @@ class _ReviewFormState
   void dispose() {
     _titleController.dispose();
     _commentController.dispose();
-
     super.dispose();
   }
 
@@ -61,17 +57,9 @@ class _ReviewFormState
   // ==========================================================
 
   Future<void> _submit() async {
-    // --------------------------------------------------------
-    // VALIDATE FORM
-    // --------------------------------------------------------
-
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    // --------------------------------------------------------
-    // VALIDATE RATING
-    // --------------------------------------------------------
 
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -85,19 +73,9 @@ class _ReviewFormState
       return;
     }
 
-    // --------------------------------------------------------
-    // PROVIDER
-    // --------------------------------------------------------
+    final provider = context.read<ReviewProvider>();
 
-    final provider =
-    context.read<ReviewProvider>();
-
-    // --------------------------------------------------------
-    // CREATE REVIEW
-    // --------------------------------------------------------
-
-    final success =
-    await provider.createReview(
+    final success = await provider.createReview(
       productId: widget.productId,
       rating: _rating,
       title: _titleController.text.trim().isEmpty
@@ -108,26 +86,17 @@ class _ReviewFormState
 
     if (!mounted) return;
 
-    // --------------------------------------------------------
-    // ERROR
-    // --------------------------------------------------------
-
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            provider.error ??
-                'ثبت نظر انجام نشد.',
+            provider.error ?? 'ثبت نظر انجام نشد.',
           ),
         ),
       );
 
       return;
     }
-
-    // --------------------------------------------------------
-    // SUCCESS
-    // --------------------------------------------------------
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -141,38 +110,108 @@ class _ReviewFormState
   }
 
   // ==========================================================
-  // RATING ITEM
+  // STAR
   // ==========================================================
 
-  Widget _buildRatingItem(
-      int rating,
-      ) {
-    final bool selected =
-        _rating >= rating;
+  Widget _buildRatingItem(int rating) {
+    final selected = _rating >= rating;
 
     return GestureDetector(
-      behavior:
-      HitTestBehavior.opaque,
-
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         setState(() {
           _rating = rating;
         });
       },
-
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 4.w,
+        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        child: AnimatedScale(
+          scale: selected ? 1.08 : 1,
+          duration: const Duration(milliseconds: 150),
+          child: Icon(
+            selected
+                ? Icons.star_rounded
+                : Icons.star_outline_rounded,
+            size: 40.sp,
+            color: selected
+                ? const Color(0xFFF9A825)
+                : Colors.grey.shade400,
+          ),
         ),
+      ),
+    );
+  }
 
-        child: Icon(
-          selected
-              ? Icons.star
-              : Icons.star_border,
+  // ==========================================================
+  // INPUT DECORATION
+  // ==========================================================
 
-          size: 38.sp,
+  InputDecoration _inputDecoration({
+    required String label,
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(
+        icon,
+        size: 21.sp,
+        color: Colors.grey.shade600,
+      ),
 
-          color: Colors.amber,
+      filled: true,
+      fillColor: Colors.white,
+
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 14.w,
+        vertical: 15.h,
+      ),
+
+      labelStyle: TextStyle(
+        fontSize: 13.sp,
+        color: Colors.grey.shade700,
+      ),
+
+      hintStyle: TextStyle(
+        fontSize: 12.sp,
+        color: Colors.grey.shade400,
+      ),
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        borderSide: BorderSide(
+          color: Colors.grey.shade300,
+        ),
+      ),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        borderSide: BorderSide(
+          color: Colors.grey.shade300,
+        ),
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        borderSide: BorderSide(
+          color: AppColors.primary,
+          width: 1.4,
+        ),
+      ),
+
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        borderSide: BorderSide(
+          color: Colors.red.shade400,
+        ),
+      ),
+
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.r),
+        borderSide: BorderSide(
+          color: Colors.red.shade400,
+          width: 1.3,
         ),
       ),
     );
@@ -185,42 +224,54 @@ class _ReviewFormState
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection:
-      TextDirection.rtl,
+      textDirection: TextDirection.rtl,
 
       child: Scaffold(
-        backgroundColor:
-        const Color(0xFFF5F5F5),
+        backgroundColor: const Color(0xFFF7F7F7),
+
+        // ======================================================
+        // APP BAR
+        // ======================================================
 
         appBar: AppBar(
-          backgroundColor:
-          AppColors.primary,
-
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           elevation: 0,
 
           centerTitle: true,
-
-          title: Text(
-            'ثبت نظر',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 17.sp,
-              fontWeight:
-              FontWeight.bold,
-            ),
-          ),
 
           leading: IconButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: Colors.black87,
+              size: 23.sp,
+            ),
+          ),
 
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
+          title: Text(
+            'ثبت نظر',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(1.h),
+            child: Container(
+              height: 1.h,
+              color: Colors.grey.shade200,
             ),
           ),
         ),
+
+        // ======================================================
+        // BODY
+        // ======================================================
 
         body: Consumer<ReviewProvider>(
           builder: (
@@ -232,8 +283,7 @@ class _ReviewFormState
               key: _formKey,
 
               child: ListView(
-                physics:
-                const BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
 
                 padding: EdgeInsets.fromLTRB(
                   16.w,
@@ -244,97 +294,49 @@ class _ReviewFormState
 
                 children: [
 
-                  // ==========================================
-                  // HEADER CARD
-                  // ==========================================
+                  // ==================================================
+                  // TITLE
+                  // ==================================================
+
+                  Text(
+                    'نظر شما درباره این محصول',
+                    style: TextStyle(
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  SizedBox(height: 7.h),
+
+                  Text(
+                    'تجربه‌تان را با خریداران دیگر به اشتراک بگذارید.',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey.shade600,
+                      height: 1.6,
+                    ),
+                  ),
+
+                  SizedBox(height: 22.h),
+
+                  // ==================================================
+                  // RATING
+                  // ==================================================
 
                   Container(
                     width: double.infinity,
 
-                    padding:
-                    EdgeInsets.all(18.w),
-
-                    decoration:
-                    BoxDecoration(
-                      color: Colors.white,
-
-                      borderRadius:
-                      BorderRadius.circular(
-                        16.r,
-                      ),
-                    ),
-
-                    child: Column(
-                      children: [
-
-                        Icon(
-                          Icons.rate_review_outlined,
-                          size: 40.sp,
-                          color:
-                          AppColors.primary,
-                        ),
-
-                        SizedBox(
-                          height: 10.h,
-                        ),
-
-                        Text(
-                          'نظر شما درباره این محصول چیست؟',
-                          textAlign:
-                          TextAlign.center,
-
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight:
-                            FontWeight.bold,
-                          ),
-                        ),
-
-                        SizedBox(
-                          height: 6.h,
-                        ),
-
-                        Text(
-                          'تجربه خود را با سایر کاربران به اشتراک بگذارید.',
-                          textAlign:
-                          TextAlign.center,
-
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors
-                                .grey
-                                .shade600,
-                            height: 1.6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(
-                    height: 14.h,
-                  ),
-
-                  // ==========================================
-                  // RATING CARD
-                  // ==========================================
-
-                  Container(
-                    width: double.infinity,
-
-                    padding:
-                    EdgeInsets.symmetric(
-                      horizontal: 16.w,
+                    padding: EdgeInsets.symmetric(
                       vertical: 18.h,
+                      horizontal: 12.w,
                     ),
 
-                    decoration:
-                    BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
-
-                      borderRadius:
-                      BorderRadius.circular(
-                        16.r,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
                       ),
                     ),
 
@@ -342,305 +344,170 @@ class _ReviewFormState
                       children: [
 
                         Text(
-                          'امتیاز شما',
+                          'امتیاز شما به این محصول',
                           style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight:
-                            FontWeight.w600,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
                         ),
 
-                        SizedBox(
-                          height: 10.h,
-                        ),
+                        SizedBox(height: 12.h),
 
                         Row(
                           mainAxisAlignment:
                           MainAxisAlignment.center,
 
                           children: [
-                            for (
-                            int i = 1;
-                            i <= 5;
-                            i++
-                            )
+                            for (int i = 1; i <= 5; i++)
                               _buildRatingItem(i),
                           ],
                         ),
 
-                        SizedBox(
-                          height: 5.h,
-                        ),
+                        SizedBox(height: 8.h),
 
-                        Text(
-                          _rating == 0
-                              ? 'یک امتیاز انتخاب کنید'
-                              : '$_rating از 5',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color:
+                        AnimatedSwitcher(
+                          duration:
+                          const Duration(milliseconds: 150),
+
+                          child: Text(
                             _rating == 0
-                                ? Colors
-                                .grey
-                                .shade600
-                                : Colors
-                                .amber
-                                .shade800,
-                            fontWeight:
-                            FontWeight.w600,
+                                ? 'امتیاز خود را انتخاب کنید'
+                                : 'امتیاز $_rating از ۵',
+
+                            key: ValueKey(_rating),
+
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: _rating == 0
+                                  ? Colors.grey.shade500
+                                  : const Color(0xFF8D6E00),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  SizedBox(
-                    height: 14.h,
-                  ),
+                  SizedBox(height: 18.h),
 
-                  // ==========================================
-                  // TITLE
-                  // ==========================================
+                  // ==================================================
+                  // TITLE INPUT
+                  // ==================================================
 
-                  Container(
-                    width: double.infinity,
+                  TextFormField(
+                    controller: _titleController,
 
-                    padding:
-                    EdgeInsets.all(16.w),
+                    maxLength: 80,
 
-                    decoration:
-                    BoxDecoration(
-                      color: Colors.white,
+                    textInputAction:
+                    TextInputAction.next,
 
-                      borderRadius:
-                      BorderRadius.circular(
-                        16.r,
-                      ),
-                    ),
-
-                    child: TextFormField(
-                      controller:
-                      _titleController,
-
-                      maxLength: 80,
-
-                      textInputAction:
-                      TextInputAction.next,
-
-                      decoration:
-                      InputDecoration(
-                        labelText:
-                        'عنوان نظر (اختیاری)',
-
-                        hintText:
-                        'مثلاً کیفیت ساخت عالی',
-
-                        prefixIcon:
-                        const Icon(
-                          Icons.title,
-                        ),
-
-                        border:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            12.r,
-                          ),
-                        ),
-
-                        enabledBorder:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            12.r,
-                          ),
-                          borderSide:
-                          BorderSide(
-                            color: Colors
-                                .grey
-                                .shade300,
-                          ),
-                        ),
-                      ),
+                    decoration: _inputDecoration(
+                      label: 'عنوان نظر',
+                      hint: 'مثلاً کیفیت ساخت عالی',
+                      icon: Icons.title_rounded,
                     ),
                   ),
 
-                  SizedBox(
-                    height: 14.h,
-                  ),
+                  SizedBox(height: 8.h),
 
-                  // ==========================================
+                  // ==================================================
                   // COMMENT
-                  // ==========================================
+                  // ==================================================
 
-                  Container(
-                    width: double.infinity,
+                  TextFormField(
+                    controller: _commentController,
 
-                    padding:
-                    EdgeInsets.all(16.w),
+                    minLines: 6,
+                    maxLines: 8,
 
-                    decoration:
-                    BoxDecoration(
-                      color: Colors.white,
+                    maxLength: 1000,
 
-                      borderRadius:
-                      BorderRadius.circular(
-                        16.r,
-                      ),
-                    ),
+                    textInputAction:
+                    TextInputAction.newline,
 
-                    child: TextFormField(
-                      controller:
-                      _commentController,
+                    validator: (value) {
+                      final text =
+                          value?.trim() ?? '';
 
-                      minLines: 5,
+                      if (text.isEmpty) {
+                        return 'متن نظر را وارد کنید.';
+                      }
 
-                      maxLines: 8,
+                      if (text.length < 5) {
+                        return 'نظر باید حداقل ۵ کاراکتر باشد.';
+                      }
 
-                      maxLength: 1000,
+                      return null;
+                    },
 
-                      textInputAction:
-                      TextInputAction.newline,
-
-                      validator: (value) {
-                        final text =
-                            value?.trim() ?? '';
-
-                        if (text.isEmpty) {
-                          return 'متن نظر را وارد کنید.';
-                        }
-
-                        if (text.length < 5) {
-                          return 'نظر باید حداقل ۵ کاراکتر باشد.';
-                        }
-
-                        return null;
-                      },
-
-                      decoration:
-                      InputDecoration(
-                        labelText:
-                        'متن نظر',
-
-                        hintText:
-                        'تجربه خود از این محصول را بنویسید...',
-
-                        alignLabelWithHint:
-                        true,
-
-                        prefixIcon:
-                        const Padding(
-                          padding:
-                          EdgeInsets.only(
-                            bottom: 90,
-                          ),
-                          child: Icon(
-                            Icons
-                                .chat_bubble_outline,
-                          ),
-                        ),
-
-                        border:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            12.r,
-                          ),
-                        ),
-
-                        enabledBorder:
-                        OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            12.r,
-                          ),
-                          borderSide:
-                          BorderSide(
-                            color: Colors
-                                .grey
-                                .shade300,
-                          ),
-                        ),
-                      ),
+                    decoration: _inputDecoration(
+                      label: 'متن نظر',
+                      hint:
+                      'تجربه خود از این محصول را بنویسید...',
+                      icon: Icons.chat_bubble_outline_rounded,
                     ),
                   ),
 
-                  SizedBox(
-                    height: 20.h,
-                  ),
+                  SizedBox(height: 12.h),
 
-                  // ==========================================
+                  // ==================================================
                   // PROVIDER ERROR
-                  // ==========================================
+                  // ==================================================
 
                   if (provider.error != null)
-                    Padding(
-                      padding:
-                      EdgeInsets.only(
+                    Container(
+                      width: double.infinity,
+
+                      margin: EdgeInsets.only(
                         bottom: 12.h,
                       ),
 
-                      child: Container(
-                        width:
-                        double.infinity,
+                      padding: EdgeInsets.all(11.w),
 
-                        padding:
-                        EdgeInsets.all(12.w),
-
-                        decoration:
-                        BoxDecoration(
-                          color: Colors.red
-                              .withValues(
-                            alpha: 0.06,
-                          ),
-
-                          borderRadius:
-                          BorderRadius.circular(
-                            10.r,
-                          ),
-
-                          border:
-                          Border.all(
-                            color: Colors.red
-                                .withValues(
-                              alpha: 0.2,
-                            ),
-                          ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(
+                          alpha: 0.05,
                         ),
 
-                        child: Text(
-                          provider.error!,
-                          textAlign:
-                          TextAlign.center,
+                        borderRadius:
+                        BorderRadius.circular(9.r),
 
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: Colors
-                                .red
-                                .shade700,
+                        border: Border.all(
+                          color: Colors.red.withValues(
+                            alpha: 0.15,
                           ),
+                        ),
+                      ),
+
+                      child: Text(
+                        provider.error!,
+                        textAlign: TextAlign.center,
+
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.red.shade700,
                         ),
                       ),
                     ),
 
-                  // ==========================================
-                  // SUBMIT BUTTON
-                  // ==========================================
+                  // ==================================================
+                  // SUBMIT
+                  // ==================================================
 
                   SizedBox(
-                    width:
-                    double.infinity,
+                    height: 50.h,
 
-                    height: 52.h,
+                    width: double.infinity,
 
                     child: ElevatedButton(
-                      onPressed:
-                      provider.isSubmitting
+                      onPressed: provider.isSubmitting
                           ? null
                           : _submit,
 
-                      style:
-                      ElevatedButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                         backgroundColor:
                         AppColors.primary,
 
@@ -655,23 +522,19 @@ class _ReviewFormState
                         shape:
                         RoundedRectangleBorder(
                           borderRadius:
-                          BorderRadius.circular(
-                            14.r,
-                          ),
+                          BorderRadius.circular(10.r),
                         ),
                       ),
 
-                      child:
-                      provider.isSubmitting
+                      child: provider.isSubmitting
                           ? SizedBox(
-                        width: 23.w,
-                        height: 23.w,
+                        width: 22.w,
+                        height: 22.w,
+
                         child:
                         const CircularProgressIndicator(
-                          strokeWidth:
-                          2.5,
-                          color:
-                          Colors.white,
+                          strokeWidth: 2.4,
+                          color: Colors.white,
                         ),
                       )
                           : Row(
@@ -679,25 +542,21 @@ class _ReviewFormState
                         MainAxisAlignment.center,
 
                         children: [
+
                           Icon(
                             Icons
-                                .send_outlined,
-                            size: 20.sp,
+                                .send_rounded,
+                            size: 19.sp,
                           ),
 
-                          SizedBox(
-                            width: 8.w,
-                          ),
+                          SizedBox(width: 8.w),
 
                           Text(
                             'ثبت نظر',
-                            style:
-                            TextStyle(
-                              fontSize:
-                              14.sp,
+                            style: TextStyle(
+                              fontSize: 14.sp,
                               fontWeight:
-                              FontWeight
-                                  .w600,
+                              FontWeight.w700,
                             ),
                           ),
                         ],

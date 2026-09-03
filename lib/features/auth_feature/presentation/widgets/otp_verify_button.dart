@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
@@ -16,6 +17,8 @@ class OtpVerifyButton extends StatelessWidget {
       isComplete: provider.isOtpComplete,
       ),
       builder: (context, state, child) {
+
+
         final provider = context.read<OtpProvider>();
 
         return SizedBox(

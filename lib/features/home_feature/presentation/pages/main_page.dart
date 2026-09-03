@@ -29,6 +29,8 @@ class _MainPageState extends State<MainPage> {
   // CURRENT TAB
   // ============================================================
 
+
+
   int _currentIndex = 0;
 
   // ============================================================
@@ -52,6 +54,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+
+
 
     // ------------------------------------------------------------
     // Get providers
