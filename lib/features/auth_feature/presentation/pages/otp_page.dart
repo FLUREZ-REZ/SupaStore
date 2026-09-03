@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_header.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_timer.dart';
@@ -61,8 +62,13 @@ class _OtpPageState extends State<OtpPage> {
           if (!mounted) return;
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
+            SnackBar(
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              content: const Text(
                 'کد تایید صحیح نیست.',
               ),
             ),
@@ -78,8 +84,13 @@ class _OtpPageState extends State<OtpPage> {
           if (!mounted) return;
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
+            SnackBar(
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              content: const Text(
                 'خطا در ارتباط با سرور.',
               ),
             ),
@@ -101,9 +112,13 @@ class _OtpPageState extends State<OtpPage> {
     _handleStatus(provider);
 
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
       child: Scaffold(
+        backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
+
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -111,29 +126,77 @@ class _OtpPageState extends State<OtpPage> {
             ),
             child: Column(
               children: [
-                SizedBox(height: 24.h),
+                SizedBox(
+                  height: 28.h,
+                ),
+
+                // --------------------------------------------------
+                // Header
+                // --------------------------------------------------
 
                 OtpHeader(
                   phoneNumber: widget.phoneNumber,
                 ),
 
-                SizedBox(height: 48.h),
+                SizedBox(
+                  height: 46.h,
+                ),
+
+                // --------------------------------------------------
+                // OTP
+                // --------------------------------------------------
 
                 const OtpPinField(),
 
-                SizedBox(height: 28.h),
+                SizedBox(
+                  height: 26.h,
+                ),
+
+                // --------------------------------------------------
+                // Timer
+                // --------------------------------------------------
 
                 const OtpTimer(),
 
-                SizedBox(height: 6.h),
+                SizedBox(
+                  height: 8.h,
+                ),
+
+                // --------------------------------------------------
+                // Resend
+                // --------------------------------------------------
 
                 const OtpResendButton(),
 
                 const Spacer(),
 
+                // --------------------------------------------------
+                // Verify button
+                // --------------------------------------------------
+
                 const OtpVerifyButton(),
 
-                SizedBox(height: 24.h),
+                SizedBox(
+                  height: 18.h,
+                ),
+
+                // --------------------------------------------------
+                // Security text
+                // --------------------------------------------------
+
+                Text(
+                  'کد ارسال‌شده را وارد کنید',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 10.5.sp,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                SizedBox(
+                  height: 20.h,
+                ),
               ],
             ),
           ),

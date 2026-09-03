@@ -3,44 +3,57 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 
-
 class OtpPinField extends StatelessWidget {
-  const OtpPinField({super.key});
+  const OtpPinField({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final provider = context.read<OtpProvider>();
 
     final defaultTheme = PinTheme(
-      width: 54.w,
-      height: 60.h,
+      width: 48.w,
+      height: 56.h,
+
       textStyle: AppTextStyles.otp_code_number.copyWith(
-        fontWeight: FontWeight.w500,
+        color: Colors.black,
+        fontSize: 20.sp,
+        fontWeight: FontWeight.w700,
       ),
+
       decoration: BoxDecoration(
-        color: AppColors.otp_code_background,
-        borderRadius: BorderRadius.circular(16.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: Colors.transparent,
+          color: Colors.red.withValues(
+            alpha: 0.18,
+          ),
+          width: 1,
         ),
       ),
     );
 
     final focusedTheme = defaultTheme.copyDecorationWith(
+      color: Colors.white,
       border: Border.all(
-        color: AppColors.primary,
+        color: Colors.red,
         width: 1.5,
       ),
     );
 
     final submittedTheme = defaultTheme.copyDecorationWith(
-      color: AppColors.primary.withValues(alpha: .08),
+      color: Colors.red.withValues(
+        alpha: 0.06,
+      ),
       border: Border.all(
-        color: AppColors.primary,
+        color: Colors.red,
+        width: 1,
       ),
     );
 
@@ -74,6 +87,12 @@ class OtpPinField extends StatelessWidget {
         onCompleted: (value) async {
           await provider.verifyCode();
         },
+
+        cursor: Container(
+          width: 2.w,
+          height: 22.h,
+          color: Colors.red,
+        ),
       ),
     );
   }

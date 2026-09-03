@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
@@ -77,7 +78,7 @@ class _ProfileView extends StatelessWidget {
             'پروفایل',
           ),
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.profile_page_redi,
           elevation: 0,
         ),
 

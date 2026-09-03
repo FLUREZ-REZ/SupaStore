@@ -107,6 +107,45 @@ class AppColors {
   static const Color home_header_background =
   Color(0xFFFF1F3D);
 
+
+  //cart_page :
+
+  static const Color cart_page_redi =
+  Color(0xFFFF1F3D);
+
+  static const Color cart_page_white =
+  Color(0xFFe9ecef);
+
+  //profile_page :
+
+  static const Color profile_page_redi =
+  Color(0xFFFF1F3D);
+
+  //about-us-page :
+
+  static const Color about_us_page_redi =
+  Color(0xFFFF1F3D);
+
+  //privacy_page :
+
+  static const Color privacy_page_redi =
+  Color(0xFFFF1F3D);
+
+  //support_page :
+
+  static const Color support_page_redi =
+  Color(0xFFFF1F3D);
+
+  //favorite_page :
+
+  static const Color favorite_page_redi =
+  Color(0xFFFF1F3D);
+
+  //orders_page :
+
+  static const Color orders_page_redi =
+  Color(0xFFFF1F3D);
+
   static const Color primary =
   Color(0xFFE6123D);
 

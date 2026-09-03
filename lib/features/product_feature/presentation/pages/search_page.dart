@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
-import 'package:supastore/core/theme/app_text_styles.dart';
 
 import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_grid.dart';
@@ -24,10 +23,6 @@ class SearchPage extends StatelessWidget {
   }
 }
 
-// ==================================================================
-// SEARCH VIEW
-// ==================================================================
-
 class _SearchView extends StatelessWidget {
   const _SearchView();
 
@@ -36,25 +31,22 @@ class _SearchView extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
-
-        // ==========================================================
-        // APP BAR
-        // ==========================================================
+        backgroundColor: const Color(0xFFF8F8F8),
 
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.orders_page_redi,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
           title: Text(
-            'جستجوی محصولات',
-            style: AppTextStyles.second_title_section,
+            'جستجو',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
         ),
-
-        // ==========================================================
-        // BODY
-        // ==========================================================
 
         body: Consumer<SearchProvider>(
           builder: (
@@ -64,72 +56,64 @@ class _SearchView extends StatelessWidget {
               ) {
             return Column(
               children: [
-                // ==================================================
-                // SEARCH FIELD
-                // ==================================================
-
                 Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: TextField(
-                    autofocus: true,
-                    onChanged: provider.search,
-                    onSubmitted: (value) {
-                      provider.addSearchHistory(value);
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'نام محصول را وارد کنید...',
-                      prefixIcon: const Icon(
-                        Icons.search,
+                  padding: EdgeInsets.fromLTRB(
+                    16.w,
+                    12.h,
+                    16.w,
+                    8.h,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(14.r),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade200,
-                        ),
+                    ),
+                    child: TextField(
+                      autofocus: true,
+                      onChanged: provider.search,
+                      onSubmitted: (value) {
+                        provider.addSearchHistory(value);
+                      },
+                      textInputAction: TextInputAction.search,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Colors.black87,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(14.r),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade200,
+                      decoration: InputDecoration(
+                        hintText: 'جستجوی محصول...',
+                        hintStyle: TextStyle(
+                          fontSize: 13.sp,
+                          color: Colors.grey.shade500,
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(14.r),
-                        borderSide: BorderSide(
-                          color: AppColors.primary,
-                          width: 1.2,
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          size: 22.sp,
+                          color: Colors.grey.shade500,
                         ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 14.w,
+                          vertical: 14.h,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
 
-                // ==================================================
-                // CONTENT
-                // ==================================================
-
                 Expanded(
                   child: Builder(
                     builder: (_) {
-                      // =================================================
-                      // INITIAL LOADING
-                      // =================================================
-
                       if (provider.isLoading &&
                           provider.products.isEmpty) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return const _SearchLoading();
                       }
-
-                      // =================================================
-                      // ERROR
-                      // =================================================
 
                       if (provider.error != null &&
                           provider.products.isEmpty) {
@@ -138,10 +122,6 @@ class _SearchView extends StatelessWidget {
                           onRetry: provider.refresh,
                         );
                       }
-
-                      // =================================================
-                      // EMPTY / HISTORY
-                      // =================================================
 
                       if (provider.products.isEmpty) {
                         if (provider.history.isNotEmpty) {
@@ -153,18 +133,11 @@ class _SearchView extends StatelessWidget {
                         return const _EmptyView();
                       }
 
-                      // =================================================
-                      // PRODUCTS + PAGINATION
-                      // =================================================
-
                       return Column(
                         children: [
-                          // ===============================================
-                          // PRODUCT GRID
-                          // ===============================================
-
                           Expanded(
                             child: RefreshIndicator(
+                              color: AppColors.primary,
                               onRefresh: provider.refresh,
                               child: ProductGrid(
                                 products: provider.products,
@@ -182,16 +155,12 @@ class _SearchView extends StatelessWidget {
                             ),
                           ),
 
-                          // ===============================================
-                          // PAGINATION
-                          // ===============================================
-
                           _Pagination(
                             provider: provider,
                           ),
 
                           SizedBox(
-                            height: 10.h,
+                            height: 8.h,
                           ),
                         ],
                       );
@@ -207,9 +176,22 @@ class _SearchView extends StatelessWidget {
   }
 }
 
-// ==================================================================
-// SEARCH HISTORY
-// ==================================================================
+class _SearchLoading extends StatelessWidget {
+  const _SearchLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 25.w,
+        height: 25.w,
+        child: const CircularProgressIndicator(
+          strokeWidth: 2.2,
+        ),
+      ),
+    );
+  }
+}
 
 class _SearchHistory extends StatelessWidget {
   const _SearchHistory({
@@ -221,44 +203,120 @@ class _SearchHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        top: 8.h,
+        bottom: 20.h,
+      ),
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            8.h,
-            16.w,
-            8.h,
+          padding: EdgeInsets.symmetric(
+            horizontal: 18.w,
+            vertical: 8.h,
           ),
           child: Row(
-            mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'جستجوهای اخیر',
-                style: AppTextStyles.productCard,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
               ),
+
+              const Spacer(),
+
               TextButton(
                 onPressed: provider.clearHistory,
-                child: const Text(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
+                  ),
+                  minimumSize: Size.zero,
+                  tapTargetSize:
+                  MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
                   'پاک کردن',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.red.shade400,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
         ),
 
+        SizedBox(height: 4.h),
+
         ...provider.history.map(
               (item) {
-            return ListTile(
-              leading: const Icon(
-                Icons.history,
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 3.h,
               ),
-              title: Text(
-                item,
+              child: Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+                child: InkWell(
+                  onTap: () {
+                    provider.search(item);
+                  },
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 13.h,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34.w,
+                          height: 34.w,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            borderRadius:
+                            BorderRadius.circular(10.r),
+                          ),
+                          child: Icon(
+                            Icons.history_rounded,
+                            size: 18.sp,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+
+                        SizedBox(width: 12.w),
+
+                        Expanded(
+                          child: Text(
+                            item,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 8.w),
+
+                        Icon(
+                          Icons.north_west_rounded,
+                          size: 17.sp,
+                          color: Colors.grey.shade400,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              onTap: () {
-                provider.search(item);
-              },
             );
           },
         ),
@@ -266,10 +324,6 @@ class _SearchHistory extends StatelessWidget {
     );
   }
 }
-
-// ==================================================================
-// PAGINATION
-// ==================================================================
 
 class _Pagination extends StatelessWidget {
   const _Pagination({
@@ -285,18 +339,11 @@ class _Pagination extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 20.w,
-        vertical: 8.h,
+        vertical: 6.h,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // ========================================================
-          // NEXT
-          //
-          // سمت راست صفحه
-          // فلش راست = صفحه بعدی
-          // ========================================================
-
           _PageButton(
             icon: Icons.chevron_right_rounded,
             enabled:
@@ -305,48 +352,27 @@ class _Pagination extends StatelessWidget {
             onTap: provider.nextPage,
           ),
 
-          SizedBox(
-            width: 12.w,
-          ),
-
-          // ========================================================
-          // CURRENT PAGE
-          // ========================================================
+          SizedBox(width: 10.w),
 
           Container(
-            height: 40.h,
-            constraints: BoxConstraints(
-              minWidth: 40.w,
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-            ),
+            width: 40.w,
+            height: 40.w,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: AppColors.primary,
-              borderRadius:
-              BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(11.r),
             ),
             child: Text(
               '$currentPage',
               style: TextStyle(
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: Colors.white,
               ),
             ),
           ),
 
-          SizedBox(
-            width: 12.w,
-          ),
-
-          // ========================================================
-          // PREVIOUS
-          //
-          // سمت چپ صفحه
-          // فلش چپ = صفحه قبلی
-          // ========================================================
+          SizedBox(width: 10.w),
 
           _PageButton(
             icon: Icons.chevron_left_rounded,
@@ -356,19 +382,15 @@ class _Pagination extends StatelessWidget {
             onTap: provider.previousPage,
           ),
 
-          // ========================================================
-          // LOADING
-          // ========================================================
-
           if (provider.isLoading) ...[
-            SizedBox(
-              width: 10.w,
-            ),
+            SizedBox(width: 10.w),
+
             SizedBox(
               width: 14.w,
               height: 14.w,
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 1.8,
+                color: AppColors.primary,
               ),
             ),
           ],
@@ -377,10 +399,6 @@ class _Pagination extends StatelessWidget {
     );
   }
 }
-
-// ==================================================================
-// PAGE BUTTON
-// ==================================================================
 
 class _PageButton extends StatelessWidget {
   const _PageButton({
@@ -396,38 +414,34 @@ class _PageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled
-          ? AppColors.primary.withValues(
-        alpha: 0.08,
-      )
-          : Colors.grey.shade100,
-      borderRadius:
-      BorderRadius.circular(10.r),
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(11.r),
       child: InkWell(
-        onTap: enabled
-            ? onTap
-            : null,
-        borderRadius:
-        BorderRadius.circular(10.r),
-        child: SizedBox(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(11.r),
+        child: Container(
           width: 40.w,
           height: 40.w,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(11.r),
+            border: Border.all(
+              color: enabled
+                  ? Colors.grey.shade200
+                  : Colors.grey.shade100,
+            ),
+          ),
           child: Icon(
             icon,
             size: 22.sp,
             color: enabled
-                ? AppColors.primary
-                : Colors.grey.shade400,
+                ? Colors.black87
+                : Colors.grey.shade300,
           ),
         ),
       ),
     );
   }
 }
-
-// ==================================================================
-// ERROR VIEW
-// ==================================================================
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({
@@ -446,33 +460,56 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 44.sp,
-              color: Colors.grey.shade500,
+            Container(
+              width: 68.w,
+              height: 68.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 32.sp,
+                color: Colors.grey.shade500,
+              ),
             ),
 
-            SizedBox(
-              height: 12.h,
+            SizedBox(height: 14.h),
+
+            Text(
+              'مشکلی پیش آمده',
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w700,
+              ),
             ),
+
+            SizedBox(height: 7.h),
 
             Text(
               error,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: Colors.grey.shade700,
+                color: Colors.grey.shade600,
+                height: 1.5,
               ),
             ),
 
-            SizedBox(
-              height: 16.h,
-            ),
+            SizedBox(height: 14.h),
 
             TextButton(
               onPressed: onRetry,
-              child: const Text(
+              child: Text(
                 'تلاش مجدد',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -482,37 +519,59 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-// ==================================================================
-// EMPTY VIEW
-// ==================================================================
-
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.search_off_rounded,
-            size: 48.sp,
-            color: Colors.grey.shade400,
-          ),
-
-          SizedBox(
-            height: 10.h,
-          ),
-
-          Text(
-            'محصولی یافت نشد',
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: Colors.grey.shade600,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 30.w,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 82.w,
+              height: 82.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 38.sp,
+                color: Colors.grey.shade400,
+              ),
             ),
-          ),
-        ],
+
+            SizedBox(height: 18.h),
+
+            Text(
+              'محصولی یافت نشد',
+              style: TextStyle(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+
+            SizedBox(height: 6.h),
+
+            Text(
+              'عبارت دیگری را برای جستجو امتحان کنید.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

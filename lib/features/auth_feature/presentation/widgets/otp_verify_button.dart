@@ -35,7 +35,7 @@ class OtpVerifyButton extends StatelessWidget {
               elevation: 0,
               backgroundColor: AppColors.primary,
               disabledBackgroundColor:
-              AppColors.primary.withValues(alpha: 0.35),
+              Colors.grey.shade300 ,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r),
               ),

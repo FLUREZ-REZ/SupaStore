@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({
@@ -29,7 +30,7 @@ class SupportPage extends StatelessWidget {
           ),
           centerTitle: true,
           backgroundColor:
-          Colors.white,
+          AppColors.support_page_redi ,
           elevation: 0,
         ),
 
@@ -91,7 +92,7 @@ class SupportPage extends StatelessWidget {
                             .support_agent_rounded,
                         size: 34.sp,
                         color:
-                        primaryColor,
+                        AppColors.support_page_redi,
                       ),
                     ),
 
