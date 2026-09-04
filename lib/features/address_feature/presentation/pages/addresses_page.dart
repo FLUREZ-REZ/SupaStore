@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 import 'package:supastore/features/address_feature/presentation/pages/add_edit_address_page.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
@@ -60,6 +61,7 @@ class _AddressesView extends StatelessWidget {
         Colors.grey.shade50,
 
         appBar: AppBar(
+          backgroundColor: AppColors.orders_page_redi,
           title: const Text(
             'آدرس‌های من',
           ),
