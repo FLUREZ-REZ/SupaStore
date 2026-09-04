@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
+import 'package:supastore/features/address_feature/presentation/pages/addresses_page.dart';
 
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
@@ -292,14 +293,15 @@ class _ProfileView extends StatelessWidget {
                     // ADDRESSES
 
                     ProfileMenuItem(
-                      icon: Icons
-                          .location_on_outlined,
-                      title:
-                      'آدرس‌های من',
+                      icon: Icons.location_on_outlined,
+                      title: 'آدرس‌های من',
 
                       onTap: () {
-                        // TODO:
-                        // صفحه آدرس‌ها
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AddressesPage(),
+                          ),
+                        );
                       },
                     ),
 
