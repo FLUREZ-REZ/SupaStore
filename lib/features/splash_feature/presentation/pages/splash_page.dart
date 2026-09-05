@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/splash_provider.dart';
@@ -58,8 +60,19 @@ class _SplashPageState extends State<SplashPage> {
 
     // کاربر قبلا وارد شده
     if (provider.isLoggedIn) {
+      final authRoleService =
+      getIt<AuthRoleService>();
 
-      context.go('/home');
+      final isAdmin =
+      await authRoleService.isCurrentUserAdmin();
+
+      if (!mounted) return;
+
+      if (isAdmin) {
+        context.go('/admin');
+      } else {
+        context.go('/home');
+      }
 
       return;
     }

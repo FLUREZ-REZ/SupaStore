@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supastore/core/di/injector.dart';
 
+import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_header.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_timer.dart';
@@ -33,7 +35,6 @@ class _OtpPageState extends State<OtpPage> {
       final provider = context.read<OtpProvider>();
 
       provider.setPhone(widget.phoneNumber);
-
       provider.startTimer();
     });
   }
@@ -47,10 +48,22 @@ class _OtpPageState extends State<OtpPage> {
       case OtpStatus.success:
         provider.clearStatus();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
 
-          context.go('/home');
+          final authRoleService =
+          getIt<AuthRoleService>();
+
+          final isAdmin =
+          await authRoleService.isCurrentUserAdmin();
+
+          if (!mounted) return;
+
+          if (isAdmin) {
+            context.go('/admin');
+          } else {
+            context.go('/home');
+          }
         });
 
         break;
@@ -118,7 +131,6 @@ class _OtpPageState extends State<OtpPage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
-
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -130,10 +142,6 @@ class _OtpPageState extends State<OtpPage> {
                   height: 28.h,
                 ),
 
-                // --------------------------------------------------
-                // Header
-                // --------------------------------------------------
-
                 OtpHeader(
                   phoneNumber: widget.phoneNumber,
                 ),
@@ -142,19 +150,11 @@ class _OtpPageState extends State<OtpPage> {
                   height: 46.h,
                 ),
 
-                // --------------------------------------------------
-                // OTP
-                // --------------------------------------------------
-
                 const OtpPinField(),
 
                 SizedBox(
                   height: 26.h,
                 ),
-
-                // --------------------------------------------------
-                // Timer
-                // --------------------------------------------------
 
                 const OtpTimer(),
 
@@ -162,27 +162,15 @@ class _OtpPageState extends State<OtpPage> {
                   height: 8.h,
                 ),
 
-                // --------------------------------------------------
-                // Resend
-                // --------------------------------------------------
-
                 const OtpResendButton(),
 
                 const Spacer(),
-
-                // --------------------------------------------------
-                // Verify button
-                // --------------------------------------------------
 
                 const OtpVerifyButton(),
 
                 SizedBox(
                   height: 18.h,
                 ),
-
-                // --------------------------------------------------
-                // Security text
-                // --------------------------------------------------
 
                 Text(
                   'کد ارسال‌شده را وارد کنید',
