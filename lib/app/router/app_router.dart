@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/admin_feature/presentation/pages/admin_main_page.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/admin_page.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
@@ -191,7 +192,7 @@ class AppRouter {
         path: '/admin',
         name: 'admin',
         builder: (context, state) {
-          return const AdminPage();
+          return const AdminMainPage();
         },
       ),
 
