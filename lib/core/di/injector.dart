@@ -16,6 +16,7 @@ import 'package:supastore/features/address_feature/domain/usecases/get_default_a
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
 // ============================================================
 // CART FEATURE
@@ -670,6 +671,14 @@ Future<void> setupInjector() async {
         () => BlockedWordRepositoryImpl(
       remoteDataSource:
       getIt<BlockedWordRemoteDataSource>(),
+    ),
+  );
+
+
+  getIt.registerLazySingleton<AuthRoleService>(
+        () => AuthRoleService(
+      getProfileUseCase:
+      getIt<GetProfileUseCase>(),
     ),
   );
 

@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/auth_feature/presentation/pages/admin_page.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
@@ -182,6 +183,15 @@ class AppRouter {
         path: '/flash-sale',
         builder: (context, state) {
           return const FlashSalePage();
+        },
+      ),
+
+
+      GoRoute(
+        path: '/admin',
+        name: 'admin',
+        builder: (context, state) {
+          return const AdminPage();
         },
       ),
 
