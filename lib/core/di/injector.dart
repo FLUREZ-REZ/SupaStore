@@ -16,6 +16,16 @@ import 'package:supastore/features/address_feature/domain/usecases/get_default_a
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+import 'package:supastore/features/admin_feature/data/datasources/admin_product_remote_datasource.dart';
+import 'package:supastore/features/admin_feature/data/repositories/admin_product_repository_impl.dart';
+import 'package:supastore/features/admin_feature/domain/repositories/admin_product_repository.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/create_admin_product.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/delete_admin_product.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/get_admin_product_options.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/get_admin_products.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/update_admin_product.dart';
+import 'package:supastore/features/admin_feature/domain/usecases/upload_admin_product_image.dart';
+import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
 // ============================================================
@@ -679,6 +689,78 @@ Future<void> setupInjector() async {
         () => AuthRoleService(
       getProfileUseCase:
       getIt<GetProfileUseCase>(),
+    ),
+  );
+
+  //admin_product_manage :
+
+  getIt.registerLazySingleton<AdminProductRemoteDataSource>(
+        () => AdminProductRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminProductRepository>(
+        () => AdminProductRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminProductRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminProducts>(
+        () => GetAdminProducts(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminProductOptions>(
+        () => GetAdminProductOptions(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CreateAdminProduct>(
+        () => CreateAdminProduct(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminProduct>(
+        () => UpdateAdminProduct(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<DeleteAdminProduct>(
+        () => DeleteAdminProduct(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UploadAdminProductImage>(
+        () => UploadAdminProductImage(
+      repository:
+      getIt<AdminProductRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminProductProvider>(
+        () => AdminProductProvider(
+      getProducts:
+      getIt<GetAdminProducts>(),
+      getOptions:
+      getIt<GetAdminProductOptions>(),
+      createProduct:
+      getIt<CreateAdminProduct>(),
+      updateProduct:
+      getIt<UpdateAdminProduct>(),
+      deleteProduct:
+      getIt<DeleteAdminProduct>(),
+      uploadImage:
+      getIt<UploadAdminProductImage>(),
     ),
   );
 
