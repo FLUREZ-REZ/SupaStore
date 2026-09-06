@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
 import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
 
 import 'admin_categories_page.dart';
@@ -46,7 +47,11 @@ class _AdminMainPageState extends State<AdminMainPage> {
         child: const AdminProductsPage(),
       ),
 
-      const AdminCategoriesPage(),
+      ChangeNotifierProvider<AdminCategoryProvider>(
+        create: (_) => getIt<AdminCategoryProvider>(),
+        child: const AdminCategoriesPage(),
+      ),
+
       const AdminOrdersPage(),
       const AdminUsersPage(),
       const AdminReviewsPage(),
