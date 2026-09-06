@@ -16,6 +16,15 @@ import 'package:supastore/features/address_feature/domain/usecases/get_default_a
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+import 'package:supastore/features/admin_feature/category/data/datasources/admin_category_remote_datasource.dart';
+import 'package:supastore/features/admin_feature/category/data/repositories/admin_category_repository_impl.dart';
+import 'package:supastore/features/admin_feature/category/domain/repositories/admin_category_repository.dart';
+import 'package:supastore/features/admin_feature/category/domain/usecases/create_admin_category.dart';
+import 'package:supastore/features/admin_feature/category/domain/usecases/delete_admin_category.dart';
+import 'package:supastore/features/admin_feature/category/domain/usecases/get_admin_categories.dart';
+import 'package:supastore/features/admin_feature/category/domain/usecases/update_admin_category.dart';
+import 'package:supastore/features/admin_feature/category/domain/usecases/upload_admin_category_image.dart';
+import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
 import 'package:supastore/features/admin_feature/data/datasources/admin_product_remote_datasource.dart';
 import 'package:supastore/features/admin_feature/data/repositories/admin_product_repository_impl.dart';
 import 'package:supastore/features/admin_feature/domain/repositories/admin_product_repository.dart';
@@ -761,6 +770,70 @@ Future<void> setupInjector() async {
       getIt<DeleteAdminProduct>(),
       uploadImage:
       getIt<UploadAdminProductImage>(),
+    ),
+  );
+
+
+  //admin_category :
+
+  getIt.registerLazySingleton<AdminCategoryRemoteDataSource>(
+        () => AdminCategoryRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminCategoryRepository>(
+        () => AdminCategoryRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminCategoryRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminCategories>(
+        () => GetAdminCategories(
+      repository:
+      getIt<AdminCategoryRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CreateAdminCategory>(
+        () => CreateAdminCategory(
+      repository:
+      getIt<AdminCategoryRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminCategory>(
+        () => UpdateAdminCategory(
+      repository:
+      getIt<AdminCategoryRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<DeleteAdminCategory>(
+        () => DeleteAdminCategory(
+      repository:
+      getIt<AdminCategoryRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UploadAdminCategoryImage>(
+        () => UploadAdminCategoryImage(
+      repository:
+      getIt<AdminCategoryRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminCategoryProvider>(
+        () => AdminCategoryProvider(
+      getCategories:
+      getIt<GetAdminCategories>(),
+      createCategory:
+      getIt<CreateAdminCategory>(),
+      updateCategory:
+      getIt<UpdateAdminCategory>(),
+      deleteCategory:
+      getIt<DeleteAdminCategory>(),
+      uploadImage:
+      getIt<UploadAdminCategoryImage>(),
     ),
   );
 
