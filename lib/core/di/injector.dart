@@ -16,6 +16,11 @@ import 'package:supastore/features/address_feature/domain/usecases/get_default_a
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/update_address_use_case.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
+import 'package:supastore/features/admin_feature/Users/data/datasource/admin_user_remote_datasource.dart';
+import 'package:supastore/features/admin_feature/Users/data/repositories/admin_user_repository_impl.dart';
+import 'package:supastore/features/admin_feature/Users/domain/repositories/admin_user_repository.dart';
+import 'package:supastore/features/admin_feature/Users/domain/usecases/get_admin_users.dart';
+import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
 import 'package:supastore/features/admin_feature/category/data/datasources/admin_category_remote_datasource.dart';
 import 'package:supastore/features/admin_feature/category/data/repositories/admin_category_repository_impl.dart';
 import 'package:supastore/features/admin_feature/category/domain/repositories/admin_category_repository.dart';
@@ -834,6 +839,33 @@ Future<void> setupInjector() async {
       getIt<DeleteAdminCategory>(),
       uploadImage:
       getIt<UploadAdminCategoryImage>(),
+    ),
+  );
+
+  //admin_users_managment :
+
+  getIt.registerLazySingleton<AdminUserRemoteDataSource>(
+        () => AdminUserRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminUserRepository>(
+        () => AdminUserRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminUserRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminUsers>(
+        () => GetAdminUsers(
+      repository:
+      getIt<AdminUserRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminUserProvider>(
+        () => AdminUserProvider(
+      getUsers:
+      getIt<GetAdminUsers>(),
     ),
   );
 

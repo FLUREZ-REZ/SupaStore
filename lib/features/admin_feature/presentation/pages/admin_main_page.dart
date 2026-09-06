@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
+
 import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
 import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
+
 
 import 'admin_categories_page.dart';
 import 'admin_dashboard_page.dart';
@@ -14,7 +17,9 @@ import 'admin_settings_page.dart';
 import 'admin_users_page.dart';
 
 class AdminMainPage extends StatefulWidget {
-  const AdminMainPage({super.key});
+  const AdminMainPage({
+    super.key,
+  });
 
   @override
   State<AdminMainPage> createState() => _AdminMainPageState();
@@ -53,8 +58,14 @@ class _AdminMainPageState extends State<AdminMainPage> {
       ),
 
       const AdminOrdersPage(),
-      const AdminUsersPage(),
+
+      ChangeNotifierProvider<AdminUserProvider>(
+        create: (_) => getIt<AdminUserProvider>(),
+        child: AdminUsersPage(),
+      ),
+
       const AdminReviewsPage(),
+
       const AdminSettingsPage(),
     ];
   }
@@ -79,7 +90,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
           backgroundColor: const Color(0xFFE21B23),
           foregroundColor: Colors.white,
           centerTitle: true,
-
           title: Text(
             _titles[_selectedIndex],
             textAlign: TextAlign.center,
@@ -90,7 +100,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
           ),
         ),
 
-        // Drawer به صورت طبیعی در RTL از سمت راست باز می‌شود.
         drawer: _buildDrawer(),
 
         body: IndexedStack(
@@ -101,21 +110,12 @@ class _AdminMainPageState extends State<AdminMainPage> {
     );
   }
 
-  // =====================================================
-  // Drawer
-  // =====================================================
-
   Widget _buildDrawer() {
     return Drawer(
       backgroundColor: Colors.white,
-
       child: SafeArea(
         child: Column(
           children: [
-            // =================================================
-            // Header
-            // =================================================
-
             Container(
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(
@@ -168,10 +168,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
             const Divider(
               height: 1,
             ),
-
-            // =================================================
-            // Menu
-            // =================================================
 
             Expanded(
               child: ListView(
@@ -229,22 +225,16 @@ class _AdminMainPageState extends State<AdminMainPage> {
               height: 1,
             ),
 
-            // =================================================
-            // Logout
-            // =================================================
-
             Padding(
               padding: EdgeInsets.all(10.w),
               child: ListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-
                 leading: const Icon(
                   Icons.logout_rounded,
                   color: Colors.red,
                 ),
-
                 title: const Text(
                   'خروج از حساب',
                   textAlign: TextAlign.right,
@@ -253,7 +243,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 onTap: () {
                   // در مرحله بعد logout را
                   // به AuthRepository وصل می‌کنیم.
@@ -265,10 +254,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
       ),
     );
   }
-
-  // =====================================================
-  // Drawer Item
-  // =====================================================
 
   Widget _drawerItem({
     required int index,
@@ -283,22 +268,16 @@ class _AdminMainPageState extends State<AdminMainPage> {
       ),
       child: ListTile(
         selected: selected,
-
-        selectedTileColor:
-        const Color(0xFFFFE9EA),
-
+        selectedTileColor: const Color(0xFFFFE9EA),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
-
-        // در RTL leading در سمت راست قرار می‌گیرد.
         leading: Icon(
           icon,
           color: selected
               ? const Color(0xFFE21B23)
               : Colors.black54,
         ),
-
         title: Text(
           title,
           textAlign: TextAlign.right,
@@ -312,7 +291,6 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 : Colors.black87,
           ),
         ),
-
         onTap: () => _selectPage(index),
       ),
     );
