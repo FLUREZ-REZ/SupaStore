@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
-
-import 'package:supastore/features/address_feature/presentation/pages/addresses_page.dart';
+import 'package:supastore/core/theme/app_text_styles.dart';
+import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 import 'package:supastore/features/address_feature/presentation/providers/address_provider.dart';
-
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
-
-import 'package:supastore/features/order_feature/presentation/pages/order_success_page.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
-
 import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
 import 'package:supastore/features/shipping_feature/presentation/providers/shipping_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({
@@ -28,14 +25,17 @@ class CheckoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user =
-        Supabase.instance.client.auth.currentUser;
+    final user = Supabase.instance.client.auth.currentUser;
 
     if (user == null) {
-      return const Scaffold(
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('تسویه حساب'),
+        ),
         body: Center(
           child: Text(
-            'لطفاً ابتدا وارد حساب کاربری شوید',
+            'برای ادامه ابتدا وارد حساب کاربری شوید.',
+            style: AppTextStyles.body,
           ),
         ),
       );
@@ -43,21 +43,19 @@ class CheckoutPage extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AddressProvider>(
+        ChangeNotifierProvider(
           create: (_) =>
           getIt<AddressProvider>()
             ..loadAddresses(
               userId: user.id,
-            ),
+            )
         ),
-
-        ChangeNotifierProvider<ShippingProvider>(
+        ChangeNotifierProvider(
           create: (_) =>
           getIt<ShippingProvider>()
             ..loadShippingMethods(),
         ),
-
-        ChangeNotifierProvider<CheckoutProvider>(
+        ChangeNotifierProvider(
           create: (_) =>
           getIt<CheckoutProvider>()
             ..initialize(
@@ -65,337 +63,160 @@ class CheckoutPage extends StatelessWidget {
             ),
         ),
       ],
-      child: _CheckoutView(
-        userId: user.id,
-      ),
+      child: const _CheckoutView(),
     );
   }
 }
 
-// ============================================================
-// CHECKOUT VIEW
-// ============================================================
-
 class _CheckoutView extends StatelessWidget {
-  const _CheckoutView({
-    required this.userId,
-  });
-
-  final String userId;
+  const _CheckoutView();
 
   @override
   Widget build(BuildContext context) {
     final checkoutProvider =
     context.watch<CheckoutProvider>();
 
-    debugPrint(
-      '========== CHECKOUT VIEW BUILD ==========',
-    );
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'تکمیل سفارش',
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: AppColors.background,
+        title: Text(
+          'تسویه حساب',
+          style: AppTextStyles.titleMedium,
+        ),
+      ),
+      body: SafeArea(
+        child: checkoutProvider.cartItems.isEmpty
+            ? const _EmptyCheckout()
+            : const SingleChildScrollView(
+          child: Column(
+            children: [
+              _ProductsSection(),
+              _AddressSection(),
+              _ShippingSection(),
+              _PaymentSection(),
+              _SummarySection(),
+              SizedBox(height: 110),
+            ],
           ),
-          centerTitle: true,
         ),
-
-        body: Stack(
-          children: [
-            ListView(
-              padding: EdgeInsets.only(
-                top: 12.h,
-                bottom: 120.h,
-              ),
-              children: [
-                // ==================================================
-                // PRODUCTS
-                // ==================================================
-
-                const _SectionTitle(
-                  title: 'محصولات سفارش',
-                ),
-
-                const _CheckoutItemsSection(),
-
-                SizedBox(
-                  height: 12.h,
-                ),
-
-                // ==================================================
-                // ADDRESS
-                // ==================================================
-
-                const _SectionTitle(
-                  title: 'آدرس ارسال',
-                ),
-
-                _AddressSection(
-                  userId: userId,
-                ),
-
-                SizedBox(
-                  height: 12.h,
-                ),
-
-                // ==================================================
-                // SHIPPING
-                // ==================================================
-
-                const _SectionTitle(
-                  title: 'روش ارسال',
-                ),
-
-                const _ShippingSection(),
-
-                SizedBox(
-                  height: 12.h,
-                ),
-
-                // ==================================================
-                // PAYMENT
-                // ==================================================
-
-                const _SectionTitle(
-                  title: 'روش پرداخت',
-                ),
-
-                const _PaymentSection(),
-
-                SizedBox(
-                  height: 12.h,
-                ),
-
-                // ==================================================
-                // SUMMARY
-                // ==================================================
-
-                const _SectionTitle(
-                  title: 'خلاصه سفارش',
-                ),
-
-                const _OrderSummary(),
-
-                SizedBox(
-                  height: 20.h,
-                ),
-
-                if (checkoutProvider.error != null)
-                  _ErrorMessage(
-                    message:
-                    checkoutProvider.error!,
-                  ),
-
-                SizedBox(
-                  height: 20.h,
-                ),
-              ],
-            ),
-
-            if (checkoutProvider.isLoading)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withValues(
-                    alpha: 0.15,
-                  ),
-                  child: const Center(
-                    child:
-                    CircularProgressIndicator(),
-                  ),
-                ),
-              ),
-          ],
-        ),
-
-        bottomNavigationBar:
-        const _CheckoutBottomBar(),
       ),
+      bottomNavigationBar:
+      const _CheckoutBottomBar(),
     );
   }
 }
 
-// ============================================================
-// SECTION TITLE
-// ============================================================
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({
-    required this.title,
-  });
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8.h,
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16.sp,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// CHECKOUT ITEMS
-// ============================================================
-
-class _CheckoutItemsSection
-    extends StatelessWidget {
-  const _CheckoutItemsSection();
+class _ProductsSection extends StatelessWidget {
+  const _ProductsSection();
 
   @override
   Widget build(BuildContext context) {
     final provider =
     context.watch<CheckoutProvider>();
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
+    return _CheckoutCard(
       child: Column(
-        children: provider.cartItems.map(
-              (item) {
-            final product =
-                item.product;
-
-            return Padding(
-              padding:
-              EdgeInsets.symmetric(
-                vertical: 8.h,
-              ),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                    BorderRadius.circular(
-                      10.r,
-                    ),
-                    child: Image.network(
-                      product.thumbnail,
-                      width: 60.w,
-                      height: 60.w,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (
-                          context,
-                          error,
-                          stackTrace,
-                          ) {
-                        return Container(
-                          width: 60.w,
-                          height: 60.w,
-                          color: Colors
-                              .grey
-                              .shade100,
-                          child: Icon(
-                            Icons
-                                .image_not_supported_outlined,
-                            color: Colors
-                                .grey
-                                .shade400,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  SizedBox(
-                    width: 12.w,
-                  ),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-                      children: [
-                        Text(
-                          product.title,
-                          maxLines: 2,
-                          overflow:
-                          TextOverflow
-                              .ellipsis,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight:
-                            FontWeight.w600,
-                          ),
-                        ),
-
-                        SizedBox(
-                          height: 6.h,
-                        ),
-
-                        Text(
-                          '${item.quantity} عدد',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors
-                                .grey
-                                .shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(
-                    width: 8.w,
-                  ),
-
-                  Text(
-                    PriceFormatter.format(
-                      product.finalPrice *
-                          item.quantity,
-                    ),
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight:
-                      FontWeight.bold,
-                      color:
-                      AppColors.price,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ).toList(),
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(
+            title: 'محصولات سفارش',
+            icon: Icons.shopping_bag_outlined,
+          ),
+          SizedBox(height: 12.h),
+          ...provider.cartItems.map(
+                (item) => _CartItemTile(
+              item: item,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ============================================================
-// ADDRESS SECTION
-// ============================================================
-
-class _AddressSection
-    extends StatelessWidget {
-  const _AddressSection({
-    required this.userId,
+class _CartItemTile extends StatelessWidget {
+  const _CartItemTile({
+    required this.item,
   });
 
-  final String userId;
+  final CartItemEntity item;
+
+  @override
+  Widget build(BuildContext context) {
+    final product = item.product;
+
+    final price = product.finalPrice;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: 12.h,
+      ),
+      child: Row(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius:
+            BorderRadius.circular(10.r),
+            child: Image.network(
+              product.thumbnail,
+              width: 72.w,
+              height: 72.w,
+              fit: BoxFit.cover,
+              errorBuilder:
+                  (_, __, ___) {
+                return Container(
+                  width: 72.w,
+                  height: 72.w,
+                  color: Colors.grey.shade200,
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 26.sp,
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.title,
+                  maxLines: 2,
+                  overflow:
+                  TextOverflow.ellipsis,
+                  style:
+                  AppTextStyles.product_prize,
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  '${_formatPrice(price)} تومان',
+                  style:
+                  AppTextStyles.second_title_section,
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'تعداد: ${item.quantity}',
+                  style:
+                  AppTextStyles.otp_title,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddressSection extends StatelessWidget {
+  const _AddressSection();
 
   @override
   Widget build(BuildContext context) {
@@ -405,491 +226,169 @@ class _AddressSection
     final checkoutProvider =
     context.watch<CheckoutProvider>();
 
-    // ==========================================================
-    // LOADING
-    // ==========================================================
-
     if (addressProvider.isLoading) {
-      return Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16.w,
-        ),
-        padding: EdgeInsets.all(24.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: Colors.grey.shade200,
-          ),
-        ),
-        child: const Center(
-          child:
-          CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // ==========================================================
-    // EMPTY
-    // ==========================================================
-
-    if (addressProvider.isEmpty) {
-      return Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16.w,
-        ),
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: Colors.grey.shade200,
-          ),
-        ),
+      return _CheckoutCard(
         child: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
           children: [
-            Icon(
-              Icons.location_off_outlined,
-              size: 42.sp,
-              color: Colors.grey.shade500,
+            _SectionTitle(
+              title: 'آدرس ارسال',
+              icon: Icons.location_on_outlined,
             ),
-
-            SizedBox(
-              height: 10.h,
-            ),
-
-            Text(
-              'هنوز آدرسی ثبت نکرده‌اید',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight:
-                FontWeight.w600,
-              ),
-            ),
-
-            SizedBox(
-              height: 6.h,
-            ),
-
-            Text(
-              'برای ادامه سفارش ابتدا یک آدرس اضافه کنید.',
-              textAlign:
-              TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color:
-                Colors.grey.shade600,
-              ),
-            ),
-
-            SizedBox(
-              height: 14.h,
-            ),
-
-            SizedBox(
-              width: double.infinity,
-              height: 46.h,
-              child:
-              ElevatedButton.icon(
-                onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                      const AddressesPage(),
-                    ),
-                  );
-
-                  if (!context.mounted) {
-                    return;
-                  }
-
-                  await context
-                      .read<
-                      AddressProvider>()
-                      .loadAddresses(
-                    userId: userId,
-                  );
-                },
-                icon: const Icon(
-                  Icons.add,
-                ),
-                label: const Text(
-                  'افزودن آدرس',
-                ),
-                style:
-                ElevatedButton.styleFrom(
-                  backgroundColor:
-                  AppColors.primary,
-                  foregroundColor:
-                  Colors.white,
-                  elevation: 0,
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                      12.r,
-                    ),
-                  ),
-                ),
-              ),
+            SizedBox(height: 16.h),
+            const Center(
+              child: CircularProgressIndicator(),
             ),
           ],
         ),
       );
     }
 
-    // ==========================================================
-    // ADDRESS LIST
-    // ==========================================================
+    final addresses =
+        addressProvider.addresses;
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
+    return _CheckoutCard(
       child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
-          ...addressProvider.addresses.map(
-                (address) {
-              final isSelected =
-                  checkoutProvider
-                      .selectedAddress
-                      ?.id ==
-                      address.id;
-
-              return Padding(
-                padding:
-                EdgeInsets.only(
-                  bottom: 8.h,
+          _SectionTitle(
+            title: 'آدرس ارسال',
+            icon: Icons.location_on_outlined,
+          ),
+          SizedBox(height: 12.h),
+          if (addresses.isEmpty)
+            Column(
+              children: [
+                Text(
+                  'هنوز آدرسی ثبت نکرده‌اید.',
+                  style:
+                  AppTextStyles.body,
                 ),
-                child: InkWell(
-                  borderRadius:
-                  BorderRadius.circular(
-                    12.r,
-                  ),
-                  onTap: () {
-                    context
-                        .read<
-                        CheckoutProvider>()
-                        .setAddress(
-                      address,
-                    );
-                  },
-                  child: Container(
-                    padding:
-                    EdgeInsets.all(12.w),
-                    decoration:
-                    BoxDecoration(
-                      color: isSelected
-                          ? AppColors
-                          .primary
-                          .withValues(
-                        alpha: 0.06,
-                      )
-                          : Colors.white,
-                      borderRadius:
-                      BorderRadius.circular(
-                        12.r,
-                      ),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors
-                            .primary
-                            : Colors
-                            .grey
-                            .shade200,
-                        width: isSelected
-                            ? 1.5
-                            : 1,
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-                      children: [
-                        Radio<String>(
-                          value:
-                          address.id,
-                          groupValue:
-                          checkoutProvider
-                              .selectedAddress
-                              ?.id,
-                          activeColor:
-                          AppColors
-                              .primary,
-                          onChanged:
-                              (_) {
-                            context
-                                .read<
-                                CheckoutProvider>()
-                                .setAddress(
-                              address,
-                            );
-                          },
-                        ),
-
-                        SizedBox(
-                          width: 4.w,
-                        ),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child:
-                                    Text(
-                                      address
-                                          .title,
-                                      style:
-                                      TextStyle(
-                                        fontSize:
-                                        14.sp,
-                                        fontWeight:
-                                        FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-
-                                  if (address
-                                      .isDefault)
-                                    Container(
-                                      padding:
-                                      EdgeInsets
-                                          .symmetric(
-                                        horizontal:
-                                        8.w,
-                                        vertical:
-                                        4.h,
-                                      ),
-                                      decoration:
-                                      BoxDecoration(
-                                        color: Colors
-                                            .green
-                                            .withValues(
-                                          alpha:
-                                          0.1,
-                                        ),
-                                        borderRadius:
-                                        BorderRadius
-                                            .circular(
-                                          8.r,
-                                        ),
-                                      ),
-                                      child:
-                                      Text(
-                                        'پیش‌فرض',
-                                        style:
-                                        TextStyle(
-                                          fontSize:
-                                          10.sp,
-                                          color:
-                                          Colors.green,
-                                          fontWeight:
-                                          FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-
-                              SizedBox(
-                                height: 6.h,
-                              ),
-
-                              Text(
-                                address
-                                    .receiverName,
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  12.sp,
-                                  fontWeight:
-                                  FontWeight
-                                      .w600,
-                                ),
-                              ),
-
-                              SizedBox(
-                                height: 4.h,
-                              ),
-
-                              Text(
-                                address.phone,
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  11.sp,
-                                  color: Colors
-                                      .grey
-                                      .shade600,
-                                ),
-                              ),
-
-                              SizedBox(
-                                height: 6.h,
-                              ),
-
-                              Text(
-                                '${address.province}، ${address.city}',
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  11.sp,
-                                  color: Colors
-                                      .grey
-                                      .shade700,
-                                ),
-                              ),
-
-                              SizedBox(
-                                height: 4.h,
-                              ),
-
-                              Text(
-                                address.address,
-                                maxLines: 3,
-                                overflow:
-                                TextOverflow
-                                    .ellipsis,
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  12.sp,
-                                  color: Colors
-                                      .grey
-                                      .shade700,
-                                  height: 1.5,
-                                ),
-                              ),
-
-                              SizedBox(
-                                height: 4.h,
-                              ),
-
-                              Text(
-                                'کد پستی: ${address.postalCode}',
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  11.sp,
-                                  color: Colors
-                                      .grey
-                                      .shade600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                SizedBox(height: 10.h),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      _showAddressMessage(
+                        context,
+                      );
+                    },
+                    child: const Text(
+                      'افزودن آدرس',
                     ),
                   ),
                 ),
-              );
-            },
-          ),
-
-          SizedBox(
-            height: 4.h,
-          ),
-
-          SizedBox(
-            width: double.infinity,
-            child:
-            OutlinedButton.icon(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                    const AddressesPage(),
-                  ),
-                );
-
-                if (!context.mounted) {
-                  return;
-                }
-
-                await context
-                    .read<AddressProvider>()
-                    .loadAddresses(
-                  userId: userId,
-                );
-
-                if (!context.mounted) {
-                  return;
-                }
-
-                final updatedProvider =
-                context.read<
-                    AddressProvider>();
-
+              ],
+            )
+          else
+            ...addresses.map(
+                  (address) {
                 final selected =
-                    updatedProvider
-                        .selectedAddress;
+                    checkoutProvider
+                        .selectedAddress
+                        ?.id ==
+                        address.id;
 
-                if (selected != null) {
-                  context
-                      .read<
-                      CheckoutProvider>()
-                      .setAddress(
-                    selected,
-                  );
-                }
+                return _AddressTile(
+                  address: address,
+                  selected: selected,
+                  onTap: () {
+                    checkoutProvider
+                        .setAddress(address);
+                  },
+                );
               },
-              icon: const Icon(
-                Icons
-                    .edit_location_alt_outlined,
-              ),
-              label: const Text(
-                'مدیریت آدرس‌ها',
-              ),
-              style:
-              OutlinedButton.styleFrom(
-                foregroundColor:
-                AppColors.primary,
-                side: BorderSide(
-                  color:
-                  AppColors.primary,
-                ),
-                shape:
-                RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(
-                    12.r,
-                  ),
-                ),
-              ),
             ),
-          ),
         ],
+      ),
+    );
+  }
+
+  void _showAddressMessage(
+      BuildContext context,
+      ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          'برای افزودن آدرس از بخش آدرس‌های حساب کاربری استفاده کنید.',
+        ),
       ),
     );
   }
 }
 
-// ============================================================
-// SHIPPING SECTION
-// ============================================================
+class _AddressTile extends StatelessWidget {
+  const _AddressTile({
+    required this.address,
+    required this.selected,
+    required this.onTap,
+  });
 
-class _ShippingSection
-    extends StatelessWidget {
+  final AddressEntity address;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.only(
+          bottom: 10.h,
+        ),
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          borderRadius:
+          BorderRadius.circular(12.r),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color: selected
+                  ? AppColors.primary
+                  : Colors.grey,
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    address.title,
+                    style:
+                    AppTextStyles.section_title,
+                  ),
+                  SizedBox(height: 5.h),
+                  Text(
+                    address.address,
+                    style:
+                    AppTextStyles.body,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShippingSection extends StatelessWidget {
   const _ShippingSection();
 
   @override
@@ -900,340 +399,120 @@ class _ShippingSection
     final checkoutProvider =
     context.watch<CheckoutProvider>();
 
-    // ==========================================================
-    // LOADING
-    // ==========================================================
-
-    if (shippingProvider.isLoading) {
-      return Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16.w,
-        ),
-        padding: EdgeInsets.all(24.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: Colors.grey.shade200,
-          ),
-        ),
-        child: const Center(
-          child:
-          CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // ==========================================================
-    // ERROR
-    // ==========================================================
-
-    if (shippingProvider.error != null) {
-      return Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16.w,
-        ),
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: Colors.red.shade100,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons
-                  .error_outline,
-              color:
-              Colors.red.shade600,
-              size: 40.sp,
-            ),
-
-            SizedBox(
-              height: 8.h,
-            ),
-
-            Text(
-              shippingProvider.error!,
-              textAlign:
-              TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color:
-                Colors.red.shade700,
-              ),
-            ),
-
-            SizedBox(
-              height: 12.h,
-            ),
-
-            OutlinedButton(
-              onPressed:
-              shippingProvider
-                  .refresh,
-              child: const Text(
-                'تلاش مجدد',
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // ==========================================================
-    // EMPTY
-    // ==========================================================
-
-    if (!shippingProvider.hasShippingMethods) {
-      return Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16.w,
-        ),
-        padding: EdgeInsets.all(20.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: Colors.grey.shade200,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons
-                  .local_shipping_outlined,
-              size: 42.sp,
-              color:
-              Colors.grey.shade500,
-            ),
-
-            SizedBox(
-              height: 10.h,
-            ),
-
-            const Text(
-              'روش ارسالی موجود نیست',
-            ),
-
-            SizedBox(
-              height: 12.h,
-            ),
-
-            OutlinedButton(
-              onPressed:
-              shippingProvider
-                  .refresh,
-              child: const Text(
-                'تلاش مجدد',
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // ==========================================================
-    // SHIPPING METHODS
-    // ==========================================================
-
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: 4.h,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
+    return _CheckoutCard(
       child: Column(
-        children: shippingProvider
-            .shippingMethods
-            .map(
-              (method) {
-            final isSelected =
-                shippingProvider
-                    .selectedShippingMethod
-                    ?.id ==
-                    method.id;
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(
+            title: 'روش ارسال',
+            icon: Icons.local_shipping_outlined,
+          ),
+          SizedBox(height: 12.h),
+          if (shippingProvider.isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            )
+          else if (shippingProvider.shippingMethods
+              .isEmpty)
+            Text(
+              'روش ارسالی موجود نیست.',
+              style:
+              AppTextStyles.body,
+            )
+          else
+            ...shippingProvider
+                .shippingMethods
+                .map(
+                  (method) {
+                final selected =
+                    checkoutProvider
+                        .selectedShippingMethod
+                        ?.id ==
+                        method.id;
 
-            return _ShippingMethodTile(
-              method: method,
-              isSelected:
-              isSelected,
-              onTap: () {
-                shippingProvider
-                    .selectShippingMethod(
-                  method,
-                );
+                return _ShippingTile(
+                  method: method,
+                  selected: selected,
+                  onTap: () {
+                    shippingProvider
+                        .selectShippingMethod(
+                      method,
+                    );
 
-                checkoutProvider
-                    .setShippingCost(
-                  method.cost,
+                    checkoutProvider
+                        .setShippingMethod(
+                      method,
+                    );
+                  },
                 );
               },
-            );
-          },
-        )
-            .toList(),
+            ),
+        ],
       ),
     );
   }
 }
 
-// ============================================================
-// SHIPPING METHOD TILE
-// ============================================================
-
-class _ShippingMethodTile
-    extends StatelessWidget {
-  const _ShippingMethodTile({
+class _ShippingTile extends StatelessWidget {
+  const _ShippingTile({
     required this.method,
-    required this.isSelected,
+    required this.selected,
     required this.onTap,
   });
 
   final ShippingMethodEntity method;
-  final bool isSelected;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 8.w,
-          vertical: 4.h,
+        width: double.infinity,
+        margin: EdgeInsets.only(
+          bottom: 10.h,
         ),
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              .withValues(
-            alpha: 0.06,
-          )
-              : Colors.white,
           borderRadius:
           BorderRadius.circular(12.r),
           border: Border.all(
-            color: isSelected
+            color: selected
                 ? AppColors.primary
-                : Colors.grey.shade200,
-            width:
-            isSelected ? 1.5 : 1,
+                : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Row(
           children: [
-            Radio<String>(
-              value: method.id,
-              groupValue: isSelected
-                  ? method.id
-                  : null,
-              activeColor:
-              AppColors.primary,
-              onChanged: (_) {
-                onTap();
-              },
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color: selected
+                  ? AppColors.primary
+                  : Colors.grey,
             ),
-
-            SizedBox(
-              width: 4.w,
-            ),
-
-            Container(
-              width: 42.w,
-              height: 42.w,
-              decoration: BoxDecoration(
-                color: AppColors.primary
-                    .withValues(
-                  alpha: 0.08,
-                ),
-                borderRadius:
-                BorderRadius.circular(
-                  10.r,
-                ),
-              ),
-              child: Icon(
-                Icons
-                    .local_shipping_outlined,
-                color:
-                AppColors.primary,
-              ),
-            ),
-
-            SizedBox(
-              width: 12.w,
-            ),
-
+            SizedBox(width: 10.w),
             Expanded(
               child: Column(
                 crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+                CrossAxisAlignment.start,
                 children: [
                   Text(
                     method.title,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight:
-                      FontWeight.bold,
-                    ),
+                    style:
+                    AppTextStyles.section_title,
                   ),
-
-                  if (method.description !=
-                      null &&
-                      method.description!
-                          .isNotEmpty) ...[
-                    SizedBox(
-                      height: 4.h,
-                    ),
-                    Text(
-                      method.description!,
-                      maxLines: 2,
-                      overflow:
-                      TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: Colors
-                            .grey
-                            .shade600,
-                      ),
-                    ),
-                  ],
+                  SizedBox(height: 5.h),
+                  Text(
+                    '${_formatPrice(method.cost)} تومان',
+                    style:
+                    AppTextStyles.body,
+                  ),
                 ],
-              ),
-            ),
-
-            SizedBox(
-              width: 8.w,
-            ),
-
-            Text(
-              method.cost == 0
-                  ? 'رایگان'
-                  : PriceFormatter.format(
-                method.cost,
-              ),
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight:
-                FontWeight.bold,
-                color: method.cost == 0
-                    ? Colors.green
-                    : AppColors.price,
               ),
             ),
           ],
@@ -1243,12 +522,7 @@ class _ShippingMethodTile
   }
 }
 
-// ============================================================
-// PAYMENT SECTION
-// ============================================================
-
-class _PaymentSection
-    extends StatelessWidget {
+class _PaymentSection extends StatelessWidget {
   const _PaymentSection();
 
   @override
@@ -1256,121 +530,82 @@ class _PaymentSection
     final provider =
     context.watch<CheckoutProvider>();
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
-      child: RadioListTile<String>(
-        value: 'online',
-        groupValue:
-        provider.paymentMethod,
-        onChanged: (value) {
-          if (value != null) {
-            provider.setPaymentMethod(
-              value,
-            );
-          }
-        },
-        title: const Text(
-          'پرداخت آنلاین',
-        ),
-        subtitle: const Text(
-          'پرداخت امن از طریق درگاه',
-        ),
-        secondary: const Icon(
-          Icons.payment_outlined,
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// ORDER SUMMARY
-// ============================================================
-
-class _OrderSummary
-    extends StatelessWidget {
-  const _OrderSummary();
-
-  @override
-  Widget build(BuildContext context) {
-    final checkoutProvider =
-    context.watch<CheckoutProvider>();
-
-    final shippingProvider =
-    context.watch<ShippingProvider>();
-
-    final shippingCost =
-        shippingProvider
-            .selectedShippingMethod
-            ?.cost ??
-            0;
-
-    final totalPrice =
-        checkoutProvider.subtotal -
-            checkoutProvider.totalDiscount +
-            shippingCost;
-
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-      ),
+    return _CheckoutCard(
       child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
-          _SummaryRow(
-            title: 'جمع کالاها',
-            value:
-            checkoutProvider
-                .subtotal,
+          _SectionTitle(
+            title: 'روش پرداخت',
+            icon: Icons.payment_outlined,
           ),
-
-          SizedBox(
-            height: 10.h,
-          ),
-
-          _SummaryRow(
-            title: 'تخفیف',
-            value:
-            checkoutProvider
-                .totalDiscount,
-            isDiscount: true,
-          ),
-
-          SizedBox(
-            height: 10.h,
-          ),
-
-          _SummaryRow(
-            title: 'هزینه ارسال',
-            value: shippingCost,
-          ),
-
-          Divider(
-            height: 24.h,
-          ),
-
-          _SummaryRow(
-            title: 'مبلغ قابل پرداخت',
-            value: totalPrice,
-            isTotal: true,
+          SizedBox(height: 12.h),
+          GestureDetector(
+            onTap: () {
+              provider.setPaymentMethod(
+                'online',
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding:
+              EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                borderRadius:
+                BorderRadius.circular(12.r),
+                border: Border.all(
+                  color:
+                  provider.paymentMethod ==
+                      'online'
+                      ? AppColors.primary
+                      : Colors.grey.shade300,
+                  width:
+                  provider.paymentMethod ==
+                      'online'
+                      ? 1.5
+                      : 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    provider.paymentMethod ==
+                        'online'
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color:
+                    provider.paymentMethod ==
+                        'online'
+                        ? AppColors.primary
+                        : Colors.grey,
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'پرداخت آنلاین',
+                          style:
+                          AppTextStyles.section_title,
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'پرداخت امن از طریق درگاه زرین‌پال',
+                          style:
+                          AppTextStyles.body,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.credit_card_outlined,
+                    size: 24.sp,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -1378,68 +613,94 @@ class _OrderSummary
   }
 }
 
-// ============================================================
-// SUMMARY ROW
-// ============================================================
+class _SummarySection extends StatelessWidget {
+  const _SummarySection();
 
-class _SummaryRow
-    extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final provider =
+    context.watch<CheckoutProvider>();
+
+    return _CheckoutCard(
+      child: Column(
+        children: [
+          _SummaryRow(
+            title: 'مجموع کالاها',
+            value:
+            '${_formatPrice(provider.subtotal)} تومان',
+          ),
+          SizedBox(height: 10.h),
+          _SummaryRow(
+            title: 'تخفیف',
+            value:
+            '${_formatPrice(provider.totalDiscount)} تومان',
+            valueStyle: TextStyle(
+              color: Colors.green,
+              fontSize: 13.sp,
+              fontWeight:
+              FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          _SummaryRow(
+            title: 'هزینه ارسال',
+            value:
+            '${_formatPrice(provider.shippingCost)} تومان',
+          ),
+          Padding(
+            padding:
+            EdgeInsets.symmetric(
+              vertical: 12.h,
+            ),
+            child: Divider(
+              color: Colors.grey.shade300,
+              height: 1,
+            ),
+          ),
+          _SummaryRow(
+            title: 'مبلغ قابل پرداخت',
+            value:
+            '${_formatPrice(provider.totalPrice)} تومان',
+            valueStyle:
+            AppTextStyles.titleMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
   const _SummaryRow({
     required this.title,
     required this.value,
-    this.isDiscount = false,
-    this.isTotal = false,
+    this.valueStyle,
   });
 
   final String title;
-  final int value;
-  final bool isDiscount;
-  final bool isTotal;
+  final String value;
+  final TextStyle? valueStyle;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize:
-            isTotal ? 15.sp : 13.sp,
-            fontWeight: isTotal
-                ? FontWeight.bold
-                : FontWeight.normal,
-            color: isDiscount
-                ? Colors.green
-                : Colors.black87,
+        Expanded(
+          child: Text(
+            title,
+            style:
+            AppTextStyles.body,
           ),
         ),
-
-        const Spacer(),
-
         Text(
-          PriceFormatter.format(
-            value,
-          ),
-          style: TextStyle(
-            fontSize:
-            isTotal ? 16.sp : 13.sp,
-            fontWeight:
-            FontWeight.bold,
-            color: isDiscount
-                ? Colors.green
-                : isTotal
-                ? AppColors.price
-                : Colors.black87,
-          ),
+          value,
+          style: valueStyle ??
+              AppTextStyles.body,
         ),
       ],
     );
   }
 }
-
-// ============================================================
-// CHECKOUT BOTTOM BAR
-// ============================================================
 
 class _CheckoutBottomBar
     extends StatelessWidget {
@@ -1447,282 +708,274 @@ class _CheckoutBottomBar
 
   @override
   Widget build(BuildContext context) {
-    final checkoutProvider =
+    final provider =
     context.watch<CheckoutProvider>();
-
-    final shippingProvider =
-    context.watch<ShippingProvider>();
-
-    debugPrint(
-      '========== BOTTOM BAR BUILD ==========',
-    );
 
     final user =
         Supabase.instance.client.auth.currentUser;
 
-    final selectedShipping =
-        shippingProvider
-            .selectedShippingMethod;
-
     final canSubmit =
-        checkoutProvider.canSubmit &&
-            selectedShipping != null &&
-            !shippingProvider.isLoading;
+        provider.canSubmit &&
+            user != null;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
         16.w,
-        12.h,
+        10.h,
         16.w,
-        16.h,
+        10.h,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
+            blurRadius: 12,
+            offset: const Offset(0, -3),
             color:
-            Colors.black.withValues(
-              alpha: 0.06,
-            ),
-            blurRadius: 12.r,
-            offset: Offset(
-              0,
-              -3.h,
-            ),
+            Colors.black.withOpacity(0.08),
           ),
         ],
       ),
       child: SafeArea(
-        top: false,
-        child: SizedBox(
-          width: double.infinity,
-          height: 52.h,
-          child: ElevatedButton(
-            onPressed:
-            canSubmit &&
-                user != null
-                ? () async {
-              // ==========================================
-              // SYNC SHIPPING COST
-              // ==========================================
-
-              checkoutProvider
-                  .setShippingCost(
-                selectedShipping
-                    .cost,
-              );
-
-              debugPrint(
-                '========== CHECKOUT TEST START ==========',
-              );
-
-              debugPrint(
-                'Selected shipping: ${selectedShipping.title}',
-              );
-
-              debugPrint(
-                'Shipping cost: ${selectedShipping.cost}',
-              );
-
-              debugPrint(
-                'Provider runtime type: ${checkoutProvider.runtimeType}',
-              );
-
-              debugPrint(
-                'Provider hash: ${checkoutProvider.hashCode}',
-              );
-
-              debugPrint(
-                'Provider canSubmit: ${checkoutProvider.canSubmit}',
-              );
-
-              // ==========================================
-              // PLACE ORDER
-              // ==========================================
-
-              final success =
-              await checkoutProvider
-                  .placeOrder(
-                userId:
-                user.id,
-              );
-
-              debugPrint(
-                'TEST: placeOrder returned',
-              );
-
-              debugPrint(
-                'success: $success',
-              );
-
-              debugPrint(
-                'provider.isLoading: ${checkoutProvider.isLoading}',
-              );
-
-              debugPrint(
-                'provider.error: ${checkoutProvider.error}',
-              );
-
-              debugPrint(
-                'provider.order: ${checkoutProvider.order}',
-              );
-
-              debugPrint(
-                'BOTTOM BAR AFTER AWAIT - mounted: ${context.mounted}',
-              );
-
-              if (!context.mounted) {
-                debugPrint(
-                  'Context is NOT mounted',
-                );
-                return;
-              }
-
-              if (!success) {
-                debugPrint(
-                  'ORDER FAILED',
-                );
-
-                ScaffoldMessenger
-                    .of(context)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      checkoutProvider
-                          .error ??
-                          'ثبت سفارش ناموفق بود',
-                    ),
+        child: Column(
+          mainAxisSize:
+          MainAxisSize.min,
+          children: [
+            if (provider.error != null)
+              Padding(
+                padding:
+                EdgeInsets.only(
+                  bottom: 8.h,
+                ),
+                child: Text(
+                  provider.error!,
+                  textAlign:
+                  TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12.sp,
                   ),
-                );
-
-                debugPrint(
-                  '========== CHECKOUT TEST END ==========',
-                );
-
-                return;
-              }
-
-              final order =
-                  checkoutProvider
-                      .order;
-
-              debugPrint(
-                'ORDER SUCCESS',
-              );
-
-              debugPrint(
-                'order == null: ${order == null}',
-              );
-
-              if (order == null) {
-                ScaffoldMessenger
-                    .of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'سفارش ثبت شد اما اطلاعات آن دریافت نشد.',
-                    ),
-                  ),
-                );
-
-                debugPrint(
-                  '========== CHECKOUT TEST END ==========',
-                );
-
-                return;
-              }
-
-              debugPrint(
-                'Navigating to OrderSuccessPage',
-              );
-
-              debugPrint(
-                'order.id: ${order.id}',
-              );
-
-              Navigator.of(context)
-                  .pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      OrderSuccessPage(
-                        order: order,
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                    mainAxisSize:
+                    MainAxisSize.min,
+                    children: [
+                      Text(
+                        'مبلغ قابل پرداخت',
+                        style:
+                        AppTextStyles.body,
                       ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        '${_formatPrice(provider.totalPrice)} تومان',
+                        style:
+                        AppTextStyles.titleMedium,
+                      ),
+                    ],
+                  ),
                 ),
-              );
-
-              debugPrint(
-                'pushReplacement CALLED',
-              );
-
-              debugPrint(
-                '========== CHECKOUT TEST END ==========',
-              );
-            }
-                : null,
-            style:
-            ElevatedButton.styleFrom(
-              backgroundColor:
-              AppColors.primary,
-              foregroundColor:
-              Colors.white,
-              elevation: 0,
-              shape:
-              RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.circular(
-                  14.r,
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: SizedBox(
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed:
+                      !canSubmit
+                          ? null
+                          : () {
+                        _startPayment(
+                          context,
+                        );
+                      },
+                      child:
+                      provider.isLoading
+                          ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child:
+                        const CircularProgressIndicator(
+                          strokeWidth:
+                          2,
+                          color:
+                          Colors.white,
+                        ),
+                      )
+                          : const Text(
+                        'ادامه و پرداخت',
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            child: Text(
-              'ثبت سفارش و پرداخت',
-              style: TextStyle(
-                fontSize: 15.sp,
-                fontWeight:
-                FontWeight.bold,
-              ),
-            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _startPayment(
+      BuildContext context,
+      ) async {
+
+
+    final user = Supabase.instance.client.auth.currentUser;
+    debugPrint('========== CHECKOUT AUTH TEST ==========');
+    debugPrint('CHECKOUT USER ID: ${user?.id}');
+    debugPrint(
+      'CHECKOUT SESSION: ${Supabase.instance.client.auth.currentSession != null}',
+    );
+    debugPrint('========================================');
+
+
+    final provider =
+    context.read<CheckoutProvider>();
+
+    final result =
+    await provider.createCheckout();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (result == null) {
+      return;
+    }
+
+    final uri =
+    Uri.tryParse(
+      result.paymentUrl,
+    );
+
+    if (uri == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            'آدرس درگاه پرداخت نامعتبر است.',
           ),
+        ),
+      );
+
+      return;
+    }
+
+    final launched =
+    await launchUrl(
+      uri,
+      mode:
+      LaunchMode.externalApplication,
+    );
+
+    if (!launched &&
+        context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            'امکان باز کردن درگاه پرداخت وجود ندارد.',
+          ),
+        ),
+      );
+    }
+  }
+}
+
+class _CheckoutCard extends StatelessWidget {
+  const _CheckoutCard({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(
+        bottom: 8.h,
+      ),
+      padding: EdgeInsets.all(16.w),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({
+    required this.title,
+    required this.icon,
+  });
+
+  final String title;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 22.sp,
+          color: AppColors.primary,
+        ),
+        SizedBox(width: 8.w),
+        Text(
+          title,
+          style:
+          AppTextStyles.titleMedium,
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyCheckout
+    extends StatelessWidget {
+  const _EmptyCheckout();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding:
+        EdgeInsets.all(24.w),
+        child: Column(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_cart_outlined,
+              size: 64.sp,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'سبد خرید شما خالی است.',
+              style:
+              AppTextStyles.titleMedium,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-// ============================================================
-// ERROR MESSAGE
-// ============================================================
-
-class _ErrorMessage
-    extends StatelessWidget {
-  const _ErrorMessage({
-    required this.message,
-  });
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        borderRadius:
-        BorderRadius.circular(12.r),
-      ),
-      child: Text(
-        message,
-        textAlign:
-        TextAlign.center,
-        style: TextStyle(
-          fontSize: 12.sp,
-          color:
-          Colors.red.shade700,
-        ),
-      ),
-    );
-  }
+String _formatPrice(int price) {
+  return price
+      .toString()
+      .replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+        (match) => ',',
+  );
 }

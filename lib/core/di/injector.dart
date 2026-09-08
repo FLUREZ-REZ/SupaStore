@@ -102,6 +102,9 @@ import 'package:supastore/features/order_feature/data/repositories/order_reposit
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
 import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
+import 'package:supastore/features/payment_feature/data/datasources/payment_remote_data_source.dart';
+import 'package:supastore/features/payment_feature/data/repositories/payment_repository_impl.dart';
+import 'package:supastore/features/payment_feature/domain/repositories/payment_repository.dart';
 
 // ============================================================
 // PRODUCT FEATURE
@@ -387,24 +390,35 @@ Future<void> setupInjector() async {
 
   getIt.registerLazySingleton<OrderRepository>(
         () => OrderRepositoryImpl(
-      remoteDataSource:
-      getIt<OrderRemoteDataSource>(),
+      remoteDataSource: getIt<OrderRemoteDataSource>(),
+    ),
+  );
+
+  //payment :
+
+  getIt.registerLazySingleton<PaymentRemoteDataSource>(
+        () => PaymentRemoteDataSource(
+      Supabase.instance.client,
+    ),
+  );
+
+  getIt.registerLazySingleton<PaymentRepository>(
+        () => PaymentRepositoryImpl(
+      remoteDataSource: getIt<PaymentRemoteDataSource>(),
     ),
   );
 
   getIt.registerFactory<CheckoutProvider>(
         () => CheckoutProvider(
-      repository:
-      getIt<OrderRepository>(),
-      cartProvider:
-      getIt<CartProvider>(),
+      repository: getIt<OrderRepository>(),
+      paymentRepository: getIt<PaymentRepository>(),
+      cartProvider: getIt<CartProvider>(),
     ),
   );
 
   getIt.registerFactory<OrderProvider>(
         () => OrderProvider(
-      repository:
-      getIt<OrderRepository>(),
+      repository: getIt<OrderRepository>(),
     ),
   );
 

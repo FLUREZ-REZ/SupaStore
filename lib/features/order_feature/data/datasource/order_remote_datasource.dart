@@ -38,20 +38,142 @@ class OrderRemoteDataSource {
     )
   ''';
 
+  // ============================================================
+  // SECURE CHECKOUT
+  // ============================================================
+
+  /// ایجاد Checkout امن از طریق Supabase Edge Function.
+  ///
+  /// مبلغ، تخفیف، هزینه ارسال و OrderItems
+  /// در سمت Server محاسبه می‌شوند.
+  ///
+  /// Flutter فقط اطلاعات انتخاب‌های کاربر را ارسال می‌کند.
+  Future<Map<String, dynamic>> createCheckout({
+    required String addressId,
+    required String shippingMethodId,
+    required String paymentMethod,
+  }) async {
+    if (addressId.trim().isEmpty) {
+      throw Exception(
+        'آدرس ارسال انتخاب نشده است.',
+      );
+    }
+
+    if (shippingMethodId.trim().isEmpty) {
+      throw Exception(
+        'روش ارسال انتخاب نشده است.',
+      );
+    }
+
+    if (paymentMethod != 'online') {
+      throw Exception(
+        'روش پرداخت نامعتبر است.',
+      );
+    }
+
+    final response =
+    await _supabase.functions.invoke(
+      'create-checkout',
+      body: {
+        'address_id': addressId,
+        'shipping_method_id': shippingMethodId,
+        'payment_method': paymentMethod,
+      },
+    );
+
+    final data = response.data;
+
+    if (data == null) {
+      throw Exception(
+        'پاسخ معتبری از سرور دریافت نشد.',
+      );
+    }
+
+    if (data is! Map) {
+      throw Exception(
+        'فرمت پاسخ سرور نامعتبر است.',
+      );
+    }
+
+    final result =
+    Map<String, dynamic>.from(data);
+
+    final success =
+        result['success'] == true;
+
+    if (!success) {
+      final message =
+          result['message'] ??
+              result['error'] ??
+              'ایجاد سفارش ناموفق بود.';
+
+      throw Exception(
+        message.toString(),
+      );
+    }
+
+    final orderId =
+    result['order_id'];
+
+    final paymentId =
+    result['payment_id'];
+
+    final authority =
+    result['authority'];
+
+    final paymentUrl =
+    result['payment_url'];
+
+    if (orderId is! String ||
+        orderId.isEmpty) {
+      throw Exception(
+        'شناسه سفارش از سرور دریافت نشد.',
+      );
+    }
+
+    if (paymentId is! String ||
+        paymentId.isEmpty) {
+      throw Exception(
+        'شناسه پرداخت از سرور دریافت نشد.',
+      );
+    }
+
+    if (authority is! String ||
+        authority.isEmpty) {
+      throw Exception(
+        'Authority پرداخت از سرور دریافت نشد.',
+      );
+    }
+
+    if (paymentUrl is! String ||
+        paymentUrl.isEmpty) {
+      throw Exception(
+        'آدرس پرداخت از سرور دریافت نشد.',
+      );
+    }
+
+    return result;
+  }
+
+  // ============================================================
+  // LEGACY CHECKOUT
+  // ============================================================
+
+  /// مسیر قدیمی Checkout.
+  ///
+  /// برای بخش‌های قدیمی پروژه نگه داشته شده است.
+  ///
+  /// برای خرید آنلاین جدید از createCheckout()
+  /// استفاده شود.
   Future<Map<String, dynamic>> checkout({
     required String userId,
-
     required String addressId,
-
     required int subtotal,
     required int discount,
     required int shippingCost,
     required int totalPrice,
-
     required String shippingAddress,
-
     required String paymentMethod,
-
     required List<OrderItemEntity> items,
   }) async {
     return createOrder(
@@ -67,46 +189,34 @@ class OrderRemoteDataSource {
     );
   }
 
+  // ============================================================
+  // LEGACY CREATE ORDER
+  // ============================================================
+
   Future<Map<String, dynamic>> createOrder({
     required String userId,
-
-    /// ID آدرس انتخاب‌شده
     required String addressId,
-
     required int subtotal,
     required int discount,
     required int shippingCost,
     required int totalPrice,
-
-    /// آدرس ذخیره‌شده در لحظه خرید
     required String shippingAddress,
-
     required String paymentMethod,
-
     required List<OrderItemEntity> items,
   }) async {
-
     final orderResponse =
     await _supabase
         .from('orders')
         .insert({
       'user_id': userId,
-
-      // آدرس انتخاب‌شده
       'address_id': addressId,
-
       'subtotal': subtotal,
       'discount': discount,
       'shipping_cost': shippingCost,
       'total_price': totalPrice,
-
-      // Snapshot آدرس
       'shipping_address': shippingAddress,
-
       'payment_method': paymentMethod,
-
       'payment_status': 'pending',
-
       'status': 'pending',
     })
         .select(_orderSelect)
@@ -121,27 +231,15 @@ class OrderRemoteDataSource {
             (item) {
           return {
             'order_id': orderId,
-
-            'product_id':
-            item.productId,
-
-            'product_title':
-            item.productTitle,
-
+            'product_id': item.productId,
+            'product_title': item.productTitle,
             'product_thumbnail':
             item.productThumbnail,
-
-            'quantity':
-            item.quantity,
-
-            'unit_price':
-            item.unitPrice,
-
+            'quantity': item.quantity,
+            'unit_price': item.unitPrice,
             'discount_price':
             item.discountPrice,
-
-            'total_price':
-            item.totalPrice,
+            'total_price': item.totalPrice,
           };
         },
       ).toList();
@@ -165,6 +263,10 @@ class OrderRemoteDataSource {
       result,
     );
   }
+
+  // ============================================================
+  // GET ORDERS
+  // ============================================================
 
   Future<List<Map<String, dynamic>>>
   getOrders(
@@ -195,6 +297,10 @@ class OrderRemoteDataSource {
       ) async {
     return getOrders(userId);
   }
+
+  // ============================================================
+  // GET ORDER BY ID
+  // ============================================================
 
   Future<Map<String, dynamic>>
   getOrderById(

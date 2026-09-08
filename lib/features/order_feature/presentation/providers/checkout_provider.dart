@@ -4,35 +4,31 @@ import 'package:supastore/features/address_feature/domain/entities/address_entit
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 
-import 'package:supastore/features/order_feature/domain/entities/order_item_entity.dart';
-import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
+import 'package:supastore/features/order_feature/domain/entities/checkout_result_entity.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
+
+import 'package:supastore/features/payment_feature/domain/entities/payment_entity.dart';
+import 'package:supastore/features/payment_feature/domain/repositories/payment_repository.dart';
+
+import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
 
 class CheckoutProvider extends ChangeNotifier {
   CheckoutProvider({
     required OrderRepository repository,
+    required PaymentRepository paymentRepository,
     required CartProvider cartProvider,
   })  : _repository = repository,
+        _paymentRepository = paymentRepository,
         _cartProvider = cartProvider;
 
   final OrderRepository _repository;
+  final PaymentRepository _paymentRepository;
   final CartProvider _cartProvider;
-
-
-  @override
-  void dispose() {
-    debugPrint(
-      '!!!!!!!!!! CHECKOUT PROVIDER DISPOSE !!!!!!!!!!',
-    );
-
-    super.dispose();
-  }
 
   List<CartItemEntity> _cartItems = [];
 
   List<CartItemEntity> get cartItems =>
       List.unmodifiable(_cartItems);
-
 
   AddressEntity? _selectedAddress;
 
@@ -45,17 +41,23 @@ class CheckoutProvider extends ChangeNotifier {
   String? get shippingAddress =>
       _selectedAddress?.address;
 
+  ShippingMethodEntity? _selectedShippingMethod;
+
+  ShippingMethodEntity? get selectedShippingMethod =>
+      _selectedShippingMethod;
+
+  String? get shippingMethodId =>
+      _selectedShippingMethod?.id;
+
   String _paymentMethod = 'online';
 
   String get paymentMethod =>
       _paymentMethod;
 
-
   int _shippingCost = 0;
 
   int get shippingCost =>
       _shippingCost;
-
 
   bool _isLoading = false;
 
@@ -67,28 +69,37 @@ class CheckoutProvider extends ChangeNotifier {
   String? get error =>
       _error;
 
+  CheckoutResultEntity? _checkoutResult;
 
-  OrderEntity? _order;
+  CheckoutResultEntity? get checkoutResult =>
+      _checkoutResult;
 
-  OrderEntity? get order =>
-      _order;
+  PaymentEntity? _payment;
 
+  PaymentEntity? get payment =>
+      _payment;
+
+  bool _isPaymentChecking = false;
+
+  bool get isPaymentChecking =>
+      _isPaymentChecking;
 
   int get totalItems {
     return _cartItems.fold(
       0,
-          (sum, item) =>
-      sum + item.quantity,
+          (sum, item) {
+        return sum + item.quantity;
+      },
     );
   }
 
   int get subtotal {
     return _cartItems.fold(
       0,
-          (sum, item) =>
-      sum +
-          (item.product.price *
-              item.quantity),
+          (sum, item) {
+        return sum +
+            (item.product.price * item.quantity);
+      },
     );
   }
 
@@ -96,11 +107,9 @@ class CheckoutProvider extends ChangeNotifier {
     return _cartItems.fold(
       0,
           (sum, item) {
-        final product =
-            item.product;
+        final product = item.product;
 
-        if (product.discountPrice ==
-            null) {
+        if (product.discountPrice == null) {
           return sum;
         }
 
@@ -109,8 +118,7 @@ class CheckoutProvider extends ChangeNotifier {
                 product.discountPrice!;
 
         return sum +
-            (discount *
-                item.quantity);
+            (discount * item.quantity);
       },
     );
   }
@@ -121,33 +129,27 @@ class CheckoutProvider extends ChangeNotifier {
         shippingCost;
   }
 
-
   bool get canSubmit {
     return _cartItems.isNotEmpty &&
         _selectedAddress != null &&
-        _selectedAddress!
-            .id
-            .isNotEmpty &&
+        _selectedAddress!.id.isNotEmpty &&
+        _selectedShippingMethod != null &&
+        _selectedShippingMethod!.id.isNotEmpty &&
+        _paymentMethod == 'online' &&
         !_isLoading;
   }
 
-
-
   void initialize({
-
-
     required List<CartItemEntity> items,
     AddressEntity? selectedAddress,
   }) {
-
-
     _cartItems =
-    List<CartItemEntity>.from(
-      items,
-    );
+    List<CartItemEntity>.from(items);
 
     _selectedAddress =
         selectedAddress;
+
+    _selectedShippingMethod = null;
 
     _paymentMethod = 'online';
 
@@ -155,13 +157,16 @@ class CheckoutProvider extends ChangeNotifier {
 
     _error = null;
 
-    _order = null;
+    _checkoutResult = null;
+
+    _payment = null;
 
     _isLoading = false;
 
+    _isPaymentChecking = false;
+
     notifyListeners();
   }
-
 
   void setAddress(
       AddressEntity address,
@@ -176,171 +181,192 @@ class CheckoutProvider extends ChangeNotifier {
   void clearAddress() {
     _selectedAddress = null;
 
+    _error = null;
+
+    notifyListeners();
+  }
+
+  void setShippingMethod(
+      ShippingMethodEntity method,
+      ) {
+    _selectedShippingMethod = method;
+
+    _shippingCost = method.cost;
+
+    _error = null;
+
+    notifyListeners();
+  }
+
+  void clearShippingMethod() {
+    _selectedShippingMethod = null;
+
+    _shippingCost = 0;
+
+    _error = null;
+
     notifyListeners();
   }
 
   void setPaymentMethod(
       String method,
       ) {
-    _paymentMethod = method;
-
-    notifyListeners();
-  }
-
-  void setShippingCost(
-      int cost,
-      ) {
-    if (cost < 0) {
-      return;
-    }
-
-    _shippingCost = cost;
-
-    notifyListeners();
-  }
-
-  Future<bool> placeOrder({
-    required String userId,
-  }) async {
-
-    debugPrint(
-      '!!!!!!!!!! REAL placeOrder() EXECUTED !!!!!!!!!!',
-    );
-
-    if (!canSubmit) {
+    if (method != 'online') {
       _error =
-      'لطفاً یک آدرس برای ارسال انتخاب کنید';
+      'روش پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
 
       notifyListeners();
 
-      return false;
+      return;
+    }
+
+    _paymentMethod = method;
+
+    _error = null;
+
+    notifyListeners();
+  }
+
+  Future<CheckoutResultEntity?> createCheckout() async {
+    if (!canSubmit) {
+      _error =
+      'لطفاً آدرس و روش ارسال را انتخاب کنید.';
+
+      notifyListeners();
+
+      return null;
     }
 
     _isLoading = true;
 
     _error = null;
 
+    _checkoutResult = null;
+
     notifyListeners();
 
     try {
-
-      final orderItems =
-      _cartItems.map(
-            (item) {
-          final product =
-              item.product;
-
-          final unitPrice =
-              product.finalPrice;
-
-          return OrderItemEntity(
-            id: '',
-            orderId: '',
-            productId:
-            product.id,
-            productTitle:
-            product.title,
-            productThumbnail:
-            product.thumbnail,
-            quantity:
-            item.quantity,
-            unitPrice:
-            unitPrice,
-            discountPrice:
-            product.discountPrice,
-            totalPrice:
-            unitPrice *
-                item.quantity,
-            createdAt:
-            DateTime.now(),
-          );
-        },
-      ).toList();
-
-      final createdOrder =
-      await _repository.checkout(
-        userId: userId,
-
-        // مهم
-        addressId:
-        _selectedAddress!.id,
-
-        subtotal:
-        subtotal,
-
-        discount:
-        totalDiscount,
-
-        shippingCost:
-        shippingCost,
-
-        totalPrice:
-        totalPrice,
-
-        // Snapshot آدرس در زمان ثبت سفارش
-        shippingAddress:
-        _selectedAddress!.address,
-
-        paymentMethod:
-        _paymentMethod,
-
-        items:
-        orderItems,
+      final result =
+      await _repository.createCheckout(
+        addressId: _selectedAddress!.id,
+        shippingMethodId:
+        _selectedShippingMethod!.id,
+        paymentMethod: _paymentMethod,
       );
 
-      debugPrint('!!!!!!!!!!!! THIS IS MY CURRENT CHECKOUT PROVIDER !!!!!!!!!!!!');
+      _checkoutResult = result;
 
-      _order = createdOrder;
+      _isLoading = false;
 
+      notifyListeners();
 
-      debugPrint('========== CART CLEAR TEST ==========');
-      debugPrint('Before clearCart');
+      return result;
+    } catch (e) {
+      _error = _cleanError(e);
 
-      try {
+      _isLoading = false;
 
-        debugPrint('========== BEFORE CART CLEAR ==========');
-        debugPrint('CartProvider instance: ${_cartProvider.hashCode}');
-        debugPrint('Cart items before clear: ${_cartProvider.items.length}');
+      notifyListeners();
 
-        await _cartProvider.clearCart(
-          userId,
-        );
+      return null;
+    }
+  }
 
-        debugPrint('========== AFTER CART CLEAR ==========');
-        debugPrint('CartProvider instance: ${_cartProvider.hashCode}');
-        debugPrint('Cart items after clear: ${_cartProvider.items.length}');
+  Future<PaymentEntity?> checkPaymentStatus({
+    required String orderId,
+  }) async {
+    if (orderId.trim().isEmpty) {
+      _error =
+      'شناسه سفارش نامعتبر است.';
 
-        debugPrint('After clearCart - SUCCESS');
-      } catch (e) {
-        debugPrint(
-          'Cart clear failed after successful order: $e',
-        );
-      }
+      notifyListeners();
 
-      debugPrint('========== CART CLEAR TEST END ==========');
+      return null;
+    }
+
+    if (_isPaymentChecking) {
+      return _payment;
+    }
+
+    _isPaymentChecking = true;
+
+    _error = null;
+
+    notifyListeners();
+
+    try {
+      final payment =
+      await _paymentRepository.getPaymentByOrder(
+        orderId: orderId,
+      );
+
+      _payment = payment;
+
+      _isPaymentChecking = false;
+
+      notifyListeners();
+
+      return payment;
+    } catch (e) {
+      _error = _cleanError(e);
+
+      _isPaymentChecking = false;
+
+      notifyListeners();
+
+      return null;
+    }
+  }
+
+  Future<bool> confirmPayment({
+    required String orderId,
+    required String userId,
+  }) async {
+    final payment =
+    await checkPaymentStatus(
+      orderId: orderId,
+    );
+
+    if (payment == null) {
+      return false;
+    }
+
+    if (!payment.isPaid) {
+      return false;
+    }
+
+    try {
+      await _cartProvider.clearCart(
+        userId,
+      );
 
       _cartItems.clear();
 
-      debugPrint('========== BEFORE PROVIDER NOTIFY ==========');
-      debugPrint('CheckoutProvider still executing');
-
-      _isLoading = false;
-
       notifyListeners();
-
-      debugPrint('========== AFTER PROVIDER NOTIFY ==========');
-      debugPrint('CheckoutProvider finished notifyListeners');
 
       return true;
     } catch (e) {
-      _error = e.toString();
-
-      _isLoading = false;
+      _error =
+      'پرداخت با موفقیت انجام شد، اما پاک‌سازی سبد خرید انجام نشد.';
 
       notifyListeners();
 
-      return false;
+      return true;
     }
+  }
+
+  Future<PaymentEntity?> refreshPaymentStatus() async {
+    final orderId =
+        _checkoutResult?.orderId;
+
+    if (orderId == null ||
+        orderId.isEmpty) {
+      return null;
+    }
+
+    return checkPaymentStatus(
+      orderId: orderId,
+    );
   }
 
   void clearError() {
@@ -354,16 +380,43 @@ class CheckoutProvider extends ChangeNotifier {
 
     _selectedAddress = null;
 
+    _selectedShippingMethod = null;
+
     _paymentMethod = 'online';
 
     _shippingCost = 0;
 
     _isLoading = false;
 
+    _isPaymentChecking = false;
+
     _error = null;
 
-    _order = null;
+    _checkoutResult = null;
+
+    _payment = null;
 
     notifyListeners();
+  }
+
+  String _cleanError(Object error) {
+    final message = error.toString();
+
+    if (message.startsWith('Exception: ')) {
+      return message.substring(
+        'Exception: '.length,
+      );
+    }
+
+    return message;
+  }
+
+  @override
+  void dispose() {
+    debugPrint(
+      '!!!!!!!!!! CHECKOUT PROVIDER DISPOSE !!!!!!!!!!',
+    );
+
+    super.dispose();
   }
 }
