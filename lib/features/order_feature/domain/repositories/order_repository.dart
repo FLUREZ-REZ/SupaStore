@@ -1,7 +1,13 @@
+import 'package:supastore/features/order_feature/domain/entities/checkout_result_entity.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_item_entity.dart';
 
 abstract class OrderRepository {
+  Future<CheckoutResultEntity> createCheckout({
+    required String addressId,
+    required String shippingMethodId,
+    required String paymentMethod,
+  });
 
   Future<OrderEntity> checkout({
     required String userId,
