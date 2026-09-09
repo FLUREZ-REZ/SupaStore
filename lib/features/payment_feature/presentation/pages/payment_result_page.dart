@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
+
 class PaymentResultPage extends StatefulWidget {
   const PaymentResultPage({
     super.key,
@@ -26,8 +29,8 @@ class _PaymentResultPageState
       Supabase.instance.client;
 
   bool _isLoading = true;
-
   bool _isPaid = false;
+  bool _cartCleared = false;
 
   String? _errorMessage;
 
@@ -41,12 +44,16 @@ class _PaymentResultPageState
   }
 
   Future<void> _checkPayment() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+    if (!mounted) {
+      return;
+    }
 
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
       final user =
           _supabase.auth.currentUser;
 
@@ -83,8 +90,19 @@ class _PaymentResultPageState
 
         payment = response;
 
+        debugPrint(
+          'Payment Result Attempt: ${attempt + 1}',
+        );
+
+        debugPrint(
+          'Payment: $payment',
+        );
+
         if (payment != null &&
-            payment['status'] == 'paid') {
+            payment['status']
+                ?.toString()
+                .toLowerCase() ==
+                'paid') {
           break;
         }
 
@@ -104,9 +122,7 @@ class _PaymentResultPageState
       if (payment == null) {
         setState(() {
           _isLoading = false;
-
           _isPaid = false;
-
           _errorMessage =
           'اطلاعات پرداخت پیدا نشد.';
         });
@@ -119,44 +135,52 @@ class _PaymentResultPageState
           ?.toString()
           .toLowerCase();
 
-      if (paymentStatus == 'paid') {
+      if (paymentStatus != 'paid') {
         setState(() {
           _isLoading = false;
-
-          _isPaid = true;
-
-          _payment = payment;
-        });
-
-        /*
-         * -------------------------------------------------------
-         * IMPORTANT
-         * -------------------------------------------------------
-         *
-         * پرداخت در دیتابیس تأیید شده است.
-         *
-         * اینجا باید منطق فعلی CheckoutProvider خودت
-         * برای پاک کردن Cart را صدا بزنی.
-         *
-         * فعلاً عمداً اینجا چیزی اختراع نکرده‌ایم چون
-         * متد دقیق Cart/CheckoutProvider پروژه تو را
-         * نباید حدس بزنیم.
-         */
-      } else {
-        setState(() {
-          _isLoading = false;
-
           _isPaid = false;
-
           _payment = payment;
-
           _errorMessage =
           'پرداخت تأیید نشده است.';
         });
+
+        return;
       }
+
+      /*
+       * پرداخت واقعاً در دیتابیس paid شده است.
+       *
+       * در این مرحله سبد خرید را پاک می‌کنیم.
+       */
+      final checkoutProvider =
+      getIt<CheckoutProvider>();
+
+      final cartCleared =
+      await checkoutProvider.confirmPayment(
+        orderId: widget.orderId,
+        userId: user.id,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      /*
+       * confirmPayment در صورت موفقیت پاک‌سازی
+       * سبد خرید را انجام می‌دهد.
+       *
+       * حتی اگر پاک‌سازی Cart با خطا مواجه شود،
+       * پرداخت همچنان موفق است.
+       */
+      setState(() {
+        _isLoading = false;
+        _isPaid = true;
+        _payment = payment;
+        _cartCleared = cartCleared;
+      });
     } catch (error) {
       debugPrint(
-        'PaymentResultPage error: $error',
+        'PaymentResultPage Error: $error',
       );
 
       if (!mounted) {
@@ -165,9 +189,7 @@ class _PaymentResultPageState
 
       setState(() {
         _isLoading = false;
-
         _isPaid = false;
-
         _errorMessage =
         'بررسی وضعیت پرداخت با خطا مواجه شد.';
       });
@@ -188,9 +210,7 @@ class _PaymentResultPageState
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.all(
-              24.w,
-            ),
+            padding: EdgeInsets.all(24.w),
             child: _buildBody(),
           ),
         ),
@@ -221,7 +241,8 @@ class _PaymentResultPageState
 
   Widget _buildSuccess() {
     final refId =
-        _payment?['ref_id']?.toString() ??
+        _payment?['ref_id']
+            ?.toString() ??
             widget.refId ??
             'ثبت شده';
 
@@ -259,7 +280,25 @@ class _PaymentResultPageState
           title: 'شماره پیگیری',
           value: refId,
         ),
-        SizedBox(height: 32.h),
+        SizedBox(height: 16.h),
+
+        /*
+         * فقط برای دیباگ:
+         * اگر پرداخت موفق بوده ولی Cart پاک نشده باشد،
+         * این پیام نمایش داده می‌شود.
+         */
+        if (!_cartCleared)
+          Text(
+            'پرداخت موفق بود، اما سبد خرید پاک نشد.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.orange,
+            ),
+          ),
+
+        SizedBox(height: 24.h),
+
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -321,14 +360,10 @@ class _PaymentResultPageState
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(
-        14.w,
-      ),
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(
-          12.r,
-        ),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
         children: [
@@ -344,8 +379,7 @@ class _PaymentResultPageState
               value,
               textDirection: TextDirection.ltr,
               textAlign: TextAlign.left,
-              overflow:
-              TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
