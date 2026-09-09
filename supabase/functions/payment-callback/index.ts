@@ -11,63 +11,56 @@ function jsonResponse(
     {
       status,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":
+          "application/json",
       },
     },
   );
 }
 
-function htmlResponse(
-  html: string,
-  status = 200,
-): Response {
-  const headers = new Headers();
-
-  headers.set(
-    "Content-Type",
-    "text/html; charset=utf-8",
-  );
-
-  headers.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate",
-  );
-
-  headers.set(
-    "Pragma",
-    "no-cache",
-  );
-
-  return new Response(
-    html,
-    {
-      status,
-      headers,
-    },
-  );
-}
-
-function escapeHtml(
-  value: string,
-): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll(
-      "<",
-      "&lt;",
-    )
-    .replaceAll(
-      ">",
-      "&gt;",
-    )
-    .replaceAll(
-      '"',
-      "&quot;",
-    )
-    .replaceAll(
-      "'",
-      "&#039;",
+function redirectToApp({
+  status,
+  orderId,
+  refId,
+}: {
+  status: string;
+  orderId: string;
+  refId?: string | null;
+}): Response {
+  const url =
+    new URL(
+      "supastore://payment/result",
     );
+
+  url.searchParams.set(
+    "status",
+    status,
+  );
+
+  url.searchParams.set(
+    "order_id",
+    orderId,
+  );
+
+  if (
+    refId != null &&
+    refId.length > 0
+  ) {
+    url.searchParams.set(
+      "ref_id",
+      refId,
+    );
+  }
+
+  console.log(
+    "Redirecting to app:",
+    url.toString(),
+  );
+
+  return Response.redirect(
+    url.toString(),
+    303,
+  );
 }
 
 function getSupabaseAdmin() {
@@ -163,198 +156,10 @@ function getZarinPalConfig() {
 
   return {
     merchantId,
-
     sandbox,
-
     verifyUrl:
       `${baseUrl}/pg/v4/payment/verify.json`,
   };
-}
-
-function successPage(
-  orderId: string,
-  refId: string,
-): string {
-  return `
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    پرداخت موفق
-  </title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .card {
-      width: 90%;
-      max-width: 420px;
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      box-shadow:
-        0 8px 30px rgba(0, 0, 0, 0.08);
-    }
-
-    .success {
-      color: #16a34a;
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      margin-bottom: 12px;
-    }
-
-    p {
-      color: #555;
-      line-height: 2;
-    }
-
-    .ref {
-      margin-top: 20px;
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 10px;
-      direction: ltr;
-      word-break: break-all;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="card">
-
-    <div class="success">
-      ✓
-    </div>
-
-    <h1>
-      پرداخت موفق بود
-    </h1>
-
-    <p>
-      سفارش شما با موفقیت پرداخت شد.
-    </p>
-
-    <p>
-      شماره سفارش:
-      <strong>
-        ${escapeHtml(orderId)}
-      </strong>
-    </p>
-
-    <div class="ref">
-      شماره پیگیری:
-      <strong>
-        ${escapeHtml(refId)}
-      </strong>
-    </div>
-
-  </div>
-
-</body>
-</html>
-`;
-}
-
-function failedPage(
-  message: string,
-): string {
-  return `
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    پرداخت ناموفق
-  </title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .card {
-      width: 90%;
-      max-width: 420px;
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      box-shadow:
-        0 8px 30px rgba(0, 0, 0, 0.08);
-    }
-
-    .failed {
-      color: #dc2626;
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      margin-bottom: 12px;
-    }
-
-    p {
-      color: #555;
-      line-height: 2;
-    }
-  </style>
-
-</head>
-
-<body>
-
-  <div class="card">
-
-    <div class="failed">
-      ×
-    </div>
-
-    <h1>
-      پرداخت ناموفق بود
-    </h1>
-
-    <p>
-      ${escapeHtml(message)}
-    </p>
-
-  </div>
-
-</body>
-</html>
-`;
 }
 
 Deno.serve(
@@ -396,18 +201,26 @@ Deno.serve(
           "Status",
         );
 
+      console.log(
+        "ZarinPal callback:",
+        {
+          authority,
+          status,
+        },
+      );
+
       if (!authority) {
-        return htmlResponse(
-          failedPage(
-            "شناسه تراکنش نامعتبر است.",
-          ),
-          400,
+        return new Response(
+          "Missing Authority",
+          {
+            status: 400,
+          },
         );
       }
 
       /*
        * ----------------------------------------------------------
-       * 3. Admin client
+       * 3. Supabase admin
        * ----------------------------------------------------------
        */
 
@@ -425,16 +238,18 @@ Deno.serve(
         error: paymentError,
       } = await supabaseAdmin
         .from("payments")
-        .select(`
-          id,
-          order_id,
-          user_id,
-          amount,
-          gateway,
-          status,
-          authority,
-          ref_id
-        `)
+        .select(
+          `
+            id,
+            order_id,
+            user_id,
+            amount,
+            gateway,
+            status,
+            authority,
+            ref_id
+          `,
+        )
         .eq(
           "authority",
           authority,
@@ -451,29 +266,49 @@ Deno.serve(
           paymentError,
         );
 
-        return htmlResponse(
-          failedPage(
-            "خطا در دریافت اطلاعات پرداخت.",
-          ),
-          500,
+        return new Response(
+          "Payment lookup failed",
+          {
+            status: 500,
+          },
         );
       }
 
       if (!payment) {
-        return htmlResponse(
-          failedPage(
-            "تراکنش مورد نظر پیدا نشد.",
-          ),
-          404,
+        return new Response(
+          "Payment not found",
+          {
+            status: 404,
+          },
         );
       }
 
       /*
        * ----------------------------------------------------------
-       * 5. Validate stored amount
+       * 5. Already paid
        * ----------------------------------------------------------
-       *
-       * payments.amount = TOMAN
+       */
+
+      if (
+        payment.status ===
+        "paid"
+      ) {
+        return redirectToApp({
+          status:
+            "success",
+
+          orderId:
+            payment.order_id,
+
+          refId:
+            payment.ref_id,
+        });
+      }
+
+      /*
+       * ----------------------------------------------------------
+       * 6. Validate amount
+       * ----------------------------------------------------------
        */
 
       const amountInToman =
@@ -506,17 +341,18 @@ Deno.serve(
             payment.id,
           );
 
-        return htmlResponse(
-          failedPage(
-            "مبلغ تراکنش نامعتبر است.",
-          ),
-          500,
-        );
+        return redirectToApp({
+          status:
+            "failed",
+
+          orderId:
+            payment.order_id,
+        });
       }
 
       /*
        * ----------------------------------------------------------
-       * 6. Convert TOMAN -> RIAL
+       * 7. TOMAN -> RIAL
        * ----------------------------------------------------------
        */
 
@@ -530,17 +366,18 @@ Deno.serve(
         ) ||
         amountInRial <= 0
       ) {
-        return htmlResponse(
-          failedPage(
-            "مبلغ تراکنش بیش از حد مجاز است.",
-          ),
-          500,
-        );
+        return redirectToApp({
+          status:
+            "failed",
+
+          orderId:
+            payment.order_id,
+        });
       }
 
       /*
        * ----------------------------------------------------------
-       * 7. User canceled payment
+       * 8. User canceled payment
        * ----------------------------------------------------------
        */
 
@@ -550,76 +387,56 @@ Deno.serve(
           {
             authority,
             status,
-            payment_id:
+            paymentId:
               payment.id,
-            order_id:
+            orderId:
               payment.order_id,
           },
         );
 
-        if (
-          payment.status !==
-          "paid"
-        ) {
-          await supabaseAdmin
-            .from("payments")
-            .update({
-              status:
-                "canceled",
+        await supabaseAdmin
+          .from("payments")
+          .update({
+            status:
+              "canceled",
 
-              gateway_message:
-                `ZarinPal callback status: ${
-                  status ??
-                  "UNKNOWN"
-                }`,
-            })
-            .eq(
-              "id",
-              payment.id,
-            );
+            gateway_message:
+              `ZarinPal callback status: ${
+                status ??
+                "UNKNOWN"
+              }`,
+          })
+          .eq(
+            "id",
+            payment.id,
+          )
+          .neq(
+            "status",
+            "paid",
+          );
 
-          await supabaseAdmin
-            .from("orders")
-            .update({
-              payment_status:
-                "canceled",
-            })
-            .eq(
-              "id",
-              payment.order_id,
-            )
-            .neq(
-              "payment_status",
-              "paid",
-            );
-        }
-
-        return htmlResponse(
-          failedPage(
-            "پرداخت توسط کاربر تکمیل نشد یا لغو شد.",
-          ),
-          200,
-        );
-      }
-
-      /*
-       * ----------------------------------------------------------
-       * 8. Already paid
-       * ----------------------------------------------------------
-       */
-
-      if (
-        payment.status ===
-        "paid"
-      ) {
-        return htmlResponse(
-          successPage(
+        await supabaseAdmin
+          .from("orders")
+          .update({
+            payment_status:
+              "canceled",
+          })
+          .eq(
+            "id",
             payment.order_id,
-            payment.ref_id ??
-              "ثبت شده",
-          ),
-          200,
-        );
+          )
+          .neq(
+            "payment_status",
+            "paid",
+          );
+
+        return redirectToApp({
+          status:
+            "canceled",
+
+          orderId:
+            payment.order_id,
+        });
       }
 
       /*
@@ -646,16 +463,6 @@ Deno.serve(
        * ----------------------------------------------------------
        * 10. Verify
        * ----------------------------------------------------------
-       *
-       * IMPORTANT:
-       *
-       * amount is taken from DB.
-       *
-       * DB:
-       * TOMAN
-       *
-       * ZarinPal:
-       * RIAL
        */
 
       const verifyPayload = {
@@ -712,14 +519,13 @@ Deno.serve(
         );
 
       let verifyResult:
-        any;
+        any = null;
 
       try {
         verifyResult =
           await verifyResponse.json();
       } catch {
-        verifyResult =
-          null;
+        verifyResult = null;
       }
 
       /*
@@ -761,17 +567,18 @@ Deno.serve(
             "paid",
           );
 
-        return htmlResponse(
-          failedPage(
-            "بررسی تراکنش در درگاه پرداخت با خطا مواجه شد.",
-          ),
-          502,
-        );
+        return redirectToApp({
+          status:
+            "failed",
+
+          orderId:
+            payment.order_id,
+        });
       }
 
       /*
        * ----------------------------------------------------------
-       * 12. Verify result
+       * 12. Verify response
        * ----------------------------------------------------------
        */
 
@@ -818,7 +625,7 @@ Deno.serve(
       ) {
         const finalRefId =
           refId !==
-            undefined &&
+              undefined &&
           refId !== null
             ? String(refId)
             : payment.ref_id;
@@ -864,12 +671,13 @@ Deno.serve(
             paymentUpdateError,
           );
 
-          return htmlResponse(
-            failedPage(
-              "پرداخت تأیید شد اما ثبت نتیجه در سیستم با خطا مواجه شد.",
-            ),
-            500,
-          );
+          return redirectToApp({
+            status:
+              "failed",
+
+            orderId:
+              payment.order_id,
+          });
         }
 
         /*
@@ -905,28 +713,37 @@ Deno.serve(
             orderUpdateError,
           );
 
-          return htmlResponse(
-            failedPage(
-              "پرداخت با موفقیت انجام شد اما ثبت وضعیت سفارش با مشکل مواجه شد.",
-            ),
-            500,
-          );
+          return redirectToApp({
+            status:
+              "failed",
+
+            orderId:
+              payment.order_id,
+
+            refId:
+              finalRefId,
+          });
         }
 
-        return htmlResponse(
-          successPage(
+        /*
+         * Redirect to Flutter
+         */
+
+        return redirectToApp({
+          status:
+            "success",
+
+          orderId:
             payment.order_id,
 
-            finalRefId ??
-              "ثبت شده",
-          ),
-          200,
-        );
+          refId:
+            finalRefId,
+        });
       }
 
       /*
        * ----------------------------------------------------------
-       * 14. Verify failed
+       * 14. Verification failed
        * ----------------------------------------------------------
        */
 
@@ -990,23 +807,24 @@ Deno.serve(
           "paid",
         );
 
-      return htmlResponse(
-        failedPage(
-          "پرداخت توسط درگاه تأیید نشد.",
-        ),
-        200,
-      );
+      return redirectToApp({
+        status:
+          "failed",
+
+        orderId:
+          payment.order_id,
+      });
     } catch (error) {
       console.error(
         "payment-callback error:",
         error,
       );
 
-      return htmlResponse(
-        failedPage(
-          "خطای داخلی سرور رخ داد.",
-        ),
-        500,
+      return new Response(
+        "Internal server error",
+        {
+          status: 500,
+        },
       );
     }
   },
