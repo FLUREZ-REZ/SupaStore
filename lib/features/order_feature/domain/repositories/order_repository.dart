@@ -44,4 +44,12 @@ abstract class OrderRepository {
   Future<List<OrderEntity>> getUserOrders(
       String userId,
       );
+
+  Future<List<OrderEntity>> getAllOrders();
+
+  Future<OrderEntity> updateOrderStatus({
+    required String orderId,
+    required String status,
+  });
+
 }

@@ -320,4 +320,42 @@ class OrderRemoteDataSource {
       response,
     );
   }
+
+  Future<List<Map<String, dynamic>>> getAllOrders() async {
+    final response = await _supabase
+        .from('orders')
+        .select(_orderSelect)
+        .order('created_at', ascending: false);
+
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  Future<Map<String, dynamic>> updateOrderStatus({
+    required String orderId,
+    required String status,
+  }) async {
+    const allowedStatuses = {
+      'pending',
+      'processing',
+      'shipped',
+      'delivered',
+      'canceled',
+    };
+
+    if (!allowedStatuses.contains(status)) {
+      throw Exception('وضعیت سفارش نامعتبر است.');
+    }
+
+    final response = await _supabase
+        .from('orders')
+        .update({
+      'status': status,
+    })
+        .eq('id', orderId)
+        .select(_orderSelect)
+        .single();
+
+    return Map<String, dynamic>.from(response);
+  }
+
 }

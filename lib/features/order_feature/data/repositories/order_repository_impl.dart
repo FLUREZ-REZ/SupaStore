@@ -337,4 +337,25 @@ class OrderRepositoryImpl implements OrderRepository {
       ),
     );
   }
+
+  @override
+  Future<List<OrderEntity>> getAllOrders() async {
+    final result = await _remoteDataSource.getAllOrders();
+
+    return result.map(_mapOrder).toList();
+  }
+
+  @override
+  Future<OrderEntity> updateOrderStatus({
+    required String orderId,
+    required String status,
+  }) async {
+    final result = await _remoteDataSource.updateOrderStatus(
+      orderId: orderId,
+      status: status,
+    );
+
+    return _mapOrder(result);
+  }
+
 }
