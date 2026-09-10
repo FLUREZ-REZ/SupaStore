@@ -44,6 +44,10 @@ import 'package:supastore/features/admin_feature/domain/usecases/get_admin_produ
 import 'package:supastore/features/admin_feature/domain/usecases/update_admin_product.dart';
 import 'package:supastore/features/admin_feature/domain/usecases/upload_admin_product_image.dart';
 import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
+import 'package:supastore/features/admin_feature/review/data/datasources/admin_review_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/review/data/repositories/admin_review_repository_impl.dart';
+import 'package:supastore/features/admin_feature/review/domain/repositories/admin_review_repository.dart';
+import 'package:supastore/features/admin_feature/review/presentation/providers/admin_review_provider.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
 // ============================================================
@@ -911,6 +915,28 @@ Future<void> setupInjector() async {
         () => AdminDashboardProvider(
       repository:
       getIt<AdminDashboardRepository>(),
+    ),
+  );
+
+  // ==========================================================
+  // ADMIN REVIEW
+  // ==========================================================
+
+  getIt.registerLazySingleton<AdminReviewRemoteDataSource>(
+        () => AdminReviewRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminReviewRepository>(
+        () => AdminReviewRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminReviewRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminReviewProvider>(
+        () => AdminReviewProvider(
+      repository:
+      getIt<AdminReviewRepository>(),
     ),
   );
 
