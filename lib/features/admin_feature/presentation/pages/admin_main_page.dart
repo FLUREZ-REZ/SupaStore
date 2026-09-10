@@ -6,6 +6,7 @@ import 'package:supastore/features/admin_feature/Users/presentation/providers/ad
 
 import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
 import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
+import 'package:supastore/features/admin_feature/review/presentation/providers/admin_review_provider.dart';
 
 
 import 'admin_categories_page.dart';
@@ -64,7 +65,10 @@ class _AdminMainPageState extends State<AdminMainPage> {
         child: AdminUsersPage(),
       ),
 
-      const AdminReviewsPage(),
+      ChangeNotifierProvider<AdminReviewProvider>(
+        create: (_) => getIt<AdminReviewProvider>(),
+        child: const AdminReviewsPage(),
+      ),
 
       const AdminSettingsPage(),
     ];
