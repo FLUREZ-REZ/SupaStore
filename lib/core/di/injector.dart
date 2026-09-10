@@ -30,6 +30,10 @@ import 'package:supastore/features/admin_feature/category/domain/usecases/get_ad
 import 'package:supastore/features/admin_feature/category/domain/usecases/update_admin_category.dart';
 import 'package:supastore/features/admin_feature/category/domain/usecases/upload_admin_category_image.dart';
 import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
+import 'package:supastore/features/admin_feature/dashboard/data/datasource/admin_dashboard_remote_datasource.dart';
+import 'package:supastore/features/admin_feature/dashboard/data/repositories/admin_dashboard_repository_impl.dart';
+import 'package:supastore/features/admin_feature/dashboard/domain/repositories/admin_dashboard_repository.dart';
+import 'package:supastore/features/admin_feature/dashboard/presentaion/providers/admin_dashboard_provider.dart';
 import 'package:supastore/features/admin_feature/data/datasources/admin_product_remote_datasource.dart';
 import 'package:supastore/features/admin_feature/data/repositories/admin_product_repository_impl.dart';
 import 'package:supastore/features/admin_feature/domain/repositories/admin_product_repository.dart';
@@ -887,6 +891,26 @@ Future<void> setupInjector() async {
   getIt.registerFactory<AdminOrderProvider>(
         () => AdminOrderProvider(
       repository: getIt<OrderRepository>(),
+    ),
+  );
+
+  //admin_dashboard :
+
+  getIt.registerLazySingleton<AdminDashboardRemoteDataSource>(
+        () => AdminDashboardRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminDashboardRepository>(
+        () => AdminDashboardRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminDashboardRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminDashboardProvider>(
+        () => AdminDashboardProvider(
+      repository:
+      getIt<AdminDashboardRepository>(),
     ),
   );
 
