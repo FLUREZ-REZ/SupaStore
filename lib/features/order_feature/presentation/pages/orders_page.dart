@@ -618,7 +618,7 @@ class _StatusBadge extends StatelessWidget {
       case 'delivered':
         return Colors.green;
 
-      case 'cancelled':
+      case 'canceled':
         return Colors.red;
 
       default:
@@ -642,7 +642,7 @@ class _StatusBadge extends StatelessWidget {
       case 'delivered':
         return 'تحویل داده شده';
 
-      case 'cancelled':
+      case 'canceled':
         return 'لغو شده';
 
       default:

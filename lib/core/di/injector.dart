@@ -100,6 +100,7 @@ import 'package:supastore/features/home_feature/presentation/providers/category_
 import 'package:supastore/features/order_feature/data/datasource/order_remote_datasource.dart';
 import 'package:supastore/features/order_feature/data/repositories/order_repository_impl.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
+import 'package:supastore/features/order_feature/presentation/providers/admin_order_provider.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
 import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
 import 'package:supastore/features/payment_feature/data/datasources/payment_remote_data_source.dart';
@@ -880,6 +881,12 @@ Future<void> setupInjector() async {
         () => AdminUserProvider(
       getUsers:
       getIt<GetAdminUsers>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminOrderProvider>(
+        () => AdminOrderProvider(
+      repository: getIt<OrderRepository>(),
     ),
   );
 
