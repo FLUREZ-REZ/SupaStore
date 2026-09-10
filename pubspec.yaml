@@ -59,6 +59,7 @@ dependencies:
   flutter_image_compress: ^2.5.1
   url_launcher: ^6.3.2
   app_links: 7.0.0
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
