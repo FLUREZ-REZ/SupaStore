@@ -11,6 +11,7 @@ import 'package:supastore/features/address_feature/data/repositories/address_rep
 import 'package:supastore/features/address_feature/domain/repositories/address_repository.dart';
 import 'package:supastore/features/address_feature/domain/usecases/add_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/delete_address_use_case.dart';
+import 'package:supastore/features/address_feature/domain/usecases/get_address_by_id_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/get_addresses_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/get_default_address_use_case.dart';
 import 'package:supastore/features/address_feature/domain/usecases/set_default_address_use_case.dart';
@@ -937,6 +938,16 @@ Future<void> setupInjector() async {
         () => AdminReviewProvider(
       repository:
       getIt<AdminReviewRepository>(),
+    ),
+  );
+
+// ==========================================================
+// ADDRESS
+// ==========================================================
+
+  getIt.registerLazySingleton<GetAddressByIdUseCase>(
+        () => GetAddressByIdUseCase(
+      repository: getIt<AddressRepository>(),
     ),
   );
 
