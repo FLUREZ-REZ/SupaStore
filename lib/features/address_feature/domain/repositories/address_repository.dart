@@ -1,9 +1,12 @@
 import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 
 abstract class AddressRepository {
-
   Future<List<AddressEntity>> getAddresses({
     required String userId,
+  });
+
+  Future<AddressEntity?> getAddressById({
+    required String addressId,
   });
 
   Future<AddressEntity?> getDefaultAddress({

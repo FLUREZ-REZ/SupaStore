@@ -1,14 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:supastore/features/address_feature/data/models/address_model.dart';
 
 class AddressRemoteDataSource {
   AddressRemoteDataSource({
     SupabaseClient? client,
-  }) : _client =
-      client ?? Supabase.instance.client;
+  }) : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
+
+  // ============================================================
+  // GET ADDRESSES
+  // ============================================================
 
   Future<List<AddressModel>> getAddresses({
     required String userId,
@@ -35,6 +37,32 @@ class AddressRemoteDataSource {
         .toList();
   }
 
+  // ============================================================
+  // GET ADDRESS BY ID
+  // ============================================================
+
+  Future<AddressModel?> getAddressById({
+    required String addressId,
+  }) async {
+    final response = await _client
+        .from('addresses')
+        .select()
+        .eq('id', addressId)
+        .maybeSingle();
+
+    if (response == null) {
+      return null;
+    }
+
+    return AddressModel.fromMap(
+      Map<String, dynamic>.from(response),
+    );
+  }
+
+  // ============================================================
+  // GET DEFAULT ADDRESS
+  // ============================================================
+
   Future<AddressModel?> getDefaultAddress({
     required String userId,
   }) async {
@@ -49,10 +77,12 @@ class AddressRemoteDataSource {
       return null;
     }
 
-    return AddressModel.fromMap(
-      response,
-    );
+    return AddressModel.fromMap(response);
   }
+
+  // ============================================================
+  // ADD ADDRESS
+  // ============================================================
 
   Future<AddressModel> addAddress({
     required AddressModel address,
@@ -65,10 +95,12 @@ class AddressRemoteDataSource {
         .select()
         .single();
 
-    return AddressModel.fromMap(
-      response,
-    );
+    return AddressModel.fromMap(response);
   }
+
+  // ============================================================
+  // UPDATE ADDRESS
+  // ============================================================
 
   Future<AddressModel> updateAddress({
     required AddressModel address,
@@ -89,10 +121,12 @@ class AddressRemoteDataSource {
         .select()
         .single();
 
-    return AddressModel.fromMap(
-      response,
-    );
+    return AddressModel.fromMap(response);
   }
+
+  // ============================================================
+  // DELETE ADDRESS
+  // ============================================================
 
   Future<void> deleteAddress({
     required String addressId,
@@ -111,11 +145,14 @@ class AddressRemoteDataSource {
     );
   }
 
+  // ============================================================
+  // SET DEFAULT ADDRESS
+  // ============================================================
+
   Future<AddressModel> setDefaultAddress({
     required String addressId,
     required String userId,
   }) async {
-
     await _client
         .from('addresses')
         .update({
@@ -146,8 +183,6 @@ class AddressRemoteDataSource {
         .select()
         .single();
 
-    return AddressModel.fromMap(
-      response,
-    );
+    return AddressModel.fromMap(response);
   }
 }
