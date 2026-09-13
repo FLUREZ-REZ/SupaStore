@@ -1,37 +1,274 @@
 import 'package:flutter/material.dart';
-import 'package:supastore/core/services/internet_service.dart';
-import 'package:supastore/features/auth_feature/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/core/theme/app_colors.dart';
+import 'package:supastore/core/theme/app_text_styles.dart';
+import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
+import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
-class SplashProvider extends ChangeNotifier {
-  SplashProvider(
-      this.internetService, {
-        AuthRepository? authRepository,
-      }) : _authRepository = authRepository ?? AuthRepository();
 
-  final InternetService internetService;
-  final AuthRepository _authRepository;
+class SplashPage extends StatefulWidget {
+  const SplashPage({
+    super.key,
+  });
 
-  bool isLoading = true;
-  bool hasInternet = true;
-  bool isLoggedIn = false;
+  @override
+  State<SplashPage> createState() =>
+      _SplashPageState();
+}
 
-  Future<void> initialize() async {
-    isLoading = true;
+class _SplashPageState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
 
-    notifyListeners();
-
-    hasInternet = await internetService.hasInternet();
-
-    if (hasInternet) {
-      isLoggedIn = _authRepository.isLoggedIn;
-    }
-
-    isLoading = false;
-
-    notifyListeners();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
+      _initialize();
+    });
   }
 
-  Future<void> checkConnection() async {
-    await initialize();
+  Future<void> _initialize() async {
+    final provider =
+    context.read<SplashProvider>();
+
+    await provider.initialize();
+
+    if (!mounted) return;
+
+    if (!provider.hasInternet) {
+      return;
+    }
+
+    // ============================================================
+    // STORE SETTINGS
+    // ============================================================
+
+    final storeSettingsProvider =
+    context.read<StoreSettingsProvider>();
+
+    if (storeSettingsProvider.settings == null &&
+        !storeSettingsProvider.isLoading) {
+      await storeSettingsProvider.loadSettings();
+    }
+
+    if (!mounted) return;
+
+    // ============================================================
+    // SPLASH DELAY
+    // ============================================================
+
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    if (!mounted) return;
+
+    // ============================================================
+    // LOGGED IN USER
+    // ============================================================
+
+    if (provider.isLoggedIn) {
+      final authRoleService =
+      getIt<AuthRoleService>();
+
+      final isAdmin =
+      await authRoleService.isCurrentUserAdmin();
+
+      if (!mounted) return;
+
+      if (isAdmin) {
+        context.go('/admin');
+      } else {
+        context.go('/home');
+      }
+
+      return;
+    }
+
+    // ============================================================
+    // INTRO
+    // ============================================================
+
+    final prefs =
+    await SharedPreferences.getInstance();
+
+    final seenIntro =
+        prefs.getBool(
+          'show_intro',
+        ) ??
+            false;
+
+    if (!mounted) return;
+
+    if (seenIntro) {
+      context.go('/auth');
+    } else {
+      context.go('/intro');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor:
+      AppColors.splash_background,
+      body: Consumer2<
+          SplashProvider,
+          StoreSettingsProvider>(
+        builder: (
+            context,
+            splashProvider,
+            storeSettingsProvider,
+            child,
+            ) {
+          final storeName =
+              storeSettingsProvider.storeName;
+
+          final logoUrl =
+              storeSettingsProvider.logoUrl;
+
+          return SafeArea(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize:
+                    MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 120.w,
+                        height: 120.w,
+                        decoration:
+                        BoxDecoration(
+                          borderRadius:
+                          BorderRadius
+                              .circular(
+                            24.r,
+                          ),
+                        ),
+                        clipBehavior:
+                        Clip.antiAlias,
+                        child: logoUrl != null
+                            ? CachedNetworkImage(
+                          imageUrl: logoUrl,
+                          width: 120.w,
+                          height: 120.w,
+                          fit: BoxFit.contain,
+                          placeholder:
+                              (
+                              context,
+                              url,
+                              ) {
+                            return SvgPicture.asset(
+                              'assets/logo/logo.svg',
+                              width: 120.w,
+                              height: 120.w,
+                            );
+                          },
+                          errorWidget:
+                              (
+                              context,
+                              url,
+                              error,
+                              ) {
+                            return SvgPicture.asset(
+                              'assets/logo/logo.svg',
+                              width: 120.w,
+                              height: 120.w,
+                            );
+                          },
+                        )
+                            : SvgPicture.asset(
+                          'assets/logo/logo.svg',
+                          width: 120.w,
+                          height: 120.w,
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: 20.h,
+                      ),
+
+                      Text(
+                        storeName,
+                        textAlign:
+                        TextAlign.center,
+                        style: AppTextStyles
+                            .splashTitle
+                            .copyWith(
+                          color: AppColors
+                              .splash_logo_text,
+                        ),
+                      ),
+
+                      SizedBox(
+                        height: 40.h,
+                      ),
+
+                      if (splashProvider.isLoading)
+                        SizedBox(
+                          width: 22.w,
+                          height: 22.w,
+                          child:
+                          CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color:
+                            AppColors.primary,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                if (!splashProvider.isLoading &&
+                    !splashProvider.hasInternet)
+                  Positioned(
+                    bottom: 40.h,
+                    child: Column(
+                      children: [
+                        Text(
+                          'اتصال اینترنت برقرار نیست',
+                          style: AppTextStyles
+                              .splash_no_internet
+                              .copyWith(
+                            color: AppColors
+                                .splash_no_internet,
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 12.h,
+                        ),
+
+                        GestureDetector(
+                          onTap: () {
+                            _initialize();
+                          },
+                          child: Text(
+                            'تلاش مجدد',
+                            style: AppTextStyles
+                                .splash_try_again
+                                .copyWith(
+                              color: AppColors
+                                  .splash_try_again,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
