@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,13 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:supastore/app/router/app_router.dart';
 import 'package:supastore/core/config/env.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/di/service_locator.dart';
 import 'package:supastore/core/theme/app_theme.dart';
-
+import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
 import 'package:supastore/features/splash_feature/splash_binding.dart';
@@ -259,14 +257,40 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // ======================================================
+        // SPLASH
+        // ======================================================
+
         ...SplashBinding.providers,
+
+        // ======================================================
+        // INTRO
+        // ======================================================
 
         ...IntroBinding.providers,
 
-        ChangeNotifierProvider<
-            FavoriteProvider>(
+        // ======================================================
+        // FAVORITE
+        // ======================================================
+
+        ChangeNotifierProvider<FavoriteProvider>(
           create: (_) =>
               getIt<FavoriteProvider>(),
+        ),
+
+        // ======================================================
+        // GLOBAL STORE SETTINGS
+        // ======================================================
+
+        ChangeNotifierProvider<StoreSettingsProvider>(
+          create: (_) {
+            final provider =
+            getIt<StoreSettingsProvider>();
+
+            provider.loadSettings();
+
+            return provider;
+          },
         ),
       ],
       child: const MyApp(),
@@ -280,8 +304,7 @@ Future<void> main() async {
   WidgetsBinding.instance
       .addPostFrameCallback(
         (_) {
-      paymentDeepLinkService
-          .initialize();
+      paymentDeepLinkService.initialize();
     },
   );
 }
@@ -311,14 +334,11 @@ class MyApp extends StatelessWidget {
           child,
           ) {
         return MaterialApp.router(
-          debugShowCheckedModeBanner:
-          false,
+          debugShowCheckedModeBanner: false,
 
-          theme:
-          AppTheme.lightTheme,
+          theme: AppTheme.lightTheme,
 
-          routerConfig:
-          AppRouter.router,
+          routerConfig: AppRouter.router,
         );
       },
     );

@@ -49,6 +49,15 @@ import 'package:supastore/features/admin_feature/review/data/datasources/admin_r
 import 'package:supastore/features/admin_feature/review/data/repositories/admin_review_repository_impl.dart';
 import 'package:supastore/features/admin_feature/review/domain/repositories/admin_review_repository.dart';
 import 'package:supastore/features/admin_feature/review/presentation/providers/admin_review_provider.dart';
+import 'package:supastore/features/admin_feature/settings/data/datasources/admin_store_settings_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/settings/data/repositories/admin_store_settings_repository_impl.dart';
+import 'package:supastore/features/admin_feature/settings/domain/repositories/admin_store_settings_repository.dart';
+import 'package:supastore/features/admin_feature/settings/domain/usecases/get_admin_store_settings.dart';
+import 'package:supastore/features/admin_feature/settings/domain/usecases/remove_admin_store_logo.dart';
+import 'package:supastore/features/admin_feature/settings/domain/usecases/update_admin_store_logo.dart';
+import 'package:supastore/features/admin_feature/settings/domain/usecases/update_admin_store_settings.dart';
+import 'package:supastore/features/admin_feature/settings/presentation/provider/admin_store_settings_provider.dart';
+import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
 // ============================================================
@@ -948,6 +957,73 @@ Future<void> setupInjector() async {
   getIt.registerLazySingleton<GetAddressByIdUseCase>(
         () => GetAddressByIdUseCase(
       repository: getIt<AddressRepository>(),
+    ),
+  );
+
+// ==========================================================
+// ADMIN STORE SETTINGS
+// ==========================================================
+
+  getIt.registerLazySingleton<AdminStoreSettingsRemoteDataSource>(
+        () => AdminStoreSettingsRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminStoreSettingsRepository>(
+        () => AdminStoreSettingsRepositoryImpl(
+      dataSource:
+      getIt<AdminStoreSettingsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminStoreSettings>(
+        () => GetAdminStoreSettings(
+      repository:
+      getIt<AdminStoreSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminStoreSettings>(
+        () => UpdateAdminStoreSettings(
+      repository:
+      getIt<AdminStoreSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminStoreLogo>(
+        () => UpdateAdminStoreLogo(
+      repository:
+      getIt<AdminStoreSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<RemoveAdminStoreLogo>(
+        () => RemoveAdminStoreLogo(
+      repository:
+      getIt<AdminStoreSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminStoreSettingsProvider>(
+        () => AdminStoreSettingsProvider(
+      getSettings:
+      getIt<GetAdminStoreSettings>(),
+      updateSettings:
+      getIt<UpdateAdminStoreSettings>(),
+      updateLogo:
+      getIt<UpdateAdminStoreLogo>(),
+      removeLogo:
+      getIt<RemoveAdminStoreLogo>(),
+    ),
+  );
+
+  // ==========================================================
+// GLOBAL STORE SETTINGS
+// ==========================================================
+
+  getIt.registerLazySingleton<StoreSettingsProvider>(
+        () => StoreSettingsProvider(
+      repository:
+      getIt<AdminStoreSettingsRepository>(),
     ),
   );
 

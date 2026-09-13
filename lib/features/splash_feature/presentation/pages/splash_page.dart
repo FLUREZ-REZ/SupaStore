@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supastore/core/di/injector.dart';
-import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../providers/splash_provider.dart';
+
 
 class SplashPage extends StatefulWidget {
 
