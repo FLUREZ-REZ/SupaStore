@@ -21,6 +21,8 @@ class StoreSettingsProvider extends ChangeNotifier {
 
   String? get error => _error;
 
+  bool get isReady => _settings != null;
+
   String get storeName {
     return _settings?.storeName.trim().isNotEmpty == true
         ? _settings!.storeName
@@ -37,37 +39,21 @@ class StoreSettingsProvider extends ChangeNotifier {
     return value;
   }
 
-  String? get tagline {
-    return _settings?.tagline;
-  }
+  String? get tagline => _settings?.tagline;
 
-  String? get description {
-    return _settings?.description;
-  }
+  String? get description => _settings?.description;
 
-  String? get phone {
-    return _settings?.phone;
-  }
+  String? get phone => _settings?.phone;
 
-  String? get email {
-    return _settings?.email;
-  }
+  String? get email => _settings?.email;
 
-  String? get address {
-    return _settings?.address;
-  }
+  String? get address => _settings?.address;
 
-  String? get instagram {
-    return _settings?.instagram;
-  }
+  String? get instagram => _settings?.instagram;
 
-  String? get telegram {
-    return _settings?.telegram;
-  }
+  String? get telegram => _settings?.telegram;
 
-  String? get website {
-    return _settings?.website;
-  }
+  String? get website => _settings?.website;
 
   Future<void> loadSettings({
     bool forceRefresh = false,
