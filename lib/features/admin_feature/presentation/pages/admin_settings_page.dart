@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/pages/admin_store_infopage.dart';
+import 'package:supastore/features/admin_feature/shipping/presentation/pages/admin_shipping_page.dart';
+import 'package:supastore/features/admin_feature/shipping/presentation/providers/admin_shipping_provider.dart';
 
 class AdminSettingsPage extends StatelessWidget {
   const AdminSettingsPage({super.key});
@@ -94,7 +98,19 @@ class AdminSettingsPage extends StatelessWidget {
                   title: 'تنظیمات ارسال',
                   subtitle:
                   'روش‌های ارسال، هزینه، ارسال رایگان، محدوده و زمان ارسال',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return ChangeNotifierProvider<AdminShippingProvider>(
+                            create: (_) =>
+                                getIt<AdminShippingProvider>(),
+                            child: const AdminShippingPage(),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ]),
 

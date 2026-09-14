@@ -5,6 +5,7 @@ class OrderEntity {
   final String userId;
 
   final String? addressId;
+  final String? shippingMethodId;
 
   final String status;
   final String paymentStatus;
@@ -26,6 +27,7 @@ class OrderEntity {
     required this.id,
     required this.userId,
     this.addressId,
+    this.shippingMethodId,
     required this.status,
     required this.paymentStatus,
     this.paymentMethod,
@@ -43,6 +45,7 @@ class OrderEntity {
     String? id,
     String? userId,
     String? addressId,
+    String? shippingMethodId,
     String? status,
     String? paymentStatus,
     String? paymentMethod,
@@ -59,6 +62,8 @@ class OrderEntity {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       addressId: addressId ?? this.addressId,
+      shippingMethodId:
+      shippingMethodId ?? this.shippingMethodId,
       status: status ?? this.status,
       paymentStatus:
       paymentStatus ?? this.paymentStatus,
