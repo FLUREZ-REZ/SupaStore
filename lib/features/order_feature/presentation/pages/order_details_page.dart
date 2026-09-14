@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -20,7 +22,6 @@ class OrderDetailsPage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
           title: const Text(
@@ -28,7 +29,6 @@ class OrderDetailsPage extends StatelessWidget {
           ),
           centerTitle: true,
         ),
-
         body: ListView(
           padding: EdgeInsets.only(
             top: 12.h,
@@ -112,8 +112,7 @@ class _OrderHeader extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -126,12 +125,10 @@ class _OrderHeader extends StatelessWidget {
                 width: 48.w,
                 height: 48.w,
                 decoration: BoxDecoration(
-                  color:
-                  AppColors.primary.withValues(
+                  color: AppColors.primary.withValues(
                     alpha: 0.1,
                   ),
-                  borderRadius:
-                  BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
                   Icons.receipt_long_outlined,
@@ -144,15 +141,13 @@ class _OrderHeader extends StatelessWidget {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'سفارش',
                       style: TextStyle(
                         fontSize: 13.sp,
-                        color:
-                        Colors.grey.shade600,
+                        color: Colors.grey.shade600,
                       ),
                     ),
 
@@ -162,8 +157,7 @@ class _OrderHeader extends StatelessWidget {
                       _shortOrderId(order.id),
                       style: TextStyle(
                         fontSize: 15.sp,
-                        fontWeight:
-                        FontWeight.bold,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -259,8 +253,7 @@ class _SectionTitle extends StatelessWidget {
 /// Order Items
 ///
 
-class _OrderItemsSection
-    extends StatelessWidget {
+class _OrderItemsSection extends StatelessWidget {
   const _OrderItemsSection({
     required this.order,
   });
@@ -276,8 +269,7 @@ class _OrderItemsSection
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -299,8 +291,7 @@ class _OrderItemsSection
 /// Single Order Item
 ///
 
-class _OrderItemRow
-    extends StatelessWidget {
+class _OrderItemRow extends StatelessWidget {
   const _OrderItemRow({
     required this.item,
   });
@@ -314,19 +305,16 @@ class _OrderItemRow
         vertical: 8.h,
       ),
       child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-            BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(10.r),
             child: Image.network(
               item.productThumbnail,
               width: 65.w,
               height: 65.w,
               fit: BoxFit.cover,
-              errorBuilder:
-                  (
+              errorBuilder: (
                   context,
                   error,
                   stackTrace,
@@ -336,10 +324,8 @@ class _OrderItemRow
                   height: 65.w,
                   color: Colors.grey.shade100,
                   child: Icon(
-                    Icons
-                        .image_not_supported_outlined,
-                    color:
-                    Colors.grey.shade400,
+                    Icons.image_not_supported_outlined,
+                    color: Colors.grey.shade400,
                     size: 24.sp,
                   ),
                 );
@@ -351,18 +337,15 @@ class _OrderItemRow
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.productTitle,
                   maxLines: 2,
-                  overflow:
-                  TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    fontWeight:
-                    FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
@@ -372,8 +355,7 @@ class _OrderItemRow
                   '${item.quantity} عدد',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color:
-                    Colors.grey.shade600,
+                    color: Colors.grey.shade600,
                   ),
                 ),
 
@@ -385,8 +367,7 @@ class _OrderItemRow
                   ),
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color:
-                    Colors.grey.shade700,
+                    color: Colors.grey.shade700,
                   ),
                 ),
               ],
@@ -416,8 +397,7 @@ class _OrderItemRow
 /// Shipping Address
 ///
 
-class _ShippingAddressCard
-    extends StatelessWidget {
+class _ShippingAddressCard extends StatelessWidget {
   const _ShippingAddressCard({
     required this.address,
   });
@@ -426,6 +406,132 @@ class _ShippingAddressCard
 
   @override
   Widget build(BuildContext context) {
+    if (address == null || address!.trim().isEmpty) {
+      return _buildCard(
+        context,
+        const Text(
+          'آدرس ثبت نشده است',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+          ),
+        ),
+      );
+    }
+
+    try {
+      final decoded = jsonDecode(address!);
+
+      if (decoded is Map<String, dynamic>) {
+        final receiverName =
+        decoded['receiver_name']?.toString().trim();
+
+        final phone =
+        decoded['phone']?.toString().trim();
+
+        final province =
+        decoded['province']?.toString().trim();
+
+        final city =
+        decoded['city']?.toString().trim();
+
+        final actualAddress =
+        decoded['address']?.toString().trim();
+
+        final postalCode =
+        decoded['postal_code']?.toString().trim();
+
+        return _buildCard(
+          context,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (receiverName != null &&
+                  receiverName.isNotEmpty)
+                _AddressInfoRow(
+                  icon: Icons.person_outline,
+                  title: 'تحویل گیرنده',
+                  value: receiverName,
+                ),
+
+              if (phone != null && phone.isNotEmpty) ...[
+                SizedBox(height: 12.h),
+                _AddressInfoRow(
+                  icon: Icons.phone_outlined,
+                  title: 'شماره تماس',
+                  value: phone,
+                ),
+              ],
+
+              if ((province != null &&
+                  province.isNotEmpty) ||
+                  (city != null && city.isNotEmpty)) ...[
+                SizedBox(height: 12.h),
+                _AddressInfoRow(
+                  icon: Icons.location_city_outlined,
+                  title: 'استان / شهر',
+                  value: [
+                    if (province != null &&
+                        province.isNotEmpty)
+                      province,
+                    if (city != null && city.isNotEmpty)
+                      city,
+                  ].join(' - '),
+                ),
+              ],
+
+              if (actualAddress != null &&
+                  actualAddress.isNotEmpty) ...[
+                SizedBox(height: 12.h),
+                _AddressInfoRow(
+                  icon: Icons.home_outlined,
+                  title: 'آدرس',
+                  value: actualAddress,
+                ),
+              ],
+
+              if (postalCode != null &&
+                  postalCode.isNotEmpty) ...[
+                SizedBox(height: 12.h),
+                _AddressInfoRow(
+                  icon: Icons.mail_outline_outlined,
+                  title: 'کد پستی',
+                  value: postalCode,
+                ),
+              ],
+            ],
+          ),
+        );
+      }
+
+      return _buildCard(
+        context,
+        const Text(
+          'اطلاعات آدرس نامعتبر است',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+          ),
+        ),
+      );
+    } catch (_) {
+      return _buildCard(
+        context,
+        const Text(
+          'اطلاعات آدرس نامعتبر است',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildCard(
+      BuildContext context,
+      Widget child,
+      ) {
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 16.w,
@@ -433,15 +539,13 @@ class _ShippingAddressCard
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Icons.location_on_outlined,
@@ -452,16 +556,7 @@ class _ShippingAddressCard
           SizedBox(width: 10.w),
 
           Expanded(
-            child: Text(
-              address?.isNotEmpty == true
-                  ? address!
-                  : 'آدرس ثبت نشده است',
-              style: TextStyle(
-                fontSize: 13.sp,
-                height: 1.7,
-                color: Colors.black87,
-              ),
-            ),
+            child: child,
           ),
         ],
       ),
@@ -470,11 +565,65 @@ class _ShippingAddressCard
 }
 
 ///
+/// Address Info Row
+///
+
+class _AddressInfoRow extends StatelessWidget {
+  const _AddressInfoRow({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          size: 19.sp,
+          color: AppColors.primary,
+        ),
+
+        SizedBox(width: 8.w),
+
+        Text(
+          '$title:',
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: Colors.grey.shade600,
+          ),
+        ),
+
+        SizedBox(width: 8.w),
+
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+///
 /// Shipping + Payment
 ///
 
-class _ShippingPaymentCard
-    extends StatelessWidget {
+class _ShippingPaymentCard extends StatelessWidget {
   const _ShippingPaymentCard({
     required this.order,
   });
@@ -490,8 +639,7 @@ class _ShippingPaymentCard
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -528,9 +676,7 @@ class _ShippingPaymentCard
     );
   }
 
-  String _paymentText(
-      String method,
-      ) {
+  String _paymentText(String method) {
     switch (method) {
       case 'online':
         return 'پرداخت آنلاین';
@@ -543,9 +689,7 @@ class _ShippingPaymentCard
     }
   }
 
-  String _paymentStatusText(
-      String status,
-      ) {
+  String _paymentStatusText(String status) {
     switch (status) {
       case 'pending':
         return 'در انتظار پرداخت';
@@ -569,8 +713,7 @@ class _ShippingPaymentCard
 /// Order Summary
 ///
 
-class _OrderSummary
-    extends StatelessWidget {
+class _OrderSummary extends StatelessWidget {
   const _OrderSummary({
     required this.order,
   });
@@ -586,8 +729,7 @@ class _OrderSummary
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -653,14 +795,11 @@ class _SummaryRow extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize:
-            isTotal ? 15.sp : 13.sp,
-            fontWeight:
-            isTotal
+            fontSize: isTotal ? 15.sp : 13.sp,
+            fontWeight: isTotal
                 ? FontWeight.bold
                 : FontWeight.normal,
-            color:
-            isDiscount
+            color: isDiscount
                 ? Colors.green
                 : Colors.black87,
           ),
@@ -669,16 +808,11 @@ class _SummaryRow extends StatelessWidget {
         const Spacer(),
 
         Text(
-          PriceFormatter.format(
-            value,
-          ),
+          PriceFormatter.format(value),
           style: TextStyle(
-            fontSize:
-            isTotal ? 16.sp : 13.sp,
-            fontWeight:
-            FontWeight.bold,
-            color:
-            isDiscount
+            fontSize: isTotal ? 16.sp : 13.sp,
+            fontWeight: FontWeight.bold,
+            color: isDiscount
                 ? Colors.green
                 : isTotal
                 ? AppColors.price
@@ -766,8 +900,7 @@ class _StatusBadge extends StatelessWidget {
         color: color.withValues(
           alpha: 0.1,
         ),
-        borderRadius:
-        BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Text(
         _statusText(status),
@@ -780,9 +913,7 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 
-  Color _statusColor(
-      String status,
-      ) {
+  Color _statusColor(String status) {
     switch (status) {
       case 'pending':
         return Colors.orange;
@@ -804,9 +935,7 @@ class _StatusBadge extends StatelessWidget {
     }
   }
 
-  String _statusText(
-      String status,
-      ) {
+  String _statusText(String status) {
     switch (status) {
       case 'pending':
         return 'در انتظار بررسی';

@@ -58,6 +58,14 @@ import 'package:supastore/features/admin_feature/settings/domain/usecases/update
 import 'package:supastore/features/admin_feature/settings/domain/usecases/update_admin_store_settings.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/provider/admin_store_settings_provider.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
+import 'package:supastore/features/admin_feature/shipping/data/datasources/admin_shipping_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/shipping/data/repositories/admin_shipping_repository_impl.dart';
+import 'package:supastore/features/admin_feature/shipping/domain/repositories/admin_shipping_repository.dart';
+import 'package:supastore/features/admin_feature/shipping/domain/usecases/create_admin_shipping_method.dart';
+import 'package:supastore/features/admin_feature/shipping/domain/usecases/delete_admin_shipping_method.dart';
+import 'package:supastore/features/admin_feature/shipping/domain/usecases/get_admin_shipping_methods.dart';
+import 'package:supastore/features/admin_feature/shipping/domain/usecases/update_admin_shipping_method.dart';
+import 'package:supastore/features/admin_feature/shipping/presentation/providers/admin_shipping_provider.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 
 // ============================================================
@@ -1024,6 +1032,60 @@ Future<void> setupInjector() async {
         () => StoreSettingsProvider(
       repository:
       getIt<AdminStoreSettingsRepository>(),
+    ),
+  );
+
+//sipping admin
+
+  getIt.registerLazySingleton<AdminShippingRemoteDataSource>(
+        () => AdminShippingRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminShippingRepository>(
+        () => AdminShippingRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminShippingRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminShippingMethods>(
+        () => GetAdminShippingMethods(
+      repository:
+      getIt<AdminShippingRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<CreateAdminShippingMethod>(
+        () => CreateAdminShippingMethod(
+      repository:
+      getIt<AdminShippingRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminShippingMethod>(
+        () => UpdateAdminShippingMethod(
+      repository:
+      getIt<AdminShippingRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<DeleteAdminShippingMethod>(
+        () => DeleteAdminShippingMethod(
+      repository:
+      getIt<AdminShippingRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminShippingProvider>(
+        () => AdminShippingProvider(
+      getShippingMethods:
+      getIt<GetAdminShippingMethods>(),
+      createShippingMethod:
+      getIt<CreateAdminShippingMethod>(),
+      updateShippingMethod:
+      getIt<UpdateAdminShippingMethod>(),
+      deleteShippingMethod:
+      getIt<DeleteAdminShippingMethod>(),
     ),
   );
 
