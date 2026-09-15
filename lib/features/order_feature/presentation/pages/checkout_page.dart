@@ -13,8 +13,6 @@ import 'package:supastore/features/shipping_feature/domain/entities/shipping_met
 import 'package:supastore/features/shipping_feature/presentation/providers/shipping_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
-
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({
     super.key,
@@ -44,20 +42,17 @@ class CheckoutPage extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-          getIt<AddressProvider>()
+          create: (_) => getIt<AddressProvider>()
             ..loadAddresses(
               userId: user.id,
-            )
+            ),
         ),
         ChangeNotifierProvider(
-          create: (_) =>
-          getIt<ShippingProvider>()
+          create: (_) => getIt<ShippingProvider>()
             ..loadShippingMethods(),
         ),
         ChangeNotifierProvider(
-          create: (_) =>
-          getIt<CheckoutProvider>()
+          create: (_) => getIt<CheckoutProvider>()
             ..initialize(
               items: cartItems,
             ),
@@ -73,8 +68,7 @@ class _CheckoutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final checkoutProvider =
-    context.watch<CheckoutProvider>();
+    final checkoutProvider = context.watch<CheckoutProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -102,8 +96,7 @@ class _CheckoutView extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar:
-      const _CheckoutBottomBar(),
+      bottomNavigationBar: const _CheckoutBottomBar(),
     );
   }
 }
@@ -113,13 +106,11 @@ class _ProductsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider =
-    context.watch<CheckoutProvider>();
+    final provider = context.watch<CheckoutProvider>();
 
     return _CheckoutCard(
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionTitle(
             title: 'محصولات سفارش',
@@ -155,19 +146,16 @@ class _CartItemTile extends StatelessWidget {
         bottom: 12.h,
       ),
       child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-            BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(10.r),
             child: Image.network(
               product.thumbnail,
               width: 72.w,
               height: 72.w,
               fit: BoxFit.cover,
-              errorBuilder:
-                  (_, __, ___) {
+              errorBuilder: (_, __, ___) {
                 return Container(
                   width: 72.w,
                   height: 72.w,
@@ -183,28 +171,23 @@ class _CartItemTile extends StatelessWidget {
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   product.title,
                   maxLines: 2,
-                  overflow:
-                  TextOverflow.ellipsis,
-                  style:
-                  AppTextStyles.product_prize,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.product_prize,
                 ),
                 SizedBox(height: 6.h),
                 Text(
                   '${_formatPrice(price)} تومان',
-                  style:
-                  AppTextStyles.second_title_section,
+                  style: AppTextStyles.second_title_section,
                 ),
                 SizedBox(height: 4.h),
                 Text(
                   'تعداد: ${item.quantity}',
-                  style:
-                  AppTextStyles.otp_title,
+                  style: AppTextStyles.otp_title,
                 ),
               ],
             ),
@@ -220,17 +203,14 @@ class _AddressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addressProvider =
-    context.watch<AddressProvider>();
+    final addressProvider = context.watch<AddressProvider>();
 
-    final checkoutProvider =
-    context.watch<CheckoutProvider>();
+    final checkoutProvider = context.watch<CheckoutProvider>();
 
     if (addressProvider.isLoading) {
       return _CheckoutCard(
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _SectionTitle(
               title: 'آدرس ارسال',
@@ -245,13 +225,11 @@ class _AddressSection extends StatelessWidget {
       );
     }
 
-    final addresses =
-        addressProvider.addresses;
+    final addresses = addressProvider.addresses;
 
     return _CheckoutCard(
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionTitle(
             title: 'آدرس ارسال',
@@ -263,8 +241,7 @@ class _AddressSection extends StatelessWidget {
               children: [
                 Text(
                   'هنوز آدرسی ثبت نکرده‌اید.',
-                  style:
-                  AppTextStyles.body,
+                  style: AppTextStyles.body,
                 ),
                 SizedBox(height: 10.h),
                 SizedBox(
@@ -286,17 +263,14 @@ class _AddressSection extends StatelessWidget {
             ...addresses.map(
                   (address) {
                 final selected =
-                    checkoutProvider
-                        .selectedAddress
-                        ?.id ==
+                    checkoutProvider.selectedAddress?.id ==
                         address.id;
 
                 return _AddressTile(
                   address: address,
                   selected: selected,
                   onTap: () {
-                    checkoutProvider
-                        .setAddress(address);
+                    checkoutProvider.setSelectedAddress(address);
                   },
                 );
               },
@@ -309,8 +283,7 @@ class _AddressSection extends StatelessWidget {
   void _showAddressMessage(
       BuildContext context,
       ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
           'برای افزودن آدرس از بخش آدرس‌های حساب کاربری استفاده کنید.',
@@ -342,8 +315,7 @@ class _AddressTile extends StatelessWidget {
         ),
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          borderRadius:
-          BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: selected
                 ? AppColors.primary
@@ -357,26 +329,22 @@ class _AddressTile extends StatelessWidget {
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_off,
-              color: selected
-                  ? AppColors.primary
-                  : Colors.grey,
+              color:
+              selected ? AppColors.primary : Colors.grey,
             ),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     address.title,
-                    style:
-                    AppTextStyles.section_title,
+                    style: AppTextStyles.section_title,
                   ),
                   SizedBox(height: 5.h),
                   Text(
                     address.address,
-                    style:
-                    AppTextStyles.body,
+                    style: AppTextStyles.body,
                   ),
                 ],
               ),
@@ -401,8 +369,7 @@ class _ShippingSection extends StatelessWidget {
 
     return _CheckoutCard(
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionTitle(
             title: 'روش ارسال',
@@ -413,37 +380,27 @@ class _ShippingSection extends StatelessWidget {
             const Center(
               child: CircularProgressIndicator(),
             )
-          else if (shippingProvider.shippingMethods
-              .isEmpty)
+          else if (shippingProvider.shippingMethods.isEmpty)
             Text(
               'روش ارسالی موجود نیست.',
-              style:
-              AppTextStyles.body,
+              style: AppTextStyles.body,
             )
           else
-            ...shippingProvider
-                .shippingMethods
-                .map(
+            ...shippingProvider.shippingMethods.map(
                   (method) {
                 final selected =
-                    checkoutProvider
-                        .selectedShippingMethod
-                        ?.id ==
+                    checkoutProvider.selectedShippingMethod?.id ==
                         method.id;
 
                 return _ShippingTile(
                   method: method,
                   selected: selected,
                   onTap: () {
-                    shippingProvider
-                        .selectShippingMethod(
+                    shippingProvider.selectShippingMethod(
                       method,
                     );
 
-                    checkoutProvider
-                        .setShippingMethod(
-                      method,
-                    );
+                    checkoutProvider.setSelectedShippingMethod(method);
                   },
                 );
               },
@@ -476,8 +433,7 @@ class _ShippingTile extends StatelessWidget {
         ),
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          borderRadius:
-          BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: selected
                 ? AppColors.primary
@@ -491,26 +447,22 @@ class _ShippingTile extends StatelessWidget {
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_off,
-              color: selected
-                  ? AppColors.primary
-                  : Colors.grey,
+              color:
+              selected ? AppColors.primary : Colors.grey,
             ),
             SizedBox(width: 10.w),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     method.title,
-                    style:
-                    AppTextStyles.section_title,
+                    style: AppTextStyles.section_title,
                   ),
                   SizedBox(height: 5.h),
                   Text(
                     '${_formatPrice(method.cost)} تومان',
-                    style:
-                    AppTextStyles.body,
+                    style: AppTextStyles.body,
                   ),
                 ],
               ),
@@ -532,82 +484,223 @@ class _PaymentSection extends StatelessWidget {
 
     return _CheckoutCard(
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SectionTitle(
             title: 'روش پرداخت',
             icon: Icons.payment_outlined,
           ),
           SizedBox(height: 12.h),
-          GestureDetector(
+
+          // ======================================================
+          // Online Payment
+          // ======================================================
+
+          _PaymentMethodTile(
+            title: 'پرداخت آنلاین',
+            subtitle: 'پرداخت امن از طریق درگاه انتخابی شما',
+            selected: provider.paymentMethod == 'online',
             onTap: () {
               provider.setPaymentMethod(
                 'online',
               );
             },
-            child: Container(
-              width: double.infinity,
-              padding:
-              EdgeInsets.all(14.w),
-              decoration: BoxDecoration(
-                borderRadius:
-                BorderRadius.circular(12.r),
-                border: Border.all(
-                  color:
-                  provider.paymentMethod ==
-                      'online'
-                      ? AppColors.primary
-                      : Colors.grey.shade300,
-                  width:
-                  provider.paymentMethod ==
-                      'online'
-                      ? 1.5
-                      : 1,
-                ),
-              ),
-              child: Row(
+            icon: Icons.credit_card_outlined,
+          ),
+
+          if (provider.paymentMethod == 'online') ...[
+            SizedBox(height: 12.h),
+
+            Text(
+              'انتخاب درگاه',
+              style: AppTextStyles.section_title,
+            ),
+
+            SizedBox(height: 10.h),
+
+            // ====================================================
+            // ZarinPal
+            // ====================================================
+
+            _GatewayTile(
+              title: 'زرین‌پال',
+              subtitle: 'پرداخت آنلاین از طریق زرین‌پال',
+              gateway: 'zarinpal',
+              selected:
+              provider.selectedGateway == 'zarinpal',
+              onTap: () {
+                provider.setGateway(
+                  'zarinpal',
+                );
+              },
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+
+            SizedBox(height: 10.h),
+
+            // ====================================================
+            // SEP
+            // ====================================================
+
+            _GatewayTile(
+              title: 'سامان (SEP)',
+              subtitle: 'پرداخت آنلاین از طریق درگاه سامان',
+              gateway: 'sep',
+              selected:
+              provider.selectedGateway == 'sep',
+              onTap: () {
+                provider.setGateway(
+                  'sep',
+                );
+              },
+              icon: Icons.account_balance_outlined,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentMethodTile extends StatelessWidget {
+  const _PaymentMethodTile({
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+    required this.icon,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color:
+              selected ? AppColors.primary : Colors.grey,
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    provider.paymentMethod ==
-                        'online'
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
-                    color:
-                    provider.paymentMethod ==
-                        'online'
-                        ? AppColors.primary
-                        : Colors.grey,
+                  Text(
+                    title,
+                    style: AppTextStyles.section_title,
                   ),
-                  SizedBox(width: 10.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'پرداخت آنلاین',
-                          style:
-                          AppTextStyles.section_title,
-                        ),
-                        SizedBox(height: 4.h),
-                        Text(
-                          'پرداخت امن از طریق درگاه زرین‌پال',
-                          style:
-                          AppTextStyles.body,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.credit_card_outlined,
-                    size: 24.sp,
+                  SizedBox(height: 4.h),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.body,
                   ),
                 ],
               ),
             ),
+            Icon(
+              icon,
+              size: 24.sp,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GatewayTile extends StatelessWidget {
+  const _GatewayTile({
+    required this.title,
+    required this.subtitle,
+    required this.gateway,
+    required this.selected,
+    required this.onTap,
+    required this.icon,
+  });
+
+  final String title;
+  final String subtitle;
+  final String gateway;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: double.infinity,
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
           ),
-        ],
+          color: selected
+              ? AppColors.primary.withOpacity(0.04)
+              : Colors.white,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
+              color:
+              selected ? AppColors.primary : Colors.grey,
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.section_title,
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.body,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              icon,
+              size: 24.sp,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -637,8 +730,7 @@ class _SummarySection extends StatelessWidget {
             valueStyle: TextStyle(
               color: Colors.green,
               fontSize: 13.sp,
-              fontWeight:
-              FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 10.h),
@@ -648,8 +740,7 @@ class _SummarySection extends StatelessWidget {
             '${_formatPrice(provider.shippingCost)} تومان',
           ),
           Padding(
-            padding:
-            EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               vertical: 12.h,
             ),
             child: Divider(
@@ -688,22 +779,20 @@ class _SummaryRow extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style:
-            AppTextStyles.body,
+            style: AppTextStyles.body,
           ),
         ),
         Text(
           value,
-          style: valueStyle ??
-              AppTextStyles.body,
+          style:
+          valueStyle ?? AppTextStyles.body,
         ),
       ],
     );
   }
 }
 
-class _CheckoutBottomBar
-    extends StatelessWidget {
+class _CheckoutBottomBar extends StatelessWidget {
   const _CheckoutBottomBar();
 
   @override
@@ -731,8 +820,7 @@ class _CheckoutBottomBar
           BoxShadow(
             blurRadius: 12,
             offset: const Offset(0, -3),
-            color:
-            Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.08),
           ),
         ],
       ),
@@ -743,8 +831,7 @@ class _CheckoutBottomBar
           children: [
             if (provider.error != null)
               Padding(
-                padding:
-                EdgeInsets.only(
+                padding: EdgeInsets.only(
                   bottom: 8.h,
                 ),
                 child: Text(
@@ -785,25 +872,21 @@ class _CheckoutBottomBar
                   child: SizedBox(
                     height: 50.h,
                     child: ElevatedButton(
-                      onPressed:
-                      !canSubmit
+                      onPressed: !canSubmit
                           ? null
                           : () {
                         _startPayment(
                           context,
                         );
                       },
-                      child:
-                      provider.isLoading
+                      child: provider.isLoading
                           ? SizedBox(
                         width: 22.w,
                         height: 22.w,
                         child:
                         const CircularProgressIndicator(
-                          strokeWidth:
-                          2,
-                          color:
-                          Colors.white,
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
                       )
                           : const Text(
@@ -823,16 +906,21 @@ class _CheckoutBottomBar
   Future<void> _startPayment(
       BuildContext context,
       ) async {
+    final user =
+        Supabase.instance.client.auth.currentUser;
 
-
-    final user = Supabase.instance.client.auth.currentUser;
-    debugPrint('========== CHECKOUT AUTH TEST ==========');
-    debugPrint('CHECKOUT USER ID: ${user?.id}');
+    debugPrint(
+      '========== CHECKOUT AUTH TEST ==========',
+    );
+    debugPrint(
+      'CHECKOUT USER ID: ${user?.id}',
+    );
     debugPrint(
       'CHECKOUT SESSION: ${Supabase.instance.client.auth.currentSession != null}',
     );
-    debugPrint('========================================');
-
+    debugPrint(
+      '========================================',
+    );
 
     final provider =
     context.read<CheckoutProvider>();
@@ -931,24 +1019,21 @@ class _SectionTitle extends StatelessWidget {
         SizedBox(width: 8.w),
         Text(
           title,
-          style:
-          AppTextStyles.titleMedium,
+          style: AppTextStyles.titleMedium,
         ),
       ],
     );
   }
 }
 
-class _EmptyCheckout
-    extends StatelessWidget {
+class _EmptyCheckout extends StatelessWidget {
   const _EmptyCheckout();
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding:
-        EdgeInsets.all(24.w),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           mainAxisAlignment:
           MainAxisAlignment.center,
@@ -972,9 +1057,7 @@ class _EmptyCheckout
 }
 
 String _formatPrice(int price) {
-  return price
-      .toString()
-      .replaceAllMapped(
+  return price.toString().replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
         (match) => ',',
   );

@@ -319,25 +319,21 @@ class AppRouter {
       GoRoute(
         path: '/payment-result',
         name: 'payment-result',
-        builder: (
-            context,
-            state,
-            ) {
+        builder: (context, state) {
           final data =
-          state.extra
-          as Map<String, dynamic>?;
+          state.extra as Map<String, dynamic>?;
 
           final orderId =
-          data?['orderId']
-              ?.toString();
+          data?['orderId']?.toString();
 
           final status =
-          data?['status']
-              ?.toString();
+          data?['status']?.toString();
 
           final refId =
-          data?['refId']
-              ?.toString();
+          data?['refId']?.toString();
+
+          final gateway =
+          data?['gateway']?.toString();
 
           if (orderId == null ||
               orderId.isEmpty) {
@@ -354,6 +350,7 @@ class AppRouter {
             orderId: orderId,
             status: status,
             refId: refId,
+            gateway: gateway,
           );
         },
       ),

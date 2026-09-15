@@ -7,6 +7,7 @@ abstract class OrderRepository {
     required String addressId,
     required String shippingMethodId,
     required String paymentMethod,
+    required String gateway,
   });
 
   Future<OrderEntity> checkout({
@@ -51,5 +52,4 @@ abstract class OrderRepository {
     required String orderId,
     required String status,
   });
-
 }
