@@ -3,19 +3,32 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const TOMAN_TO_RIAL = 10;
 
+const SEP_MOCK_PAYMENT_URL =
+  "https://6aa999a6783a0e0595618afa--stupendous-cactus-df456a.netlify.app";
+
+type PaymentGateway = "zarinpal" | "sep";
+
 function jsonResponse(
   body: Record<string, unknown>,
   status = 200,
 ): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
+  return new Response(
+    JSON.stringify(body),
+    {
+      status,
+      headers: {
+        "Content-Type":
+          "application/json; charset=utf-8",
+        "Cache-Control":
+          "no-store",
+      },
     },
-  });
+  );
 }
 
-function isValidUuid(value: unknown): value is string {
+function isValidUuid(
+  value: unknown,
+): value is string {
   if (typeof value !== "string") {
     return false;
   }
@@ -35,23 +48,38 @@ function isSafeNonNegativeInteger(
   );
 }
 
+// ============================================================
+// Supabase Admin
+// ============================================================
+
 function getSupabaseAdmin() {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const supabaseUrl =
+    Deno.env.get("SUPABASE_URL");
 
   if (!supabaseUrl) {
-    throw new Error("Missing SUPABASE_URL");
+    throw new Error(
+      "Missing SUPABASE_URL",
+    );
   }
 
-  let secretKey: string | undefined;
+  let secretKey:
+    | string
+    | undefined;
 
-  const secretKeysRaw = Deno.env.get(
-    "SUPABASE_SECRET_KEYS",
-  );
+  const secretKeysRaw =
+    Deno.env.get(
+      "SUPABASE_SECRET_KEYS",
+    );
 
   if (secretKeysRaw) {
     try {
-      const secretKeys = JSON.parse(secretKeysRaw);
-      secretKey = secretKeys["default"];
+      const secretKeys =
+        JSON.parse(
+          secretKeysRaw,
+        );
+
+      secretKey =
+        secretKeys["default"];
     } catch (error) {
       console.error(
         "Failed to parse SUPABASE_SECRET_KEYS:",
@@ -85,41 +113,29 @@ function getSupabaseAdmin() {
   );
 }
 
+// ============================================================
+// ZarinPal Config
+// ============================================================
+
 function getZarinPalConfig() {
+  const merchantId =
+    Deno.env.get(
+      "ZARINPAL_MERCHANT_ID",
+    );
 
+  const callbackUrl =
+    Deno.env.get(
+      "ZARINPAL_CALLBACK_URL",
+    );
 
-  
-  const merchantId = Deno.env.get(
-  "ZARINPAL_MERCHANT_ID",
-);
-
-console.log(
-  "ZARINPAL_MERCHANT_ID length:",
-  merchantId?.length,
-);
-
-console.log(
-  "ZARINPAL_MERCHANT_ID value:",
-  merchantId,
-);
-
-  const callbackUrl = Deno.env.get(
-    "ZARINPAL_CALLBACK_URL",
-  );
-
-  const sandboxValue = Deno.env.get(
-    "ZARINPAL_SANDBOX",
-  );
-
-console.log(
-  "Merchant ID:",
-  merchantId,
-  "length:",
-  merchantId?.length,
-);
+  const sandboxValue =
+    Deno.env.get(
+      "ZARINPAL_SANDBOX",
+    );
 
   const sandbox =
-    sandboxValue?.toLowerCase() === "true";
+    sandboxValue?.toLowerCase() ===
+    "true";
 
   if (!merchantId) {
     throw new Error(
@@ -146,112 +162,380 @@ console.log(
     startPayUrl:
       `${baseUrl}/pg/StartPay`,
   };
-
-  
 }
+
+// ============================================================
+// SEP Config
+// ============================================================
+
+function getSepConfig() {
+  const terminalId =
+    Deno.env.get(
+      "SEP_TERMINAL_ID",
+    );
+
+  const callbackUrl =
+    Deno.env.get(
+      "SEP_CALLBACK_URL",
+    );
+
+  const mock =
+    Deno.env.get(
+      "SEP_MOCK",
+    )?.toLowerCase() ===
+    "true";
+
+  if (!mock && !terminalId) {
+    throw new Error(
+      "Missing SEP_TERMINAL_ID",
+    );
+  }
+
+  if (!callbackUrl) {
+    throw new Error(
+      "Missing SEP_CALLBACK_URL",
+    );
+  }
+
+  return {
+    terminalId:
+      terminalId ?? null,
+    callbackUrl,
+    mock,
+  };
+}
+
+// ============================================================
+// SEP Payment
+// ============================================================
+
+async function createSepPayment({
+  orderId,
+  amountInToman,
+  userPhone,
+}: {
+  orderId: string;
+  amountInToman: number;
+  userPhone: string | null;
+}) {
+  const config =
+    getSepConfig();
+
+  // ==========================================================
+  // SEP MOCK
+  // ==========================================================
+
+  if (config.mock) {
+    const token =
+      `MOCK-${crypto.randomUUID()}`;
+
+    const paymentUrl =
+      `${SEP_MOCK_PAYMENT_URL}/?` +
+      `token=${encodeURIComponent(token)}` +
+      `&order_id=${encodeURIComponent(orderId)}` +
+      `&amount=${encodeURIComponent(String(amountInToman))}`;
+
+    console.log(
+      "SEP MOCK PAYMENT URL:",
+      paymentUrl,
+    );
+
+    return {
+      token,
+      paymentUrl,
+      mock: true,
+    };
+  }
+
+  // ==========================================================
+  // REAL SEP
+  // ==========================================================
+
+  const amountInRial =
+    amountInToman * TOMAN_TO_RIAL;
+
+  if (
+    !Number.isSafeInteger(
+      amountInRial,
+    ) ||
+    amountInRial <= 0
+  ) {
+    throw new Error(
+      "Invalid SEP payment amount.",
+    );
+  }
+
+  const tokenUrl =
+    "https://sep.shaparak.ir/OnlinePG/OnlinePG";
+
+  const response =
+    await fetch(
+      tokenUrl,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Accept:
+            "application/json",
+        },
+        body:
+          JSON.stringify({
+            Action:
+              "Token",
+            TerminalId:
+              config.terminalId,
+            RedirectUrl:
+              config.callbackUrl,
+            ResNum:
+              orderId,
+            Amount:
+              amountInRial,
+            CellNumber:
+              userPhone ??
+              undefined,
+          }),
+      },
+    );
+
+  let data: any = null;
+
+  try {
+    data =
+      await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    console.error(
+      "SEP token HTTP error:",
+      {
+        status:
+          response.status,
+        statusText:
+          response.statusText,
+      },
+    );
+
+    throw new Error(
+      `SEP token HTTP error: ${response.status}`,
+    );
+  }
+
+  const status =
+    Number(
+      data?.status ??
+        data?.Status ??
+        data?.success,
+    );
+
+  const token =
+    data?.token ??
+    data?.Token;
+
+  if (
+    status !== 1 ||
+    typeof token !==
+      "string" ||
+    token.trim()
+      .length === 0
+  ) {
+    console.error(
+      "SEP token rejected:",
+      {
+        status,
+        errorCode:
+          data?.errorCode ??
+          data?.ErrorCode ??
+          null,
+        errorDescription:
+          data?.errorDesc ??
+          data?.ErrorDesc ??
+          data?.message ??
+          null,
+      },
+    );
+
+    throw new Error(
+      `SEP token request failed. Code: ${
+        data?.errorCode ??
+        data?.ErrorCode ??
+        "UNKNOWN"
+      }`,
+    );
+  }
+
+  const supabaseUrl =
+    Deno.env.get(
+      "SUPABASE_URL",
+    );
+
+  if (!supabaseUrl) {
+    throw new Error(
+      "Missing SUPABASE_URL",
+    );
+  }
+
+  const paymentUrl =
+    `${supabaseUrl}/functions/v1/sep-redirect` +
+    `?token=${encodeURIComponent(
+      token.trim(),
+    )}`;
+
+  return {
+    token:
+      token.trim(),
+    paymentUrl,
+    mock: false,
+  };
+}
+
+// ============================================================
+// Main
+// ============================================================
 
 Deno.serve(
   withSupabase(
     { auth: "user" },
-    async (req: Request, ctx) => {
+    async (
+      req: Request,
+      ctx,
+    ) => {
       try {
+        // ======================================================
+        // METHOD
+        // ======================================================
+
         if (req.method !== "POST") {
           return jsonResponse(
             {
-              success: false,
-              error: "Method not allowed",
+              success:
+                false,
+              error:
+                "Method not allowed",
             },
             405,
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // AUTHENTICATION
-        // --------------------------------------------------------
+        // ======================================================
 
         const {
-          data: { user },
-          error: userError,
-        } = await ctx.supabase.auth.getUser();
+          data: {
+            user,
+          },
+          error:
+            userError,
+        } =
+          await ctx.supabase.auth.getUser();
 
         if (userError) {
           console.error(
             "Auth getUser error:",
-            userError,
+            userError.message,
           );
 
           return jsonResponse(
             {
-              success: false,
-              error: "Unauthorized",
+              success:
+                false,
+              error:
+                "Unauthorized",
             },
             401,
           );
         }
 
         if (!user) {
-          console.error(
-            "No authenticated user found",
-          );
-
           return jsonResponse(
             {
-              success: false,
-              error: "Unauthorized",
+              success:
+                false,
+              error:
+                "Unauthorized",
             },
             401,
           );
         }
 
-        const userId = user.id;
+        const userId =
+          user.id;
 
-        console.log(
-          "Authenticated user:",
-          userId,
-        );
-
-        // --------------------------------------------------------
+        // ======================================================
         // REQUEST BODY
-        // --------------------------------------------------------
+        // ======================================================
 
         let body: {
           address_id?: unknown;
           shipping_method_id?: unknown;
           payment_method?: unknown;
+          gateway?: unknown;
         };
 
         try {
-          body = await req.json();
+          body =
+            await req.json();
         } catch {
           return jsonResponse(
             {
-              success: false,
-              error: "Invalid JSON body",
+              success:
+                false,
+              error:
+                "Invalid JSON body",
             },
             400,
           );
         }
 
-        const addressId = body.address_id;
+        const addressId =
+          body.address_id;
+
         const shippingMethodId =
           body.shipping_method_id;
+
         const paymentMethod =
           body.payment_method;
 
-        if (!isValidUuid(addressId)) {
+        const gatewayRaw =
+          body.gateway;
+
+        console.log(
+          "CREATE CHECKOUT RECEIVED GATEWAY:",
+          gatewayRaw,
+        );
+
+        // ======================================================
+        // VALIDATION
+        // ======================================================
+
+        if (
+          !isValidUuid(
+            addressId,
+          )
+        ) {
           return jsonResponse(
             {
-              success: false,
-              error: "Invalid address_id",
+              success:
+                false,
+              error:
+                "Invalid address_id",
             },
             400,
           );
         }
 
-        if (!isValidUuid(shippingMethodId)) {
+        if (
+          !isValidUuid(
+            shippingMethodId,
+          )
+        ) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Invalid shipping_method_id",
             },
@@ -259,10 +543,14 @@ Deno.serve(
           );
         }
 
-        if (paymentMethod !== "online") {
+        if (
+          paymentMethod !==
+          "online"
+        ) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Only online payment is supported",
             },
@@ -270,46 +558,78 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
+        if (
+          gatewayRaw !==
+            "zarinpal" &&
+          gatewayRaw !==
+            "sep"
+        ) {
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "درگاه پرداخت انتخاب‌شده پشتیبانی نمی‌شود.",
+            },
+            400,
+          );
+        }
+
+        const gateway =
+          gatewayRaw as PaymentGateway;
+
+        // ======================================================
         // ADMIN CLIENT
-        // --------------------------------------------------------
+        // ======================================================
 
         const supabaseAdmin =
           getSupabaseAdmin();
 
-        // --------------------------------------------------------
+        // ======================================================
         // GET CART
-        // --------------------------------------------------------
+        // ======================================================
 
         const {
-          data: cartItems,
-          error: cartError,
-        } = await supabaseAdmin
-          .from("cart_items")
-          .select(`
-            id,
-            user_id,
-            product_id,
-            quantity,
-            products (
-              id,
-              title,
-              price,
-              discount_price,
-              thumbnail
+          data:
+            cartItems,
+          error:
+            cartError,
+        } =
+          await supabaseAdmin
+            .from(
+              "cart_items",
             )
-          `)
-          .eq("user_id", userId);
+            .select(
+              `
+              id,
+              user_id,
+              product_id,
+              quantity,
+              products (
+                id,
+                title,
+                price,
+                discount_price,
+                thumbnail,
+                is_available
+              )
+            `,
+            )
+            .eq(
+              "user_id",
+              userId,
+            );
 
         if (cartError) {
           console.error(
             "Cart query error:",
-            cartError,
+            cartError.message,
           );
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to load cart",
             },
@@ -323,40 +643,56 @@ Deno.serve(
         ) {
           return jsonResponse(
             {
-              success: false,
-              error: "Cart is empty",
+              success:
+                false,
+              error:
+                "Cart is empty",
             },
             400,
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // CALCULATE ORDER
-        // --------------------------------------------------------
+        // ======================================================
 
         let subtotal = 0;
         let discount = 0;
 
-        const orderItems: Array<{
-          product_id: string;
-          product_title: string;
-          product_thumbnail: string | null;
-          quantity: number;
-          unit_price: number;
-          discount_price: number;
-          total_price: number;
-        }> = [];
+        const orderItems:
+          Array<{
+            product_id:
+              string;
+            product_title:
+              string;
+            product_thumbnail:
+              string | null;
+            quantity:
+              number;
+            unit_price:
+              number;
+            discount_price:
+              number;
+            total_price:
+              number;
+          }> = [];
 
-        for (const item of cartItems) {
-          const quantity = item.quantity;
+        for (
+          const item of cartItems
+        ) {
+          const quantity =
+            item.quantity;
 
           if (
-            !Number.isSafeInteger(quantity) ||
+            !Number.isSafeInteger(
+              quantity,
+            ) ||
             quantity <= 0
           ) {
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "Invalid cart quantity",
               },
@@ -365,14 +701,17 @@ Deno.serve(
           }
 
           const product =
-            Array.isArray(item.products)
+            Array.isArray(
+              item.products,
+            )
               ? item.products[0]
               : item.products;
 
           if (!product) {
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "One or more products no longer exist",
               },
@@ -380,26 +719,40 @@ Deno.serve(
             );
           }
 
-          const price = product.price;
+          if (
+            product.is_available ===
+            false
+          ) {
+            return jsonResponse(
+              {
+                success:
+                  false,
+                error:
+                  `Product "${product.title}" is no longer available`,
+              },
+              400,
+            );
+          }
+
+          const price =
+            product.price;
 
           const discountPrice =
             product.discount_price ??
             product.price;
 
           if (
-            !isSafeNonNegativeInteger(price) ||
+            !isSafeNonNegativeInteger(
+              price,
+            ) ||
             !isSafeNonNegativeInteger(
               discountPrice,
             )
           ) {
-            console.error(
-              "Invalid product price:",
-              product.id,
-            );
-
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "Invalid product price",
               },
@@ -407,10 +760,14 @@ Deno.serve(
             );
           }
 
-          if (discountPrice > price) {
+          if (
+            discountPrice >
+            price
+          ) {
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "Invalid product discount",
               },
@@ -419,14 +776,17 @@ Deno.serve(
           }
 
           const itemSubtotal =
-            price * quantity;
+            price *
+            quantity;
 
           const itemDiscount =
-            (price - discountPrice) *
+            (price -
+              discountPrice) *
             quantity;
 
           const itemTotal =
-            discountPrice * quantity;
+            discountPrice *
+            quantity;
 
           if (
             !Number.isSafeInteger(
@@ -441,7 +801,8 @@ Deno.serve(
           ) {
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "Order amount is too large",
               },
@@ -449,16 +810,24 @@ Deno.serve(
             );
           }
 
-          subtotal += itemSubtotal;
-          discount += itemDiscount;
+          subtotal +=
+            itemSubtotal;
+
+          discount +=
+            itemDiscount;
 
           if (
-            !Number.isSafeInteger(subtotal) ||
-            !Number.isSafeInteger(discount)
+            !Number.isSafeInteger(
+              subtotal,
+            ) ||
+            !Number.isSafeInteger(
+              discount,
+            )
           ) {
             return jsonResponse(
               {
-                success: false,
+                success:
+                  false,
                 error:
                   "Order amount is too large",
               },
@@ -467,51 +836,70 @@ Deno.serve(
           }
 
           orderItems.push({
-            product_id: product.id,
-            product_title: product.title,
+            product_id:
+              product.id,
+            product_title:
+              product.title,
             product_thumbnail:
-              product.thumbnail ?? null,
+              product.thumbnail ??
+              null,
             quantity,
-            unit_price: price,
+            unit_price:
+              price,
             discount_price:
               discountPrice,
-            total_price: itemTotal,
+            total_price:
+              itemTotal,
           });
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // GET ADDRESS
-        // --------------------------------------------------------
+        // ======================================================
 
         const {
-          data: address,
-          error: addressError,
-        } = await supabaseAdmin
-          .from("addresses")
-          .select(`
-            id,
-            user_id,
-            title,
-            receiver_name,
-            phone,
-            province,
-            city,
+          data:
             address,
-            postal_code
-          `)
-          .eq("id", addressId)
-          .eq("user_id", userId)
-          .maybeSingle();
+          error:
+            addressError,
+        } =
+          await supabaseAdmin
+            .from(
+              "addresses",
+            )
+            .select(
+              `
+              id,
+              user_id,
+              title,
+              receiver_name,
+              phone,
+              province,
+              city,
+              address,
+              postal_code
+              `,
+            )
+            .eq(
+              "id",
+              addressId,
+            )
+            .eq(
+              "user_id",
+              userId,
+            )
+            .maybeSingle();
 
         if (addressError) {
           console.error(
             "Address query error:",
-            addressError,
+            addressError.message,
           );
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to load address",
             },
@@ -522,41 +910,57 @@ Deno.serve(
         if (!address) {
           return jsonResponse(
             {
-              success: false,
-              error: "Address not found",
+              success:
+                false,
+              error:
+                "Address not found",
             },
             404,
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // GET SHIPPING METHOD
-        // --------------------------------------------------------
+        // ======================================================
 
         const {
-          data: shippingMethod,
-          error: shippingError,
-        } = await supabaseAdmin
-          .from("shipping_methods")
-          .select(`
-            id,
-            title,
-            cost,
-            is_active
-          `)
-          .eq("id", shippingMethodId)
-          .eq("is_active", true)
-          .maybeSingle();
+          data:
+            shippingMethod,
+          error:
+            shippingError,
+        } =
+          await supabaseAdmin
+            .from(
+              "shipping_methods",
+            )
+            .select(
+              `
+              id,
+              title,
+              cost,
+              is_active
+              `,
+            )
+            .eq(
+              "id",
+              shippingMethodId,
+            )
+            .eq(
+              "is_active",
+              true,
+            )
+            .maybeSingle();
 
         if (shippingError) {
           console.error(
             "Shipping method query error:",
-            shippingError,
+            shippingError.message,
           );
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to load shipping method",
             },
@@ -567,7 +971,8 @@ Deno.serve(
         if (!shippingMethod) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Shipping method not found",
             },
@@ -585,7 +990,8 @@ Deno.serve(
         ) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Invalid shipping cost",
             },
@@ -593,9 +999,9 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // FINAL TOTAL
-        // --------------------------------------------------------
+        // ======================================================
 
         const totalPrice =
           subtotal -
@@ -610,17 +1016,14 @@ Deno.serve(
         ) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Invalid order amount",
             },
             400,
           );
         }
-
-        // --------------------------------------------------------
-        // TOMAN -> RIAL
-        // --------------------------------------------------------
 
         const amountInToman =
           totalPrice;
@@ -637,7 +1040,8 @@ Deno.serve(
         ) {
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Order amount is too large",
             },
@@ -645,48 +1049,63 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // CREATE ORDER
-        // --------------------------------------------------------
+        // ======================================================
 
         const shippingAddress = {
-          id: address.id,
-          title: address.title,
+          id:
+            address.id,
+          title:
+            address.title,
           receiver_name:
             address.receiver_name,
-          phone: address.phone,
-          province: address.province,
-          city: address.city,
-          address: address.address,
+          phone:
+            address.phone,
+          province:
+            address.province,
+          city:
+            address.city,
+          address:
+            address.address,
           postal_code:
             address.postal_code,
         };
 
         const {
-          data: order,
-          error: orderError,
-        } = await supabaseAdmin
-          .from("orders")
-          .insert({
-            user_id: userId,
-            address_id: address.id,
-            subtotal,
-            discount,
-            shipping_cost:
-              shippingCost,
-            total_price:
-              amountInToman,
-            shipping_address:
-              shippingAddress,
-            payment_method:
-              "online",
-            payment_status:
-              "pending",
-            status:
-              "pending",
-          })
-          .select("id")
-          .single();
+          data:
+            order,
+          error:
+            orderError,
+        } =
+          await supabaseAdmin
+            .from(
+              "orders",
+            )
+            .insert({
+              user_id:
+                userId,
+              address_id:
+                address.id,
+              subtotal,
+              discount,
+              shipping_cost:
+                shippingCost,
+              total_price:
+                amountInToman,
+              shipping_address:
+                shippingAddress,
+              payment_method:
+                "online",
+              payment_status:
+                "pending",
+              status:
+                "pending",
+            })
+            .select(
+              "id",
+            )
+            .single();
 
         if (
           orderError ||
@@ -694,12 +1113,13 @@ Deno.serve(
         ) {
           console.error(
             "Order creation error:",
-            orderError,
+            orderError?.message,
           );
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to create order",
             },
@@ -707,13 +1127,15 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // CREATE ORDER ITEMS
-        // --------------------------------------------------------
+        // ======================================================
 
         const orderItemsForInsert =
           orderItems.map(
-            (item) => ({
+            (
+              item,
+            ) => ({
               order_id:
                 order.id,
               product_id:
@@ -734,21 +1156,29 @@ Deno.serve(
           );
 
         const {
-          error: orderItemsError,
-        } = await supabaseAdmin
-          .from("order_items")
-          .insert(
-            orderItemsForInsert,
-          );
+          error:
+            orderItemsError,
+        } =
+          await supabaseAdmin
+            .from(
+              "order_items",
+            )
+            .insert(
+              orderItemsForInsert,
+            );
 
-        if (orderItemsError) {
+        if (
+          orderItemsError
+        ) {
           console.error(
             "Order items error:",
-            orderItemsError,
+            orderItemsError.message,
           );
 
           await supabaseAdmin
-            .from("orders")
+            .from(
+              "orders",
+            )
             .delete()
             .eq(
               "id",
@@ -757,7 +1187,8 @@ Deno.serve(
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to create order items",
             },
@@ -765,35 +1196,42 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
+        // ======================================================
         // CREATE PAYMENT
-        // --------------------------------------------------------
+        // ======================================================
 
         const {
-          data: payment,
-          error: paymentError,
-        } = await supabaseAdmin
-          .from("payments")
-          .insert({
-            order_id:
-              order.id,
-            user_id:
-              userId,
-            amount:
-              amountInToman,
-            gateway:
-              "zarinpal",
-            status:
-              "pending",
-          })
-          .select(`
-            id,
-            order_id,
-            amount,
-            gateway,
-            status
-          `)
-          .single();
+          data:
+            payment,
+          error:
+            paymentError,
+        } =
+          await supabaseAdmin
+            .from(
+              "payments",
+            )
+            .insert({
+              order_id:
+                order.id,
+              user_id:
+                userId,
+              amount:
+                amountInToman,
+              gateway:
+                gateway,
+              status:
+                "pending",
+            })
+            .select(
+              `
+              id,
+              order_id,
+              amount,
+              gateway,
+              status
+              `,
+            )
+            .single();
 
         if (
           paymentError ||
@@ -801,11 +1239,13 @@ Deno.serve(
         ) {
           console.error(
             "Payment creation error:",
-            paymentError,
+            paymentError?.message,
           );
 
           await supabaseAdmin
-            .from("order_items")
+            .from(
+              "order_items",
+            )
             .delete()
             .eq(
               "order_id",
@@ -813,7 +1253,9 @@ Deno.serve(
             );
 
           await supabaseAdmin
-            .from("orders")
+            .from(
+              "orders",
+            )
             .delete()
             .eq(
               "id",
@@ -822,7 +1264,8 @@ Deno.serve(
 
           return jsonResponse(
             {
-              success: false,
+              success:
+                false,
               error:
                 "Failed to create payment",
             },
@@ -830,251 +1273,441 @@ Deno.serve(
           );
         }
 
-        // --------------------------------------------------------
-        // ZARINPAL CONFIGURATION
-        // --------------------------------------------------------
-
-        const {
-          merchantId,
-          callbackUrl,
-          sandbox,
-          requestUrl,
-          startPayUrl,
-        } = getZarinPalConfig();
-
-        console.log(
-          "ZarinPal environment:",
-          sandbox
-            ? "SANDBOX"
-            : "PRODUCTION",
-        );
-
-        // --------------------------------------------------------
-        // REQUEST PAYMENT
-        // --------------------------------------------------------
-
-        const zarinPalPayload = {
-          merchant_id:
-            merchantId,
-          amount:
-            amountInRial,
-          currency:
-            "IRR",
-          description:
-            `پرداخت سفارش ${order.id}`,
-          callback_url:
-            callbackUrl,
-          metadata: {
-            order_id:
-              order.id,
-            payment_id:
-              payment.id,
-            mobile:
-              address.phone,
-          },
-        };
-
-        console.log(
-          "ZarinPal request:",
-          {
-            order_id:
-              order.id,
-            payment_id:
-              payment.id,
-            amount_toman:
-              amountInToman,
-            amount_rial:
-              amountInRial,
-            sandbox,
-          },
-        );
-
-        const zarinPalResponse =
-          await fetch(
-            requestUrl,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-                Accept:
-                  "application/json",
-              },
-              body:
-                JSON.stringify(
-                  zarinPalPayload,
-                ),
-            },
-          );
-
-        let zarinPalResult: any;
-
-        try {
-          zarinPalResult =
-            await zarinPalResponse.json();
-        } catch {
-          zarinPalResult = null;
-        }
-
-        if (!zarinPalResponse.ok || !zarinPalResult) {
-  console.error(
-    "ZarinPal HTTP error:",
-    {
-      status: zarinPalResponse.status,
-      statusText: zarinPalResponse.statusText,
-      response: zarinPalResult,
-    },
-  );
-
-  await supabaseAdmin
-    .from("payments")
-    .update({
-      status: "failed",
-      gateway_message: JSON.stringify({
-        http_status: zarinPalResponse.status,
-        status_text: zarinPalResponse.statusText,
-        response: zarinPalResult,
-      }),
-    })
-    .eq("id", payment.id);
-
-  return jsonResponse(
-    {
-      success: false,
-      error: "Payment gateway request failed",
-      gateway_http_status: zarinPalResponse.status,
-      gateway_response: zarinPalResult,
-    },
-    502,
-  );
-}
-
-        const gatewayCode =
-          zarinPalResult
-            ?.data
-            ?.code;
-
-        const authority =
-          zarinPalResult
-            ?.data
-            ?.authority;
+        // ======================================================
+        // ZARINPAL
+        // ======================================================
 
         if (
-          gatewayCode !== 100 ||
-          typeof authority !==
-            "string" ||
-          authority.length === 0
+          gateway ===
+          "zarinpal"
         ) {
-          console.error(
-            "ZarinPal rejected payment request:",
-            zarinPalResult,
+          const {
+            merchantId,
+            callbackUrl,
+            sandbox,
+            requestUrl,
+            startPayUrl,
+          } =
+            getZarinPalConfig();
+
+          console.log(
+            "ZarinPal environment:",
+            sandbox
+              ? "SANDBOX"
+              : "PRODUCTION",
           );
 
-          await supabaseAdmin
-            .from("payments")
-            .update({
-              status:
-                "failed",
-              gateway_message:
-                JSON.stringify({
-                  code:
-                    gatewayCode ??
-                    null,
-                  errors:
-                    zarinPalResult
-                      ?.errors ??
-                    null,
-                }),
-            })
-            .eq(
-              "id",
-              payment.id,
+          const zarinPalPayload = {
+            merchant_id:
+              merchantId,
+            amount:
+              amountInRial,
+            currency:
+              "IRR",
+            description:
+              `پرداخت سفارش ${order.id}`,
+            callback_url:
+              callbackUrl,
+            metadata: {
+              order_id:
+                order.id,
+              payment_id:
+                payment.id,
+              mobile:
+                address.phone,
+            },
+          };
+
+          const zarinPalResponse =
+            await fetch(
+              requestUrl,
+              {
+                method:
+                  "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                  Accept:
+                    "application/json",
+                },
+                body:
+                  JSON.stringify(
+                    zarinPalPayload,
+                  ),
+              },
             );
 
-          return jsonResponse(
-            {
-              success: false,
-              error:
-                "ZarinPal rejected payment request",
-              gateway_code:
-                gatewayCode ??
+          let zarinPalResult:
+            any = null;
+
+          try {
+            zarinPalResult =
+              await zarinPalResponse.json();
+          } catch {
+            zarinPalResult =
+              null;
+          }
+
+          if (
+            !zarinPalResponse.ok ||
+            !zarinPalResult
+          ) {
+            console.error(
+              "ZarinPal HTTP error:",
+              {
+                status:
+                  zarinPalResponse.status,
+                statusText:
+                  zarinPalResponse.statusText,
+              },
+            );
+
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                status:
+                  "failed",
+                gateway_message:
+                  JSON.stringify({
+                    http_status:
+                      zarinPalResponse.status,
+                    status_text:
+                      zarinPalResponse.statusText,
+                    response:
+                      zarinPalResult,
+                  }),
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
+
+            await supabaseAdmin
+              .from(
+                "orders",
+              )
+              .update({
+                payment_status:
+                  "failed",
+                status:
+                  "canceled",
+              })
+              .eq(
+                "id",
+                order.id,
+              );
+
+            return jsonResponse(
+              {
+                success:
+                  false,
+                error:
+                  "Payment gateway request failed",
+              },
+              502,
+            );
+          }
+
+          const gatewayCode =
+            Number(
+              zarinPalResult
+                ?.data
+                ?.code,
+            );
+
+          const authority =
+            zarinPalResult
+              ?.data
+              ?.authority;
+
+          if (
+            gatewayCode !==
+              100 ||
+            typeof authority !==
+              "string" ||
+            authority.trim()
+              .length === 0
+          ) {
+            console.error(
+              "ZarinPal rejected payment request:",
+              {
+                code:
+                  gatewayCode,
+                errors:
+                  zarinPalResult
+                    ?.errors ??
+                  null,
+              },
+            );
+
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                status:
+                  "failed",
+                gateway_message:
+                  JSON.stringify({
+                    code:
+                      gatewayCode ??
+                      null,
+                    errors:
+                      zarinPalResult
+                        ?.errors ??
+                      null,
+                  }),
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
+
+            await supabaseAdmin
+              .from(
+                "orders",
+              )
+              .update({
+                payment_status:
+                  "failed",
+                status:
+                  "canceled",
+              })
+              .eq(
+                "id",
+                order.id,
+              );
+
+            return jsonResponse(
+              {
+                success:
+                  false,
+                error:
+                  "ZarinPal rejected payment request",
+                gateway_code:
+                  gatewayCode ??
+                  null,
+              },
+              400,
+            );
+          }
+
+          const {
+            error:
+              authorityError,
+          } =
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                authority:
+                  authority.trim(),
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
+
+          if (
+            authorityError
+          ) {
+            console.error(
+              "Authority update error:",
+              authorityError.message,
+            );
+
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                status:
+                  "failed",
+                gateway_message:
+                  "Failed to save ZarinPal authority",
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
+
+            await supabaseAdmin
+              .from(
+                "orders",
+              )
+              .update({
+                payment_status:
+                  "failed",
+                status:
+                  "canceled",
+              })
+              .eq(
+                "id",
+                order.id,
+              );
+
+            return jsonResponse(
+              {
+                success:
+                  false,
+                error:
+                  "Failed to save payment authority",
+              },
+              500,
+            );
+          }
+
+          const paymentUrl =
+            `${startPayUrl}/${authority.trim()}`;
+
+          return jsonResponse({
+            success:
+              true,
+            order_id:
+              order.id,
+            payment_id:
+              payment.id,
+            amount:
+              amountInToman,
+            currency:
+              "TOMAN",
+            gateway:
+              "zarinpal",
+            gateway_reference:
+              authority.trim(),
+            authority:
+              authority.trim(),
+            payment_url:
+              paymentUrl,
+            sandbox,
+          });
+        }
+
+        // ======================================================
+        // SEP
+        // ======================================================
+
+        if (
+          gateway ===
+          "sep"
+        ) {
+          const sepResult =
+            await createSepPayment({
+              orderId:
+                order.id,
+              amountInToman:
+                amountInToman,
+              userPhone:
+                address.phone ??
                 null,
-            },
-            400,
-          );
-        }
+            });
 
-        // --------------------------------------------------------
-        // SAVE AUTHORITY
-        // --------------------------------------------------------
+          const {
+            error:
+              tokenError,
+          } =
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                authority:
+                  sepResult.token,
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
 
-        const {
-          error: authorityError,
-        } = await supabaseAdmin
-          .from("payments")
-          .update({
-            authority,
-          })
-          .eq(
-            "id",
-            payment.id,
-          );
-
-        if (authorityError) {
-          console.error(
-            "Authority update error:",
-            authorityError,
-          );
-
-          await supabaseAdmin
-            .from("payments")
-            .update({
-              status:
-                "failed",
-              gateway_message:
-                "Failed to save ZarinPal authority",
-            })
-            .eq(
-              "id",
-              payment.id,
+          if (
+            tokenError
+          ) {
+            console.error(
+              "SEP token save error:",
+              tokenError.message,
             );
 
-          return jsonResponse(
-            {
-              success: false,
-              error:
-                "Failed to save payment authority",
-            },
-            500,
-          );
+            await supabaseAdmin
+              .from(
+                "payments",
+              )
+              .update({
+                status:
+                  "failed",
+                gateway_message:
+                  "Failed to save SEP token",
+              })
+              .eq(
+                "id",
+                payment.id,
+              );
+
+            await supabaseAdmin
+              .from(
+                "orders",
+              )
+              .update({
+                payment_status:
+                  "failed",
+                status:
+                  "canceled",
+              })
+              .eq(
+                "id",
+                order.id,
+              );
+
+            return jsonResponse(
+              {
+                success:
+                  false,
+                error:
+                  "Failed to save SEP payment token",
+              },
+              500,
+            );
+          }
+
+          return jsonResponse({
+            success:
+              true,
+            order_id:
+              order.id,
+            payment_id:
+              payment.id,
+            amount:
+              amountInToman,
+            currency:
+              "TOMAN",
+            gateway:
+              "sep",
+            gateway_reference:
+              sepResult.token,
+            authority:
+              sepResult.token,
+            payment_url:
+              sepResult.paymentUrl,
+            sandbox:
+              sepResult.mock,
+          });
         }
 
-        // --------------------------------------------------------
-        // PAYMENT URL
-        // --------------------------------------------------------
+        // ======================================================
+        // UNKNOWN
+        // ======================================================
 
-        const paymentUrl =
-          `${startPayUrl}/${authority}`;
-
-        // --------------------------------------------------------
-        // SUCCESS
-        // --------------------------------------------------------
-
-        return jsonResponse({
-          success: true,
-          order_id:
-            order.id,
-          payment_id:
-            payment.id,
-          amount:
-            amountInToman,
-          currency:
-            "TOMAN",
-          authority,
-          payment_url:
-            paymentUrl,
-          sandbox,
-        });
+        return jsonResponse(
+          {
+            success:
+              false,
+            error:
+              "Unsupported payment gateway",
+          },
+          400,
+        );
       } catch (error) {
         console.error(
           "create-checkout error:",
@@ -1083,9 +1716,12 @@ Deno.serve(
 
         return jsonResponse(
           {
-            success: false,
+            success:
+              false,
             error:
-              "Internal server error",
+              error instanceof Error
+                ? error.message
+                : "Internal server error",
           },
           500,
         );

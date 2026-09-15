@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/features/order_feature/domain/entities/order_item_entity.dart';
@@ -54,6 +55,19 @@ class OrderRemoteDataSource {
     required String paymentMethod,
     required String gateway,
   }) async {
+    debugPrint(
+      'CREATE CHECKOUT GATEWAY: $gateway',
+    );
+
+    debugPrint(
+      'CREATE CHECKOUT BODY: ${{
+        'address_id': addressId,
+        'shipping_method_id': shippingMethodId,
+        'payment_method': paymentMethod,
+        'gateway': gateway,
+      }}',
+    );
+
     final response = await _supabase.functions.invoke(
       'create-checkout',
       body: {
@@ -62,6 +76,10 @@ class OrderRemoteDataSource {
         'payment_method': paymentMethod,
         'gateway': gateway,
       },
+    );
+
+    debugPrint(
+      'CREATE CHECKOUT RESPONSE: ${response.data}',
     );
 
     if (response.data == null) {
@@ -78,7 +96,8 @@ class OrderRemoteDataSource {
       );
     }
 
-    final result = Map<String, dynamic>.from(data);
+    final result =
+    Map<String, dynamic>.from(data);
 
     if (result['success'] != true) {
       throw Exception(

@@ -148,17 +148,22 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   void setGateway(String gateway) {
+    debugPrint('SELECTED GATEWAY: $gateway');
+
     if (gateway != 'zarinpal' &&
         gateway != 'sep') {
       _error =
       'درگاه پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
-
       notifyListeners();
       return;
     }
 
     _selectedGateway = gateway;
     _error = null;
+
+    debugPrint(
+      'CURRENT SELECTED GATEWAY: $_selectedGateway',
+    );
 
     notifyListeners();
   }
