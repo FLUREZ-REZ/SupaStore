@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/order_feature/presentation/providers/checkout_provider.dart';
 
@@ -12,11 +13,13 @@ class PaymentResultPage extends StatefulWidget {
     required this.orderId,
     this.status,
     this.refId,
+    this.gateway,
   });
 
   final String orderId;
   final String? status;
   final String? refId;
+  final String? gateway;
 
   @override
   State<PaymentResultPage> createState() =>
@@ -25,54 +28,101 @@ class PaymentResultPage extends StatefulWidget {
 
 class _PaymentResultPageState
     extends State<PaymentResultPage> {
-  final SupabaseClient _supabase =
-      Supabase.instance.client;
-
   bool _isLoading = true;
-  bool _isPaid = false;
   bool _cartCleared = false;
+  bool _isPaid = false;
 
   String? _errorMessage;
-
-  Map<String, dynamic>? _payment;
+  String? _paymentRefId;
+  String? _paymentGateway;
 
   @override
   void initState() {
     super.initState();
 
+    _paymentRefId = widget.refId;
+    _paymentGateway = widget.gateway;
+
     _checkPayment();
   }
 
+  // ============================================================
+  // Check Payment
+  // ============================================================
+
   Future<void> _checkPayment() async {
-    if (!mounted) {
+    final user =
+        Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+        _errorMessage =
+        'کاربر وارد حساب کاربری نشده است.';
+      });
+
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final selectedGateway =
+    widget.gateway?.trim().isNotEmpty == true
+        ? widget.gateway!.trim()
+        : 'zarinpal';
 
     try {
-      final user =
-          _supabase.auth.currentUser;
+      debugPrint(
+        '========== PAYMENT RESULT =========',
+      );
 
-      if (user == null) {
-        throw Exception(
-          'کاربر وارد حساب کاربری نشده است.',
-        );
-      }
+      debugPrint(
+        'ORDER ID: ${widget.orderId}',
+      );
+
+      debugPrint(
+        'GATEWAY: $selectedGateway',
+      );
+
+      debugPrint(
+        'CALLBACK STATUS: ${widget.status}',
+      );
+
+      debugPrint(
+        'CALLBACK REF ID: ${widget.refId}',
+      );
+
+      debugPrint(
+        '====================================',
+      );
 
       Map<String, dynamic>? payment;
 
-      for (int attempt = 0;
-      attempt < 5;
-      attempt++) {
-        final response =
-        await _supabase
+      // ----------------------------------------------------------
+      // Sometimes callback reaches the app slightly before
+      // the Edge Function finishes updating the payment.
+      // ----------------------------------------------------------
+
+      for (int attempt = 0; attempt < 5; attempt++) {
+        payment = await Supabase.instance.client
             .from('payments')
             .select(
-          'id, order_id, amount, gateway, status, authority, ref_id, paid_at',
+          '''
+              id,
+              order_id,
+              user_id,
+              amount,
+              gateway,
+              status,
+              authority,
+              ref_id,
+              gateway_message,
+              created_at,
+              updated_at,
+              paid_at
+              ''',
         )
             .eq(
           'order_id',
@@ -84,103 +134,157 @@ class _PaymentResultPageState
         )
             .eq(
           'gateway',
-          'zarinpal',
+          selectedGateway,
         )
+            .order(
+          'created_at',
+          ascending: false,
+        )
+            .limit(1)
             .maybeSingle();
 
-        payment = response;
+        if (payment != null) {
+          final paymentStatus =
+          payment['status']?.toString();
 
-        debugPrint(
-          'Payment Result Attempt: ${attempt + 1}',
-        );
+          debugPrint(
+            'Payment attempt ${attempt + 1}: '
+                'status=$paymentStatus',
+          );
 
-        debugPrint(
-          'Payment: $payment',
-        );
-
-        if (payment != null &&
-            payment['status']
-                ?.toString()
-                .toLowerCase() ==
-                'paid') {
-          break;
+          if (paymentStatus == 'paid' ||
+              paymentStatus == 'failed' ||
+              paymentStatus == 'canceled') {
+            break;
+          }
         }
 
         if (attempt < 4) {
           await Future.delayed(
-            const Duration(
-              seconds: 1,
-            ),
+            const Duration(seconds: 1),
           );
         }
       }
 
-      if (!mounted) {
-        return;
-      }
+      // ----------------------------------------------------------
+      // Payment not found
+      // ----------------------------------------------------------
 
       if (payment == null) {
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           _isLoading = false;
-          _isPaid = false;
           _errorMessage =
-          'اطلاعات پرداخت پیدا نشد.';
+          'اطلاعات پرداخت سفارش پیدا نشد.';
         });
 
         return;
       }
 
       final paymentStatus =
-      payment['status']
-          ?.toString()
-          .toLowerCase();
+      payment['status']?.toString();
 
-      if (paymentStatus != 'paid') {
+      final databaseGateway =
+      payment['gateway']?.toString();
+
+      final databaseRefId =
+      payment['ref_id']?.toString();
+
+      if (databaseGateway != null &&
+          databaseGateway.isNotEmpty) {
+        _paymentGateway =
+            databaseGateway;
+      } else {
+        _paymentGateway =
+            selectedGateway;
+      }
+
+      if (databaseRefId != null &&
+          databaseRefId.isNotEmpty) {
+        _paymentRefId =
+            databaseRefId;
+      }
+
+      // ----------------------------------------------------------
+      // Paid
+      // ----------------------------------------------------------
+
+      if (paymentStatus == 'paid') {
+        _isPaid = true;
+
+        await _clearCart(user.id);
+
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           _isLoading = false;
-          _isPaid = false;
-          _payment = payment;
-          _errorMessage =
-          'پرداخت تأیید نشده است.';
+          _isPaid = true;
         });
 
         return;
       }
 
-      /*
-       * پرداخت واقعاً در دیتابیس paid شده است.
-       *
-       * در این مرحله سبد خرید را پاک می‌کنیم.
-       */
-      final checkoutProvider =
-      getIt<CheckoutProvider>();
+      // ----------------------------------------------------------
+      // Failed
+      // ----------------------------------------------------------
 
-      final cartCleared =
-      await checkoutProvider.confirmPayment(
-        orderId: widget.orderId,
-        userId: user.id,
-      );
+      if (paymentStatus == 'failed') {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _isLoading = false;
+          _isPaid = false;
+          _errorMessage =
+              payment?['gateway_message']?.toString() ??
+                  'پرداخت ناموفق بود.';
+        });
+
+        return;
+      }
+
+      // ----------------------------------------------------------
+      // Canceled
+      // ----------------------------------------------------------
+
+      if (paymentStatus == 'canceled') {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _isLoading = false;
+          _isPaid = false;
+          _errorMessage =
+          'پرداخت توسط کاربر لغو شد.';
+        });
+
+        return;
+      }
+
+      // ----------------------------------------------------------
+      // Pending / Unknown
+      // ----------------------------------------------------------
 
       if (!mounted) {
         return;
       }
 
-      /*
-       * confirmPayment در صورت موفقیت پاک‌سازی
-       * سبد خرید را انجام می‌دهد.
-       *
-       * حتی اگر پاک‌سازی Cart با خطا مواجه شود،
-       * پرداخت همچنان موفق است.
-       */
       setState(() {
         _isLoading = false;
-        _isPaid = true;
-        _payment = payment;
-        _cartCleared = cartCleared;
+        _isPaid = false;
+        _errorMessage =
+        'وضعیت پرداخت هنوز نهایی نشده است.';
       });
     } catch (error) {
       debugPrint(
-        'PaymentResultPage Error: $error',
+        'Payment result error: $error',
       );
 
       if (!mounted) {
@@ -191,199 +295,450 @@ class _PaymentResultPageState
         _isLoading = false;
         _isPaid = false;
         _errorMessage =
-        'بررسی وضعیت پرداخت با خطا مواجه شد.';
+        'بررسی وضعیت پرداخت انجام نشد.';
       });
     }
   }
 
-  @override
-  Widget build(
-      BuildContext context,
-      ) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'نتیجه پرداخت',
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(24.w),
-            child: _buildBody(),
-          ),
-        ),
-      ),
-    );
-  }
+  // ============================================================
+  // Clear Cart
+  // ============================================================
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 24),
-          Text(
-            'در حال بررسی وضعیت پرداخت...',
-          ),
-        ],
+  Future<void> _clearCart(
+      String userId,
+      ) async {
+    try {
+      final checkoutProvider =
+      getIt<CheckoutProvider>();
+
+      final cleared =
+      await checkoutProvider.confirmPayment(
+        orderId: widget.orderId,
+        userId: userId,
+      );
+
+      _cartCleared = cleared;
+
+      debugPrint(
+        'PaymentResultPage cart cleared: $cleared',
+      );
+    } catch (error) {
+      _cartCleared = false;
+
+      debugPrint(
+        'PaymentResultPage cart clear error: $error',
       );
     }
+  }
 
-    if (_isPaid) {
-      return _buildSuccess();
+  // ============================================================
+  // Gateway Title
+  // ============================================================
+
+  String _gatewayTitle() {
+    switch (_paymentGateway) {
+      case 'sep':
+        return 'سامان (SEP)';
+
+      case 'zarinpal':
+        return 'زرین‌پال';
+
+      default:
+        return 'درگاه پرداخت';
+    }
+  }
+
+  // ============================================================
+  // Retry
+  // ============================================================
+
+  Future<void> _retry() async {
+    if (_isLoading) {
+      return;
     }
 
-    return _buildFailed();
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _isPaid = false;
+    });
+
+    await _checkPayment();
   }
+
+  // ============================================================
+  // Close
+  // ============================================================
+
+  void _goHome() {
+    if (!mounted) {
+      return;
+    }
+
+    context.go('/home');
+  }
+
+  // ============================================================
+  // Build
+  // ============================================================
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'نتیجه پرداخت',
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: _isLoading
+            ? _buildLoading()
+            : _isPaid
+            ? _buildSuccess()
+            : _buildFailure(),
+      ),
+    );
+  }
+
+  // ============================================================
+  // Loading
+  // ============================================================
+
+  Widget _buildLoading() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 48.w,
+              height: 48.w,
+              child:
+              const CircularProgressIndicator(),
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              'در حال بررسی وضعیت پرداخت...',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              _gatewayTitle(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // Success
+  // ============================================================
 
   Widget _buildSuccess() {
-    final refId =
-        _payment?['ref_id']
-            ?.toString() ??
-            widget.refId ??
-            'ثبت شده';
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20.w),
+      child: Column(
+        children: [
+          SizedBox(height: 30.h),
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.check_circle_rounded,
-          size: 90.sp,
-          color: Colors.green,
-        ),
-        SizedBox(height: 24.h),
-        Text(
-          'پرداخت موفق بود',
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
+          Container(
+            width: 84.w,
+            height: 84.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.green.withOpacity(0.12),
+            ),
+            child: Icon(
+              Icons.check_circle_outline,
+              size: 58.sp,
+              color: Colors.green,
+            ),
           ),
-        ),
-        SizedBox(height: 12.h),
-        Text(
-          'پرداخت سفارش شما با موفقیت تأیید شد.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 15.sp,
-          ),
-        ),
-        SizedBox(height: 24.h),
-        _infoRow(
-          title: 'شماره سفارش',
-          value: widget.orderId,
-        ),
-        SizedBox(height: 8.h),
-        _infoRow(
-          title: 'شماره پیگیری',
-          value: refId,
-        ),
-        SizedBox(height: 16.h),
 
-        /*
-         * فقط برای دیباگ:
-         * اگر پرداخت موفق بوده ولی Cart پاک نشده باشد،
-         * این پیام نمایش داده می‌شود.
-         */
-        if (!_cartCleared)
+          SizedBox(height: 22.h),
+
           Text(
-            'پرداخت موفق بود، اما سبد خرید پاک نشد.',
+            'پرداخت با موفقیت انجام شد',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13.sp,
-              color: Colors.orange,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
             ),
           ),
 
-        SizedBox(height: 24.h),
+          SizedBox(height: 10.h),
 
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              context.go('/home');
-            },
-            child: const Text(
-              'بازگشت به فروشگاه',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFailed() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.cancel_rounded,
-          size: 90.sp,
-          color: Colors.red,
-        ),
-        SizedBox(height: 24.h),
-        Text(
-          'پرداخت ناموفق بود',
-          style: TextStyle(
-            fontSize: 24.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 12.h),
-        Text(
-          _errorMessage ??
-              'پرداخت تأیید نشد.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 15.sp,
-          ),
-        ),
-        SizedBox(height: 32.h),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _checkPayment,
-            child: const Text(
-              'بررسی مجدد',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _infoRow({
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Row(
-        children: [
           Text(
-            '$title:',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
+            'سفارش شما با موفقیت ثبت شد.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey.shade600,
             ),
           ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              value,
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.left,
-              overflow: TextOverflow.ellipsis,
+
+          SizedBox(height: 28.h),
+
+          _InfoCard(
+            children: [
+              _InfoRow(
+                title: 'شماره سفارش',
+                value: widget.orderId,
+              ),
+              SizedBox(height: 12.h),
+              _InfoRow(
+                title: 'درگاه پرداخت',
+                value: _gatewayTitle(),
+              ),
+              if (_paymentRefId != null &&
+                  _paymentRefId!.isNotEmpty) ...[
+                SizedBox(height: 12.h),
+                _InfoRow(
+                  title: 'شماره پیگیری',
+                  value: _paymentRefId!,
+                ),
+              ],
+            ],
+          ),
+
+          if (!_cartCleared) ...[
+            SizedBox(height: 14.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                borderRadius:
+                BorderRadius.circular(12.r),
+                color: Colors.orange
+                    .withOpacity(0.08),
+              ),
+              child: Text(
+                'پرداخت موفق بود، اما پاک‌سازی سبد خرید انجام نشد.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.orange.shade800,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+          ],
+
+          SizedBox(height: 30.h),
+
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: ElevatedButton(
+              onPressed: _goHome,
+              child: const Text(
+                'بازگشت به فروشگاه',
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // ============================================================
+  // Failure
+  // ============================================================
+
+  Widget _buildFailure() {
+    final isCanceled =
+    (_errorMessage ?? '')
+        .contains('لغو');
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(20.w),
+      child: Column(
+        children: [
+          SizedBox(height: 30.h),
+
+          Container(
+            width: 84.w,
+            height: 84.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red.withOpacity(0.10),
+            ),
+            child: Icon(
+              isCanceled
+                  ? Icons.cancel_outlined
+                  : Icons.error_outline,
+              size: 58.sp,
+              color: Colors.red,
+            ),
+          ),
+
+          SizedBox(height: 22.h),
+
+          Text(
+            isCanceled
+                ? 'پرداخت لغو شد'
+                : 'پرداخت ناموفق بود',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
+            ),
+          ),
+
+          SizedBox(height: 10.h),
+
+          Text(
+            _errorMessage ??
+                'متأسفانه پرداخت سفارش انجام نشد.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey.shade600,
+            ),
+          ),
+
+          SizedBox(height: 28.h),
+
+          _InfoCard(
+            children: [
+              _InfoRow(
+                title: 'شماره سفارش',
+                value: widget.orderId,
+              ),
+              SizedBox(height: 12.h),
+              _InfoRow(
+                title: 'درگاه پرداخت',
+                value: _gatewayTitle(),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 30.h),
+
+          if (!isCanceled)
+            SizedBox(
+              width: double.infinity,
+              height: 50.h,
+              child: ElevatedButton(
+                onPressed: _retry,
+                child: const Text(
+                  'بررسی مجدد پرداخت',
+                ),
+              ),
+            ),
+
+          SizedBox(height: 10.h),
+
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: OutlinedButton(
+              onPressed: _goHome,
+              child: const Text(
+                'بازگشت به فروشگاه',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// Info Card
+// ============================================================
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    required this.children,
+  });
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+      ),
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+}
+
+// ============================================================
+// Info Row
+// ============================================================
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.title,
+    required this.value,
+  });
+
+  final String title;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ),
+        SizedBox(width: 16.w),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

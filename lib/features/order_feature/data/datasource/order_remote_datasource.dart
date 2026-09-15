@@ -52,42 +52,25 @@ class OrderRemoteDataSource {
     required String addressId,
     required String shippingMethodId,
     required String paymentMethod,
+    required String gateway,
   }) async {
-    if (addressId.trim().isEmpty) {
-      throw Exception(
-        'آدرس ارسال انتخاب نشده است.',
-      );
-    }
-
-    if (shippingMethodId.trim().isEmpty) {
-      throw Exception(
-        'روش ارسال انتخاب نشده است.',
-      );
-    }
-
-    if (paymentMethod != 'online') {
-      throw Exception(
-        'روش پرداخت نامعتبر است.',
-      );
-    }
-
-    final response =
-    await _supabase.functions.invoke(
+    final response = await _supabase.functions.invoke(
       'create-checkout',
       body: {
         'address_id': addressId,
         'shipping_method_id': shippingMethodId,
         'payment_method': paymentMethod,
+        'gateway': gateway,
       },
     );
 
-    final data = response.data;
-
-    if (data == null) {
+    if (response.data == null) {
       throw Exception(
         'پاسخ معتبری از سرور دریافت نشد.',
       );
     }
+
+    final data = response.data;
 
     if (data is! Map) {
       throw Exception(
@@ -95,60 +78,12 @@ class OrderRemoteDataSource {
       );
     }
 
-    final result =
-    Map<String, dynamic>.from(data);
+    final result = Map<String, dynamic>.from(data);
 
-    final success =
-        result['success'] == true;
-
-    if (!success) {
-      final message =
-          result['message'] ??
-              result['error'] ??
-              'ایجاد سفارش ناموفق بود.';
-
+    if (result['success'] != true) {
       throw Exception(
-        message.toString(),
-      );
-    }
-
-    final orderId =
-    result['order_id'];
-
-    final paymentId =
-    result['payment_id'];
-
-    final authority =
-    result['authority'];
-
-    final paymentUrl =
-    result['payment_url'];
-
-    if (orderId is! String ||
-        orderId.isEmpty) {
-      throw Exception(
-        'شناسه سفارش از سرور دریافت نشد.',
-      );
-    }
-
-    if (paymentId is! String ||
-        paymentId.isEmpty) {
-      throw Exception(
-        'شناسه پرداخت از سرور دریافت نشد.',
-      );
-    }
-
-    if (authority is! String ||
-        authority.isEmpty) {
-      throw Exception(
-        'Authority پرداخت از سرور دریافت نشد.',
-      );
-    }
-
-    if (paymentUrl is! String ||
-        paymentUrl.isEmpty) {
-      throw Exception(
-        'آدرس پرداخت از سرور دریافت نشد.',
+        result['error']?.toString() ??
+            'ایجاد پرداخت ناموفق بود.',
       );
     }
 

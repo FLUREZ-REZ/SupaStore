@@ -20,12 +20,13 @@ class OrderRepositoryImpl implements OrderRepository {
     required String addressId,
     required String shippingMethodId,
     required String paymentMethod,
+    required String gateway,
   }) async {
-    final result =
-    await _remoteDataSource.createCheckout(
+    final result = await _remoteDataSource.createCheckout(
       addressId: addressId,
       shippingMethodId: shippingMethodId,
       paymentMethod: paymentMethod,
+      gateway: gateway,
     );
 
     return _mapCheckoutResult(result);
@@ -47,8 +48,7 @@ class OrderRepositoryImpl implements OrderRepository {
     required String paymentMethod,
     required List<OrderItemEntity> items,
   }) async {
-    final result =
-    await _remoteDataSource.checkout(
+    final result = await _remoteDataSource.checkout(
       userId: userId,
       addressId: addressId,
       subtotal: subtotal,
@@ -79,8 +79,7 @@ class OrderRepositoryImpl implements OrderRepository {
     required String paymentMethod,
     required List<OrderItemEntity> items,
   }) async {
-    final result =
-    await _remoteDataSource.createOrder(
+    final result = await _remoteDataSource.createOrder(
       userId: userId,
       addressId: addressId,
       subtotal: subtotal,
@@ -103,14 +102,11 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderEntity>> getOrders(
       String userId,
       ) async {
-    final result =
-    await _remoteDataSource.getOrders(
+    final result = await _remoteDataSource.getOrders(
       userId,
     );
 
-    return result
-        .map(_mapOrder)
-        .toList();
+    return result.map(_mapOrder).toList();
   }
 
   // ============================================================
@@ -121,8 +117,7 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<OrderEntity> getOrderById(
       String orderId,
       ) async {
-    final result =
-    await _remoteDataSource.getOrderById(
+    final result = await _remoteDataSource.getOrderById(
       orderId,
     );
 
@@ -137,14 +132,11 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderEntity>> getUserOrders(
       String userId,
       ) async {
-    final result =
-    await _remoteDataSource.getUserOrders(
+    final result = await _remoteDataSource.getUserOrders(
       userId,
     );
 
-    return result
-        .map(_mapOrder)
-        .toList();
+    return result.map(_mapOrder).toList();
   }
 
   // ============================================================
@@ -154,36 +146,29 @@ class OrderRepositoryImpl implements OrderRepository {
   CheckoutResultEntity _mapCheckoutResult(
       Map<String, dynamic> map,
       ) {
-    final orderId =
-    map['order_id'];
+    final orderId = map['order_id'];
 
-    final paymentId =
-    map['payment_id'];
+    final paymentId = map['payment_id'];
 
-    final amount =
-    map['amount'];
+    final amount = map['amount'];
 
-    final currency =
-    map['currency'];
+    final currency = map['currency'];
 
-    final authority =
-    map['authority'];
+    final gateway = map['gateway'];
 
-    final paymentUrl =
-    map['payment_url'];
+    final gatewayReference = map['gateway_reference'];
 
-    final sandbox =
-    map['sandbox'];
+    final paymentUrl = map['payment_url'];
 
-    if (orderId is! String ||
-        orderId.isEmpty) {
+    final sandbox = map['sandbox'];
+
+    if (orderId is! String || orderId.isEmpty) {
       throw Exception(
         'شناسه سفارش نامعتبر است.',
       );
     }
 
-    if (paymentId is! String ||
-        paymentId.isEmpty) {
+    if (paymentId is! String || paymentId.isEmpty) {
       throw Exception(
         'شناسه پرداخت نامعتبر است.',
       );
@@ -195,22 +180,28 @@ class OrderRepositoryImpl implements OrderRepository {
       );
     }
 
-    if (currency is! String ||
-        currency.isEmpty) {
+    if (currency is! String || currency.isEmpty) {
       throw Exception(
         'واحد پول نامعتبر است.',
       );
     }
 
-    if (authority is! String ||
-        authority.isEmpty) {
+    if (gateway is! String || gateway.isEmpty) {
       throw Exception(
-        'Authority پرداخت نامعتبر است.',
+        'درگاه پرداخت نامعتبر است.',
       );
     }
 
-    if (paymentUrl is! String ||
-        paymentUrl.isEmpty) {
+    if (
+    gatewayReference is! String ||
+        gatewayReference.isEmpty
+    ) {
+      throw Exception(
+        'شناسه تراکنش درگاه نامعتبر است.',
+      );
+    }
+
+    if (paymentUrl is! String || paymentUrl.isEmpty) {
       throw Exception(
         'آدرس درگاه پرداخت نامعتبر است.',
       );
@@ -221,7 +212,8 @@ class OrderRepositoryImpl implements OrderRepository {
       paymentId: paymentId,
       amount: amount.toInt(),
       currency: currency,
-      authority: authority,
+      gateway: gateway,
+      gatewayReference: gatewayReference,
       paymentUrl: paymentUrl,
       sandbox: sandbox == true,
     );
@@ -234,11 +226,9 @@ class OrderRepositoryImpl implements OrderRepository {
   OrderEntity _mapOrder(
       Map<String, dynamic> map,
       ) {
-    final rawItems =
-    map['order_items'];
+    final rawItems = map['order_items'];
 
-    final List<OrderItemEntity> items =
-    rawItems is List
+    final List<OrderItemEntity> items = rawItems is List
         ? rawItems
         .map(
           (item) => _mapOrderItem(
@@ -252,47 +242,22 @@ class OrderRepositoryImpl implements OrderRepository {
 
     return OrderEntity(
       id: map['id'] as String,
-
-      userId:
-      map['user_id'] as String,
-
-      addressId:
-      map['address_id'] as String?,
-
-      subtotal:
-      map['subtotal'] as int,
-
-      discount:
-      map['discount'] as int,
-
-      shippingCost:
-      map['shipping_cost'] as int,
-
-      totalPrice:
-      map['total_price'] as int,
-
-      shippingAddress:
-      map['shipping_address'] as String?,
-
-      paymentMethod:
-      map['payment_method'] as String?,
-
-      paymentStatus:
-      map['payment_status'] as String,
-
-      status:
-      map['status'] as String,
-
-      createdAt:
-      DateTime.parse(
+      userId: map['user_id'] as String,
+      addressId: map['address_id'] as String?,
+      subtotal: map['subtotal'] as int,
+      discount: map['discount'] as int,
+      shippingCost: map['shipping_cost'] as int,
+      totalPrice: map['total_price'] as int,
+      shippingAddress: map['shipping_address'] as String?,
+      paymentMethod: map['payment_method'] as String?,
+      paymentStatus: map['payment_status'] as String,
+      status: map['status'] as String,
+      createdAt: DateTime.parse(
         map['created_at'] as String,
       ),
-
-      updatedAt:
-      DateTime.parse(
+      updatedAt: DateTime.parse(
         map['updated_at'] as String,
       ),
-
       items: items,
     );
   }
@@ -306,56 +271,47 @@ class OrderRepositoryImpl implements OrderRepository {
       ) {
     return OrderItemEntity(
       id: map['id'] as String,
-
-      orderId:
-      map['order_id'] as String,
-
-      productId:
-      map['product_id'] as String,
-
-      productTitle:
-      map['product_title'] as String,
-
-      productThumbnail:
-      map['product_thumbnail'] as String,
-
-      quantity:
-      map['quantity'] as int,
-
-      unitPrice:
-      map['unit_price'] as int,
-
-      discountPrice:
-      map['discount_price'] as int?,
-
-      totalPrice:
-      map['total_price'] as int,
-
-      createdAt:
-      DateTime.parse(
+      orderId: map['order_id'] as String,
+      productId: map['product_id'] as String,
+      productTitle: map['product_title'] as String,
+      productThumbnail: map['product_thumbnail'] as String,
+      quantity: map['quantity'] as int,
+      unitPrice: map['unit_price'] as int,
+      discountPrice: map['discount_price'] as int?,
+      totalPrice: map['total_price'] as int,
+      createdAt: DateTime.parse(
         map['created_at'] as String,
       ),
     );
   }
 
+  // ============================================================
+  // GET ALL ORDERS
+  // ============================================================
+
   @override
   Future<List<OrderEntity>> getAllOrders() async {
-    final result = await _remoteDataSource.getAllOrders();
+    final result =
+    await _remoteDataSource.getAllOrders();
 
     return result.map(_mapOrder).toList();
   }
+
+  // ============================================================
+  // UPDATE ORDER STATUS
+  // ============================================================
 
   @override
   Future<OrderEntity> updateOrderStatus({
     required String orderId,
     required String status,
   }) async {
-    final result = await _remoteDataSource.updateOrderStatus(
+    final result =
+    await _remoteDataSource.updateOrderStatus(
       orderId: orderId,
       status: status,
     );
 
     return _mapOrder(result);
   }
-
 }

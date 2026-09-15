@@ -1,15 +1,11 @@
-import 'package:flutter/material.dart';
-
+import 'package:flutter/foundation.dart';
 import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
-
 import 'package:supastore/features/order_feature/domain/entities/checkout_result_entity.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
-
 import 'package:supastore/features/payment_feature/domain/entities/payment_entity.dart';
 import 'package:supastore/features/payment_feature/domain/repositories/payment_repository.dart';
-
 import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
 
 class CheckoutProvider extends ChangeNotifier {
@@ -25,109 +21,97 @@ class CheckoutProvider extends ChangeNotifier {
   final PaymentRepository _paymentRepository;
   final CartProvider _cartProvider;
 
-  List<CartItemEntity> _cartItems = [];
+  // ============================================================
+  // State
+  // ============================================================
 
-  List<CartItemEntity> get cartItems =>
-      List.unmodifiable(_cartItems);
+  List<CartItemEntity> _cartItems = [];
 
   AddressEntity? _selectedAddress;
 
-  AddressEntity? get selectedAddress =>
-      _selectedAddress;
-
-  String? get addressId =>
-      _selectedAddress?.id;
-
-  String? get shippingAddress =>
-      _selectedAddress?.address;
-
   ShippingMethodEntity? _selectedShippingMethod;
+
+  String _paymentMethod = 'online';
+
+  String _selectedGateway = 'zarinpal';
+
+  int _shippingCost = 0;
+
+  bool _isLoading = false;
+
+  String? _error;
+
+  CheckoutResultEntity? _checkoutResult;
+
+  PaymentEntity? _payment;
+
+  bool _isPaymentChecking = false;
+
+  // ============================================================
+  // Getters
+  // ============================================================
+
+  List<CartItemEntity> get cartItems => _cartItems;
+
+  AddressEntity? get selectedAddress => _selectedAddress;
 
   ShippingMethodEntity? get selectedShippingMethod =>
       _selectedShippingMethod;
 
-  String? get shippingMethodId =>
-      _selectedShippingMethod?.id;
+  String get paymentMethod => _paymentMethod;
 
-  String _paymentMethod = 'online';
+  String get selectedGateway => _selectedGateway;
 
-  String get paymentMethod =>
-      _paymentMethod;
+  int get shippingCost => _shippingCost;
 
-  int _shippingCost = 0;
+  bool get isLoading => _isLoading;
 
-  int get shippingCost =>
-      _shippingCost;
+  String? get error => _error;
 
-  bool _isLoading = false;
+  CheckoutResultEntity? get checkoutResult => _checkoutResult;
 
-  bool get isLoading =>
-      _isLoading;
+  PaymentEntity? get payment => _payment;
 
-  String? _error;
+  bool get isPaymentChecking => _isPaymentChecking;
 
-  String? get error =>
-      _error;
-
-  CheckoutResultEntity? _checkoutResult;
-
-  CheckoutResultEntity? get checkoutResult =>
-      _checkoutResult;
-
-  PaymentEntity? _payment;
-
-  PaymentEntity? get payment =>
-      _payment;
-
-  bool _isPaymentChecking = false;
-
-  bool get isPaymentChecking =>
-      _isPaymentChecking;
-
-  int get totalItems {
-    return _cartItems.fold(
-      0,
-          (sum, item) {
-        return sum + item.quantity;
-      },
-    );
-  }
+  // ============================================================
+  // Price Getters
+  // ============================================================
 
   int get subtotal {
-    return _cartItems.fold(
-      0,
-          (sum, item) {
-        return sum +
-            (item.product.price * item.quantity);
-      },
-    );
+    int result = 0;
+
+    for (final item in _cartItems) {
+      result += item.product.price * item.quantity;
+    }
+
+    return result;
   }
 
   int get totalDiscount {
-    return _cartItems.fold(
-      0,
-          (sum, item) {
-        final product = item.product;
+    int result = 0;
 
-        if (product.discountPrice == null) {
-          return sum;
-        }
+    for (final item in _cartItems) {
+      final product = item.product;
 
-        final discount =
-            product.price -
-                product.discountPrice!;
+      final difference =
+          product.price - product.finalPrice;
 
-        return sum +
-            (discount * item.quantity);
-      },
-    );
+      if (difference > 0) {
+        result += difference * item.quantity;
+      }
+    }
+
+    return result;
   }
 
   int get totalPrice {
-    return subtotal -
-        totalDiscount +
-        shippingCost;
+    return subtotal - totalDiscount + _shippingCost;
   }
+
+  // ============================================================
+  // Can Submit
+  // ============================================================
 
   bool get canSubmit {
     return _cartItems.isNotEmpty &&
@@ -136,101 +120,133 @@ class CheckoutProvider extends ChangeNotifier {
         _selectedShippingMethod != null &&
         _selectedShippingMethod!.id.isNotEmpty &&
         _paymentMethod == 'online' &&
+        (_selectedGateway == 'zarinpal' ||
+            _selectedGateway == 'sep') &&
         !_isLoading;
   }
 
+  // ============================================================
+  // Initialize
+  // ============================================================
+
   void initialize({
     required List<CartItemEntity> items,
-    AddressEntity? selectedAddress,
   }) {
-    _cartItems =
-    List<CartItemEntity>.from(items);
-
-    _selectedAddress =
-        selectedAddress;
-
-    _selectedShippingMethod = null;
-
-    _paymentMethod = 'online';
-
-    _shippingCost = 0;
+    _cartItems = List<CartItemEntity>.from(items);
 
     _error = null;
-
     _checkoutResult = null;
-
     _payment = null;
-
     _isLoading = false;
-
     _isPaymentChecking = false;
 
     notifyListeners();
   }
 
-  void setAddress(
-      AddressEntity address,
-      ) {
-    _selectedAddress = address;
+  // ============================================================
+  // Gateway
+  // ============================================================
 
+  void setGateway(String gateway) {
+    if (gateway != 'zarinpal' &&
+        gateway != 'sep') {
+      _error =
+      'درگاه پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
+
+      notifyListeners();
+      return;
+    }
+
+    _selectedGateway = gateway;
     _error = null;
 
     notifyListeners();
   }
 
-  void clearAddress() {
-    _selectedAddress = null;
+  // ============================================================
+  // Payment Method
+  // ============================================================
 
-    _error = null;
-
-    notifyListeners();
-  }
-
-  void setShippingMethod(
-      ShippingMethodEntity method,
-      ) {
-    _selectedShippingMethod = method;
-
-    _shippingCost = method.cost;
-
-    _error = null;
-
-    notifyListeners();
-  }
-
-  void clearShippingMethod() {
-    _selectedShippingMethod = null;
-
-    _shippingCost = 0;
-
-    _error = null;
-
-    notifyListeners();
-  }
-
-  void setPaymentMethod(
-      String method,
-      ) {
+  void setPaymentMethod(String method) {
     if (method != 'online') {
       _error =
       'روش پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
 
       notifyListeners();
-
       return;
     }
 
     _paymentMethod = method;
+    _error = null;
+
+    notifyListeners();
+  }
+
+  // ============================================================
+  // Cart Items
+  // ============================================================
+
+  void setCartItems(
+      List<CartItemEntity> items,
+      ) {
+    _cartItems =
+    List<CartItemEntity>.from(items);
+
+    notifyListeners();
+  }
+
+  // ============================================================
+  // Address
+  // ============================================================
+
+  void setSelectedAddress(
+      AddressEntity? address,
+      ) {
+    _selectedAddress = address;
+    _error = null;
+
+    notifyListeners();
+  }
+
+  // ============================================================
+  // Shipping Method
+  // ============================================================
+
+  void setSelectedShippingMethod(
+      ShippingMethodEntity? shippingMethod,
+      ) {
+    _selectedShippingMethod =
+        shippingMethod;
+
+    if (shippingMethod != null) {
+      _shippingCost = shippingMethod.cost;
+    } else {
+      _shippingCost = 0;
+    }
 
     _error = null;
 
     notifyListeners();
   }
 
+  // ============================================================
+  // Shipping Cost
+  // ============================================================
+
+  void setShippingCost(int cost) {
+    _shippingCost = cost;
+
+    notifyListeners();
+  }
+
+  // ============================================================
+  // SECURE CHECKOUT
+  // ============================================================
+
   Future<CheckoutResultEntity?> createCheckout() async {
     if (!canSubmit) {
       _error =
-      'لطفاً آدرس و روش ارسال را انتخاب کنید.';
+      'لطفاً آدرس، روش ارسال و درگاه پرداخت را انتخاب کنید.';
 
       notifyListeners();
 
@@ -238,9 +254,7 @@ class CheckoutProvider extends ChangeNotifier {
     }
 
     _isLoading = true;
-
     _error = null;
-
     _checkoutResult = null;
 
     notifyListeners();
@@ -252,10 +266,10 @@ class CheckoutProvider extends ChangeNotifier {
         shippingMethodId:
         _selectedShippingMethod!.id,
         paymentMethod: _paymentMethod,
+        gateway: _selectedGateway,
       );
 
       _checkoutResult = result;
-
       _isLoading = false;
 
       notifyListeners();
@@ -263,7 +277,6 @@ class CheckoutProvider extends ChangeNotifier {
       return result;
     } catch (e) {
       _error = _cleanError(e);
-
       _isLoading = false;
 
       notifyListeners();
@@ -272,12 +285,15 @@ class CheckoutProvider extends ChangeNotifier {
     }
   }
 
+  // ============================================================
+  // PAYMENT STATUS
+  // ============================================================
+
   Future<PaymentEntity?> checkPaymentStatus({
     required String orderId,
   }) async {
     if (orderId.trim().isEmpty) {
-      _error =
-      'شناسه سفارش نامعتبر است.';
+      _error = 'شناسه سفارش نامعتبر است.';
 
       notifyListeners();
 
@@ -289,7 +305,6 @@ class CheckoutProvider extends ChangeNotifier {
     }
 
     _isPaymentChecking = true;
-
     _error = null;
 
     notifyListeners();
@@ -301,7 +316,6 @@ class CheckoutProvider extends ChangeNotifier {
       );
 
       _payment = payment;
-
       _isPaymentChecking = false;
 
       notifyListeners();
@@ -309,7 +323,6 @@ class CheckoutProvider extends ChangeNotifier {
       return payment;
     } catch (e) {
       _error = _cleanError(e);
-
       _isPaymentChecking = false;
 
       notifyListeners();
@@ -317,6 +330,10 @@ class CheckoutProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  // ============================================================
+  // CONFIRM PAYMENT
+  // ============================================================
 
   Future<bool> confirmPayment({
     required String orderId,
@@ -355,6 +372,10 @@ class CheckoutProvider extends ChangeNotifier {
     }
   }
 
+  // ============================================================
+  // REFRESH PAYMENT
+  // ============================================================
+
   Future<PaymentEntity?> refreshPaymentStatus() async {
     final orderId =
         _checkoutResult?.orderId;
@@ -369,54 +390,29 @@ class CheckoutProvider extends ChangeNotifier {
     );
   }
 
-  void clearError() {
-    _error = null;
+  // ============================================================
+  // CLEAR
+  // ============================================================
 
-    notifyListeners();
-  }
-
-  void reset() {
-    _cartItems = [];
-
-    _selectedAddress = null;
-
-    _selectedShippingMethod = null;
-
-    _paymentMethod = 'online';
-
-    _shippingCost = 0;
-
-    _isLoading = false;
-
-    _isPaymentChecking = false;
-
-    _error = null;
-
+  void clearCheckoutResult() {
     _checkoutResult = null;
-
     _payment = null;
+    _error = null;
 
     notifyListeners();
   }
+
+  // ============================================================
+  // ERROR
+  // ============================================================
 
   String _cleanError(Object error) {
     final message = error.toString();
 
     if (message.startsWith('Exception: ')) {
-      return message.substring(
-        'Exception: '.length,
-      );
+      return message.substring(11);
     }
 
     return message;
-  }
-
-  @override
-  void dispose() {
-    debugPrint(
-      '!!!!!!!!!! CHECKOUT PROVIDER DISPOSE !!!!!!!!!!',
-    );
-
-    super.dispose();
   }
 }
