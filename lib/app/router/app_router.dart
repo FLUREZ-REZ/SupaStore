@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/features/admin_feature/presentation/pages/admin_main_page.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/widgets/general_settings_shell.dart';
 
 import 'package:supastore/features/auth_feature/presentation/pages/admin_page.dart';
 import 'package:supastore/features/auth_feature/presentation/pages/auth_page.dart';
@@ -36,7 +37,6 @@ import 'package:supastore/features/payment_feature/presentation/pages/payment_re
 
 import '../../features/splash_feature/presentation/pages/splash_page.dart';
 import '../../features/intro_feature/presentation/pages/intro_page.dart';
-
 
 class AppRouter {
   AppRouter._();
@@ -92,26 +92,6 @@ class AppRouter {
       ),
 
       // ==========================================================
-      // Home
-      // ==========================================================
-
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (
-            context,
-            state,
-            ) {
-          return ChangeNotifierProvider<
-              ProfileProvider>(
-            create: (_) =>
-                getIt<ProfileProvider>(),
-            child: const MainPage(),
-          );
-        },
-      ),
-
-      // ==========================================================
       // OTP
       // ==========================================================
 
@@ -125,10 +105,8 @@ class AppRouter {
           final phone =
           state.extra as String;
 
-          return ChangeNotifierProvider<
-              OtpProvider>(
-            create: (_) =>
-                OtpProvider(),
+          return ChangeNotifierProvider<OtpProvider>(
+            create: (_) => OtpProvider(),
             child: OtpPage(
               phoneNumber: phone,
             ),
@@ -137,168 +115,11 @@ class AppRouter {
       ),
 
       // ==========================================================
-      // Product Details
-      // ==========================================================
-
-      GoRoute(
-        path: '/product-details',
-        name: 'product-details',
-        builder: (
-            context,
-            state,
-            ) {
-          final product =
-          state.extra as ProductEntity;
-
-          return MultiProvider(
-            providers: [
-
-              ChangeNotifierProvider(
-                create: (_) =>
-                getIt<ProductImageProvider>()
-                  ..loadImages(
-                    product.id,
-                  ),
-              ),
-
-              ChangeNotifierProvider(
-                create: (_) =>
-                getIt<
-                    ProductSpecificationProvider>()
-                  ..loadSpecifications(
-                    product.id,
-                  ),
-              ),
-
-              ChangeNotifierProvider.value(
-                value: getIt<CartProvider>(),
-              ),
-            ],
-            child: ProductDetailsPage(
-              product: product,
-            ),
-          );
-        },
-      ),
-
-      // ==========================================================
-      // Search
-      // ==========================================================
-
-      GoRoute(
-        path: '/search',
-        name: 'search',
-        builder: (
-            context,
-            state,
-            ) {
-          return const SearchPage();
-        },
-      ),
-
-      // ==========================================================
-      // Category
-      // ==========================================================
-
-      GoRoute(
-        path: '/category',
-        name: 'category',
-        builder: (
-            context,
-            state,
-            ) {
-          final category =
-          state.extra as CategoryEntity;
-
-          return CategoryPage(
-            category: category,
-          );
-        },
-      ),
-
-      // ==========================================================
-      // Edit Profile
-      // ==========================================================
-
-      GoRoute(
-        path: '/edit-profile',
-        name: 'edit-profile',
-        builder: (
-            context,
-            state,
-            ) {
-          return ChangeNotifierProvider<
-              ProfileProvider>(
-            create: (_) =>
-                getIt<ProfileProvider>(),
-            child:
-            const EditProfilePage(),
-          );
-        },
-      ),
-
-      // ==========================================================
-      // Categories
-      // ==========================================================
-
-      GoRoute(
-        path: '/categories',
-        name: 'categories',
-        builder: (
-            context,
-            state,
-            ) {
-          return const CategoryListPage();
-        },
-      ),
-
-      // ==========================================================
-      // Latest Products
-      // ==========================================================
-
-      GoRoute(
-        path: '/latest-products',
-        name: 'latest-products',
-        builder: (
-            context,
-            state,
-            ) {
-          return const LatestProductsPage();
-        },
-      ),
-
-      // ==========================================================
-      // Popular Products
-      // ==========================================================
-
-      GoRoute(
-        path: '/popular-products',
-        name: 'popular-products',
-        builder: (
-            context,
-            state,
-            ) {
-          return const PopularProductsPage();
-        },
-      ),
-
-      // ==========================================================
-      // Flash Sale
-      // ==========================================================
-
-      GoRoute(
-        path: '/flash-sale',
-        name: 'flash-sale',
-        builder: (
-            context,
-            state,
-            ) {
-          return const FlashSalePage();
-        },
-      ),
-
-      // ==========================================================
-      // Admin
+      // ADMIN
+      //
+      // IMPORTANT:
+      // Admin is OUTSIDE ShellRoute.
+      // Therefore maintenance mode does not block admin.
       // ==========================================================
 
       GoRoute(
@@ -314,12 +135,18 @@ class AppRouter {
 
       // ==========================================================
       // PAYMENT RESULT
+      //
+      // Kept outside maintenance shell so payment callbacks
+      // can still reach the result page.
       // ==========================================================
 
       GoRoute(
         path: '/payment-result',
         name: 'payment-result',
-        builder: (context, state) {
+        builder: (
+            context,
+            state,
+            ) {
           final data =
           state.extra as Map<String, dynamic>?;
 
@@ -353,6 +180,205 @@ class AppRouter {
             gateway: gateway,
           );
         },
+      ),
+
+      // ==========================================================
+      // USER APP
+      //
+      // Everything inside this ShellRoute is affected by
+      // maintenance_mode.
+      // ==========================================================
+
+      ShellRoute(
+        builder: (
+            context,
+            state,
+            child,
+            ) {
+          return GeneralSettingsShell(
+            child: child,
+          );
+        },
+        routes: [
+
+          // ======================================================
+          // Home
+          // ======================================================
+
+          GoRoute(
+            path: '/home',
+            name: 'home',
+            builder: (
+                context,
+                state,
+                ) {
+              return ChangeNotifierProvider<ProfileProvider>(
+                create: (_) =>
+                    getIt<ProfileProvider>(),
+                child: const MainPage(),
+              );
+            },
+          ),
+
+          // ======================================================
+          // Product Details
+          // ======================================================
+
+          GoRoute(
+            path: '/product-details',
+            name: 'product-details',
+            builder: (
+                context,
+                state,
+                ) {
+              final product =
+              state.extra as ProductEntity;
+
+              return MultiProvider(
+                providers: [
+
+                  ChangeNotifierProvider(
+                    create: (_) =>
+                    getIt<ProductImageProvider>()
+                      ..loadImages(
+                        product.id,
+                      ),
+                  ),
+
+                  ChangeNotifierProvider(
+                    create: (_) =>
+                    getIt<
+                        ProductSpecificationProvider>()
+                      ..loadSpecifications(
+                        product.id,
+                      ),
+                  ),
+
+                  ChangeNotifierProvider.value(
+                    value: getIt<CartProvider>(),
+                  ),
+                ],
+                child: ProductDetailsPage(
+                  product: product,
+                ),
+              );
+            },
+          ),
+
+          // ======================================================
+          // Search
+          // ======================================================
+
+          GoRoute(
+            path: '/search',
+            name: 'search',
+            builder: (
+                context,
+                state,
+                ) {
+              return const SearchPage();
+            },
+          ),
+
+          // ======================================================
+          // Category
+          // ======================================================
+
+          GoRoute(
+            path: '/category',
+            name: 'category',
+            builder: (
+                context,
+                state,
+                ) {
+              final category =
+              state.extra as CategoryEntity;
+
+              return CategoryPage(
+                category: category,
+              );
+            },
+          ),
+
+          // ======================================================
+          // Edit Profile
+          // ======================================================
+
+          GoRoute(
+            path: '/edit-profile',
+            name: 'edit-profile',
+            builder: (
+                context,
+                state,
+                ) {
+              return ChangeNotifierProvider<ProfileProvider>(
+                create: (_) =>
+                    getIt<ProfileProvider>(),
+                child: const EditProfilePage(),
+              );
+            },
+          ),
+
+          // ======================================================
+          // Categories
+          // ======================================================
+
+          GoRoute(
+            path: '/categories',
+            name: 'categories',
+            builder: (
+                context,
+                state,
+                ) {
+              return const CategoryListPage();
+            },
+          ),
+
+          // ======================================================
+          // Latest Products
+          // ======================================================
+
+          GoRoute(
+            path: '/latest-products',
+            name: 'latest-products',
+            builder: (
+                context,
+                state,
+                ) {
+              return const LatestProductsPage();
+            },
+          ),
+
+          // ======================================================
+          // Popular Products
+          // ======================================================
+
+          GoRoute(
+            path: '/popular-products',
+            name: 'popular-products',
+            builder: (
+                context,
+                state,
+                ) {
+              return const PopularProductsPage();
+            },
+          ),
+
+          // ======================================================
+          // Flash Sale
+          // ======================================================
+
+          GoRoute(
+            path: '/flash-sale',
+            name: 'flash-sale',
+            builder: (
+                context,
+                state,
+                ) {
+              return const FlashSalePage();
+            },
+          ),
+        ],
       ),
     ],
   );

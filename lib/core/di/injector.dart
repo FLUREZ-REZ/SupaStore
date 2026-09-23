@@ -28,6 +28,7 @@ import 'package:supastore/features/admin_feature/admin_general_settings_feature/
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/get_admin_general_settings.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/update_admin_general_settings.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/admin_general_settings_provider.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/general_settings_provider.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/datasources/admin_payment_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/repositories/admin_payment_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/repositories/admin_payment_settings_repository.dart';
@@ -1197,6 +1198,13 @@ Future<void> setupInjector() async {
       getIt<GetAdminGeneralSettings>(),
       updateGeneralSettings:
       getIt<UpdateAdminGeneralSettings>(),
+    ),
+  );
+
+  getIt.registerFactory<GeneralSettingsProvider>(
+        () => GeneralSettingsProvider(
+      getGeneralSettings:
+      getIt<GetAdminGeneralSettings>(),
     ),
   );
 
