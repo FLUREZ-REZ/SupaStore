@@ -11,6 +11,7 @@ import 'package:supastore/core/config/env.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/di/service_locator.dart';
 import 'package:supastore/core/theme/app_theme.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/general_settings_provider.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
@@ -292,6 +293,12 @@ Future<void> main() async {
             return provider;
           },
         ),
+
+        ChangeNotifierProvider(
+          create: (_) => getIt<GeneralSettingsProvider>()
+            ..loadSettings(),
+        ),
+
       ],
       child: const MyApp(),
     ),
