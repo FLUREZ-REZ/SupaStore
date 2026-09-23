@@ -22,6 +22,12 @@ import 'package:supastore/features/admin_feature/Users/data/repositories/admin_u
 import 'package:supastore/features/admin_feature/Users/domain/repositories/admin_user_repository.dart';
 import 'package:supastore/features/admin_feature/Users/domain/usecases/get_admin_users.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/datasources/admin_payment_settings_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/repositories/admin_payment_settings_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/repositories/admin_payment_settings_repository.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/usecases/get_admin_payment_settings.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/usecases/update_admin_payment_settings.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/presentation/providers/admin_payment_settings_provider.dart';
 import 'package:supastore/features/admin_feature/category/data/datasources/admin_category_remote_datasource.dart';
 import 'package:supastore/features/admin_feature/category/data/repositories/admin_category_repository_impl.dart';
 import 'package:supastore/features/admin_feature/category/domain/repositories/admin_category_repository.dart';
@@ -132,6 +138,11 @@ import 'package:supastore/features/order_feature/presentation/providers/order_pr
 import 'package:supastore/features/payment_feature/data/datasources/payment_remote_data_source.dart';
 import 'package:supastore/features/payment_feature/data/repositories/payment_repository_impl.dart';
 import 'package:supastore/features/payment_feature/domain/repositories/payment_repository.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/data/datasource/payment_settings_remote_data_source.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/data/repositories/payment_settings_repository_impl.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/domain/repositories/payment_settings_repository.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/domain/usecases/get_payment_settings.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/presentation/providers/payment_settings_provider.dart';
 
 // ============================================================
 // PRODUCT FEATURE
@@ -440,6 +451,7 @@ Future<void> setupInjector() async {
       repository: getIt<OrderRepository>(),
       paymentRepository: getIt<PaymentRepository>(),
       cartProvider: getIt<CartProvider>(),
+      getPaymentSettings: getIt<GetPaymentSettings>(),
     ),
   );
 
@@ -1088,5 +1100,65 @@ Future<void> setupInjector() async {
       getIt<DeleteAdminShippingMethod>(),
     ),
   );
+
+  //admin_payment_settings :
+
+  getIt.registerLazySingleton<AdminPaymentSettingsRemoteDataSource>(
+        () => AdminPaymentSettingsRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminPaymentSettingsRepository>(
+        () => AdminPaymentSettingsRepositoryImpl(
+      remoteDataSource: getIt<AdminPaymentSettingsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminPaymentSettings>(
+        () => GetAdminPaymentSettings(
+      repository: getIt<AdminPaymentSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminPaymentSettings>(
+        () => UpdateAdminPaymentSettings(
+      repository: getIt<AdminPaymentSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminPaymentSettingsProvider>(
+        () => AdminPaymentSettingsProvider(
+      getPaymentSettings: getIt<GetAdminPaymentSettings>(),
+      updatePaymentSettings: getIt<UpdateAdminPaymentSettings>(),
+    ),
+  );
+
+  //payment_settings :
+
+  getIt.registerLazySingleton<PaymentSettingsRemoteDataSource>(
+        () => PaymentSettingsRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<PaymentSettingsRepository>(
+        () => PaymentSettingsRepositoryImpl(
+      remoteDataSource:
+      getIt<PaymentSettingsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetPaymentSettings>(
+        () => GetPaymentSettings(
+      repository:
+      getIt<PaymentSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<PaymentSettingsProvider>(
+        () => PaymentSettingsProvider(
+      getPaymentSettings:
+      getIt<GetPaymentSettings>(),
+    ),
+  );
+
+
 
 }

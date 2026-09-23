@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/admin_feature/admin_payments_settings_feature/presentation/pages/admin_payment_settings_page.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/pages/admin_store_infopage.dart';
 import 'package:supastore/features/admin_feature/shipping/presentation/pages/admin_shipping_page.dart';
 import 'package:supastore/features/admin_feature/shipping/presentation/providers/admin_shipping_provider.dart';
@@ -125,7 +126,14 @@ class AdminSettingsPage extends StatelessWidget {
                   title: 'تنظیمات پرداخت',
                   subtitle:
                   'درگاه پرداخت، پرداخت آنلاین، پرداخت در محل و حالت تست',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminPaymentSettingsPage(),
+                      ),
+                    );
+                  },
                 ),
               ]),
 

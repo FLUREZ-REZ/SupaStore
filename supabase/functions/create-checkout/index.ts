@@ -252,7 +252,8 @@ async function createSepPayment({
   // ==========================================================
 
   const amountInRial =
-    amountInToman * TOMAN_TO_RIAL;
+    amountInToman *
+    TOMAN_TO_RIAL;
 
   if (
     !Number.isSafeInteger(
@@ -586,6 +587,147 @@ Deno.serve(
           getSupabaseAdmin();
 
         // ======================================================
+        // PAYMENT SETTINGS
+        // ======================================================
+
+        const {
+          data:
+            paymentSettings,
+          error:
+            paymentSettingsError,
+        } =
+          await supabaseAdmin
+            .from(
+              "payment_settings",
+            )
+            .select(
+              `
+              online_payment_enabled,
+              zarinpal_enabled,
+              sep_enabled,
+              default_gateway
+              `,
+            )
+            .eq(
+              "singleton",
+              true,
+            )
+            .maybeSingle();
+
+        if (
+          paymentSettingsError
+        ) {
+          console.error(
+            "Payment settings query error:",
+            paymentSettingsError.message,
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "Failed to load payment settings",
+            },
+            500,
+          );
+        }
+
+        if (
+          !paymentSettings
+        ) {
+          console.error(
+            "Payment settings not found.",
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "Payment settings are not configured",
+            },
+            500,
+          );
+        }
+
+        // ======================================================
+        // ONLINE PAYMENT ENABLED
+        // ======================================================
+
+        if (
+          paymentSettings
+            .online_payment_enabled !==
+          true
+        ) {
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "پرداخت آنلاین در حال حاضر غیرفعال است.",
+            },
+            400,
+          );
+        }
+
+        // ======================================================
+        // SELECTED GATEWAY ENABLED
+        // ======================================================
+
+        if (
+          gateway ===
+            "zarinpal" &&
+          paymentSettings
+            .zarinpal_enabled !==
+            true
+        ) {
+          console.warn(
+            "Blocked disabled payment gateway:",
+            {
+              userId,
+              gateway,
+            },
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "درگاه زرین‌پال در حال حاضر غیرفعال است.",
+            },
+            400,
+          );
+        }
+
+        if (
+          gateway ===
+            "sep" &&
+          paymentSettings
+            .sep_enabled !==
+            true
+        ) {
+          console.warn(
+            "Blocked disabled payment gateway:",
+            {
+              userId,
+              gateway,
+            },
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "درگاه سامان در حال حاضر غیرفعال است.",
+            },
+            400,
+          );
+        }
+
+        // ======================================================
         // GET CART
         // ======================================================
 
@@ -613,7 +755,7 @@ Deno.serve(
                 thumbnail,
                 is_available
               )
-            `,
+              `,
             )
             .eq(
               "user_id",
@@ -1042,8 +1184,8 @@ Deno.serve(
             {
               success:
                 false,
-              error:
-                "Order amount is too large",
+                error:
+                  "Order amount is too large",
             },
             400,
           );
