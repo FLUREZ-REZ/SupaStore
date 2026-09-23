@@ -6,6 +6,8 @@ import 'package:supastore/features/order_feature/domain/entities/checkout_result
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
 import 'package:supastore/features/payment_feature/domain/entities/payment_entity.dart';
 import 'package:supastore/features/payment_feature/domain/repositories/payment_repository.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/domain/entities/payment_settings_entity.dart';
+import 'package:supastore/features/payment_feature/payment_settings_feature/domain/usecases/get_payment_settings.dart';
 import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
 
 class CheckoutProvider extends ChangeNotifier {
@@ -13,13 +15,16 @@ class CheckoutProvider extends ChangeNotifier {
     required OrderRepository repository,
     required PaymentRepository paymentRepository,
     required CartProvider cartProvider,
+    required GetPaymentSettings getPaymentSettings,
   })  : _repository = repository,
         _paymentRepository = paymentRepository,
-        _cartProvider = cartProvider;
+        _cartProvider = cartProvider,
+        _getPaymentSettings = getPaymentSettings;
 
   final OrderRepository _repository;
   final PaymentRepository _paymentRepository;
   final CartProvider _cartProvider;
+  final GetPaymentSettings _getPaymentSettings;
 
   // ============================================================
   // State
@@ -48,6 +53,14 @@ class CheckoutProvider extends ChangeNotifier {
   bool _isPaymentChecking = false;
 
   // ============================================================
+  // Payment Settings State
+  // ============================================================
+
+  PaymentSettingsEntity? _paymentSettings;
+
+  bool _isPaymentSettingsLoading = false;
+
+  // ============================================================
   // Getters
   // ============================================================
 
@@ -73,6 +86,24 @@ class CheckoutProvider extends ChangeNotifier {
   PaymentEntity? get payment => _payment;
 
   bool get isPaymentChecking => _isPaymentChecking;
+
+  PaymentSettingsEntity? get paymentSettings =>
+      _paymentSettings;
+
+  bool get isPaymentSettingsLoading =>
+      _isPaymentSettingsLoading;
+
+  bool get onlinePaymentEnabled =>
+      _paymentSettings?.onlinePaymentEnabled ?? false;
+
+  bool get zarinpalEnabled =>
+      _paymentSettings?.zarinpalEnabled ?? false;
+
+  bool get sepEnabled =>
+      _paymentSettings?.sepEnabled ?? false;
+
+  bool get hasAvailableGateway =>
+      zarinpalEnabled || sepEnabled;
 
   // ============================================================
   // Price Getters
@@ -114,15 +145,22 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   bool get canSubmit {
+    final gatewayIsValid =
+        (_selectedGateway == 'zarinpal' &&
+            zarinpalEnabled) ||
+            (_selectedGateway == 'sep' &&
+                sepEnabled);
+
     return _cartItems.isNotEmpty &&
         _selectedAddress != null &&
         _selectedAddress!.id.isNotEmpty &&
         _selectedShippingMethod != null &&
         _selectedShippingMethod!.id.isNotEmpty &&
         _paymentMethod == 'online' &&
-        (_selectedGateway == 'zarinpal' ||
-            _selectedGateway == 'sep') &&
-        !_isLoading;
+        onlinePaymentEnabled &&
+        gatewayIsValid &&
+        !_isLoading &&
+        !_isPaymentSettingsLoading;
   }
 
   // ============================================================
@@ -132,7 +170,8 @@ class CheckoutProvider extends ChangeNotifier {
   void initialize({
     required List<CartItemEntity> items,
   }) {
-    _cartItems = List<CartItemEntity>.from(items);
+    _cartItems =
+    List<CartItemEntity>.from(items);
 
     _error = null;
     _checkoutResult = null;
@@ -140,7 +179,102 @@ class CheckoutProvider extends ChangeNotifier {
     _isLoading = false;
     _isPaymentChecking = false;
 
+    _loadPaymentSettings();
+
     notifyListeners();
+  }
+
+  // ============================================================
+  // Load Payment Settings
+  // ============================================================
+
+  Future<void> _loadPaymentSettings() async {
+    _isPaymentSettingsLoading = true;
+    _error = null;
+
+    notifyListeners();
+
+    try {
+      final settings =
+      await _getPaymentSettings();
+
+      _paymentSettings = settings;
+
+      _applyPaymentSettings(settings);
+    } catch (e) {
+      _error = _cleanPaymentSettingsError(e);
+    } finally {
+      _isPaymentSettingsLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // Apply Payment Settings
+  // ============================================================
+
+  void _applyPaymentSettings(
+      PaymentSettingsEntity settings,
+      ) {
+    // ----------------------------------------------------------
+    // Online payment disabled
+    // ----------------------------------------------------------
+
+    if (!settings.onlinePaymentEnabled) {
+      _paymentMethod = 'online';
+
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // Current gateway is still enabled
+    // ----------------------------------------------------------
+
+    if (_selectedGateway == 'zarinpal' &&
+        settings.zarinpalEnabled) {
+      return;
+    }
+
+    if (_selectedGateway == 'sep' &&
+        settings.sepEnabled) {
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // Current gateway is disabled
+    // Select default gateway if available
+    // ----------------------------------------------------------
+
+    final defaultGateway =
+        settings.defaultGateway;
+
+    if (defaultGateway == 'zarinpal' &&
+        settings.zarinpalEnabled) {
+      _selectedGateway = 'zarinpal';
+      return;
+    }
+
+    if (defaultGateway == 'sep' &&
+        settings.sepEnabled) {
+      _selectedGateway = 'sep';
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // Default gateway is unavailable
+    // Select any available gateway
+    // ----------------------------------------------------------
+
+    if (settings.zarinpalEnabled) {
+      _selectedGateway = 'zarinpal';
+      return;
+    }
+
+    if (settings.sepEnabled) {
+      _selectedGateway = 'sep';
+      return;
+    }
   }
 
   // ============================================================
@@ -148,15 +282,44 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   void setGateway(String gateway) {
-    debugPrint('SELECTED GATEWAY: $gateway');
+    debugPrint(
+      'SELECTED GATEWAY REQUEST: $gateway',
+    );
 
     if (gateway != 'zarinpal' &&
         gateway != 'sep') {
       _error =
       'درگاه پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
+
       notifyListeners();
       return;
     }
+
+    // ----------------------------------------------------------
+    // Check gateway availability
+    // ----------------------------------------------------------
+
+    if (gateway == 'zarinpal' &&
+        !zarinpalEnabled) {
+      _error =
+      'درگاه زرین‌پال در حال حاضر فعال نیست.';
+
+      notifyListeners();
+      return;
+    }
+
+    if (gateway == 'sep' &&
+        !sepEnabled) {
+      _error =
+      'درگاه سامان (SEP) در حال حاضر فعال نیست.';
+
+      notifyListeners();
+      return;
+    }
+
+    // ----------------------------------------------------------
+    // Set gateway
+    // ----------------------------------------------------------
 
     _selectedGateway = gateway;
     _error = null;
@@ -176,6 +339,22 @@ class CheckoutProvider extends ChangeNotifier {
     if (method != 'online') {
       _error =
       'روش پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
+
+      notifyListeners();
+      return;
+    }
+
+    if (!onlinePaymentEnabled) {
+      _error =
+      'پرداخت آنلاین در حال حاضر فعال نیست.';
+
+      notifyListeners();
+      return;
+    }
+
+    if (!hasAvailableGateway) {
+      _error =
+      'درگاه پرداختی در حال حاضر فعال نیست.';
 
       notifyListeners();
       return;
@@ -419,5 +598,21 @@ class CheckoutProvider extends ChangeNotifier {
     }
 
     return message;
+  }
+
+  String _cleanPaymentSettingsError(
+      Object error,
+      ) {
+    final message = error.toString();
+
+    if (message.contains('PGRST116')) {
+      return 'تنظیمات پرداخت پیدا نشد.';
+    }
+
+    if (message.contains('42501')) {
+      return 'دسترسی به تنظیمات پرداخت امکان‌پذیر نیست.';
+    }
+
+    return 'خطایی در دریافت تنظیمات پرداخت رخ داد.';
   }
 }
