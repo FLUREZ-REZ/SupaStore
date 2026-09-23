@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/pages/admin_general_settings_page.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/presentation/pages/admin_payment_settings_page.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/pages/admin_store_infopage.dart';
 import 'package:supastore/features/admin_feature/shipping/presentation/pages/admin_shipping_page.dart';
@@ -208,7 +209,14 @@ class AdminSettingsPage extends StatelessWidget {
                   title: 'تنظیمات عمومی سیستم',
                   subtitle:
                   'زبان، واحد پول، منطقه زمانی، تاریخ، تعمیرات و اطلاعات نسخه',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminGeneralSettingsPage(),
+                      ),
+                    );
+                  },
                 ),
               ]),
 
