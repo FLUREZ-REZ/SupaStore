@@ -459,6 +459,8 @@ Future<void> setupInjector() async {
       paymentRepository: getIt<PaymentRepository>(),
       cartProvider: getIt<CartProvider>(),
       getPaymentSettings: getIt<GetPaymentSettings>(),
+      getGeneralSettings:
+      getIt<GetAdminGeneralSettings>(),
     ),
   );
 
