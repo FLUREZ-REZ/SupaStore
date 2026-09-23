@@ -134,6 +134,13 @@ class CheckoutProvider extends ChangeNotifier {
       zarinpalEnabled || sepEnabled;
 
   // ============================================================
+  // General Settings Getters
+  // ============================================================
+
+  int get minimumOrderAmount =>
+      _generalSettings?.minimumOrderAmount ?? 0;
+
+  // ============================================================
   // Price Getters
   // ============================================================
 
@@ -164,8 +171,58 @@ class CheckoutProvider extends ChangeNotifier {
     return result;
   }
 
+  int get payableProductAmount {
+    return subtotal - totalDiscount;
+  }
+
   int get totalPrice {
-    return subtotal - totalDiscount + _shippingCost;
+    return payableProductAmount + _shippingCost;
+  }
+
+  // ============================================================
+  // Minimum Order Amount
+  // ============================================================
+
+  bool get minimumOrderAmountReached {
+    if (minimumOrderAmount <= 0) {
+      return true;
+    }
+
+    return payableProductAmount >= minimumOrderAmount;
+  }
+
+  int get remainingMinimumOrderAmount {
+    if (minimumOrderAmount <= 0 ||
+        minimumOrderAmountReached) {
+      return 0;
+    }
+
+    final remaining =
+        minimumOrderAmount - payableProductAmount;
+
+    if (remaining <= 0) {
+      return 0;
+    }
+
+    return remaining;
+  }
+
+  String get minimumOrderMessage {
+    if (minimumOrderAmount <= 0 ||
+        minimumOrderAmountReached) {
+      return '';
+    }
+
+    return 'حداقل مبلغ خرید ${_formatPrice(minimumOrderAmount)} تومان است.';
+  }
+
+  String get minimumOrderRemainingMessage {
+    if (minimumOrderAmount <= 0 ||
+        minimumOrderAmountReached) {
+      return '';
+    }
+
+    return 'برای ادامه خرید ${_formatPrice(remainingMinimumOrderAmount)} تومان دیگر به سبد اضافه کنید.';
   }
 
   // ============================================================
@@ -181,6 +238,7 @@ class CheckoutProvider extends ChangeNotifier {
 
     return shoppingEnabled &&
         _cartItems.isNotEmpty &&
+        minimumOrderAmountReached &&
         _selectedAddress != null &&
         _selectedAddress!.id.isNotEmpty &&
         _selectedShippingMethod != null &&
@@ -231,7 +289,8 @@ class CheckoutProvider extends ChangeNotifier {
 
       _generalSettings = settings;
     } catch (e) {
-      _error = _cleanGeneralSettingsError(e);
+      _error =
+          _cleanGeneralSettingsError(e);
     } finally {
       _isGeneralSettingsLoading = false;
 
@@ -257,7 +316,8 @@ class CheckoutProvider extends ChangeNotifier {
 
       _applyPaymentSettings(settings);
     } catch (e) {
-      _error = _cleanPaymentSettingsError(e);
+      _error =
+          _cleanPaymentSettingsError(e);
     } finally {
       _isPaymentSettingsLoading = false;
 
@@ -474,7 +534,8 @@ class CheckoutProvider extends ChangeNotifier {
         shippingMethod;
 
     if (shippingMethod != null) {
-      _shippingCost = shippingMethod.cost;
+      _shippingCost =
+          shippingMethod.cost;
     } else {
       _shippingCost = 0;
     }
@@ -508,6 +569,15 @@ class CheckoutProvider extends ChangeNotifier {
       return null;
     }
 
+    if (!minimumOrderAmountReached) {
+      _error =
+      'حداقل مبلغ سفارش ${_formatPrice(minimumOrderAmount)} تومان است.';
+
+      notifyListeners();
+
+      return null;
+    }
+
     if (!canSubmit) {
       _error =
       'لطفاً آدرس، روش ارسال و درگاه پرداخت را انتخاب کنید.';
@@ -526,11 +596,14 @@ class CheckoutProvider extends ChangeNotifier {
     try {
       final result =
       await _repository.createCheckout(
-        addressId: _selectedAddress!.id,
+        addressId:
+        _selectedAddress!.id,
         shippingMethodId:
         _selectedShippingMethod!.id,
-        paymentMethod: _paymentMethod,
-        gateway: _selectedGateway,
+        paymentMethod:
+        _paymentMethod,
+        gateway:
+        _selectedGateway,
       );
 
       _checkoutResult = result;
@@ -557,7 +630,8 @@ class CheckoutProvider extends ChangeNotifier {
     required String orderId,
   }) async {
     if (orderId.trim().isEmpty) {
-      _error = 'شناسه سفارش نامعتبر است.';
+      _error =
+      'شناسه سفارش نامعتبر است.';
 
       notifyListeners();
 
@@ -671,9 +745,12 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   String _cleanError(Object error) {
-    final message = error.toString();
+    final message =
+    error.toString();
 
-    if (message.startsWith('Exception: ')) {
+    if (message.startsWith(
+      'Exception: ',
+    )) {
       return message.substring(11);
     }
 
@@ -683,7 +760,8 @@ class CheckoutProvider extends ChangeNotifier {
   String _cleanPaymentSettingsError(
       Object error,
       ) {
-    final message = error.toString();
+    final message =
+    error.toString();
 
     if (message.contains('PGRST116')) {
       return 'تنظیمات پرداخت پیدا نشد.';
@@ -699,7 +777,8 @@ class CheckoutProvider extends ChangeNotifier {
   String _cleanGeneralSettingsError(
       Object error,
       ) {
-    final message = error.toString();
+    final message =
+    error.toString();
 
     if (message.contains('PGRST116')) {
       return 'تنظیمات عمومی سیستم پیدا نشد.';
@@ -715,5 +794,16 @@ class CheckoutProvider extends ChangeNotifier {
     }
 
     return 'خطایی در دریافت تنظیمات عمومی سیستم رخ داد.';
+  }
+
+  // ============================================================
+  // Format Price
+  // ============================================================
+
+  String _formatPrice(int price) {
+    return price.toString().replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+          (match) => ',',
+    );
   }
 }

@@ -604,7 +604,8 @@ Deno.serve(
             )
             .select(
               `
-              shopping_enabled
+              shopping_enabled,
+              minimum_order_amount
               `,
             )
             .eq(
@@ -674,6 +675,35 @@ Deno.serve(
                 "ثبت سفارش در حال حاضر غیرفعال است.",
             },
             400,
+          );
+        }
+
+        // ======================================================
+        // MINIMUM ORDER AMOUNT SETTING
+        // ======================================================
+
+        const minimumOrderAmount =
+          generalSettings
+            .minimum_order_amount;
+
+        if (
+          !isSafeNonNegativeInteger(
+            minimumOrderAmount,
+          )
+        ) {
+          console.error(
+            "Invalid minimum order amount setting:",
+            minimumOrderAmount,
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "Invalid minimum order amount configuration",
+            },
+            500,
           );
         }
 
@@ -1233,12 +1263,72 @@ Deno.serve(
         }
 
         // ======================================================
+        // PAYABLE PRODUCT AMOUNT
+        // ======================================================
+
+        // Minimum order amount is calculated
+        // after product discounts and before shipping.
+
+        const payableProductAmount =
+          subtotal -
+          discount;
+
+        if (
+          !Number.isSafeInteger(
+            payableProductAmount,
+          ) ||
+          payableProductAmount <= 0
+        ) {
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "Invalid product order amount",
+            },
+            400,
+          );
+        }
+
+        // ======================================================
+        // MINIMUM ORDER AMOUNT CHECK
+        // ======================================================
+
+        if (
+          minimumOrderAmount > 0 &&
+          payableProductAmount <
+            minimumOrderAmount
+        ) {
+          console.warn(
+            "Checkout blocked because order amount is below minimum:",
+            {
+              userId,
+              payableProductAmount,
+              minimumOrderAmount,
+            },
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                `حداقل مبلغ سفارش ${minimumOrderAmount} تومان است.`,
+              minimum_order_amount:
+                minimumOrderAmount,
+              current_order_amount:
+                payableProductAmount,
+            },
+            400,
+          );
+        }
+
+        // ======================================================
         // FINAL TOTAL
         // ======================================================
 
         const totalPrice =
-          subtotal -
-          discount +
+          payableProductAmount +
           shippingCost;
 
         if (
@@ -1275,8 +1365,8 @@ Deno.serve(
             {
               success:
                 false,
-                error:
-                  "Order amount is too large",
+              error:
+                "Order amount is too large",
             },
             400,
           );
