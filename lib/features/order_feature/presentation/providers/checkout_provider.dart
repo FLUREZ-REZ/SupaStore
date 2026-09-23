@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
 import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
@@ -10,21 +11,27 @@ import 'package:supastore/features/payment_feature/payment_settings_feature/doma
 import 'package:supastore/features/payment_feature/payment_settings_feature/domain/usecases/get_payment_settings.dart';
 import 'package:supastore/features/shipping_feature/domain/entities/shipping_method_entity.dart';
 
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/entities/admin_general_settings_entity.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/get_admin_general_settings.dart';
+
 class CheckoutProvider extends ChangeNotifier {
   CheckoutProvider({
     required OrderRepository repository,
     required PaymentRepository paymentRepository,
     required CartProvider cartProvider,
     required GetPaymentSettings getPaymentSettings,
+    required GetAdminGeneralSettings getGeneralSettings,
   })  : _repository = repository,
         _paymentRepository = paymentRepository,
         _cartProvider = cartProvider,
-        _getPaymentSettings = getPaymentSettings;
+        _getPaymentSettings = getPaymentSettings,
+        _getGeneralSettings = getGeneralSettings;
 
   final OrderRepository _repository;
   final PaymentRepository _paymentRepository;
   final CartProvider _cartProvider;
   final GetPaymentSettings _getPaymentSettings;
+  final GetAdminGeneralSettings _getGeneralSettings;
 
   // ============================================================
   // State
@@ -61,6 +68,14 @@ class CheckoutProvider extends ChangeNotifier {
   bool _isPaymentSettingsLoading = false;
 
   // ============================================================
+  // General Settings State
+  // ============================================================
+
+  AdminGeneralSettingsEntity? _generalSettings;
+
+  bool _isGeneralSettingsLoading = false;
+
+  // ============================================================
   // Getters
   // ============================================================
 
@@ -86,6 +101,19 @@ class CheckoutProvider extends ChangeNotifier {
   PaymentEntity? get payment => _payment;
 
   bool get isPaymentChecking => _isPaymentChecking;
+
+  bool get isGeneralSettingsLoading =>
+      _isGeneralSettingsLoading;
+
+  AdminGeneralSettingsEntity? get generalSettings =>
+      _generalSettings;
+
+  bool get shoppingEnabled =>
+      _generalSettings?.shoppingEnabled ?? false;
+
+  // ============================================================
+  // Payment Settings Getters
+  // ============================================================
 
   PaymentSettingsEntity? get paymentSettings =>
       _paymentSettings;
@@ -151,7 +179,8 @@ class CheckoutProvider extends ChangeNotifier {
             (_selectedGateway == 'sep' &&
                 sepEnabled);
 
-    return _cartItems.isNotEmpty &&
+    return shoppingEnabled &&
+        _cartItems.isNotEmpty &&
         _selectedAddress != null &&
         _selectedAddress!.id.isNotEmpty &&
         _selectedShippingMethod != null &&
@@ -160,7 +189,8 @@ class CheckoutProvider extends ChangeNotifier {
         onlinePaymentEnabled &&
         gatewayIsValid &&
         !_isLoading &&
-        !_isPaymentSettingsLoading;
+        !_isPaymentSettingsLoading &&
+        !_isGeneralSettingsLoading;
   }
 
   // ============================================================
@@ -180,8 +210,33 @@ class CheckoutProvider extends ChangeNotifier {
     _isPaymentChecking = false;
 
     _loadPaymentSettings();
+    _loadGeneralSettings();
 
     notifyListeners();
+  }
+
+  // ============================================================
+  // Load General Settings
+  // ============================================================
+
+  Future<void> _loadGeneralSettings() async {
+    _isGeneralSettingsLoading = true;
+    _error = null;
+
+    notifyListeners();
+
+    try {
+      final settings =
+      await _getGeneralSettings();
+
+      _generalSettings = settings;
+    } catch (e) {
+      _error = _cleanGeneralSettingsError(e);
+    } finally {
+      _isGeneralSettingsLoading = false;
+
+      notifyListeners();
+    }
   }
 
   // ============================================================
@@ -286,6 +341,14 @@ class CheckoutProvider extends ChangeNotifier {
       'SELECTED GATEWAY REQUEST: $gateway',
     );
 
+    if (!shoppingEnabled) {
+      _error =
+      'ثبت سفارش در حال حاضر غیرفعال است.';
+
+      notifyListeners();
+      return;
+    }
+
     if (gateway != 'zarinpal' &&
         gateway != 'sep') {
       _error =
@@ -336,6 +399,14 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   void setPaymentMethod(String method) {
+    if (!shoppingEnabled) {
+      _error =
+      'ثبت سفارش در حال حاضر غیرفعال است.';
+
+      notifyListeners();
+      return;
+    }
+
     if (method != 'online') {
       _error =
       'روش پرداخت انتخاب‌شده پشتیبانی نمی‌شود.';
@@ -428,6 +499,15 @@ class CheckoutProvider extends ChangeNotifier {
   // ============================================================
 
   Future<CheckoutResultEntity?> createCheckout() async {
+    if (!shoppingEnabled) {
+      _error =
+      'ثبت سفارش در حال حاضر غیرفعال است.';
+
+      notifyListeners();
+
+      return null;
+    }
+
     if (!canSubmit) {
       _error =
       'لطفاً آدرس، روش ارسال و درگاه پرداخت را انتخاب کنید.';
@@ -614,5 +694,26 @@ class CheckoutProvider extends ChangeNotifier {
     }
 
     return 'خطایی در دریافت تنظیمات پرداخت رخ داد.';
+  }
+
+  String _cleanGeneralSettingsError(
+      Object error,
+      ) {
+    final message = error.toString();
+
+    if (message.contains('PGRST116')) {
+      return 'تنظیمات عمومی سیستم پیدا نشد.';
+    }
+
+    if (message.contains('42501')) {
+      return 'دسترسی به تنظیمات عمومی سیستم امکان‌پذیر نیست.';
+    }
+
+    if (message.contains('network') ||
+        message.contains('SocketException')) {
+      return 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.';
+    }
+
+    return 'خطایی در دریافت تنظیمات عمومی سیستم رخ داد.';
   }
 }

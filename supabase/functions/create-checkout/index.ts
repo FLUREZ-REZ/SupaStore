@@ -54,7 +54,9 @@ function isSafeNonNegativeInteger(
 
 function getSupabaseAdmin() {
   const supabaseUrl =
-    Deno.env.get("SUPABASE_URL");
+    Deno.env.get(
+      "SUPABASE_URL",
+    );
 
   if (!supabaseUrl) {
     throw new Error(
@@ -585,6 +587,95 @@ Deno.serve(
 
         const supabaseAdmin =
           getSupabaseAdmin();
+
+        // ======================================================
+        // GENERAL SETTINGS
+        // ======================================================
+
+        const {
+          data:
+            generalSettings,
+          error:
+            generalSettingsError,
+        } =
+          await supabaseAdmin
+            .from(
+              "general_settings",
+            )
+            .select(
+              `
+              shopping_enabled
+              `,
+            )
+            .eq(
+              "singleton",
+              true,
+            )
+            .maybeSingle();
+
+        if (
+          generalSettingsError
+        ) {
+          console.error(
+            "General settings query error:",
+            generalSettingsError.message,
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "Failed to load general settings",
+            },
+            500,
+          );
+        }
+
+        if (
+          !generalSettings
+        ) {
+          console.error(
+            "General settings not found.",
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "General settings are not configured",
+            },
+            500,
+          );
+        }
+
+        // ======================================================
+        // SHOPPING ENABLED
+        // ======================================================
+
+        if (
+          generalSettings
+            .shopping_enabled !==
+          true
+        ) {
+          console.warn(
+            "Checkout blocked because shopping is disabled:",
+            {
+              userId,
+            },
+          );
+
+          return jsonResponse(
+            {
+              success:
+                false,
+              error:
+                "ثبت سفارش در حال حاضر غیرفعال است.",
+            },
+            400,
+          );
+        }
 
         // ======================================================
         // PAYMENT SETTINGS
