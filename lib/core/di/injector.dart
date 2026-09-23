@@ -22,6 +22,12 @@ import 'package:supastore/features/admin_feature/Users/data/repositories/admin_u
 import 'package:supastore/features/admin_feature/Users/domain/repositories/admin_user_repository.dart';
 import 'package:supastore/features/admin_feature/Users/domain/usecases/get_admin_users.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/datasources/admin_general_settings_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/repositories/admin_general_settings_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/repositories/admin_general_settings_repository.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/get_admin_general_settings.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/update_admin_general_settings.dart';
+import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/admin_general_settings_provider.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/datasources/admin_payment_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/repositories/admin_payment_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/repositories/admin_payment_settings_repository.dart';
@@ -1158,7 +1164,41 @@ Future<void> setupInjector() async {
       getIt<GetPaymentSettings>(),
     ),
   );
+//admin_general_settings
 
+  getIt.registerLazySingleton<AdminGeneralSettingsRemoteDataSource>(
+        () => AdminGeneralSettingsRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminGeneralSettingsRepository>(
+        () => AdminGeneralSettingsRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminGeneralSettingsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminGeneralSettings>(
+        () => GetAdminGeneralSettings(
+      repository:
+      getIt<AdminGeneralSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateAdminGeneralSettings>(
+        () => UpdateAdminGeneralSettings(
+      repository:
+      getIt<AdminGeneralSettingsRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminGeneralSettingsProvider>(
+        () => AdminGeneralSettingsProvider(
+      getGeneralSettings:
+      getIt<GetAdminGeneralSettings>(),
+      updateGeneralSettings:
+      getIt<UpdateAdminGeneralSettings>(),
+    ),
+  );
 
 
 }
