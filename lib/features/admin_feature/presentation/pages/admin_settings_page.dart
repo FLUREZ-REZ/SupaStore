@@ -61,35 +61,6 @@ class AdminSettingsPage extends StatelessWidget {
 
               SizedBox(height: 22.h),
 
-              _buildSectionTitle('محصولات'),
-              SizedBox(height: 10.h),
-              _buildSettingsGroup([
-                _buildSettingTile(
-                  icon: Icons.inventory_2_outlined,
-                  iconColor: Colors.deepOrange,
-                  title: 'تنظیمات محصولات',
-                  subtitle:
-                  'نمایش محصولات، موجودی، محصولات ویژه، محصولات جدید و قیمت‌ها',
-                  onTap: () {},
-                ),
-              ]),
-
-              SizedBox(height: 22.h),
-
-              _buildSectionTitle('سفارش‌ها'),
-              SizedBox(height: 10.h),
-              _buildSettingsGroup([
-                _buildSettingTile(
-                  icon: Icons.shopping_bag_outlined,
-                  iconColor: Colors.blue,
-                  title: 'تنظیمات سفارش‌ها',
-                  subtitle:
-                  'ثبت سفارش، حداقل مبلغ، لغو سفارش و وضعیت‌های سفارش',
-                  onTap: () {},
-                ),
-              ]),
-
-              SizedBox(height: 22.h),
 
               _buildSectionTitle('ارسال'),
               SizedBox(height: 10.h),
@@ -135,36 +106,6 @@ class AdminSettingsPage extends StatelessWidget {
                       ),
                     );
                   },
-                ),
-              ]),
-
-              SizedBox(height: 22.h),
-
-              _buildSectionTitle('کاربران'),
-              SizedBox(height: 10.h),
-              _buildSettingsGroup([
-                _buildSettingTile(
-                  icon: Icons.people_outline_rounded,
-                  iconColor: Colors.orange,
-                  title: 'تنظیمات کاربران',
-                  subtitle:
-                  'ثبت‌نام، OTP، تأیید شماره و تنظیمات حساب کاربری',
-                  onTap: () {},
-                ),
-              ]),
-
-              SizedBox(height: 22.h),
-
-              _buildSectionTitle('نظرات'),
-              SizedBox(height: 10.h),
-              _buildSettingsGroup([
-                _buildSettingTile(
-                  icon: Icons.rate_review_outlined,
-                  iconColor: Colors.purple,
-                  title: 'تنظیمات نظرات',
-                  subtitle:
-                  'فعال‌سازی، تأیید دستی، خرید تأییدشده و مدیریت نظرات',
-                  onTap: () {},
                 ),
               ]),
 
