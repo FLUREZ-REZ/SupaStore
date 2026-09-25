@@ -237,17 +237,7 @@ class _AdminGeneralSettingsViewState
                         });
                       },
                     ),
-                    _SwitchTile(
-                      title: 'ثبت‌نام کاربران',
-                      subtitle:
-                      'اجازه ایجاد حساب کاربری جدید.',
-                      value: _registrationEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _registrationEnabled = value;
-                        });
-                      },
-                    ),
+
                     _SwitchTile(
                       title: 'خرید کاربران',
                       subtitle:
@@ -262,89 +252,7 @@ class _AdminGeneralSettingsViewState
                   ],
                 ),
                 SizedBox(height: 16.h),
-                _SectionCard(
-                  title: 'محصولات',
-                  icon:
-                  Icons.inventory_2_outlined,
-                  children: [
-                    _SwitchTile(
-                      title:
-                      'نمایش محصولات ناموجود',
-                      subtitle:
-                      'محصولات غیرفعال همچنان در فروشگاه نمایش داده شوند.',
-                      value:
-                      _showUnavailableProducts,
-                      onChanged: (value) {
-                        setState(() {
-                          _showUnavailableProducts =
-                              value;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 8.h),
-                    _TextField(
-                      controller:
-                      _maxCartQuantityController,
-                      label:
-                      'حداکثر تعداد محصول در سبد',
-                      hint: '20',
-                      icon:
-                      Icons.shopping_cart_outlined,
-                      keyboardType:
-                      TextInputType.number,
-                      validator: (value) {
-                        final number =
-                        int.tryParse(
-                          value?.trim() ?? '',
-                        );
-
-                        if (number == null ||
-                            number <= 0) {
-                          return 'یک عدد بزرگ‌تر از صفر وارد کنید.';
-                        }
-
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                _SectionCard(
-                  title: 'نظرات کاربران',
-                  icon:
-                  Icons.rate_review_outlined,
-                  children: [
-                    _SwitchTile(
-                      title: 'سیستم نظرات',
-                      subtitle:
-                      'امکان ثبت و نمایش نظرات محصولات.',
-                      value: _reviewsEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _reviewsEnabled = value;
-                        });
-                      },
-                    ),
-                    _SwitchTile(
-                      title:
-                      'نظر فقط برای خریداران',
-                      subtitle:
-                      'فقط کاربرانی که محصول را خریداری کرده‌اند بتوانند نظر ثبت کنند.',
-                      value:
-                      _verifiedPurchaseReviewsOnly,
-                      onChanged:
-                      _reviewsEnabled
-                          ? (value) {
-                        setState(() {
-                          _verifiedPurchaseReviewsOnly =
-                              value;
-                        });
-                      }
-                          : null,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
+                
                 _SectionCard(
                   title: 'سفارش‌ها',
                   icon:
