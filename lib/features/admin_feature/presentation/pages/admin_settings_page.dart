@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/pages/admin_general_settings_page.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/presentation/pages/admin_managers_page.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/presentation/pages/admin_payment_settings_page.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/pages/admin_store_infopage.dart';
 import 'package:supastore/features/admin_feature/shipping/presentation/pages/admin_shipping_page.dart';
@@ -130,12 +131,18 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.security_outlined,
+                  icon: Icons.admin_panel_settings_outlined,
                   iconColor: Colors.teal,
                   title: 'مدیران و امنیت',
                   subtitle:
-                  'مدیران، نقش‌ها، سطح دسترسی و لاگ فعالیت‌ها',
-                  onTap: () {},
+                  'مدیران، نقش‌ها، سطح دسترسی و وضعیت دسترسی مدیران',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AdminManagersPage(),
+                      ),
+                    );
+                  },
                 ),
               ]),
 
