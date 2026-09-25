@@ -22,6 +22,11 @@ import 'package:supastore/features/admin_feature/Users/data/repositories/admin_u
 import 'package:supastore/features/admin_feature/Users/domain/repositories/admin_user_repository.dart';
 import 'package:supastore/features/admin_feature/Users/domain/usecases/get_admin_users.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
+import 'package:supastore/features/admin_feature/admin_access_feature/data/datasources/admin_access_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_access_feature/data/repositories/admin_access_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_access_feature/domain/repositories/admin_access_repository.dart';
+import 'package:supastore/features/admin_feature/admin_access_feature/domain/usecases/get_current_user_access.dart';
+import 'package:supastore/features/admin_feature/admin_access_feature/presentation/providers/admin_access_provider.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/datasources/admin_general_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/repositories/admin_general_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/repositories/admin_general_settings_repository.dart';
@@ -29,6 +34,15 @@ import 'package:supastore/features/admin_feature/admin_general_settings_feature/
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/usecases/update_admin_general_settings.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/admin_general_settings_provider.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/general_settings_provider.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/data/datasources/admin_managers_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/data/repositories/admin_managers_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/repositories/admin_managers_repository.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/usecases/find_profile_by_phone.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/usecases/get_admin_managers.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/usecases/remove_manager.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/usecases/update_manager.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/domain/usecases/update_manager_status.dart';
+import 'package:supastore/features/admin_feature/admin_managers_feature/presentation/providers/admin_managers_provider.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/datasources/admin_payment_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/data/repositories/admin_payment_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_payments_settings_feature/domain/repositories/admin_payment_settings_repository.dart';
@@ -79,7 +93,9 @@ import 'package:supastore/features/admin_feature/shipping/domain/usecases/delete
 import 'package:supastore/features/admin_feature/shipping/domain/usecases/get_admin_shipping_methods.dart';
 import 'package:supastore/features/admin_feature/shipping/domain/usecases/update_admin_shipping_method.dart';
 import 'package:supastore/features/admin_feature/shipping/presentation/providers/admin_shipping_provider.dart';
+import 'package:supastore/features/auth_feature/data/repositories/auth_repository_impl.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
+import 'package:supastore/features/auth_feature/domain/usecases/logout.dart';
 
 // ============================================================
 // CART FEATURE
@@ -1207,6 +1223,101 @@ Future<void> setupInjector() async {
         () => GeneralSettingsProvider(
       getGeneralSettings:
       getIt<GetAdminGeneralSettings>(),
+    ),
+  );
+
+  // =============================
+// Admin Managers
+// =============================
+
+  getIt.registerLazySingleton<AdminManagersRemoteDataSource>(
+        () => AdminManagersRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminManagersRepository>(
+        () => AdminManagersRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminManagersRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetAdminManagers>(
+        () => GetAdminManagers(
+      repository: getIt<AdminManagersRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<FindProfileByPhone>(
+        () => FindProfileByPhone(
+      repository: getIt<AdminManagersRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateManager>(
+        () => UpdateManager(
+      repository: getIt<AdminManagersRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<RemoveManager>(
+        () => RemoveManager(
+      repository: getIt<AdminManagersRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UpdateManagerStatus>(
+        () => UpdateManagerStatus(
+      repository: getIt<AdminManagersRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminManagersProvider>(
+        () => AdminManagersProvider(
+      getAdminManagers: getIt<GetAdminManagers>(),
+      findProfileByPhone: getIt<FindProfileByPhone>(),
+      updateManager: getIt<UpdateManager>(),
+      removeManager: getIt<RemoveManager>(),
+      updateManagerStatus: getIt<UpdateManagerStatus>(),
+    ),
+  );
+
+  // =============================
+// Admin Access
+// =============================
+
+  getIt.registerLazySingleton<AdminAccessRemoteDataSource>(
+        () => AdminAccessRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<AdminAccessRepository>(
+        () => AdminAccessRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminAccessRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<GetCurrentUserAccess>(
+        () => GetCurrentUserAccess(
+      repository: getIt<AdminAccessRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminAccessProvider>(
+        () => AdminAccessProvider(
+      getCurrentUserAccess:
+      getIt<GetCurrentUserAccess>(),
+    ),
+  );
+
+  //auth :
+
+  getIt.registerLazySingleton<AuthRepository>(
+        () => AuthRepository(),
+  );
+
+  getIt.registerLazySingleton<SignOut>(
+        () => SignOut(
+      repository: getIt<AuthRepository>(),
     ),
   );
 
