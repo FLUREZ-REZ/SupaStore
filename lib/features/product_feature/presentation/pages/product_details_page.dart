@@ -2,19 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
-
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
-
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
-
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_specification_provider.dart';
 import 'package:supastore/features/product_feature/presentation/providers/related_products_provider.dart';
-
 import 'package:supastore/features/product_feature/presentation/widgets/add_to_cart_bar.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_description_section.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_image_slider.dart';
@@ -22,7 +17,6 @@ import 'package:supastore/features/product_feature/presentation/widgets/product_
 import 'package:supastore/features/product_feature/presentation/widgets/product_specifications_section.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_title_section.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/related_products_section.dart';
-
 import 'package:supastore/features/review_feature/presentation/providers/review_provider.dart';
 import 'package:supastore/features/review_feature/presentation/widgets/reviews_section.dart';
 

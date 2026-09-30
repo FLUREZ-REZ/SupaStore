@@ -18,19 +18,7 @@ class AdminSettingsPage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-        appBar: AppBar(
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            'تنظیمات',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
+
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(

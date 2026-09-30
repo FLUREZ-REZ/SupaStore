@@ -146,7 +146,7 @@ class _AdminProductsPageState
 
       floatingActionButton:
       FloatingActionButton.extended(
-        backgroundColor: const Color(0xFFE21B23),
+        backgroundColor: const Color(0xFF03045e),
         foregroundColor: Colors.white,
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),

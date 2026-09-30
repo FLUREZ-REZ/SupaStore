@@ -171,7 +171,8 @@ class _AdminGeneralSettingsViewState
           style: AppTextStyles.titleMedium,
         ),
         centerTitle: true,
-        backgroundColor: AppColors.background,
+        backgroundColor: Color(0xFF03045e),
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Consumer<AdminGeneralSettingsProvider>(

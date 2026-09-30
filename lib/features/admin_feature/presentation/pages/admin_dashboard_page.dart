@@ -61,10 +61,12 @@ class _AdminDashboardView extends StatelessWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.all(16.w),
             children: [
+              SizedBox(height: 6.h),
               Text(
                 'خلاصه وضعیت فروشگاه',
                 style: TextStyle(
-                  fontSize: 20.sp,
+                  color: Color (0xFF03045e),
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -291,7 +293,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFFcaf0f8),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -303,7 +305,7 @@ class _StatCard extends StatelessWidget {
           Icon(
             icon,
             size: 27.sp,
-            color: const Color(0xFFE21B23),
+            color: const Color(0xFF03045e),
           ),
 
           Text(
@@ -335,6 +337,10 @@ class _StatCard extends StatelessWidget {
 // SALES CHART
 // ============================================================
 
+// ============================================================
+// SALES BAR CHART
+// ============================================================
+
 class _SalesChartCard extends StatelessWidget {
   const _SalesChartCard({
     required this.salesByDay,
@@ -347,16 +353,16 @@ class _SalesChartCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF03045e),
         borderRadius: BorderRadius.circular(18.r),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'فروش ۷ روز اخیر',
             style: TextStyle(
+              color: const Color(0xFFcaf0f8),
               fontSize: 16.sp,
               fontWeight: FontWeight.w800,
             ),
@@ -365,30 +371,45 @@ class _SalesChartCard extends StatelessWidget {
           SizedBox(height: 4.h),
 
           Text(
-            'روند فروش روزانه',
+            'میزان فروش روزانه',
             style: TextStyle(
               fontSize: 11.5.sp,
-              color: Colors.black54,
+              color: const Color(0xFFcaf0f8),
             ),
           ),
 
           SizedBox(height: 24.h),
 
           SizedBox(
-            height: 230.h,
+            height: 250.h,
             child: salesByDay.isEmpty
-                ? const Center(
+                ? Center(
               child: Text(
                 'داده‌ای برای نمایش وجود ندارد.',
+                style: TextStyle(
+                  color: const Color(0xFFcaf0f8),
+                  fontSize: 12.sp,
+                ),
               ),
             )
-                : LineChart(
-              LineChartData(
+                : BarChart(
+              BarChartData(
                 minY: 0,
+
+                alignment: BarChartAlignment.spaceAround,
+
+                maxY: _getMaxY(),
 
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
+                  horizontalInterval: _getInterval(),
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.white.withOpacity(0.12),
+                      strokeWidth: 1,
+                    );
+                  },
                 ),
 
                 borderData: FlBorderData(
@@ -396,38 +417,33 @@ class _SalesChartCard extends StatelessWidget {
                 ),
 
                 titlesData: FlTitlesData(
-                  topTitles:
-                  const AxisTitles(
-                    sideTitles:
-                    SideTitles(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(
                       showTitles: false,
                     ),
                   ),
 
-                  rightTitles:
-                  const AxisTitles(
-                    sideTitles:
-                    SideTitles(
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(
                       showTitles: false,
                     ),
                   ),
 
                   leftTitles: AxisTitles(
-                    sideTitles:
-                    SideTitles(
+                    sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 45.w,
-                      getTitlesWidget:
-                          (
+                      interval: _getInterval(),
+                      getTitlesWidget: (
                           value,
                           meta,
                           ) {
                         return Text(
-                          _compactPrice(value),
+                          _compactPricePersian(value),
                           style: TextStyle(
-                            fontSize: 9.sp,
+                            fontSize: 8.5.sp,
                             color:
-                            Colors.black54,
+                            const Color(0xFFcaf0f8),
                           ),
                         );
                       },
@@ -435,39 +451,33 @@ class _SalesChartCard extends StatelessWidget {
                   ),
 
                   bottomTitles: AxisTitles(
-                    sideTitles:
-                    SideTitles(
+                    sideTitles: SideTitles(
                       showTitles: true,
-                      interval: 1,
-                      getTitlesWidget:
-                          (
+                      reservedSize: 32.h,
+                      getTitlesWidget: (
                           value,
                           meta,
                           ) {
-                        final index =
-                        value.toInt();
+                        final index = value.toInt();
 
                         if (index < 0 ||
-                            index >=
-                                salesByDay.length) {
-                          return const SizedBox
-                              .shrink();
+                            index >= salesByDay.length) {
+                          return const SizedBox.shrink();
                         }
 
                         final date =
                             salesByDay[index].date;
 
                         return Padding(
-                          padding:
-                          EdgeInsets.only(
+                          padding: EdgeInsets.only(
                             top: 8.h,
                           ),
                           child: Text(
-                            '${date.day}/${date.month}',
+                            '${_toPersianDigits(date.day.toString())}/${_toPersianDigits(date.month.toString())}',
                             style: TextStyle(
                               fontSize: 9.sp,
                               color:
-                              Colors.black54,
+                              const Color(0xFFcaf0f8),
                             ),
                           ),
                         );
@@ -476,55 +486,63 @@ class _SalesChartCard extends StatelessWidget {
                   ),
                 ),
 
-                lineTouchData:
-                LineTouchData(
+                barTouchData: BarTouchData(
+                  enabled: true,
                   touchTooltipData:
-                  LineTouchTooltipData(
-                    getTooltipItems:
-                        (
-                        touchedSpots,
+                  BarTouchTooltipData(
+                    getTooltipItem: (
+                        group,
+                        groupIndex,
+                        rod,
+                        rodIndex,
                         ) {
-                      return touchedSpots.map(
-                            (spot) {
-                          return LineTooltipItem(
-                            '${_formatPrice(spot.y.toInt())} تومان',
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight:
-                              FontWeight.w600,
-                            ),
-                          );
-                        },
-                      ).toList();
+                      return BarTooltipItem(
+                        '${_formatPrice(rod.toY.toInt())} تومان',
+                        TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      );
                     },
                   ),
                 ),
 
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: List.generate(
-                      salesByDay.length,
-                          (index) {
-                        return FlSpot(
-                          index.toDouble(),
-                          salesByDay[index]
-                              .sales
-                              .toDouble(),
-                        );
-                      },
-                    ),
-                    isCurved: true,
-                    barWidth: 3,
-                    dotData:
-                    const FlDotData(
-                      show: true,
-                    ),
-                    belowBarData:
-                    BarAreaData(
-                      show: true,
-                    ),
-                  ),
-                ],
+                barGroups: List.generate(
+                  salesByDay.length,
+                      (index) {
+                    final sales =
+                        salesByDay[index].sales;
+
+                    return BarChartGroupData(
+                      x: index,
+                      barsSpace: 0,
+                      barRods: [
+                        BarChartRodData(
+                          toY: sales.toDouble(),
+                          width: 18.w,
+                          borderRadius:
+                          BorderRadius.only(
+                            topLeft:
+                            Radius.circular(5.r),
+                            topRight:
+                            Radius.circular(5.r),
+                          ),
+                          color:
+                          const Color(0xFF00B4D8),
+                          backDrawRodData:
+                          BackgroundBarChartRodData(
+                            show: true,
+                            toY: _getMaxY(),
+                            color:
+                            Colors.white
+                                .withOpacity(0.06),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -532,6 +550,68 @@ class _SalesChartCard extends StatelessWidget {
       ),
     );
   }
+
+  double _getMaxY() {
+    if (salesByDay.isEmpty) {
+      return 100;
+    }
+
+    final maxSales = salesByDay
+        .map((item) => item.sales)
+        .reduce((a, b) => a > b ? a : b);
+
+    if (maxSales == 0) {
+      return 100;
+    }
+
+    return maxSales * 1.2;
+  }
+
+  double _getInterval() {
+    final maxY = _getMaxY();
+
+    if (maxY <= 1000) {
+      return 200;
+    }
+
+    if (maxY <= 10000) {
+      return 2000;
+    }
+
+    if (maxY <= 100000) {
+      return 20000;
+    }
+
+    if (maxY <= 1000000) {
+      return 200000;
+    }
+
+    if (maxY <= 10000000) {
+      return 2000000;
+    }
+
+    return maxY / 5;
+  }
+}
+
+// ============================================================
+// PERSIAN COMPACT PRICE
+// ============================================================
+
+String _compactPricePersian(double value) {
+  if (value >= 1000000000) {
+    return '${_toPersianDigits((value / 1000000000).toStringAsFixed(1))}B';
+  }
+
+  if (value >= 1000000) {
+    return '${_toPersianDigits((value / 1000000).toStringAsFixed(1))}M';
+  }
+
+  if (value >= 1000) {
+    return '${_toPersianDigits((value / 1000).toStringAsFixed(0))}K';
+  }
+
+  return _toPersianDigits(value.toInt().toString());
 }
 
 // ============================================================
@@ -550,7 +630,7 @@ class _ActionOrdersCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF0096c7),
         borderRadius:
         BorderRadius.circular(18.r),
       ),
@@ -565,7 +645,7 @@ class _ActionOrdersCard extends StatelessWidget {
                 height: 38.w,
                 decoration: BoxDecoration(
                   color:
-                  const Color(0xFFFFF1E6),
+                  const Color(0xFFcaf0f8),
                   borderRadius:
                   BorderRadius.circular(
                     11.r,
@@ -575,7 +655,7 @@ class _ActionOrdersCard extends StatelessWidget {
                   Icons.priority_high_rounded,
                   size: 21.sp,
                   color:
-                  const Color(0xFFF57C00),
+                  const Color(0xFF03045e),
                 ),
               ),
 
@@ -589,6 +669,7 @@ class _ActionOrdersCard extends StatelessWidget {
                     Text(
                       'سفارش‌های نیازمند اقدام',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 16.sp,
                         fontWeight:
                         FontWeight.w800,
@@ -600,7 +681,7 @@ class _ActionOrdersCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11.sp,
                         color:
-                        Colors.black54,
+                        Color(0xFF03045e),
                       ),
                     ),
                   ],
@@ -616,7 +697,7 @@ class _ActionOrdersCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color:
-                    const Color(0xFFFFE9EA),
+                    const Color(0xFFade8f4),
                     borderRadius:
                     BorderRadius.circular(
                       8.r,
@@ -632,7 +713,7 @@ class _ActionOrdersCard extends StatelessWidget {
                       FontWeight.w800,
                       color:
                       const Color(
-                        0xFFE21B23,
+                        0xFF03045e,
                       ),
                     ),
                   ),
@@ -684,7 +765,7 @@ class _ActionOrdersCard extends StatelessWidget {
                       BoxDecoration(
                         color:
                         const Color(
-                          0xFFFFF5F5,
+                          0xFFcaf0f8,
                         ),
                         borderRadius:
                         BorderRadius
@@ -698,7 +779,7 @@ class _ActionOrdersCard extends StatelessWidget {
                         size: 21.sp,
                         color:
                         const Color(
-                          0xFFE21B23,
+                          0xFF03045e,
                         ),
                       ),
                     ),
@@ -719,6 +800,7 @@ class _ActionOrdersCard extends StatelessWidget {
                                 .ellipsis,
                             style:
                             TextStyle(
+                              color: Colors.white,
                               fontSize:
                               12.sp,
                               fontWeight:
@@ -732,9 +814,9 @@ class _ActionOrdersCard extends StatelessWidget {
                             style:
                             TextStyle(
                               fontSize:
-                              11.sp,
+                              9.sp,
                               color:
-                              Colors.black54,
+                              Color(0xFF03045e),
                             ),
                           ),
                         ],
@@ -773,9 +855,9 @@ class _ActionOrderStatus
       case 'pending':
         text = 'بررسی';
         color =
-        const Color(0xFFE65100);
+        const Color(0xFF03045e);
         background =
-        const Color(0xFFFFF3E0);
+        const Color(0xFFF2F7A0);
         break;
 
       case 'processing':
@@ -843,7 +925,7 @@ class _LowStockProductsCard
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF023e8a),
         borderRadius:
         BorderRadius.circular(18.r),
       ),
@@ -858,7 +940,7 @@ class _LowStockProductsCard
                 height: 38.w,
                 decoration: BoxDecoration(
                   color:
-                  const Color(0xFFFFF4E5),
+                  const Color(0xFFcaf0f8),
                   borderRadius:
                   BorderRadius.circular(
                     11.r,
@@ -868,7 +950,7 @@ class _LowStockProductsCard
                   Icons.inventory_2_outlined,
                   size: 21.sp,
                   color:
-                  const Color(0xFFF57C00),
+                  const Color(0xFF03045e),
                 ),
               ),
 
@@ -882,18 +964,19 @@ class _LowStockProductsCard
                     Text(
                       'موجودی کم',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 16.sp,
                         fontWeight:
                         FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 3.h),
+                    SizedBox(height: 10.h),
                     Text(
                       'محصولاتی که نیاز به تأمین موجودی دارند',
                       style: TextStyle(
                         fontSize: 11.sp,
                         color:
-                        Colors.black54,
+                        Color(0xFFade8f4),
                       ),
                     ),
                   ],
@@ -909,7 +992,7 @@ class _LowStockProductsCard
                   ),
                   decoration: BoxDecoration(
                     color:
-                    const Color(0xFFFFF1E6),
+                    const Color(0xFFcaf0f8),
                     borderRadius:
                     BorderRadius.circular(
                       8.r,
@@ -925,7 +1008,7 @@ class _LowStockProductsCard
                       FontWeight.w800,
                       color:
                       const Color(
-                        0xFFF57C00,
+                        0xFF03045e,
                       ),
                     ),
                   ),
@@ -977,7 +1060,7 @@ class _LowStockProductsCard
                       BoxDecoration(
                         color:
                         const Color(
-                          0xFFF7F7F7,
+                          0xFFcaf0f8,
                         ),
                         borderRadius:
                         BorderRadius
@@ -1005,11 +1088,11 @@ class _LowStockProductsCard
                             ) {
                           return Icon(
                             Icons
-                                .image_not_supported_outlined,
+                                .image_sharp,
                             size:
                             21.sp,
                             color:
-                            Colors.black38,
+                            Color(0xFF03045e),
                           );
                         },
                       )
@@ -1019,7 +1102,7 @@ class _LowStockProductsCard
                         size:
                         21.sp,
                         color:
-                        Colors.black38,
+                        Colors.black54,
                       ),
                     ),
 
@@ -1033,6 +1116,7 @@ class _LowStockProductsCard
                         TextOverflow
                             .ellipsis,
                         style: TextStyle(
+                          color: Colors.white,
                           fontSize: 12.sp,
                           fontWeight:
                           FontWeight.w600,
@@ -1160,7 +1244,7 @@ class _OrderStatusCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF90e0ef),
         borderRadius:
         BorderRadius.circular(18.r),
       ),
@@ -1171,6 +1255,7 @@ class _OrderStatusCard extends StatelessWidget {
           Text(
             'وضعیت سفارش‌ها',
             style: TextStyle(
+              color: Color (0xFF03045e),
               fontSize: 16.sp,
               fontWeight:
               FontWeight.w800,
@@ -1192,7 +1277,7 @@ class _OrderStatusCard extends StatelessWidget {
                     size: 21.sp,
                     color:
                     const Color(
-                      0xFFE21B23,
+                      0xFF03045e,
                     ),
                   ),
 
@@ -1202,6 +1287,7 @@ class _OrderStatusCard extends StatelessWidget {
                     child: Text(
                       item.title,
                       style: TextStyle(
+                        color: Color(0xFF03045e),
                         fontSize: 12.5.sp,
                       ),
                     ),
@@ -1212,6 +1298,7 @@ class _OrderStatusCard extends StatelessWidget {
                       item.value,
                     ),
                     style: TextStyle(
+                      color: Color(0xFF03045e),
                       fontSize: 13.sp,
                       fontWeight:
                       FontWeight.w800,
@@ -1255,7 +1342,7 @@ class _RecentOrdersCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color (0xFFcaf0f8),
         borderRadius:
         BorderRadius.circular(18.r),
       ),
@@ -1266,6 +1353,7 @@ class _RecentOrdersCard extends StatelessWidget {
           Text(
             'آخرین سفارش‌ها',
             style: TextStyle(
+              color: Color (0xFF03045e),
               fontSize: 16.sp,
               fontWeight:
               FontWeight.w800,
@@ -1303,7 +1391,7 @@ class _RecentOrdersCard extends StatelessWidget {
                         BoxDecoration(
                           color:
                           const Color(
-                            0xFFFFE9EA,
+                            0xFF03045e,
                           ),
                           borderRadius:
                           BorderRadius
@@ -1316,7 +1404,7 @@ class _RecentOrdersCard extends StatelessWidget {
                               .shopping_bag_rounded,
                           color:
                           const Color(
-                            0xFFE21B23,
+                            0xFFcaf0f8,
                           ),
                           size: 22.sp,
                         ),
@@ -1334,6 +1422,7 @@ class _RecentOrdersCard extends StatelessWidget {
                               'سفارش #${_shortOrderId(order.id)}',
                               style:
                               TextStyle(
+                                color: Color (0xFF03045e),
                                 fontSize:
                                 12.sp,
                                 fontWeight:
@@ -1351,9 +1440,9 @@ class _RecentOrdersCard extends StatelessWidget {
                               style:
                               TextStyle(
                                 fontSize:
-                                11.sp,
+                                9.sp,
                                 color:
-                                Colors.black54,
+                                Color(0xFF023e8a),
                               ),
                             ),
                           ],
@@ -1421,7 +1510,7 @@ class _OrderStatusBadge
       ),
       decoration: BoxDecoration(
         color:
-        const Color(0xFFF3F3F3),
+        const Color(0xFF03045e),
         borderRadius:
         BorderRadius.circular(
           8.r,
@@ -1430,6 +1519,7 @@ class _OrderStatusBadge
       child: Text(
         text,
         style: TextStyle(
+          color: Color (0xFFcaf0f8),
           fontSize: 9.5.sp,
           fontWeight:
           FontWeight.w600,

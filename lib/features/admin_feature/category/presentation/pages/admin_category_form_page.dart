@@ -322,7 +322,7 @@ class _AdminCategoryFormPageState
         const Color(0xFFF7F7F8),
         appBar: AppBar(
           backgroundColor:
-          const Color(0xFFE21B23),
+          const Color(0xFF03045e),
           foregroundColor:
           Colors.white,
           centerTitle: true,
@@ -470,6 +470,7 @@ class _AdminCategoryFormPageState
                   _inputDecoration(
                     hint:
                     'مثلاً 1',
+
                   ),
                   validator:
                       (value) {
@@ -506,7 +507,7 @@ class _AdminCategoryFormPageState
                   decoration:
                   BoxDecoration(
                     color:
-                    Colors.white,
+                    Color(0xFF90e0ef),
                     borderRadius:
                     BorderRadius.circular(
                       14.r,
@@ -519,6 +520,7 @@ class _AdminCategoryFormPageState
                       'وضعیت دسته‌بندی',
                       style:
                       TextStyle(
+                        color: Color(0xFF03045e),
                         fontSize:
                         13.sp,
                         fontWeight:
@@ -541,7 +543,7 @@ class _AdminCategoryFormPageState
                     _isActive,
                     activeColor:
                     const Color(
-                      0xFFE21B23,
+                      0xFF03045e,
                     ),
                     onChanged:
                         (value) {

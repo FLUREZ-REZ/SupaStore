@@ -220,7 +220,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             provider.isLoadingMore;
 
     return Material(
-      color: Color(0xFFE21B23),
+      color: Color(0xFF0077b6),
       borderRadius: BorderRadius.circular(12.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(12.r),
@@ -255,7 +255,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         provider.users.isEmpty) {
       return Center(
         child: CircularProgressIndicator(
-          color: Color(0xFFE21B23),
+          color: Color(0xFF023e8a),
         ),
       );
     }
@@ -272,7 +272,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     }
 
     return RefreshIndicator(
-      color: Color(0xFFE21B23),
+      color: Color(0xFF023e8a),
       onRefresh: _refresh,
       child: ListView.builder(
         controller: _scrollController,
@@ -369,7 +369,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           shape: BoxShape.circle,
           border: Border.all(
             color: user.isAdmin
-                ? Color(0xFFE21B23)
+                ? Color(0xFF0077b6)
                 : Colors.grey.shade300,
             width: 2.w,
           ),
@@ -415,13 +415,13 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: user.isAdmin
-            ? Color(0xFFE21B23).withValues(
+            ? Color(0xFF03045e).withValues(
           alpha: 0.08,
         )
             : Colors.grey.shade100,
         border: Border.all(
           color: user.isAdmin
-              ? Color(0xFFE21B23)
+              ? Color(0xFF0077b6)
               : Colors.grey.shade300,
           width: 2.w,
         ),
@@ -441,7 +441,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           : Icons.person_outline,
       size: 30.sp,
       color: user.isAdmin
-          ? Color(0xFFE21B23)
+          ? Color(0xFF03045e)
           : Colors.grey.shade500,
     );
   }
@@ -505,8 +505,8 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       ),
       decoration: BoxDecoration(
         color: isAdmin
-            ? Color(0xFFE21B23).withValues(
-          alpha: 0.08,
+            ? Color(0xFFade8f4).withValues(
+          alpha: 0.88,
         )
             : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8.r),
@@ -520,7 +520,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                 : Icons.person_outline,
             size: 15.sp,
             color: isAdmin
-                ? Color(0xFFE21B23)
+                ? Color(0xFF03045e)
                 : Colors.grey.shade600,
           ),
           SizedBox(width: 5.w),
@@ -532,7 +532,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
               fontSize: 11.sp,
               fontWeight: FontWeight.bold,
               color: isAdmin
-                  ? Color(0xFFE21B23)
+                  ? Color(0xFF03045e)
                   : Colors.grey.shade600,
             ),
           ),
@@ -552,7 +552,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           height: 24.w,
           child: CircularProgressIndicator(
             strokeWidth: 2.w,
-            color: Color(0xFFE21B23),
+            color: Color(0xFF03045e),
           ),
         ),
       ),

@@ -43,10 +43,15 @@ class _AdminProductFormPageState
   bool _isNew = false;
 
   String? _thumbnailPath;
-
   File? _selectedImage;
-
   bool _isProcessingImage = false;
+
+  static const _primary = Color(0xFF03045E);
+  static const _red = Color(0xFFE21B23);
+  static const _background = Color(0xFFF6F7F9);
+  static const _border = Color(0xFFE5E7EB);
+  static const _text = Color(0xFF17181A);
+  static const _muted = Color(0xFF73777D);
 
   @override
   void initState() {
@@ -103,10 +108,6 @@ class _AdminProductFormPageState
     super.dispose();
   }
 
-  // ===========================================================================
-  // IMAGE PICKER
-  // ===========================================================================
-
   Future<void> _pickImage() async {
     if (_isProcessingImage) return;
 
@@ -123,8 +124,7 @@ class _AdminProductFormPageState
         _isProcessingImage = true;
       });
 
-      final compressedFile =
-      await _convertToWebP(
+      final compressedFile = await _convertToWebP(
         File(image.path),
       );
 
@@ -148,10 +148,6 @@ class _AdminProductFormPageState
     }
   }
 
-  // ===========================================================================
-  // WEBP CONVERSION + COMPRESSION
-  // ===========================================================================
-
   Future<File> _convertToWebP(
       File sourceFile,
       ) async {
@@ -168,21 +164,11 @@ class _AdminProductFormPageState
     await FlutterImageCompress.compressAndGetFile(
       sourceFile.absolute.path,
       targetPath,
-
-      // حداکثر ابعاد خروجی
       minWidth: 1600,
       minHeight: 1600,
-
-      // کیفیت WebP
       quality: 80,
-
-      // اصلاح چرخش EXIF
       autoCorrectionAngle: true,
-
-      // خروجی WebP
       format: CompressFormat.webp,
-
-      // اطلاعات EXIF را نگه نمی‌داریم
       keepExif: false,
     );
 
@@ -203,10 +189,6 @@ class _AdminProductFormPageState
     return webpFile;
   }
 
-  // ===========================================================================
-  // SLUG
-  // ===========================================================================
-
   String _createSlug(String title) {
     return title
         .trim()
@@ -225,10 +207,6 @@ class _AdminProductFormPageState
     );
   }
 
-  // ===========================================================================
-  // DISCOUNT
-  // ===========================================================================
-
   int _calculateDiscountPercent({
     required int price,
     required int? discountPrice,
@@ -242,10 +220,6 @@ class _AdminProductFormPageState
     return (((price - discountPrice) / price) * 100)
         .round();
   }
-
-  // ===========================================================================
-  // SAVE PRODUCT
-  // ===========================================================================
 
   Future<void> _save() async {
     if (_isProcessingImage) {
@@ -262,8 +236,7 @@ class _AdminProductFormPageState
     final provider =
     context.read<AdminProductProvider>();
 
-    final price =
-    int.parse(
+    final price = int.parse(
       _priceController.text.trim(),
     );
 
@@ -286,10 +259,6 @@ class _AdminProductFormPageState
     String? thumbnail = _thumbnailPath;
 
     try {
-      // =======================================================================
-      // UPLOAD NEW IMAGE
-      // =======================================================================
-
       if (_selectedImage != null) {
         final extension = _selectedImage!
             .path
@@ -297,7 +266,6 @@ class _AdminProductFormPageState
             .last
             .toLowerCase();
 
-        // امنیت اضافه
         if (extension != 'webp') {
           _showError(
             'فقط فایل WebP مجاز است.',
@@ -305,15 +273,10 @@ class _AdminProductFormPageState
           return;
         }
 
-        thumbnail =
-        await provider.uploadImage(
+        thumbnail = await provider.uploadImage(
           filePath: _selectedImage!.path,
         );
       }
-
-      // =======================================================================
-      // IMAGE REQUIRED
-      // =======================================================================
 
       if (thumbnail == null ||
           thumbnail.trim().isEmpty) {
@@ -323,25 +286,16 @@ class _AdminProductFormPageState
         return;
       }
 
-      // =======================================================================
-      // DISCOUNT
-      // =======================================================================
-
       final discountPercent =
       _calculateDiscountPercent(
         price: price,
         discountPrice: discountPrice,
       );
 
-      // =======================================================================
-      // PRODUCT DATA
-      // =======================================================================
-
       final data = <String, dynamic>{
         'category_id': _categoryId,
         'brand_id': _brandId,
-        'title':
-        _titleController.text.trim(),
+        'title': _titleController.text.trim(),
         'slug':
         _slugController.text.trim().isEmpty
             ? _createSlug(
@@ -359,10 +313,6 @@ class _AdminProductFormPageState
         'is_new': _isNew,
       };
 
-      // =======================================================================
-      // UPDATE
-      // =======================================================================
-
       if (widget.isEditing) {
         await provider.updateProduct(
           productId:
@@ -373,13 +323,7 @@ class _AdminProductFormPageState
             DateTime.now().toIso8601String(),
           },
         );
-      }
-
-      // =======================================================================
-      // CREATE
-      // =======================================================================
-
-      else {
+      } else {
         await provider.createProduct(
           data: {
             ...data,
@@ -398,6 +342,7 @@ class _AdminProductFormPageState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          behavior: SnackBarBehavior.floating,
           content: Text(
             widget.isEditing
                 ? 'محصول با موفقیت ویرایش شد.'
@@ -414,22 +359,15 @@ class _AdminProductFormPageState
     }
   }
 
-  // ===========================================================================
-  // ERROR
-  // ===========================================================================
-
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _red,
         content: Text(message),
       ),
     );
   }
-
-  // ===========================================================================
-  // BUILD
-  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -437,37 +375,51 @@ class _AdminProductFormPageState
     context.watch<AdminProductProvider>();
 
     return Scaffold(
-      backgroundColor:
-      const Color(0xFFF7F7F8),
-
+      backgroundColor: _background,
       appBar: AppBar(
+        backgroundColor: Color(0xFF03045e),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 18.sp,
+          ),
+        ),
         title: Text(
           widget.isEditing
               ? 'ویرایش محصول'
               : 'محصول جدید',
+          style: TextStyle(
+            fontSize: 17.sp,
+            fontWeight: FontWeight.w800,
+          ),
         ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
       ),
-
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.fromLTRB(
+            16.w,
+            8.h,
+            16.w,
+            30.h,
+          ),
           children: [
-            // =================================================================
-            // BASIC INFORMATION
-            // =================================================================
-
             _section(
-              title: 'اطلاعات اصلی',
+              title: 'اطلاعات محصول',
+              icon: Icons.inventory_2_outlined,
               children: [
                 _textField(
-                  controller:
-                  _titleController,
+                  controller: _titleController,
                   label: 'عنوان محصول',
+                  hint: 'مثلاً iPhone 15 Pro',
+                  icon: Icons.title_rounded,
                   validator: (value) {
                     if (value == null ||
                         value.trim().isEmpty) {
@@ -478,22 +430,22 @@ class _AdminProductFormPageState
                   },
                 ),
 
-                SizedBox(height: 12.h),
+                SizedBox(height: 14.h),
 
                 _textField(
-                  controller:
-                  _slugController,
+                  controller: _slugController,
                   label: 'Slug',
-                  hint:
-                  'مثلاً iphone-15-pro',
+                  hint: 'iphone-15-pro',
+                  icon: Icons.link_rounded,
                 ),
 
-                SizedBox(height: 12.h),
+                SizedBox(height: 14.h),
 
                 _textField(
-                  controller:
-                  _descriptionController,
-                  label: 'توضیحات',
+                  controller: _descriptionController,
+                  label: 'توضیحات محصول',
+                  hint: 'توضیحات کامل محصول را وارد کنید...',
+                  icon: Icons.notes_rounded,
                   maxLines: 5,
                   validator: (value) {
                     if (value == null ||
@@ -507,20 +459,17 @@ class _AdminProductFormPageState
               ],
             ),
 
-            SizedBox(height: 16.h),
-
-            // =================================================================
-            // CATEGORY + BRAND
-            // =================================================================
+            SizedBox(height: 14.h),
 
             _section(
-              title: 'دسته‌بندی و برند',
+              title: 'دسته‌بندی',
+              icon: Icons.category_outlined,
               children: [
                 _dropdown(
                   value: _categoryId,
                   label: 'دسته‌بندی',
-                  items:
-                  provider.categories,
+                  items: provider.categories,
+                  icon: Icons.category_outlined,
                   onChanged: (value) {
                     setState(() {
                       _categoryId = value;
@@ -528,13 +477,14 @@ class _AdminProductFormPageState
                   },
                 ),
 
-                SizedBox(height: 12.h),
+                SizedBox(height: 14.h),
 
                 _dropdown(
                   value: _brandId,
                   label: 'برند',
                   allowNull: true,
                   items: provider.brands,
+                  icon: Icons.sell_outlined,
                   onChanged: (value) {
                     setState(() {
                       _brandId = value;
@@ -544,165 +494,76 @@ class _AdminProductFormPageState
               ],
             ),
 
-            SizedBox(height: 16.h),
-
-            // =================================================================
-            // PRICE
-            // =================================================================
+            SizedBox(height: 14.h),
 
             _section(
-              title: 'قیمت',
+              title: 'قیمت‌گذاری',
+              icon: Icons.payments_outlined,
               children: [
-                _textField(
-                  controller:
-                  _priceController,
-                  label: 'قیمت اصلی',
-                  keyboardType:
-                  TextInputType.number,
-                  validator: (value) {
-                    final price =
-                    int.tryParse(
-                      value?.trim() ?? '',
-                    );
+                Row(
+                  children: [
+                    Expanded(
+                      child: _textField(
+                        controller:
+                        _priceController,
+                        label: 'قیمت اصلی',
+                        hint: '0',
+                        icon:
+                        Icons.payments_outlined,
+                        keyboardType:
+                        TextInputType.number,
+                        validator: (value) {
+                          final price =
+                          int.tryParse(
+                            value?.trim() ?? '',
+                          );
 
-                    if (price == null ||
-                        price <= 0) {
-                      return 'قیمت معتبر وارد کنید';
-                    }
+                          if (price == null ||
+                              price <= 0) {
+                            return 'قیمت معتبر نیست';
+                          }
 
-                    return null;
-                  },
-                ),
+                          return null;
+                        },
+                      ),
+                    ),
 
-                SizedBox(height: 12.h),
+                    SizedBox(width: 10.w),
 
-                _textField(
-                  controller:
-                  _discountPriceController,
-                  label: 'قیمت با تخفیف',
-                  hint: 'اختیاری',
-                  keyboardType:
-                  TextInputType.number,
+                    Expanded(
+                      child: _textField(
+                        controller:
+                        _discountPriceController,
+                        label: 'قیمت با تخفیف',
+                        hint: 'اختیاری',
+                        icon:
+                        Icons
+                            .local_offer_outlined,
+                        keyboardType:
+                        TextInputType.number,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
 
-            SizedBox(height: 16.h),
-
-            // =================================================================
-            // IMAGE
-            // =================================================================
+            SizedBox(height: 14.h),
 
             _section(
               title: 'تصویر محصول',
+              icon: Icons.image_outlined,
               children: [
-                GestureDetector(
-                  onTap: _isProcessingImage
-                      ? null
-                      : _pickImage,
-                  child: Container(
-                    height: 180.h,
-                    width: double.infinity,
-                    decoration:
-                    BoxDecoration(
-                      color:
-                      const Color(
-                        0xFFF1F1F1,
-                      ),
-                      borderRadius:
-                      BorderRadius.circular(
-                        14.r,
-                      ),
-                    ),
-                    child: _isProcessingImage
-                        ? const Center(
-                      child:
-                      CircularProgressIndicator(),
-                    )
-                        : _selectedImage !=
-                        null
-                        ? ClipRRect(
-                      borderRadius:
-                      BorderRadius
-                          .circular(
-                        14.r,
-                      ),
-                      child:
-                      Image.file(
-                        _selectedImage!,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                        : Center(
-                      child: Column(
-                        mainAxisSize:
-                        MainAxisSize
-                            .min,
-                        children: [
-                          Icon(
-                            Icons
-                                .add_photo_alternate_rounded,
-                            size: 42.sp,
-                            color: Colors
-                                .black45,
-                          ),
-
-                          SizedBox(
-                            height: 8.h,
-                          ),
-
-                          Text(
-                            _thumbnailPath !=
-                                null
-                                ? 'تغییر تصویر'
-                                : 'انتخاب تصویر',
-                          ),
-
-                          SizedBox(
-                            height: 5.h,
-                          ),
-
-                          Text(
-                            'JPG / PNG / WebP',
-                            style:
-                            TextStyle(
-                              fontSize:
-                              10.sp,
-                              color: Colors
-                                  .black45,
-                            ),
-                          ),
-
-                          SizedBox(
-                            height: 2.h,
-                          ),
-
-                          Text(
-                            'خروجی: WebP • کیفیت 80٪',
-                            style:
-                            TextStyle(
-                              fontSize:
-                              10.sp,
-                              color: Colors
-                                  .black45,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                _imagePicker(),
 
                 if (_selectedImage != null)
                   Padding(
                     padding:
-                    EdgeInsets.only(
-                      top: 8.h,
-                    ),
-                    child: FutureBuilder<int>(
+                    EdgeInsets.only(top: 10.h),
+                    child:
+                    FutureBuilder<int>(
                       future:
-                      _selectedImage!
-                          .length(),
+                      _selectedImage!.length(),
                       builder:
                           (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -710,23 +571,33 @@ class _AdminProductFormPageState
                         }
 
                         final sizeInKb =
-                            snapshot.data! /
-                                1024;
+                            snapshot.data! / 1024;
 
                         final sizeText =
                         sizeInKb >= 1024
                             ? '${(sizeInKb / 1024).toStringAsFixed(2)} MB'
                             : '${sizeInKb.toStringAsFixed(0)} KB';
 
-                        return Text(
-                          'حجم تصویر نهایی: $sizeText',
-                          textAlign:
-                          TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color:
-                            Colors.black54,
-                          ),
+                        return Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons
+                                  .check_circle_outline_rounded,
+                              size: 15.sp,
+                              color:
+                              Colors.green,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              'تصویر آماده است • $sizeText',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: _muted,
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -734,21 +605,18 @@ class _AdminProductFormPageState
               ],
             ),
 
-            SizedBox(height: 16.h),
-
-            // =================================================================
-            // STATUS
-            // =================================================================
+            SizedBox(height: 14.h),
 
             _section(
-              title: 'وضعیت محصول',
+              title: 'وضعیت',
+              icon: Icons.tune_rounded,
               children: [
-                SwitchListTile(
-                  contentPadding:
-                  EdgeInsets.zero,
-                  title: const Text(
-                    'محصول موجود است',
-                  ),
+                _statusTile(
+                  icon:
+                  Icons.inventory_2_outlined,
+                  title: 'موجودی محصول',
+                  subtitle:
+                  'محصول برای خرید فعال باشد',
                   value: _isAvailable,
                   onChanged: (value) {
                     setState(() {
@@ -757,12 +625,14 @@ class _AdminProductFormPageState
                   },
                 ),
 
-                SwitchListTile(
-                  contentPadding:
-                  EdgeInsets.zero,
-                  title: const Text(
-                    'محصول ویژه',
-                  ),
+                SizedBox(height: 8.h),
+
+                _statusTile(
+                  icon:
+                  Icons.star_border_rounded,
+                  title: 'محصول ویژه',
+                  subtitle:
+                  'نمایش در بخش محصولات ویژه',
                   value: _isFeatured,
                   onChanged: (value) {
                     setState(() {
@@ -771,12 +641,14 @@ class _AdminProductFormPageState
                   },
                 ),
 
-                SwitchListTile(
-                  contentPadding:
-                  EdgeInsets.zero,
-                  title: const Text(
-                    'محصول جدید',
-                  ),
+                SizedBox(height: 8.h),
+
+                _statusTile(
+                  icon:
+                  Icons.fiber_new_rounded,
+                  title: 'محصول جدید',
+                  subtitle:
+                  'نمایش به عنوان محصول جدید',
                   value: _isNew,
                   onChanged: (value) {
                     setState(() {
@@ -787,48 +659,50 @@ class _AdminProductFormPageState
               ],
             ),
 
-            SizedBox(height: 24.h),
-
-            // =================================================================
-            // SAVE BUTTON
-            // =================================================================
+            SizedBox(height: 20.h),
 
             SizedBox(
-              height: 52.h,
+              height: 54.h,
               child: ElevatedButton(
                 onPressed:
                 provider.isSaving ||
                     _isProcessingImage
                     ? null
                     : _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  const Color(0xFFE21B23),
+                style:
+                ElevatedButton.styleFrom(
+                  backgroundColor: _red,
                   disabledBackgroundColor:
-                  const Color(0xFFE21B23).withValues(
-                    alpha: 0.65,
+                  _red.withValues(
+                    alpha: 0.55,
                   ),
-                  foregroundColor: Colors.white,
+                  foregroundColor:
+                  Colors.white,
                   disabledForegroundColor:
                   Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(
+                  shape:
+                  RoundedRectangleBorder(
                     borderRadius:
-                    BorderRadius.circular(14.r),
+                    BorderRadius.circular(
+                      14.r,
+                    ),
                   ),
                 ),
                 child: provider.isSaving
                     ? Row(
                   mainAxisAlignment:
-                  MainAxisAlignment.center,
+                  MainAxisAlignment
+                      .center,
                   children: [
                     SizedBox(
-                      width: 21.w,
-                      height: 21.w,
+                      width: 20.w,
+                      height: 20.w,
                       child:
                       const CircularProgressIndicator(
                         strokeWidth: 2.2,
-                        color: Colors.white,
+                        color:
+                        Colors.white,
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -844,32 +718,42 @@ class _AdminProductFormPageState
                     ),
                   ],
                 )
-                    : Text(
-                  widget.isEditing
-                      ? 'ذخیره تغییرات'
-                      : 'افزودن محصول',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight:
-                    FontWeight.w700,
-                  ),
+                    : Row(
+                  mainAxisAlignment:
+                  MainAxisAlignment
+                      .center,
+                  children: [
+                    Icon(
+                      widget.isEditing
+                          ? Icons
+                          .save_outlined
+                          : Icons.add_rounded,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      widget.isEditing
+                          ? 'ذخیره تغییرات'
+                          : 'افزودن محصول',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight:
+                        FontWeight.w800,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-
-            SizedBox(height: 30.h),
           ],
         ),
       ),
     );
   }
 
-  // ===========================================================================
-  // SECTION
-  // ===========================================================================
-
   Widget _section({
     required String title,
+    required IconData icon,
     required List<Widget> children,
   }) {
     return Container(
@@ -877,19 +761,49 @@ class _AdminProductFormPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius:
-        BorderRadius.circular(16.r),
+        BorderRadius.circular(18.r),
+        border: Border.all(
+          color: const Color(0xFFECEDEF),
+        ),
       ),
       child: Column(
         crossAxisAlignment:
-        CrossAxisAlignment.end,
+        CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight:
-              FontWeight.w800,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 34.w,
+                height: 34.w,
+                decoration: BoxDecoration(
+                  color:
+                  _primary.withValues(
+                    alpha: 0.07,
+                  ),
+                  borderRadius:
+                  BorderRadius.circular(
+                    10.r,
+                  ),
+                ),
+                child: Icon(
+                  icon,
+                  size: 18.sp,
+                  color: _primary,
+                ),
+              ),
+
+              SizedBox(width: 10.w),
+
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight:
+                  FontWeight.w800,
+                  color: _text,
+                ),
+              ),
+            ],
           ),
 
           SizedBox(height: 16.h),
@@ -900,54 +814,132 @@ class _AdminProductFormPageState
     );
   }
 
-  // ===========================================================================
-  // TEXT FIELD
-  // ===========================================================================
-
   Widget _textField({
-    required TextEditingController
-    controller,
+    required TextEditingController controller,
     required String label,
     String? hint,
+    IconData? icon,
     int maxLines = 1,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      textDirection:
-      TextDirection.rtl,
+      textDirection: TextDirection.rtl,
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
+      style: TextStyle(
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w500,
+        color: _text,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
+        prefixIcon: icon == null
+            ? null
+            : Icon(
+          icon,
+          size: 19.sp,
+          color: _muted,
+        ),
+        floatingLabelBehavior:
+        FloatingLabelBehavior.auto,
         filled: true,
-        fillColor:
-        const Color(0xFFF8F8F8),
-        border:
+        fillColor: Colors.white,
+        contentPadding:
+        EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 15.h,
+        ),
+        hintStyle: TextStyle(
+          fontSize: 12.sp,
+          color: const Color(
+            0xFFA1A5AA,
+          ),
+        ),
+        labelStyle: TextStyle(
+          fontSize: 12.sp,
+          color: _muted,
+        ),
+        floatingLabelStyle:
+        TextStyle(
+          fontSize: 12.sp,
+          color: _primary,
+          fontWeight:
+          FontWeight.w600,
+        ),
+        border: OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _border,
+          ),
+        ),
+        enabledBorder:
         OutlineInputBorder(
           borderRadius:
-          BorderRadius.circular(12.r),
+          BorderRadius.circular(
+            12.r,
+          ),
           borderSide:
-          BorderSide.none,
+          const BorderSide(
+            color: _border,
+          ),
+        ),
+        focusedBorder:
+        OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _primary,
+            width: 1.3,
+          ),
+        ),
+        errorBorder:
+        OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _red,
+          ),
+        ),
+        focusedErrorBorder:
+        OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _red,
+            width: 1.3,
+          ),
+        ),
+        errorStyle: TextStyle(
+          fontSize: 10.sp,
+          color: _red,
         ),
       ),
     );
   }
 
-  // ===========================================================================
-  // DROPDOWN
-  // ===========================================================================
-
   Widget _dropdown({
     required String? value,
     required String label,
-    required List<AdminProductOption>
-    items,
-    required ValueChanged<String?>
-    onChanged,
+    required List<AdminProductOption> items,
+    required ValueChanged<String?> onChanged,
+    required IconData icon,
     bool allowNull = false,
   }) {
     final validValue = items.any(
@@ -956,28 +948,66 @@ class _AdminProductFormPageState
         ? value
         : null;
 
-    return DropdownButtonFormField<
-        String>(
+    return DropdownButtonFormField<String>(
       value: validValue,
       isExpanded: true,
-
-      decoration:
-      InputDecoration(
+      icon: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        size: 22.sp,
+        color: _muted,
+      ),
+      decoration: InputDecoration(
         labelText: label,
+        prefixIcon: Icon(
+          icon,
+          size: 19.sp,
+          color: _muted,
+        ),
         filled: true,
-        fillColor:
-        const Color(0xFFF8F8F8),
-        border:
+        fillColor: Colors.white,
+        contentPadding:
+        EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 5.h,
+        ),
+        labelStyle: TextStyle(
+          fontSize: 12.sp,
+          color: _muted,
+        ),
+        border: OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _border,
+          ),
+        ),
+        enabledBorder:
         OutlineInputBorder(
           borderRadius:
           BorderRadius.circular(
             12.r,
           ),
           borderSide:
-          BorderSide.none,
+          const BorderSide(
+            color: _border,
+          ),
+        ),
+        focusedBorder:
+        OutlineInputBorder(
+          borderRadius:
+          BorderRadius.circular(
+            12.r,
+          ),
+          borderSide:
+          const BorderSide(
+            color: _primary,
+            width: 1.3,
+          ),
         ),
       ),
-
       items: [
         if (allowNull)
           const DropdownMenuItem<String>(
@@ -986,19 +1016,271 @@ class _AdminProductFormPageState
               'بدون برند',
             ),
           ),
-
         ...items.map(
               (item) =>
               DropdownMenuItem<String>(
                 value: item.id,
                 child: Text(
                   item.name,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight:
+                    FontWeight.w500,
+                  ),
                 ),
               ),
         ),
       ],
-
       onChanged: onChanged,
+    );
+  }
+
+  Widget _imagePicker() {
+    return GestureDetector(
+      onTap: _isProcessingImage
+          ? null
+          : _pickImage,
+      child: Container(
+        height: 210.h,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(
+            0xFFF8F9FA,
+          ),
+          borderRadius:
+          BorderRadius.circular(
+            14.r,
+          ),
+          border: Border.all(
+            color: _border,
+          ),
+        ),
+        child: _isProcessingImage
+            ? const Center(
+          child:
+          CircularProgressIndicator(
+            strokeWidth: 2.5,
+          ),
+        )
+            : _selectedImage != null
+            ? Stack(
+          children: [
+            ClipRRect(
+              borderRadius:
+              BorderRadius
+                  .circular(
+                14.r,
+              ),
+              child:
+              Image.file(
+                _selectedImage!,
+                width:
+                double.infinity,
+                height:
+                double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Positioned(
+              left: 10.w,
+              top: 10.h,
+              child:
+              Container(
+                padding:
+                EdgeInsets
+                    .symmetric(
+                  horizontal: 10.w,
+                  vertical: 7.h,
+                ),
+                decoration:
+                BoxDecoration(
+                  color:
+                  Colors.black
+                      .withValues(
+                    alpha: 0.65,
+                  ),
+                  borderRadius:
+                  BorderRadius
+                      .circular(
+                    10.r,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons
+                          .edit_outlined,
+                      size: 15.sp,
+                      color:
+                      Colors.white,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Text(
+                      'تغییر تصویر',
+                      style:
+                      TextStyle(
+                        color:
+                        Colors.white,
+                        fontSize:
+                        11.sp,
+                        fontWeight:
+                        FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+            : Column(
+          mainAxisAlignment:
+          MainAxisAlignment
+              .center,
+          children: [
+            Container(
+              width: 58.w,
+              height: 58.w,
+              decoration:
+              BoxDecoration(
+                color:
+                _primary
+                    .withValues(
+                  alpha: 0.07,
+                ),
+                shape:
+                BoxShape.circle,
+              ),
+              child: Icon(
+                Icons
+                    .add_photo_alternate_outlined,
+                size: 28.sp,
+                color: _primary,
+              ),
+            ),
+            SizedBox(
+              height: 12.h,
+            ),
+            Text(
+              _thumbnailPath !=
+                  null
+                  ? 'تغییر تصویر محصول'
+                  : 'انتخاب تصویر محصول',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight:
+                FontWeight.w700,
+                color: _text,
+              ),
+            ),
+            SizedBox(
+              height: 5.h,
+            ),
+            Text(
+              'JPG / PNG / WebP',
+              style: TextStyle(
+                fontSize: 10.sp,
+                color: _muted,
+              ),
+            ),
+            SizedBox(
+              height: 2.h,
+            ),
+            Text(
+              'خروجی WebP • کیفیت 80٪',
+              style: TextStyle(
+                fontSize: 10.sp,
+                color:
+                const Color(
+                  0xFF9CA0A6,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.w,
+        vertical: 10.h,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(
+          0xFFF8F9FA,
+        ),
+        borderRadius:
+        BorderRadius.circular(
+          12.r,
+        ),
+      ),
+      child: Row(
+        children: [
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeColor: _primary,
+          ),
+          SizedBox(width: 5.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment.end,
+              children: [
+                Text(
+                  title,
+                  textAlign:
+                  TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight:
+                    FontWeight.w700,
+                    color: _text,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  subtitle,
+                  textAlign:
+                  TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: _muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Container(
+            width: 34.w,
+            height: 34.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+              BorderRadius.circular(
+                10.r,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: 18.sp,
+              color: _muted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
