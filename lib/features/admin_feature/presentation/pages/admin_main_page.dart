@@ -7,6 +7,7 @@ import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
 import 'package:supastore/features/admin_feature/admin_access_feature/presentation/providers/admin_access_provider.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/presentation/pages/admin_banners_page.dart';
 import 'package:supastore/features/admin_feature/category/presentation/providers/admin_category_provider.dart';
 import 'package:supastore/features/admin_feature/presentation/providers/admin_product_provider.dart';
 import 'package:supastore/features/admin_feature/review/presentation/providers/admin_review_provider.dart';
@@ -180,6 +181,11 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 getIt<AdminCategoryProvider>(),
             child: const AdminCategoriesPage(),
           ),
+        ),
+        _AdminMenuItem(
+          title: 'بنرها',
+          icon: Icons.image_rounded,
+          page: const AdminBannersPage(),
         ),
         _AdminMenuItem(
           title: 'سفارش‌ها',

@@ -27,6 +27,17 @@ import 'package:supastore/features/admin_feature/admin_access_feature/data/repos
 import 'package:supastore/features/admin_feature/admin_access_feature/domain/repositories/admin_access_repository.dart';
 import 'package:supastore/features/admin_feature/admin_access_feature/domain/usecases/get_current_user_access.dart';
 import 'package:supastore/features/admin_feature/admin_access_feature/presentation/providers/admin_access_provider.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/data/datasources/admin_banner_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/data/repositories/admin_banner_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/repositories/admin_banner_repository.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/create_admin_banner.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/delete_admin_banner.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/get_admin_banners.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/remove_admin_banner_image.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/update_admin_banner.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/update_admin_banner_status.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/upload_admin_banner_image.dart';
+import 'package:supastore/features/admin_feature/admin_banner_feature/presentation/providers/admin_banner_provider.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/datasources/admin_general_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/repositories/admin_general_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/repositories/admin_general_settings_repository.dart';
@@ -1318,6 +1329,99 @@ Future<void> setupInjector() async {
   getIt.registerLazySingleton<SignOut>(
         () => SignOut(
       repository: getIt<AuthRepository>(),
+    ),
+  );
+
+// ==========================================================
+// ADMIN BANNER
+// ==========================================================
+
+  getIt.registerLazySingleton<
+      AdminBannerRemoteDataSource>(
+        () => AdminBannerRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<
+      AdminBannerRepository>(
+        () => AdminBannerRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminBannerRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      GetAdminBanners>(
+        () => GetAdminBanners(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      CreateAdminBanner>(
+        () => CreateAdminBanner(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      UpdateAdminBanner>(
+        () => UpdateAdminBanner(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      DeleteAdminBanner>(
+        () => DeleteAdminBanner(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      UpdateAdminBannerStatus>(
+        () => UpdateAdminBannerStatus(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      UploadAdminBannerImage>(
+        () => UploadAdminBannerImage(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      RemoveAdminBannerImage>(
+        () => RemoveAdminBannerImage(
+      repository:
+      getIt<AdminBannerRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<
+      AdminBannerProvider>(
+        () => AdminBannerProvider(
+      getBanners:
+      getIt<GetAdminBanners>(),
+      createBanner:
+      getIt<CreateAdminBanner>(),
+      updateBanner:
+      getIt<UpdateAdminBanner>(),
+      deleteBanner:
+      getIt<DeleteAdminBanner>(),
+      updateBannerStatus:
+      getIt<UpdateAdminBannerStatus>(),
+      uploadImage:
+      getIt<UploadAdminBannerImage>(),
+      removeImage:
+      getIt<RemoveAdminBannerImage>(),
     ),
   );
 

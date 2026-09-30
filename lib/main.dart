@@ -16,6 +16,7 @@ import 'package:supastore/features/admin_feature/settings/presentation/provider/
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
 import 'package:supastore/features/splash_feature/splash_binding.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 
 // ============================================================
@@ -344,6 +345,17 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
 
           theme: AppTheme.lightTheme,
+
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+
+          supportedLocales: const [
+            Locale('fa'),
+            Locale('en'),
+          ],
 
           routerConfig: AppRouter.router,
         );
