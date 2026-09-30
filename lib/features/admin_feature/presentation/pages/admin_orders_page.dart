@@ -284,14 +284,14 @@ class _AdminOrderCard extends StatelessWidget {
           width: 44.w,
           height: 44.w,
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
+            color: Color(0xFF0077b6),
             borderRadius:
             BorderRadius.circular(13.r),
           ),
           child: Icon(
             Icons.receipt_long_rounded,
             size: 22.sp,
-            color: Colors.grey.shade700,
+            color: Colors.white,
           ),
         ),
 
@@ -346,6 +346,7 @@ class _AdminOrderCard extends StatelessWidget {
 
         Expanded(
           child: _InfoBox(
+
             icon: Icons.credit_card_outlined,
             title: 'وضعیت پرداخت',
             value: _paymentStatusText(
@@ -365,7 +366,7 @@ class _AdminOrderCard extends StatelessWidget {
         vertical: 13.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: Color(0xFFcaf0f8),
         borderRadius:
         BorderRadius.circular(13.r),
       ),
@@ -375,14 +376,14 @@ class _AdminOrderCard extends StatelessWidget {
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFF0077b6),
               borderRadius:
               BorderRadius.circular(10.r),
             ),
             child: Icon(
               Icons.account_balance_wallet_outlined,
               size: 19.sp,
-              color: Colors.grey.shade700,
+              color: Colors.white,
             ),
           ),
 
@@ -404,6 +405,7 @@ class _AdminOrderCard extends StatelessWidget {
                 Text(
                   '${_formatPrice(order.totalPrice)} تومان',
                   style: TextStyle(
+                    color: Color(0xFF03045e),
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w900,
                   ),
@@ -428,7 +430,7 @@ class _AdminOrderCard extends StatelessWidget {
         ),
         SizedBox(width: 6.w),
         Text(
-          'برای مشاهده جزئیات سفارش لمس کنید',
+          'برای مشاهده جزئیات سفارش کلیک کنید',
           style: TextStyle(
             fontSize: 10.5.sp,
             color: Colors.grey.shade500,
@@ -466,7 +468,8 @@ class _AdminOrderCard extends StatelessWidget {
           ),
         ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.black87,
+          backgroundColor: Color(0xFFef476f),
+          foregroundColor: Colors.white,
           side: BorderSide(
             color: Colors.grey.shade300,
           ),

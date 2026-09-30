@@ -176,7 +176,7 @@ class _AdminUserDetailsPageState
       ),
       decoration: BoxDecoration(
         color: widget.user.isAdmin
-            ? Colors.red.withValues(alpha: 0.08)
+            ? Color(0xFFade8f4).withValues(alpha: 0.88)
             : Colors.grey.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(10.r),
       ),
@@ -189,7 +189,7 @@ class _AdminUserDetailsPageState
                 : Icons.person_outline_rounded,
             size: 17.sp,
             color: widget.user.isAdmin
-                ? Colors.red
+                ? Color(0xFF03045e)
                 : Colors.grey.shade700,
           ),
           SizedBox(width: 6.w),
@@ -201,7 +201,7 @@ class _AdminUserDetailsPageState
               fontSize: 12.sp,
               fontWeight: FontWeight.w700,
               color: widget.user.isAdmin
-                  ? Colors.red
+                  ? Color(0xFF03045e)
                   : Colors.grey.shade700,
             ),
           ),
@@ -401,7 +401,7 @@ class _AdminUserDetailsPageState
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w700,
-                color: Colors.red,
+                color: Color(0xFF03045e),
               ),
             ),
             SizedBox(width: 5.w),
@@ -410,7 +410,7 @@ class _AdminUserDetailsPageState
                   ? Icons.keyboard_arrow_up_rounded
                   : Icons.arrow_back_ios_new_rounded,
               size: expanded ? 18.sp : 12.sp,
-              color: Colors.red,
+              color: Color(0xFF03045e),
             ),
           ],
         ),
@@ -1262,7 +1262,7 @@ class _AdminUserDetailsPageState
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          backgroundColor: Colors.red,
+          backgroundColor: Color(0xFF03045e),
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,

@@ -649,7 +649,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
           ),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: _primaryRed,
+          backgroundColor: Color(0xFF0096c7),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: EdgeInsets.symmetric(

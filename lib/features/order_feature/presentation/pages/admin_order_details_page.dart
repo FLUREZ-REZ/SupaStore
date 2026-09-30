@@ -263,61 +263,64 @@ class _AdminOrderDetailsPageState
   Widget build(BuildContext context) {
     final order = widget.order;
 
-    return Scaffold(
-      backgroundColor: const Color(0xffF6F7F9),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.black87,
-        centerTitle: false,
-        title: const Text(
-          'جزئیات سفارش',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: const Color(0xffF6F7F9),
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Color(0xFF03045e),
+          foregroundColor: Colors.white,
+          centerTitle: false,
+          title: const Text(
+            'جزئیات سفارش',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            16.h,
-            16.w,
-            32.h,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildOrderHeader(order),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              16.w,
+              16.h,
+              16.w,
+              32.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildOrderHeader(order),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildStatusCard(order),
+                _buildStatusCard(order),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildCustomerCard(order),
+                _buildCustomerCard(order),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildAddressCard(),
+                _buildAddressCard(),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildPaymentCard(order),
+                _buildPaymentCard(order),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildProductsCard(order),
+                _buildProductsCard(order),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              _buildPriceSummary(order),
+                _buildPriceSummary(order),
 
-              SizedBox(height: 24.h),
+                SizedBox(height: 24.h),
 
-              _buildChangeStatusButton(),
-            ],
+                _buildChangeStatusButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -348,12 +351,12 @@ class _AdminOrderDetailsPageState
                 width: 46.w,
                 height: 46.w,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.10),
+                  color: Color(0xFF0077b6),
                   borderRadius: BorderRadius.circular(14.r),
                 ),
                 child: Icon(
                   Icons.receipt_long_rounded,
-                  color: AppColors.primary,
+                  color: Color(0xFFcaf0f8),
                   size: 25.sp,
                 ),
               ),

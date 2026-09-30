@@ -330,7 +330,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
         backgroundColor: const Color(0xFFF7F7F8),
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: const Color(0xFFE21B23),
+          backgroundColor: const Color(0xFF03045e),
           foregroundColor: Colors.white,
           centerTitle: true,
           title: Text(
@@ -378,7 +378,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                     width: 64.w,
                     height: 64.w,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE21B23),
+                      color: Color(0xFF03045e),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -389,9 +389,10 @@ class _AdminMainViewState extends State<_AdminMainView> {
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'SupaStore',
+                    'مدیریت فروشگاه',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      color: Color(0xFF03045e),
                       fontSize: 19.sp,
                       fontWeight: FontWeight.w800,
                     ),
@@ -474,14 +475,14 @@ class _AdminMainViewState extends State<_AdminMainView> {
       ),
       child: ListTile(
         selected: selected,
-        selectedTileColor: const Color(0xFFFFE9EA),
+        selectedTileColor: const Color(0xFFcaf0f8),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
         leading: Icon(
           icon,
           color: selected
-              ? const Color(0xFFE21B23)
+              ? const Color(0xFF03045e)
               : Colors.black54,
         ),
         title: Text(
@@ -493,7 +494,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 ? FontWeight.w700
                 : FontWeight.w500,
             color: selected
-                ? const Color(0xFFE21B23)
+                ? const Color(0xFF03045e)
                 : Colors.black87,
           ),
         ),
