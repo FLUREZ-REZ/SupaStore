@@ -54,12 +54,16 @@ dependencies:
   provider: ^6.1.5
   flutter_svg: ^2.2.1
   flutter_dotenv: ^6.0.1
-  intl: ^0.20.3
+  intl: 0.20.2
   image_picker: ^1.2.3
   flutter_image_compress: ^2.5.1
   url_launcher: ^6.3.2
   app_links: 7.0.0
   fl_chart: ^1.2.0
+  image: ^4.5.4
+
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
