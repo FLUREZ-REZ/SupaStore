@@ -82,7 +82,7 @@ class _AdminPaymentSettingsViewState
           child: Scaffold(
             backgroundColor: Colors.grey.shade100,
             appBar: AppBar(
-              backgroundColor: AppColors.primary,
+              backgroundColor: Color(0xFF03045e),
               foregroundColor: Colors.white,
               title: Text(
                 'تنظیمات پرداخت',
@@ -154,7 +154,7 @@ class _AdminPaymentSettingsViewState
           ),
         ),
         value: _onlinePaymentEnabled,
-        activeColor: AppColors.primary,
+        activeColor: Color(0xFF03045e),
         onChanged: provider.isSaving
             ? null
             : (value) {
@@ -190,7 +190,7 @@ class _AdminPaymentSettingsViewState
               ),
             ),
             value: _zarinpalEnabled,
-            activeColor: AppColors.primary,
+            activeColor: Color(0xFF03045e),
             onChanged: provider.isSaving
                 ? null
                 : (value) {
@@ -221,7 +221,7 @@ class _AdminPaymentSettingsViewState
               ),
             ),
             value: _sepEnabled,
-            activeColor: AppColors.primary,
+            activeColor: Color(0xFF03045e),
             onChanged: provider.isSaving
                 ? null
                 : (value) {
@@ -276,6 +276,7 @@ class _AdminPaymentSettingsViewState
     return _buildSectionCard(
       title: 'درگاه پیش‌فرض',
       icon: Icons.star_rounded,
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

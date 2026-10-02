@@ -84,7 +84,7 @@ class _AddEditShippingMethodPageState
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          backgroundColor: Colors.red,
+          backgroundColor: Color(0xFF03045e),
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,

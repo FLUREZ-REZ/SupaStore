@@ -401,7 +401,7 @@ class _AdminStoreInfoViewState
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          backgroundColor: Colors.red,
+          backgroundColor: Color(0xFF03045e),
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
@@ -558,7 +558,7 @@ class _AdminStoreInfoViewState
             width: 52.w,
             height: 52.w,
             decoration: BoxDecoration(
-              color: Colors.red.withValues(
+              color: Color(0xFF0077b6).withValues(
                 alpha: 0.08,
               ),
               borderRadius:
@@ -566,7 +566,7 @@ class _AdminStoreInfoViewState
             ),
             child: Icon(
               Icons.storefront_outlined,
-              color: Colors.red,
+              color: Color(0xFF03045e),
               size: 27.sp,
             ),
           ),
@@ -972,7 +972,7 @@ class _AdminStoreInfoViewState
           borderRadius:
           BorderRadius.circular(13.r),
           borderSide: const BorderSide(
-            color: Colors.red,
+            color: Color(0xFF03045e),
             width: 1.4,
           ),
         ),

@@ -374,378 +374,381 @@ class _AdminProductFormPageState
     final provider =
     context.watch<AdminProductProvider>();
 
-    return Scaffold(
-      backgroundColor: _background,
-      appBar: AppBar(
-        backgroundColor: Color(0xFF03045e),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            size: 18.sp,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: _background,
+        appBar: AppBar(
+          backgroundColor: Color(0xFF03045e),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              size: 18.sp,
+            ),
+          ),
+          title: Text(
+            widget.isEditing
+                ? 'ویرایش محصول'
+                : 'محصول جدید',
+            style: TextStyle(
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
-        title: Text(
-          widget.isEditing
-              ? 'ویرایش محصول'
-              : 'محصول جدید',
-          style: TextStyle(
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            8.h,
-            16.w,
-            30.h,
-          ),
-          children: [
-            _section(
-              title: 'اطلاعات محصول',
-              icon: Icons.inventory_2_outlined,
-              children: [
-                _textField(
-                  controller: _titleController,
-                  label: 'عنوان محصول',
-                  hint: 'مثلاً iPhone 15 Pro',
-                  icon: Icons.title_rounded,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return 'عنوان محصول الزامی است';
-                    }
-
-                    return null;
-                  },
-                ),
-
-                SizedBox(height: 14.h),
-
-                _textField(
-                  controller: _slugController,
-                  label: 'Slug',
-                  hint: 'iphone-15-pro',
-                  icon: Icons.link_rounded,
-                ),
-
-                SizedBox(height: 14.h),
-
-                _textField(
-                  controller: _descriptionController,
-                  label: 'توضیحات محصول',
-                  hint: 'توضیحات کامل محصول را وارد کنید...',
-                  icon: Icons.notes_rounded,
-                  maxLines: 5,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return 'توضیحات الزامی است';
-                    }
-
-                    return null;
-                  },
-                ),
-              ],
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.fromLTRB(
+              16.w,
+              8.h,
+              16.w,
+              30.h,
             ),
+            children: [
+              _section(
+                title: 'اطلاعات محصول',
+                icon: Icons.inventory_2_outlined,
+                children: [
+                  _textField(
+                    controller: _titleController,
+                    label: 'عنوان محصول',
+                    hint: 'مثلاً iPhone 15 Pro',
+                    icon: Icons.title_rounded,
+                    validator: (value) {
+                      if (value == null ||
+                          value.trim().isEmpty) {
+                        return 'عنوان محصول الزامی است';
+                      }
 
-            SizedBox(height: 14.h),
+                      return null;
+                    },
+                  ),
 
-            _section(
-              title: 'دسته‌بندی',
-              icon: Icons.category_outlined,
-              children: [
-                _dropdown(
-                  value: _categoryId,
-                  label: 'دسته‌بندی',
-                  items: provider.categories,
-                  icon: Icons.category_outlined,
-                  onChanged: (value) {
-                    setState(() {
-                      _categoryId = value;
-                    });
-                  },
-                ),
+                  SizedBox(height: 14.h),
 
-                SizedBox(height: 14.h),
+                  _textField(
+                    controller: _slugController,
+                    label: 'Slug',
+                    hint: 'iphone-15-pro',
+                    icon: Icons.link_rounded,
+                  ),
 
-                _dropdown(
-                  value: _brandId,
-                  label: 'برند',
-                  allowNull: true,
-                  items: provider.brands,
-                  icon: Icons.sell_outlined,
-                  onChanged: (value) {
-                    setState(() {
-                      _brandId = value;
-                    });
-                  },
-                ),
-              ],
-            ),
+                  SizedBox(height: 14.h),
 
-            SizedBox(height: 14.h),
+                  _textField(
+                    controller: _descriptionController,
+                    label: 'توضیحات محصول',
+                    hint: 'توضیحات کامل محصول را وارد کنید...',
+                    icon: Icons.notes_rounded,
+                    maxLines: 5,
+                    validator: (value) {
+                      if (value == null ||
+                          value.trim().isEmpty) {
+                        return 'توضیحات الزامی است';
+                      }
 
-            _section(
-              title: 'قیمت‌گذاری',
-              icon: Icons.payments_outlined,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _textField(
-                        controller:
-                        _priceController,
-                        label: 'قیمت اصلی',
-                        hint: '0',
-                        icon:
-                        Icons.payments_outlined,
-                        keyboardType:
-                        TextInputType.number,
-                        validator: (value) {
-                          final price =
-                          int.tryParse(
-                            value?.trim() ?? '',
-                          );
+                      return null;
+                    },
+                  ),
+                ],
+              ),
 
-                          if (price == null ||
-                              price <= 0) {
-                            return 'قیمت معتبر نیست';
+              SizedBox(height: 14.h),
+
+              _section(
+                title: 'دسته‌بندی',
+                icon: Icons.category_outlined,
+                children: [
+                  _dropdown(
+                    value: _categoryId,
+                    label: 'دسته‌بندی',
+                    items: provider.categories,
+                    icon: Icons.category_outlined,
+                    onChanged: (value) {
+                      setState(() {
+                        _categoryId = value;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: 14.h),
+
+                  _dropdown(
+                    value: _brandId,
+                    label: 'برند',
+                    allowNull: true,
+                    items: provider.brands,
+                    icon: Icons.sell_outlined,
+                    onChanged: (value) {
+                      setState(() {
+                        _brandId = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 14.h),
+
+              _section(
+                title: 'قیمت‌گذاری',
+                icon: Icons.payments_outlined,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _textField(
+                          controller:
+                          _priceController,
+                          label: 'قیمت اصلی',
+                          hint: '0',
+                          icon:
+                          Icons.payments_outlined,
+                          keyboardType:
+                          TextInputType.number,
+                          validator: (value) {
+                            final price =
+                            int.tryParse(
+                              value?.trim() ?? '',
+                            );
+
+                            if (price == null ||
+                                price <= 0) {
+                              return 'قیمت معتبر نیست';
+                            }
+
+                            return null;
+                          },
+                        ),
+                      ),
+
+                      SizedBox(width: 10.w),
+
+                      Expanded(
+                        child: _textField(
+                          controller:
+                          _discountPriceController,
+                          label: 'قیمت با تخفیف',
+                          hint: 'اختیاری',
+                          icon:
+                          Icons
+                              .local_offer_outlined,
+                          keyboardType:
+                          TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 14.h),
+
+              _section(
+                title: 'تصویر محصول',
+                icon: Icons.image_outlined,
+                children: [
+                  _imagePicker(),
+
+                  if (_selectedImage != null)
+                    Padding(
+                      padding:
+                      EdgeInsets.only(top: 10.h),
+                      child:
+                      FutureBuilder<int>(
+                        future:
+                        _selectedImage!.length(),
+                        builder:
+                            (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const SizedBox();
                           }
 
-                          return null;
+                          final sizeInKb =
+                              snapshot.data! / 1024;
+
+                          final sizeText =
+                          sizeInKb >= 1024
+                              ? '${(sizeInKb / 1024).toStringAsFixed(2)} MB'
+                              : '${sizeInKb.toStringAsFixed(0)} KB';
+
+                          return Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons
+                                    .check_circle_outline_rounded,
+                                size: 15.sp,
+                                color:
+                                Colors.green,
+                              ),
+                              SizedBox(width: 5.w),
+                              Text(
+                                'تصویر آماده است • $sizeText',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: _muted,
+                                ),
+                              ),
+                            ],
+                          );
                         },
                       ),
                     ),
+                ],
+              ),
 
-                    SizedBox(width: 10.w),
+              SizedBox(height: 14.h),
 
-                    Expanded(
-                      child: _textField(
-                        controller:
-                        _discountPriceController,
-                        label: 'قیمت با تخفیف',
-                        hint: 'اختیاری',
-                        icon:
-                        Icons
-                            .local_offer_outlined,
-                        keyboardType:
-                        TextInputType.number,
-                      ),
+              _section(
+                title: 'وضعیت',
+                icon: Icons.tune_rounded,
+                children: [
+                  _statusTile(
+                    icon:
+                    Icons.inventory_2_outlined,
+                    title: 'موجودی محصول',
+                    subtitle:
+                    'محصول برای خرید فعال باشد',
+                    value: _isAvailable,
+                    onChanged: (value) {
+                      setState(() {
+                        _isAvailable = value;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: 8.h),
+
+                  _statusTile(
+                    icon:
+                    Icons.star_border_rounded,
+                    title: 'محصول ویژه',
+                    subtitle:
+                    'نمایش در بخش محصولات ویژه',
+                    value: _isFeatured,
+                    onChanged: (value) {
+                      setState(() {
+                        _isFeatured = value;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: 8.h),
+
+                  _statusTile(
+                    icon:
+                    Icons.fiber_new_rounded,
+                    title: 'محصول جدید',
+                    subtitle:
+                    'نمایش به عنوان محصول جدید',
+                    value: _isNew,
+                    onChanged: (value) {
+                      setState(() {
+                        _isNew = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 20.h),
+
+              SizedBox(
+                height: 54.h,
+                child: ElevatedButton(
+                  onPressed:
+                  provider.isSaving ||
+                      _isProcessingImage
+                      ? null
+                      : _save,
+                  style:
+                  ElevatedButton.styleFrom(
+                    backgroundColor: _red,
+                    disabledBackgroundColor:
+                    _red.withValues(
+                      alpha: 0.55,
                     ),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: 14.h),
-
-            _section(
-              title: 'تصویر محصول',
-              icon: Icons.image_outlined,
-              children: [
-                _imagePicker(),
-
-                if (_selectedImage != null)
-                  Padding(
-                    padding:
-                    EdgeInsets.only(top: 10.h),
-                    child:
-                    FutureBuilder<int>(
-                      future:
-                      _selectedImage!.length(),
-                      builder:
-                          (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const SizedBox();
-                        }
-
-                        final sizeInKb =
-                            snapshot.data! / 1024;
-
-                        final sizeText =
-                        sizeInKb >= 1024
-                            ? '${(sizeInKb / 1024).toStringAsFixed(2)} MB'
-                            : '${sizeInKb.toStringAsFixed(0)} KB';
-
-                        return Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons
-                                  .check_circle_outline_rounded,
-                              size: 15.sp,
-                              color:
-                              Colors.green,
-                            ),
-                            SizedBox(width: 5.w),
-                            Text(
-                              'تصویر آماده است • $sizeText',
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                color: _muted,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
+                    foregroundColor:
+                    Colors.white,
+                    disabledForegroundColor:
+                    Colors.white,
+                    elevation: 0,
+                    shape:
+                    RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(
+                        14.r,
+                      ),
                     ),
                   ),
-              ],
-            ),
-
-            SizedBox(height: 14.h),
-
-            _section(
-              title: 'وضعیت',
-              icon: Icons.tune_rounded,
-              children: [
-                _statusTile(
-                  icon:
-                  Icons.inventory_2_outlined,
-                  title: 'موجودی محصول',
-                  subtitle:
-                  'محصول برای خرید فعال باشد',
-                  value: _isAvailable,
-                  onChanged: (value) {
-                    setState(() {
-                      _isAvailable = value;
-                    });
-                  },
-                ),
-
-                SizedBox(height: 8.h),
-
-                _statusTile(
-                  icon:
-                  Icons.star_border_rounded,
-                  title: 'محصول ویژه',
-                  subtitle:
-                  'نمایش در بخش محصولات ویژه',
-                  value: _isFeatured,
-                  onChanged: (value) {
-                    setState(() {
-                      _isFeatured = value;
-                    });
-                  },
-                ),
-
-                SizedBox(height: 8.h),
-
-                _statusTile(
-                  icon:
-                  Icons.fiber_new_rounded,
-                  title: 'محصول جدید',
-                  subtitle:
-                  'نمایش به عنوان محصول جدید',
-                  value: _isNew,
-                  onChanged: (value) {
-                    setState(() {
-                      _isNew = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-
-            SizedBox(height: 20.h),
-
-            SizedBox(
-              height: 54.h,
-              child: ElevatedButton(
-                onPressed:
-                provider.isSaving ||
-                    _isProcessingImage
-                    ? null
-                    : _save,
-                style:
-                ElevatedButton.styleFrom(
-                  backgroundColor: _red,
-                  disabledBackgroundColor:
-                  _red.withValues(
-                    alpha: 0.55,
+                  child: provider.isSaving
+                      ? Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment
+                        .center,
+                    children: [
+                      SizedBox(
+                        width: 20.w,
+                        height: 20.w,
+                        child:
+                        const CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color:
+                          Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      Text(
+                        widget.isEditing
+                            ? 'در حال ذخیره تغییرات...'
+                            : 'در حال افزودن محصول...',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight:
+                          FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  )
+                      : Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment
+                        .center,
+                    children: [
+                      Icon(
+                        widget.isEditing
+                            ? Icons
+                            .save_outlined
+                            : Icons.add_rounded,
+                        size: 20.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        widget.isEditing
+                            ? 'ذخیره تغییرات'
+                            : 'افزودن محصول',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight:
+                          FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
-                  foregroundColor:
-                  Colors.white,
-                  disabledForegroundColor:
-                  Colors.white,
-                  elevation: 0,
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                      14.r,
-                    ),
-                  ),
-                ),
-                child: provider.isSaving
-                    ? Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
-                  children: [
-                    SizedBox(
-                      width: 20.w,
-                      height: 20.w,
-                      child:
-                      const CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color:
-                        Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      widget.isEditing
-                          ? 'در حال ذخیره تغییرات...'
-                          : 'در حال افزودن محصول...',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight:
-                        FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                )
-                    : Row(
-                  mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
-                  children: [
-                    Icon(
-                      widget.isEditing
-                          ? Icons
-                          .save_outlined
-                          : Icons.add_rounded,
-                      size: 20.sp,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      widget.isEditing
-                          ? 'ذخیره تغییرات'
-                          : 'افزودن محصول',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight:
-                        FontWeight.w800,
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

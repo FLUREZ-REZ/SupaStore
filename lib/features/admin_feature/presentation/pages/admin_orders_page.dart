@@ -284,7 +284,7 @@ class _AdminOrderCard extends StatelessWidget {
           width: 44.w,
           height: 44.w,
           decoration: BoxDecoration(
-            color: Color(0xFF0077b6),
+            color: const Color(0xFF0077b6),
             borderRadius:
             BorderRadius.circular(13.r),
           ),
@@ -346,7 +346,6 @@ class _AdminOrderCard extends StatelessWidget {
 
         Expanded(
           child: _InfoBox(
-
             icon: Icons.credit_card_outlined,
             title: 'وضعیت پرداخت',
             value: _paymentStatusText(
@@ -366,7 +365,7 @@ class _AdminOrderCard extends StatelessWidget {
         vertical: 13.h,
       ),
       decoration: BoxDecoration(
-        color: Color(0xFFcaf0f8),
+        color: const Color(0xFFcaf0f8),
         borderRadius:
         BorderRadius.circular(13.r),
       ),
@@ -376,7 +375,7 @@ class _AdminOrderCard extends StatelessWidget {
             width: 36.w,
             height: 36.w,
             decoration: BoxDecoration(
-              color: Color(0xFF0077b6),
+              color: const Color(0xFF0077b6),
               borderRadius:
               BorderRadius.circular(10.r),
             ),
@@ -404,8 +403,9 @@ class _AdminOrderCard extends StatelessWidget {
                 SizedBox(height: 3.h),
                 Text(
                   '${_formatPrice(order.totalPrice)} تومان',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF03045e),
+                  ).copyWith(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w900,
                   ),
@@ -419,25 +419,37 @@ class _AdminOrderCard extends StatelessWidget {
   }
 
   Widget _buildDetailsHint() {
-    return Row(
-      mainAxisAlignment:
-      MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.touch_app_outlined,
-          size: 15.sp,
-          color: Colors.grey.shade500,
-        ),
-        SizedBox(width: 6.w),
-        Text(
-          'برای مشاهده جزئیات سفارش کلیک کنید',
-          style: TextStyle(
-            fontSize: 10.5.sp,
-            color: Colors.grey.shade500,
-            fontWeight: FontWeight.w500,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: 14.w,
+        vertical: 12.h,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF023e8a),
+        borderRadius:
+        BorderRadius.circular(12.r),
+      ),
+      child: Row(
+        mainAxisAlignment:
+        MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.touch_app_outlined,
+            size: 17.sp,
+            color: Colors.white,
           ),
-        ),
-      ],
+          SizedBox(width: 7.w),
+          Text(
+            'برای مشاهده جزئیات سفارش کلیک کنید',
+            style: TextStyle(
+              fontSize: 11.sp,
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -468,7 +480,8 @@ class _AdminOrderCard extends StatelessWidget {
           ),
         ),
         style: OutlinedButton.styleFrom(
-          backgroundColor: Color(0xFFef476f),
+          backgroundColor:
+          const Color(0xFFef476f),
           foregroundColor: Colors.white,
           side: BorderSide(
             color: Colors.grey.shade300,

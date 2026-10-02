@@ -34,7 +34,7 @@ class _AdminShippingPageState
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          backgroundColor: Colors.red,
+          backgroundColor: Color(0xFF03045e),
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
@@ -64,7 +64,7 @@ class _AdminShippingPageState
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.red,
+          backgroundColor: Color(0xFF023e8a),
           foregroundColor: Colors.white,
           onPressed: _openAddPage,
           icon: const Icon(
