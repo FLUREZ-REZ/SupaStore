@@ -8,7 +8,7 @@ import 'package:supastore/features/admin_feature/admin_managers_feature/presenta
 class AdminManagersPage extends StatelessWidget {
   const AdminManagersPage({super.key});
 
-  static const Color _primaryRed = Color(0xFFE21B23);
+  static const Color _primaryRed = Color(0xFF023e8a);
   static const Color _background = Color(0xFFF7F7F8);
 
   @override
@@ -33,8 +33,8 @@ class _AdminManagersView extends StatelessWidget {
         appBar: AppBar(
           title: const Text('مدیریت مدیران'),
           centerTitle: false,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
+          backgroundColor: Color(0xFF03045e),
+          foregroundColor: Colors.white,
           elevation: 0,
           actions: [
             IconButton(

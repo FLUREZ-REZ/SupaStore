@@ -163,204 +163,207 @@ class _AdminGeneralSettingsViewState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(
-          'تنظیمات عمومی سیستم',
-          style: AppTextStyles.titleMedium,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: Text(
+            'تنظیمات عمومی سیستم',
+            style: AppTextStyles.titleMedium,
+          ),
+          centerTitle: true,
+          backgroundColor: Color(0xFF03045e),
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
-        centerTitle: true,
-        backgroundColor: Color(0xFF03045e),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Consumer<AdminGeneralSettingsProvider>(
-        builder: (
-            context,
-            provider,
-            child,
-            ) {
-          if (provider.isLoading &&
-              provider.settings == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
+        body: Consumer<AdminGeneralSettingsProvider>(
+          builder: (
+              context,
+              provider,
+              child,
+              ) {
+            if (provider.isLoading &&
+                provider.settings == null) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (provider.settings == null) {
+              return _ErrorView(
+                message:
+                provider.error ??
+                    'تنظیمات عمومی سیستم دریافت نشد.',
+                onRetry: provider.loadSettings,
+              );
+            }
+
+            _initializeControllers(
+              provider.settings!,
             );
-          }
 
-          if (provider.settings == null) {
-            return _ErrorView(
-              message:
-              provider.error ??
-                  'تنظیمات عمومی سیستم دریافت نشد.',
-              onRetry: provider.loadSettings,
-            );
-          }
+            return Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.all(16.w),
+                children: [
+                  _SectionCard(
+                    title: 'تنظیمات اصلی',
+                    icon: Icons.settings_outlined,
+                    children: [
+                      _TextField(
+                        controller:
+                        _appNameController,
+                        label: 'نام اپلیکیشن',
+                        hint: 'SupaStore',
+                        icon:
+                        Icons.apps_outlined,
+                        validator: (value) {
+                          if (value == null ||
+                              value.trim().isEmpty) {
+                            return 'نام اپلیکیشن را وارد کنید.';
+                          }
 
-          _initializeControllers(
-            provider.settings!,
-          );
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 14.h),
+                      _SwitchTile(
+                        title: 'حالت تعمیرات',
+                        subtitle:
+                        'فروشگاه موقتاً از دسترس کاربران خارج شود.',
+                        value: _maintenanceMode,
+                        onChanged: (value) {
+                          setState(() {
+                            _maintenanceMode = value;
+                          });
+                        },
+                      ),
 
-          return Form(
-            key: _formKey,
-            child: ListView(
-              padding: EdgeInsets.all(16.w),
-              children: [
-                _SectionCard(
-                  title: 'تنظیمات اصلی',
-                  icon: Icons.settings_outlined,
-                  children: [
-                    _TextField(
-                      controller:
-                      _appNameController,
-                      label: 'نام اپلیکیشن',
-                      hint: 'SupaStore',
-                      icon:
-                      Icons.apps_outlined,
-                      validator: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty) {
-                          return 'نام اپلیکیشن را وارد کنید.';
-                        }
+                      _SwitchTile(
+                        title: 'خرید کاربران',
+                        subtitle:
+                        'اجازه ثبت سفارش جدید.',
+                        value: _shoppingEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            _shoppingEnabled = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
 
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 14.h),
-                    _SwitchTile(
-                      title: 'حالت تعمیرات',
-                      subtitle:
-                      'فروشگاه موقتاً از دسترس کاربران خارج شود.',
-                      value: _maintenanceMode,
-                      onChanged: (value) {
-                        setState(() {
-                          _maintenanceMode = value;
-                        });
-                      },
-                    ),
+                  _SectionCard(
+                    title: 'سفارش‌ها',
+                    icon:
+                    Icons.receipt_long_outlined,
+                    children: [
+                      _TextField(
+                        controller:
+                        _minimumOrderController,
+                        label:
+                        'حداقل مبلغ سفارش',
+                        hint: '0',
+                        icon:
+                        Icons.payments_outlined,
+                        keyboardType:
+                        TextInputType.number,
+                        suffixText: 'تومان',
+                        validator: (value) {
+                          final number =
+                          int.tryParse(
+                            value?.trim() ?? '',
+                          );
 
-                    _SwitchTile(
-                      title: 'خرید کاربران',
-                      subtitle:
-                      'اجازه ثبت سفارش جدید.',
-                      value: _shoppingEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _shoppingEnabled = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                
-                _SectionCard(
-                  title: 'سفارش‌ها',
-                  icon:
-                  Icons.receipt_long_outlined,
-                  children: [
-                    _TextField(
-                      controller:
-                      _minimumOrderController,
-                      label:
-                      'حداقل مبلغ سفارش',
-                      hint: '0',
-                      icon:
-                      Icons.payments_outlined,
-                      keyboardType:
-                      TextInputType.number,
-                      suffixText: 'تومان',
-                      validator: (value) {
-                        final number =
-                        int.tryParse(
-                          value?.trim() ?? '',
-                        );
+                          if (number == null ||
+                              number < 0) {
+                            return 'مبلغ معتبر وارد کنید.';
+                          }
 
-                        if (number == null ||
-                            number < 0) {
-                          return 'مبلغ معتبر وارد کنید.';
-                        }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _SectionCard(
+                    title: 'حالت تعمیرات',
+                    icon:
+                    Icons.build_outlined,
+                    children: [
+                      _TextField(
+                        controller:
+                        _maintenanceMessageController,
+                        label:
+                        'پیام حالت تعمیرات',
+                        hint:
+                        'فروشگاه در حال بروزرسانی است.',
+                        icon:
+                        Icons.message_outlined,
+                        maxLines: 4,
+                        validator: (value) {
+                          if (_maintenanceMode &&
+                              (value == null ||
+                                  value
+                                      .trim()
+                                      .isEmpty)) {
+                            return 'پیام حالت تعمیرات را وارد کنید.';
+                          }
 
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                _SectionCard(
-                  title: 'حالت تعمیرات',
-                  icon:
-                  Icons.build_outlined,
-                  children: [
-                    _TextField(
-                      controller:
-                      _maintenanceMessageController,
-                      label:
-                      'پیام حالت تعمیرات',
-                      hint:
-                      'فروشگاه در حال بروزرسانی است.',
-                      icon:
-                      Icons.message_outlined,
-                      maxLines: 4,
-                      validator: (value) {
-                        if (_maintenanceMode &&
-                            (value == null ||
-                                value
-                                    .trim()
-                                    .isEmpty)) {
-                          return 'پیام حالت تعمیرات را وارد کنید.';
-                        }
-
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24.h),
-                SizedBox(
-                  height: 52.h,
-                  child: ElevatedButton(
-                    onPressed:
-                    provider.isSaving
-                        ? null
-                        : _save,
-                    style:
-                    ElevatedButton.styleFrom(
-                      backgroundColor:
-                      AppColors.primary,
-                      foregroundColor:
-                      Colors.white,
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(
-                          12.r,
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+                  SizedBox(
+                    height: 52.h,
+                    child: ElevatedButton(
+                      onPressed:
+                      provider.isSaving
+                          ? null
+                          : _save,
+                      style:
+                      ElevatedButton.styleFrom(
+                        backgroundColor:
+                        AppColors.primary,
+                        foregroundColor:
+                        Colors.white,
+                        shape:
+                        RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(
+                            12.r,
+                          ),
                         ),
                       ),
-                    ),
-                    child: provider.isSaving
-                        ? SizedBox(
-                      width: 22.w,
-                      height: 22.w,
-                      child:
-                      const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color:
-                        Colors.white,
+                      child: provider.isSaving
+                          ? SizedBox(
+                        width: 22.w,
+                        height: 22.w,
+                        child:
+                        const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color:
+                          Colors.white,
+                        ),
+                      )
+                          : Text(
+                        'ذخیره تنظیمات',
+                        style:
+                        AppTextStyles.button,
                       ),
-                    )
-                        : Text(
-                      'ذخیره تنظیمات',
-                      style:
-                      AppTextStyles.button,
                     ),
                   ),
-                ),
-                SizedBox(height: 30.h),
-              ],
-            ),
-          );
-        },
+                  SizedBox(height: 30.h),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -399,7 +402,7 @@ class _SectionCard extends StatelessWidget {
               Icon(
                 icon,
                 size: 21.sp,
-                color: AppColors.primary,
+                color: Color(0xFF023e8a),
               ),
               SizedBox(width: 8.w),
               Text(
@@ -449,7 +452,7 @@ class _SwitchTile extends StatelessWidget {
       value: value,
       onChanged: onChanged,
       activeTrackColor:
-      AppColors.primary,
+      Color(0xFF03045e),
     );
   }
 }
