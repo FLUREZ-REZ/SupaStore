@@ -1,10 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
+import 'package:supastore/features/cart_feature/domain/entities/cart_item_entity.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 import 'package:supastore/features/product_feature/presentation/providers/product_image_provider.dart';
@@ -38,6 +41,10 @@ class ProductDetailsPage extends StatelessWidget {
     final user =
         Supabase.instance.client.auth.currentUser;
 
+    // ========================================================
+    // USER NOT LOGGED IN
+    // ========================================================
+
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -50,6 +57,10 @@ class ProductDetailsPage extends StatelessWidget {
       return;
     }
 
+    // ========================================================
+    // ADD PRODUCT TO CART
+    // ========================================================
+
     await context.read<CartProvider>().addToCart(
       userId: user.id,
       productId: product.id,
@@ -59,6 +70,10 @@ class ProductDetailsPage extends StatelessWidget {
 
     final cartProvider =
     context.read<CartProvider>();
+
+    // ========================================================
+    // ERROR
+    // ========================================================
 
     if (cartProvider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -72,12 +87,525 @@ class ProductDetailsPage extends StatelessWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'محصول به سبد خرید اضافه شد',
-        ),
+    // ========================================================
+    // FIND ADDED PRODUCT
+    // ========================================================
+
+    final cartItems =
+        cartProvider.items;
+
+    CartItemEntity? addedItem;
+
+    for (final item in cartItems) {
+      if (item.productId == product.id) {
+        addedItem = item;
+        break;
+      }
+    }
+
+    // ========================================================
+    // SHOW BOTTOM SHEET
+    // ========================================================
+
+    _showAddedToCartBottomSheet(
+      context,
+      addedItem: addedItem,
+    );
+  }
+
+  // ==========================================================
+  // ADDED TO CART BOTTOM SHEET
+  // ==========================================================
+
+  void _showAddedToCartBottomSheet(
+      BuildContext context, {
+        required CartItemEntity? addedItem,
+      }) {
+    final int quantity =
+        addedItem?.quantity ?? 1;
+
+    final String imageUrl =
+        addedItem?.product.thumbnail ??
+            product.thumbnail;
+
+    final String productTitle =
+        addedItem?.product.title ??
+            product.title;
+
+    final int finalPrice =
+        addedItem?.product.finalPrice ??
+            product.finalPrice;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(
+        0.45,
       ),
+      builder: (
+          bottomSheetContext,
+          ) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: 20.w,
+              right: 20.w,
+              top: 12.h,
+              bottom:
+              MediaQuery.of(
+                bottomSheetContext,
+              ).padding.bottom +
+                  20.h,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+              BorderRadius.vertical(
+                top: Radius.circular(
+                  26.r,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(
+                    0.14,
+                  ),
+                  blurRadius: 24,
+                  offset: const Offset(
+                    0,
+                    -6,
+                  ),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ==================================================
+                // HANDLE
+                // ==================================================
+
+                Container(
+                  width: 42.w,
+                  height: 4.h,
+                  margin: EdgeInsets.only(
+                    bottom: 20.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius:
+                    BorderRadius.circular(
+                      20.r,
+                    ),
+                  ),
+                ),
+
+                // ==================================================
+                // SUCCESS HEADER
+                // ==================================================
+
+                Row(
+                  children: [
+                    Container(
+                      width: 42.w,
+                      height: 42.w,
+                      decoration: BoxDecoration(
+                        color: Colors.green
+                            .withOpacity(
+                          0.10,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: Colors.green,
+                        size: 25.sp,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: 12.w,
+                    ),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'محصول به سبد خرید اضافه شد',
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight:
+                              FontWeight.w700,
+                              color:
+                              Colors.black87,
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 4.h,
+                          ),
+
+                          Text(
+                            'محصول با موفقیت به سبد شما اضافه شد.',
+                            style: TextStyle(
+                              fontSize: 11.5.sp,
+                              color:
+                              Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(
+                  height: 18.h,
+                ),
+
+                // ==================================================
+                // PRODUCT CARD
+                // ==================================================
+
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(
+                    10.w,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                    const Color(0xFFF8F8F8),
+                    borderRadius:
+                    BorderRadius.circular(
+                      16.r,
+                    ),
+                    border: Border.all(
+                      color:
+                      Colors.grey.shade200,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      // ============================================
+                      // PRODUCT IMAGE
+                      // ============================================
+
+                      ClipRRect(
+                        borderRadius:
+                        BorderRadius.circular(
+                          12.r,
+                        ),
+                        child: SizedBox(
+                          width: 72.w,
+                          height: 72.w,
+                          child:
+                          CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (
+                                context,
+                                url,
+                                ) {
+                              return Container(
+                                color:
+                                Colors.grey.shade100,
+                                child:
+                                Center(
+                                  child:
+                                  SizedBox(
+                                    width: 20.w,
+                                    height: 20.w,
+                                    child:
+                                    const CircularProgressIndicator(
+                                      strokeWidth:
+                                      2,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            errorWidget: (
+                                context,
+                                url,
+                                error,
+                                ) {
+                              return Container(
+                                color:
+                                Colors.grey.shade100,
+                                child: Icon(
+                                  Icons
+                                      .image_not_supported_outlined,
+                                  color:
+                                  Colors.grey,
+                                  size: 28.sp,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 12.w,
+                      ),
+
+                      // ============================================
+                      // PRODUCT INFO
+                      // ============================================
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              productTitle,
+                              maxLines: 2,
+                              overflow:
+                              TextOverflow
+                                  .ellipsis,
+                              style: TextStyle(
+                                fontSize:
+                                13.sp,
+                                fontWeight:
+                                FontWeight.w600,
+                                color:
+                                Colors.black87,
+                                height: 1.5,
+                              ),
+                            ),
+
+                            SizedBox(
+                              height: 8.h,
+                            ),
+
+                            Row(
+                              children: [
+                                Text(
+                                  'تعداد:',
+                                  style:
+                                  TextStyle(
+                                    fontSize:
+                                    11.5.sp,
+                                    color: Colors
+                                        .grey
+                                        .shade600,
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  width: 5.w,
+                                ),
+
+                                Container(
+                                  padding:
+                                  EdgeInsets
+                                      .symmetric(
+                                    horizontal:
+                                    8.w,
+                                    vertical:
+                                    3.h,
+                                  ),
+                                  decoration:
+                                  BoxDecoration(
+                                    color: AppColors
+                                        .primary
+                                        .withOpacity(
+                                      0.08,
+                                    ),
+                                    borderRadius:
+                                    BorderRadius
+                                        .circular(
+                                      6.r,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    quantity
+                                        .toString(),
+                                    style:
+                                    TextStyle(
+                                      fontSize:
+                                      12.sp,
+                                      fontWeight:
+                                      FontWeight
+                                          .w700,
+                                      color: AppColors
+                                          .primary,
+                                    ),
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+
+                                Text(
+                                  'عدد',
+                                  style:
+                                  TextStyle(
+                                    fontSize:
+                                    11.5.sp,
+                                    color: Colors
+                                        .grey
+                                        .shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(
+                              height: 5.h,
+                            ),
+
+                            Text(
+                              '$finalPrice تومان',
+                              style:
+                              TextStyle(
+                                fontSize:
+                                11.5.sp,
+                                fontWeight:
+                                FontWeight
+                                    .w600,
+                                color:
+                                AppColors.price,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(
+                  height: 18.h,
+                ),
+
+                // ==================================================
+                // QUESTION
+                // ==================================================
+
+                Text(
+                  'می‌خواهید به سبد خرید بروید؟',
+                  textAlign:
+                  TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight:
+                    FontWeight.w500,
+                    color:
+                    Colors.grey.shade700,
+                  ),
+                ),
+
+                SizedBox(
+                  height: 14.h,
+                ),
+
+                // ==================================================
+                // GO TO CART
+                // ==================================================
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50.h,
+                  child:
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(
+                        bottomSheetContext,
+                      ).pop();
+
+                      context.push(
+                        '/cart',
+                      );
+                    },
+                    icon: Icon(
+                      Icons
+                          .shopping_cart_outlined,
+                      size: 21.sp,
+                    ),
+                    label: Text(
+                      'رفتن به سبد خرید',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight:
+                        FontWeight.w700,
+                      ),
+                    ),
+                    style:
+                    ElevatedButton.styleFrom(
+                      backgroundColor:
+                      AppColors.primary,
+                      foregroundColor:
+                      Colors.white,
+                      elevation: 0,
+                      shape:
+                      RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                          12.r,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(
+                  height: 10.h,
+                ),
+
+                // ==================================================
+                // CONTINUE SHOPPING
+                // ==================================================
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50.h,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(
+                        bottomSheetContext,
+                      ).pop();
+                    },
+                    style:
+                    OutlinedButton.styleFrom(
+                      foregroundColor:
+                      Colors.black87,
+                      side: BorderSide(
+                        color:
+                        Colors.grey.shade300,
+                      ),
+                      shape:
+                      RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                          12.r,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'ادامه خرید',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight:
+                        FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -86,15 +614,17 @@ class ProductDetailsPage extends StatelessWidget {
   // ==========================================================
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return MultiProvider(
       providers: [
-
         // ====================================================
         // PRODUCT IMAGE PROVIDER
         // ====================================================
 
-        ChangeNotifierProvider<ProductImageProvider>(
+        ChangeNotifierProvider<
+            ProductImageProvider>(
           create: (_) {
             final provider =
             getIt<ProductImageProvider>();
@@ -115,7 +645,8 @@ class ProductDetailsPage extends StatelessWidget {
             ProductSpecificationProvider>(
           create: (_) {
             final provider =
-            getIt<ProductSpecificationProvider>();
+            getIt<
+                ProductSpecificationProvider>();
 
             provider.loadSpecifications(
               product.id,
@@ -133,10 +664,12 @@ class ProductDetailsPage extends StatelessWidget {
             RelatedProductsProvider>(
           create: (_) {
             final provider =
-            getIt<RelatedProductsProvider>();
+            getIt<
+                RelatedProductsProvider>();
 
             provider.loadRelatedProducts(
-              categoryId: product.categoryId,
+              categoryId:
+              product.categoryId,
               productId: product.id,
               limit: 6,
             );
@@ -149,20 +682,23 @@ class ProductDetailsPage extends StatelessWidget {
         // REVIEW PROVIDER
         // ====================================================
 
-        ChangeNotifierProvider<ReviewProvider>(
+        ChangeNotifierProvider<
+            ReviewProvider>(
           create: (_) {
-            final provider = getIt<ReviewProvider>();
+            final provider =
+            getIt<ReviewProvider>();
 
-            provider.loadReviews(product.id);
+            provider.loadReviews(
+              product.id,
+            );
 
             return provider;
           },
         ),
       ],
-
       child: Directionality(
-        textDirection: TextDirection.rtl,
-
+        textDirection:
+        TextDirection.rtl,
         child: Scaffold(
           backgroundColor:
           const Color(0xFFF5F5F5),
@@ -174,26 +710,21 @@ class ProductDetailsPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor:
             AppColors.primary,
-
             elevation: 0,
-
             centerTitle: true,
-
             title: Text(
               'جزئیات محصول',
               style:
-              AppTextStyles.second_title_section,
+              AppTextStyles
+                  .second_title_section,
             ),
-
             actions: [
-
               // ==============================================
               // FAVORITE
               // ==============================================
 
               IconButton(
                 onPressed: () {},
-
                 icon: const Icon(
                   Icons.favorite_border,
                   color: Colors.white,
@@ -206,7 +737,6 @@ class ProductDetailsPage extends StatelessWidget {
 
               IconButton(
                 onPressed: () {},
-
                 icon: const Icon(
                   Icons.share_outlined,
                   color: Colors.white,
@@ -223,9 +753,10 @@ class ProductDetailsPage extends StatelessWidget {
           RepaintBoundary(
             child: AddToCartBar(
               product: product,
-
               onAddToCart: () {
-                _addToCart(context);
+                _addToCart(
+                  context,
+                );
               },
             ),
           ),
@@ -237,9 +768,7 @@ class ProductDetailsPage extends StatelessWidget {
           body: CustomScrollView(
             physics:
             const BouncingScrollPhysics(),
-
             slivers: [
-
               // =================================================
               // PRODUCT IMAGE
               // =================================================
@@ -247,31 +776,20 @@ class ProductDetailsPage extends StatelessWidget {
               SliverAppBar(
                 automaticallyImplyLeading:
                 false,
-
                 pinned: false,
-
                 floating: false,
-
                 snap: false,
-
                 stretch: false,
-
                 elevation: 0,
-
                 backgroundColor:
                 Colors.white,
-
                 expandedHeight: 420.h,
-
                 toolbarHeight: 0,
-
                 collapsedHeight: 0,
-
                 flexibleSpace:
                 FlexibleSpaceBar(
                   collapseMode:
                   CollapseMode.parallax,
-
                   background:
                   RepaintBoundary(
                     child:
@@ -310,14 +828,12 @@ class ProductDetailsPage extends StatelessWidget {
   }
 }
 
-
 // =============================================================
 // PRODUCT IMAGE AREA
 // =============================================================
 
 class _ProductImageArea
     extends StatelessWidget {
-
   const _ProductImageArea({
     required this.product,
   });
@@ -325,9 +841,12 @@ class _ProductImageArea
   final ProductEntity product;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     final imageProvider =
-    context.watch<ProductImageProvider>();
+    context.watch<
+        ProductImageProvider>();
 
     // =========================================================
     // LOADING
@@ -337,11 +856,10 @@ class _ProductImageArea
         imageProvider.images.isEmpty) {
       return Container(
         width: double.infinity,
-
         color: Colors.white,
-
         child: const Center(
-          child: CircularProgressIndicator(),
+          child:
+          CircularProgressIndicator(),
         ),
       );
     }
@@ -353,10 +871,12 @@ class _ProductImageArea
     final List<String> images =
     imageProvider.images
         .map(
-          (image) => image.imageUrl,
+          (image) =>
+      image.imageUrl,
     )
         .where(
-          (url) => url.isNotEmpty,
+          (url) =>
+      url.isNotEmpty,
     )
         .toList();
 
@@ -367,9 +887,7 @@ class _ProductImageArea
     if (images.isEmpty) {
       return Container(
         width: double.infinity,
-
         color: Colors.white,
-
         child: ProductImageSlider(
           images: [
             product.thumbnail,
@@ -384,9 +902,7 @@ class _ProductImageArea
 
     return Container(
       width: double.infinity,
-
       color: Colors.white,
-
       child: ProductImageSlider(
         images: images,
       ),
@@ -394,14 +910,12 @@ class _ProductImageArea
   }
 }
 
-
 // =============================================================
 // PRODUCT CONTENT CARD
 // =============================================================
 
 class _ProductContentCard
     extends StatelessWidget {
-
   const _ProductContentCard({
     required this.product,
   });
@@ -409,26 +923,25 @@ class _ProductContentCard
   final ProductEntity product;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Container(
       width: double.infinity,
-
       decoration: BoxDecoration(
         color:
         const Color(0xFFF5F5F5),
-
         borderRadius:
         BorderRadius.vertical(
-          top: Radius.circular(24.r),
+          top: Radius.circular(
+            24.r,
+          ),
         ),
       ),
-
       clipBehavior:
       Clip.antiAlias,
-
       child: Column(
         children: [
-
           // ==================================================
           // HANDLE
           // ==================================================
@@ -438,17 +951,13 @@ class _ProductContentCard
               top: 10.h,
               bottom: 4.h,
             ),
-
             child: Container(
               width: 42.w,
-
               height: 4.h,
-
               decoration:
               BoxDecoration(
                 color:
                 Colors.grey.shade400,
-
                 borderRadius:
                 BorderRadius.circular(
                   20.r,
@@ -493,7 +1002,6 @@ class _ProductContentCard
                 provider,
                 ) =>
             provider.specifications,
-
             builder: (
                 context,
                 specifications,
@@ -530,13 +1038,11 @@ class _ProductContentCard
                 provider,
                 ) =>
             provider.products,
-
             builder: (
                 context,
                 products,
                 child,
                 ) {
-
               // ==============================================
               // LOADING
               // ==============================================
@@ -552,7 +1058,6 @@ class _ProductContentCard
                     EdgeInsets.symmetric(
                       vertical: 25.h,
                     ),
-
                     child:
                     const Center(
                       child:
@@ -570,11 +1075,12 @@ class _ProductContentCard
 
               return RelatedProductsSection(
                 products: products,
-
                 onProductTap: (
                     relatedProduct,
                     ) {
-                  Navigator.of(context).push(
+                  Navigator.of(
+                    context,
+                  ).push(
                     MaterialPageRoute(
                       builder: (_) =>
                           ProductDetailsPage(

@@ -12,6 +12,7 @@ import 'package:supastore/features/auth_feature/presentation/pages/auth_page.dar
 import 'package:supastore/features/auth_feature/presentation/pages/otp_page.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 
+import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
@@ -106,7 +107,9 @@ class AppRouter {
           state.extra as String;
 
           return ChangeNotifierProvider<OtpProvider>(
-            create: (_) => OtpProvider(),
+            create: (_) =>
+                OtpProvider(),
+
             child: OtpPage(
               phoneNumber: phone,
             ),
@@ -199,6 +202,7 @@ class AppRouter {
             child: child,
           );
         },
+
         routes: [
 
           // ======================================================
@@ -215,8 +219,24 @@ class AppRouter {
               return ChangeNotifierProvider<ProfileProvider>(
                 create: (_) =>
                     getIt<ProfileProvider>(),
+
                 child: const MainPage(),
               );
+            },
+          ),
+
+          // ======================================================
+          // Cart
+          // ======================================================
+
+          GoRoute(
+            path: '/cart',
+            name: 'cart',
+            builder: (
+                context,
+                state,
+                ) {
+              return const CartPage();
             },
           ),
 
@@ -255,9 +275,11 @@ class AppRouter {
                   ),
 
                   ChangeNotifierProvider.value(
-                    value: getIt<CartProvider>(),
+                    value:
+                    getIt<CartProvider>(),
                   ),
                 ],
+
                 child: ProductDetailsPage(
                   product: product,
                 ),
@@ -314,7 +336,9 @@ class AppRouter {
               return ChangeNotifierProvider<ProfileProvider>(
                 create: (_) =>
                     getIt<ProfileProvider>(),
-                child: const EditProfilePage(),
+
+                child:
+                const EditProfilePage(),
               );
             },
           ),
