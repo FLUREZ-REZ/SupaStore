@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
+
 import 'package:supastore/features/address_feature/presentation/pages/addresses_page.dart';
 
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
@@ -15,11 +16,13 @@ import 'package:supastore/features/favorite_feature/presentation/pages/favorites
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
 
 import 'package:supastore/features/order_feature/presentation/pages/orders_page.dart';
+import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
 
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 import 'package:supastore/features/profile_feature/presentation/widgets/profile_header.dart';
 import 'package:supastore/features/profile_feature/presentation/widgets/profile_menu_item.dart';
+
 import 'package:supastore/features/settings_feature/presentation/pages/settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -29,9 +32,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     final user =
         Supabase.instance.client.auth.currentUser;
 
@@ -45,8 +45,13 @@ class ProfilePage extends StatelessWidget {
       );
     }
 
-    return _ProfileView(
-      user: user,
+    return ChangeNotifierProvider<OrderProvider>(
+      create: (_) =>
+      getIt<OrderProvider>()
+        ..loadOrders(user.id),
+      child: _ProfileView(
+        user: user,
+      ),
     );
   }
 }
@@ -58,36 +63,71 @@ class _ProfileView extends StatelessWidget {
 
   final User user;
 
-
-
-
   @override
   Widget build(BuildContext context) {
-
-
-
-    final provider =
+    final profileProvider =
     context.watch<ProfileProvider>();
+
+    final orderProvider =
+    context.watch<OrderProvider>();
+
+    final pendingCount =
+        orderProvider.orders
+            .where(
+              (order) =>
+          order.status == 'pending',
+        )
+            .length;
+
+    final processingCount =
+        orderProvider.orders
+            .where(
+              (order) =>
+          order.status == 'processing',
+        )
+            .length;
+
+    final shippedCount =
+        orderProvider.orders
+            .where(
+              (order) =>
+          order.status == 'shipped',
+        )
+            .length;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor:
+        const Color(0xFFF7F7F8),
 
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'پروفایل',
+            style: TextStyle(
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           centerTitle: true,
-          backgroundColor: AppColors.profile_page_redi,
+          backgroundColor:
+          AppColors.profile_page_redi,
+          foregroundColor: Colors.white,
           elevation: 0,
         ),
 
         body: RefreshIndicator(
+          color:
+          AppColors.profile_page_redi,
           onRefresh: () async {
-            await provider.refreshProfile(
-              userId: user.id,
-            );
+            await Future.wait([
+              profileProvider.refreshProfile(
+                userId: user.id,
+              ),
+              orderProvider.refreshOrders(
+                user.id,
+              ),
+            ]);
           },
 
           child: ListView(
@@ -102,11 +142,7 @@ class _ProfileView extends StatelessWidget {
             ),
 
             children: [
-              // ========================================
-              // PROFILE HEADER
-              // ========================================
-
-              if (provider.isLoading)
+              if (profileProvider.isLoading)
                 SizedBox(
                   height: 150.h,
                   child: const Center(
@@ -116,276 +152,234 @@ class _ProfileView extends StatelessWidget {
                 )
               else
                 ProfileHeader(
-                  email: user.email ?? '',
+                  email:
+                  user.email ?? '',
                   userId: user.id,
-                  profile: provider.profile,
+                  profile:
+                  profileProvider.profile,
                 ),
 
               SizedBox(
-                height: 8.h,
+                height: 20.h,
               ),
 
-              // ========================================
-              // ACCOUNT
-              // ========================================
+              const _SectionTitle(
+                title: 'سفارش‌های من',
+              ),
+
+              _OrderStatusSection(
+                pendingCount:
+                pendingCount,
+                processingCount:
+                processingCount,
+                shippedCount:
+                shippedCount,
+              ),
+
+              SizedBox(
+                height: 22.h,
+              ),
 
               const _SectionTitle(
                 title: 'حساب کاربری',
               ),
 
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                ),
+              _MenuContainer(
+                children: [
+                  ProfileMenuItem(
+                    icon:
+                    Icons.edit_outlined,
+                    title:
+                    'ویرایش پروفایل',
+                    onTap: () async {
+                      await Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              ChangeNotifierProvider
+                                  .value(
+                                value:
+                                profileProvider,
+                                child:
+                                const EditProfilePage(),
+                              ),
+                        ),
+                      );
 
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                  BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color:
-                    Colors.grey.shade200,
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      await profileProvider
+                          .refreshProfile(
+                        userId: user.id,
+                      );
+                    },
                   ),
-                ),
 
-                child: Column(
-                  children: [
-                    // EDIT PROFILE
+                  const _MenuDivider(),
 
-                    ProfileMenuItem(
-                      icon:
-                      Icons.edit_outlined,
-                      title:
-                      'ویرایش پروفایل',
+                  ProfileMenuItem(
+                    icon:
+                    Icons.shopping_bag_outlined,
+                    title:
+                    'همه سفارش‌ها',
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const OrdersPage(),
+                        ),
+                      );
+                    },
+                  ),
 
-                      onTap: () async {
-                        await Navigator.of(
-                          context,
-                        ).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                ChangeNotifierProvider
-                                    .value(
-                                  value: provider,
-                                  child:
-                                  const EditProfilePage(),
-                                ),
-                          ),
-                        );
+                  const _MenuDivider(),
 
-                        if (!context.mounted) {
-                          return;
-                        }
+                  ProfileMenuItem(
+                    icon:
+                    Icons.favorite_border,
+                    title:
+                    'علاقه‌مندی‌های من',
+                    iconColor:
+                    Colors.red,
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const FavoritesPage(),
+                        ),
+                      );
+                    },
+                  ),
 
-                        await provider
-                            .refreshProfile(
-                          userId: user.id,
-                        );
-                      },
-                    ),
+                  const _MenuDivider(),
 
-                    const Divider(
-                      height: 1,
-                    ),
-
-                    // ORDERS
-
-                    ProfileMenuItem(
-                      icon:
-                      Icons.shopping_bag_outlined,
-                      title:
-                      'سفارش‌های من',
-
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                            const OrdersPage(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const Divider(
-                      height: 1,
-                    ),
-
-                    // FAVORITES
-
-                    ProfileMenuItem(
-                      icon:
-                      Icons.favorite_border,
-                      title:
-                      'علاقه‌مندی‌های من',
-                      iconColor:
-                      Colors.red,
-
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                            const FavoritesPage(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const Divider(
-                      height: 1,
-                    ),
-
-                    // CART
-
-                    ProfileMenuItem(
-                      icon: Icons
-                          .shopping_cart_outlined,
-                      title:
-                      'سبد خرید',
-
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                            const CartPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                  ProfileMenuItem(
+                    icon:
+                    Icons.shopping_cart_outlined,
+                    title:
+                    'سبد خرید',
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const CartPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
 
               SizedBox(
-                height: 20.h,
+                height: 22.h,
               ),
-
-              // ========================================
-              // SETTINGS
-              // ========================================
 
               const _SectionTitle(
                 title: 'تنظیمات',
               ),
 
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                ),
-
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                  BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color:
-                    Colors.grey.shade200,
+              _MenuContainer(
+                children: [
+                  ProfileMenuItem(
+                    icon:
+                    Icons.location_on_outlined,
+                    title:
+                    'آدرس‌های من',
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const AddressesPage(),
+                        ),
+                      );
+                    },
                   ),
-                ),
 
-                child: Column(
-                  children: [
-                    // ADDRESSES
+                  const _MenuDivider(),
 
-                    ProfileMenuItem(
-                      icon: Icons.location_on_outlined,
-                      title: 'آدرس‌های من',
-
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const AddressesPage(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const Divider(
-                      height: 1,
-                    ),
-
-                    // SETTINGS
-
-                    ProfileMenuItem(
-                      icon: Icons.settings_outlined,
-                      title: 'تنظیمات',
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                            const SettingsPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                  ProfileMenuItem(
+                    icon:
+                    Icons.settings_outlined,
+                    title:
+                    'تنظیمات',
+                    onTap: () {
+                      Navigator.of(
+                        context,
+                      ).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                          const SettingsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
 
               SizedBox(
-                height: 20.h,
+                height: 22.h,
               ),
 
-              // ========================================
-              // LOGOUT
-              // ========================================
-
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                ),
-
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                  BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color:
-                    Colors.grey.shade200,
+              _MenuContainer(
+                children: [
+                  ProfileMenuItem(
+                    icon:
+                    Icons.logout_rounded,
+                    title:
+                    'خروج از حساب',
+                    iconColor:
+                    Colors.red,
+                    onTap: () {
+                      _showLogoutDialog(
+                        context,
+                      );
+                    },
                   ),
-                ),
-
-                child: ProfileMenuItem(
-                  icon: Icons.logout,
-                  title:
-                  'خروج از حساب',
-                  iconColor:
-                  Colors.red,
-
-                  onTap: () {
-                    _showLogoutDialog(
-                      context,
-                    );
-                  },
-                ),
+                ],
               ),
 
               SizedBox(
-                height: 30.h,
+                height: 28.h,
               ),
-
-              // ========================================
-              // APP NAME
-              // ========================================
 
               Center(
                 child: Text(
                   'Supastore',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
+                    fontWeight:
+                    FontWeight.w500,
                     color:
-                    Colors.grey.shade500,
+                    Colors.grey.shade400,
                   ),
                 ),
               ),
 
+              SizedBox(
+                height: 5.h,
+              ),
 
-
+              Center(
+                child: Text(
+                  'نسخه 1.0.0',
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    color:
+                    Colors.grey.shade400,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -393,19 +387,22 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  // ====================================================
-  // LOGOUT DIALOG
-  // ====================================================
-
   Future<void> _showLogoutDialog(
       BuildContext context,
       ) async {
     final confirmed =
     await showDialog<bool>(
       context: context,
-
       builder: (dialogContext) {
         return AlertDialog(
+          shape:
+          RoundedRectangleBorder(
+            borderRadius:
+            BorderRadius.circular(
+              18.r,
+            ),
+          ),
+
           title: const Text(
             'خروج از حساب',
           ),
@@ -421,7 +418,6 @@ class _ProfileView extends StatelessWidget {
                   dialogContext,
                 ).pop(false);
               },
-
               child: const Text(
                 'انصراف',
               ),
@@ -433,7 +429,6 @@ class _ProfileView extends StatelessWidget {
                   dialogContext,
                 ).pop(true);
               },
-
               child: const Text(
                 'خروج',
                 style: TextStyle(
@@ -458,23 +453,13 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  // ====================================================
-  // LOGOUT
-  // ====================================================
-
   Future<void> _logout(
       BuildContext context,
       String userId,
       ) async {
-    // ================================================
-    // LOADING
-    // ================================================
-
     showDialog<void>(
       context: context,
-
       barrierDismissible: false,
-
       builder: (_) {
         return const Center(
           child:
@@ -484,33 +469,15 @@ class _ProfileView extends StatelessWidget {
     );
 
     try {
-      // ==============================================
-      // CLEAR PROFILE
-      // ==============================================
-
       context
           .read<ProfileProvider>()
           .clearProfile();
 
-      // ==============================================
-      // CLEAR FAVORITES
-      // ==============================================
-
       getIt<FavoriteProvider>()
           .clearFavorites();
 
-      // ==============================================
-      // CLEAR CART
-      //
-      // CartProvider فعلی تو userId می‌خواهد
-      // ==============================================
-
       await getIt<CartProvider>()
           .clearCart(userId);
-
-      // ==============================================
-      // SIGN OUT FROM SUPABASE
-      // ==============================================
 
       await Supabase
           .instance
@@ -522,15 +489,7 @@ class _ProfileView extends StatelessWidget {
         return;
       }
 
-      // ==============================================
-      // CLOSE LOADING
-      // ==============================================
-
       Navigator.of(context).pop();
-
-      // ==============================================
-      // GO TO AUTH PAGE
-      // ==============================================
 
       context.goNamed('auth');
     } catch (e) {
@@ -538,15 +497,7 @@ class _ProfileView extends StatelessWidget {
         return;
       }
 
-      // ==============================================
-      // CLOSE LOADING
-      // ==============================================
-
       Navigator.of(context).pop();
-
-      // ==============================================
-      // SHOW ERROR
-      // ==============================================
 
       ScaffoldMessenger.of(context)
           .showSnackBar(
@@ -562,9 +513,298 @@ class _ProfileView extends StatelessWidget {
   }
 }
 
-// ====================================================
-// SECTION TITLE
-// ====================================================
+class _OrderStatusSection
+    extends StatelessWidget {
+  const _OrderStatusSection({
+    required this.pendingCount,
+    required this.processingCount,
+    required this.shippedCount,
+  });
+
+  final int pendingCount;
+  final int processingCount;
+  final int shippedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: 16.w,
+      ),
+
+      padding: EdgeInsets.symmetric(
+        vertical: 18.h,
+        horizontal: 8.w,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(16.r),
+        border: Border.all(
+          color: const Color(0xFFEDEDED),
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Expanded(
+            child: _OrderStatusItem(
+              count: pendingCount,
+              title: 'در انتظار',
+              icon:
+              Icons.access_time_rounded,
+              color:
+              const Color(0xFFF59E0B),
+              status: 'pending',
+            ),
+          ),
+
+          Container(
+            width: 1,
+            height: 65.h,
+            color:
+            const Color(0xFFEDEDED),
+          ),
+
+          Expanded(
+            child: _OrderStatusItem(
+              count:
+              processingCount,
+              title:
+              'در حال پردازش',
+              icon:
+              Icons.inventory_2_outlined,
+              color:
+              const Color(0xFF3B82F6),
+              status: 'processing',
+            ),
+          ),
+
+          Container(
+            width: 1,
+            height: 65.h,
+            color:
+            const Color(0xFFEDEDED),
+          ),
+
+          Expanded(
+            child: _OrderStatusItem(
+              count: shippedCount,
+              title: 'ارسال شده',
+              icon:
+              Icons.local_shipping_outlined,
+              color:
+              const Color(0xFF22C55E),
+              status: 'shipped',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderStatusItem
+    extends StatelessWidget {
+  const _OrderStatusItem({
+    required this.count,
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.status,
+  });
+
+  final int count;
+  final String title;
+  final IconData icon;
+  final Color color;
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius:
+      BorderRadius.circular(12.r),
+
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                OrdersPage(
+                  initialStatus: status,
+                ),
+          ),
+        );
+      },
+
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 4.w,
+          vertical: 2.h,
+        ),
+
+        child: Column(
+          mainAxisSize:
+          MainAxisSize.min,
+
+          children: [
+            Stack(
+              clipBehavior:
+              Clip.none,
+
+              children: [
+                Container(
+                  width: 42.w,
+                  height: 42.w,
+
+                  decoration:
+                  BoxDecoration(
+                    shape:
+                    BoxShape.circle,
+                    color:
+                    color.withOpacity(
+                      0.10,
+                    ),
+                  ),
+
+                  child: Icon(
+                    icon,
+                    size: 20.sp,
+                    color: color,
+                  ),
+                ),
+
+                if (count > 0)
+                  Positioned(
+                    top: -5.h,
+                    right: -5.w,
+
+                    child: Container(
+                      constraints:
+                      BoxConstraints(
+                        minWidth: 18.w,
+                        minHeight: 18.w,
+                      ),
+
+                      padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 4.w,
+                      ),
+
+                      decoration:
+                      BoxDecoration(
+                        color: color,
+                        shape:
+                        BoxShape.circle,
+                        border:
+                        Border.all(
+                          color:
+                          Colors.white,
+                          width: 2,
+                        ),
+                      ),
+
+                      child: Center(
+                        child: Text(
+                          '$count',
+                          style:
+                          TextStyle(
+                            fontSize: 9.sp,
+                            fontWeight:
+                            FontWeight.w700,
+                            color:
+                            Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            SizedBox(
+              height: 8.h,
+            ),
+
+            Text(
+              title,
+              textAlign:
+              TextAlign.center,
+              maxLines: 1,
+              overflow:
+              TextOverflow.ellipsis,
+
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight:
+                FontWeight.w600,
+                color:
+                const Color(0xFF444444),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuContainer
+    extends StatelessWidget {
+  const _MenuContainer({
+    required this.children,
+  });
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: 16.w,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(16.r),
+        border: Border.all(
+          color:
+          const Color(0xFFEDEDED),
+        ),
+      ),
+
+      child: ClipRRect(
+        borderRadius:
+        BorderRadius.circular(16.r),
+
+        child: Column(
+          children: children,
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDivider
+    extends StatelessWidget {
+  const _MenuDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        right: 58.w,
+      ),
+      child: const Divider(
+        height: 1,
+        thickness: 1,
+        color: Color(0xFFF1F1F1),
+      ),
+    );
+  }
+}
 
 class _SectionTitle
     extends StatelessWidget {
@@ -575,23 +815,22 @@ class _SectionTitle
   final String title;
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
         right: 20.w,
-        bottom: 8.h,
+        bottom: 9.h,
       ),
 
       child: Text(
         title,
+
         style: TextStyle(
-          fontSize: 14.sp,
+          fontSize: 13.sp,
           fontWeight:
-          FontWeight.bold,
+          FontWeight.w700,
           color:
-          Colors.grey.shade700,
+          const Color(0xFF555555),
         ),
       ),
     );

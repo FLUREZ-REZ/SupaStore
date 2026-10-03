@@ -14,7 +14,10 @@ import 'package:supastore/features/order_feature/presentation/pages/order_detail
 class OrdersPage extends StatefulWidget {
   const OrdersPage({
     super.key,
+    this.initialStatus,
   });
+
+  final String? initialStatus;
 
   @override
   State<OrdersPage> createState() => _OrdersPageState();
@@ -29,11 +32,15 @@ class _OrdersPageState extends State<OrdersPage> {
 
   String? _error;
 
+  String? _selectedStatus;
+
   @override
   void initState() {
     super.initState();
 
     _repository = getIt<OrderRepository>();
+
+    _selectedStatus = widget.initialStatus;
 
     _loadOrders();
   }
@@ -103,6 +110,36 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
+  // ============================================================
+  // FILTER ORDERS
+  // ============================================================
+
+  List<OrderEntity> get _filteredOrders {
+    if (_selectedStatus == null) {
+      return _orders;
+    }
+
+    return _orders
+        .where(
+          (order) =>
+      order.status ==
+          _selectedStatus,
+    )
+        .toList();
+  }
+
+  // ============================================================
+  // CHANGE FILTER
+  // ============================================================
+
+  void _changeFilter(
+      String? status,
+      ) {
+    setState(() {
+      _selectedStatus = status;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -121,7 +158,8 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
           centerTitle: true,
           elevation: 0,
-          backgroundColor: AppColors.orders_page_redi,
+          backgroundColor:
+          AppColors.orders_page_redi,
 
           actions: [
             IconButton(
@@ -162,35 +200,224 @@ class _OrdersPageState extends State<OrdersPage> {
       );
     }
 
-    if (_orders.isEmpty) {
-      return const _EmptyOrdersView();
-    }
+    return Column(
+      children: [
+        _buildFilterBar(),
 
-    return RefreshIndicator(
-      onRefresh: _loadOrders,
-      child: ListView.builder(
+        Expanded(
+          child: _filteredOrders.isEmpty
+              ? const _EmptyOrdersView()
+              : RefreshIndicator(
+            onRefresh: _loadOrders,
+            child: ListView.builder(
+              physics:
+              const AlwaysScrollableScrollPhysics(
+                parent:
+                BouncingScrollPhysics(),
+              ),
+              padding:
+              EdgeInsets.only(
+                top: 12.h,
+                bottom: 30.h,
+              ),
+              itemCount:
+              _filteredOrders.length,
+              itemBuilder: (
+                  context,
+                  index,
+                  ) {
+                final order =
+                _filteredOrders[index];
+
+                return _OrderCard(
+                  order: order,
+                  onDetails: () {
+                    _openOrderDetails(
+                      order,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // FILTER BAR
+  // ============================================================
+
+  Widget _buildFilterBar() {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        horizontal: 12.w,
+        vertical: 12.h,
+      ),
+      child: SingleChildScrollView(
+        scrollDirection:
+        Axis.horizontal,
         physics:
-        const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        padding: EdgeInsets.only(
-          top: 12.h,
-          bottom: 30.h,
-        ),
-        itemCount: _orders.length,
-        itemBuilder: (
-            context,
-            index,
-            ) {
-          final order = _orders[index];
+        const BouncingScrollPhysics(),
+        child: Row(
+          children: [
+            _FilterChip(
+              title: 'همه',
+              selected:
+              _selectedStatus == null,
+              onTap: () {
+                _changeFilter(null);
+              },
+            ),
 
-          return _OrderCard(
-            order: order,
-            onDetails: () {
-              _openOrderDetails(order);
-            },
-          );
-        },
+            SizedBox(width: 8.w),
+
+            _FilterChip(
+              title: 'در انتظار',
+              selected:
+              _selectedStatus ==
+                  'pending',
+              color: Colors.orange,
+              onTap: () {
+                _changeFilter(
+                  'pending',
+                );
+              },
+            ),
+
+            SizedBox(width: 8.w),
+
+            _FilterChip(
+              title: 'در حال پردازش',
+              selected:
+              _selectedStatus ==
+                  'processing',
+              color: Colors.blue,
+              onTap: () {
+                _changeFilter(
+                  'processing',
+                );
+              },
+            ),
+
+            SizedBox(width: 8.w),
+
+            _FilterChip(
+              title: 'ارسال شده',
+              selected:
+              _selectedStatus ==
+                  'shipped',
+              color: Colors.indigo,
+              onTap: () {
+                _changeFilter(
+                  'shipped',
+                );
+              },
+            ),
+
+            SizedBox(width: 8.w),
+
+            _FilterChip(
+              title: 'تحویل شده',
+              selected:
+              _selectedStatus ==
+                  'delivered',
+              color: Colors.green,
+              onTap: () {
+                _changeFilter(
+                  'delivered',
+                );
+              },
+            ),
+
+            SizedBox(width: 8.w),
+
+            _FilterChip(
+              title: 'لغو شده',
+              selected:
+              _selectedStatus ==
+                  'canceled',
+              color: Colors.red,
+              onTap: () {
+                _changeFilter(
+                  'canceled',
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==================================================================
+// FILTER CHIP
+// ==================================================================
+
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.title,
+    required this.selected,
+    required this.onTap,
+    this.color,
+  });
+
+  final String title;
+
+  final bool selected;
+
+  final VoidCallback onTap;
+
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final chipColor =
+        color ?? AppColors.primary;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius:
+      BorderRadius.circular(20.r),
+      child: AnimatedContainer(
+        duration:
+        const Duration(
+          milliseconds: 180,
+        ),
+        padding:
+        EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: 9.h,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? chipColor
+              : Colors.white,
+          borderRadius:
+          BorderRadius.circular(
+            20.r,
+          ),
+          border: Border.all(
+            color: selected
+                ? chipColor
+                : Colors.grey.shade300,
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight:
+            FontWeight.w600,
+            color: selected
+                ? Colors.white
+                : Colors.grey.shade700,
+          ),
+        ),
       ),
     );
   }
@@ -227,7 +454,8 @@ class _OrderCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
+            color:
+            Colors.black.withValues(
               alpha: 0.03,
             ),
             blurRadius: 8.r,
@@ -249,7 +477,8 @@ class _OrderCard extends StatelessWidget {
               Container(
                 width: 44.w,
                 height: 44.w,
-                decoration: BoxDecoration(
+                decoration:
+                BoxDecoration(
                   color:
                   AppColors.primary
                       .withValues(
@@ -262,12 +491,15 @@ class _OrderCard extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.receipt_long_outlined,
-                  color: AppColors.primary,
+                  color:
+                  AppColors.primary,
                   size: 24.sp,
                 ),
               ),
 
-              SizedBox(width: 12.w),
+              SizedBox(
+                width: 12.w,
+              ),
 
               Expanded(
                 child: Column(
@@ -283,10 +515,14 @@ class _OrderCard extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: 4.h),
+                    SizedBox(
+                      height: 4.h,
+                    ),
 
                     Text(
-                      _shortOrderId(order.id),
+                      _shortOrderId(
+                        order.id,
+                      ),
                       maxLines: 1,
                       overflow:
                       TextOverflow.ellipsis,
@@ -306,14 +542,18 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 16.h),
+          SizedBox(
+            height: 16.h,
+          ),
 
           Divider(
             height: 1,
             color: Colors.grey.shade200,
           ),
 
-          SizedBox(height: 14.h),
+          SizedBox(
+            height: 14.h,
+          ),
 
           // ====================================================
           // ORDER INFO
@@ -345,7 +585,9 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 12.h),
+          SizedBox(
+            height: 12.h,
+          ),
 
           // ====================================================
           // DATE
@@ -359,13 +601,18 @@ class _OrderCard extends StatelessWidget {
                 color: Colors.grey.shade500,
               ),
 
-              SizedBox(width: 6.w),
+              SizedBox(
+                width: 6.w,
+              ),
 
               Text(
-                _formatDate(order.createdAt),
+                _formatDate(
+                  order.createdAt,
+                ),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: Colors.grey.shade600,
+                  color:
+                  Colors.grey.shade600,
                 ),
               ),
 
@@ -373,17 +620,21 @@ class _OrderCard extends StatelessWidget {
 
               Text(
                 _paymentMethodText(
-                  order.paymentMethod ?? 'نامشخص',
+                  order.paymentMethod ??
+                      'نامشخص',
                 ),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: Colors.grey.shade600,
+                  color:
+                  Colors.grey.shade600,
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 16.h),
+          SizedBox(
+            height: 16.h,
+          ),
 
           // ====================================================
           // DETAILS BUTTON
@@ -527,7 +778,9 @@ class _InfoItem extends StatelessWidget {
           color: Colors.grey.shade500,
         ),
 
-        SizedBox(width: 8.w),
+        SizedBox(
+          width: 8.w,
+        ),
 
         Expanded(
           child: Column(
@@ -543,7 +796,9 @@ class _InfoItem extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 3.h),
+              SizedBox(
+                height: 3.h,
+              ),
 
               Text(
                 value,
@@ -568,7 +823,8 @@ class _InfoItem extends StatelessWidget {
 // STATUS BADGE
 // ==================================================================
 
-class _StatusBadge extends StatelessWidget {
+class _StatusBadge
+    extends StatelessWidget {
   const _StatusBadge({
     required this.status,
   });
@@ -589,13 +845,16 @@ class _StatusBadge extends StatelessWidget {
           alpha: 0.10,
         ),
         borderRadius:
-        BorderRadius.circular(20.r),
+        BorderRadius.circular(
+          20.r,
+        ),
       ),
       child: Text(
         _statusText(status),
         style: TextStyle(
           fontSize: 11.sp,
-          fontWeight: FontWeight.bold,
+          fontWeight:
+          FontWeight.bold,
           color: _statusColor(status),
         ),
       ),
@@ -681,11 +940,14 @@ class _EmptyOrdersView
               child: Icon(
                 Icons.receipt_long_outlined,
                 size: 55.sp,
-                color: Colors.grey.shade400,
+                color:
+                Colors.grey.shade400,
               ),
             ),
 
-            SizedBox(height: 20.h),
+            SizedBox(
+              height: 20.h,
+            ),
 
             Text(
               'هنوز سفارشی ندارید',
@@ -696,14 +958,18 @@ class _EmptyOrdersView
               ),
             ),
 
-            SizedBox(height: 8.h),
+            SizedBox(
+              height: 8.h,
+            ),
 
             Text(
               'سفارش‌هایی که ثبت می‌کنید در این بخش نمایش داده می‌شوند.',
-              textAlign: TextAlign.center,
+              textAlign:
+              TextAlign.center,
               style: TextStyle(
                 fontSize: 13.sp,
-                color: Colors.grey.shade600,
+                color:
+                Colors.grey.shade600,
               ),
             ),
           ],
@@ -742,14 +1008,18 @@ class _ErrorView
             Icon(
               Icons.error_outline,
               size: 70.sp,
-              color: Colors.red.shade300,
+              color:
+              Colors.red.shade300,
             ),
 
-            SizedBox(height: 16.h),
+            SizedBox(
+              height: 16.h,
+            ),
 
             Text(
               'دریافت سفارش‌ها ناموفق بود',
-              textAlign: TextAlign.center,
+              textAlign:
+              TextAlign.center,
               style: TextStyle(
                 fontSize: 17.sp,
                 fontWeight:
@@ -757,11 +1027,14 @@ class _ErrorView
               ),
             ),
 
-            SizedBox(height: 8.h),
+            SizedBox(
+              height: 8.h,
+            ),
 
             Text(
               message,
-              textAlign: TextAlign.center,
+              textAlign:
+              TextAlign.center,
               maxLines: 4,
               overflow:
               TextOverflow.ellipsis,
@@ -772,7 +1045,9 @@ class _ErrorView
               ),
             ),
 
-            SizedBox(height: 20.h),
+            SizedBox(
+              height: 20.h,
+            ),
 
             SizedBox(
               height: 46.h,
