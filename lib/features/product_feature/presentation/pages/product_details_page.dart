@@ -1075,19 +1075,10 @@ class _ProductContentCard
 
               return RelatedProductsSection(
                 products: products,
-                onProductTap: (
-                    relatedProduct,
-                    ) {
-                  Navigator.of(
-                    context,
-                  ).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          ProductDetailsPage(
-                            product:
-                            relatedProduct,
-                          ),
-                    ),
+                onProductTap: (relatedProduct) {
+                  context.pushNamed(
+                    'product-details',
+                    extra: relatedProduct,
                   );
                 },
               );
