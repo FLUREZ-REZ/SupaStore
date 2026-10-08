@@ -38,6 +38,16 @@ import 'package:supastore/features/admin_feature/admin_banner_feature/domain/use
 import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/update_admin_banner_status.dart';
 import 'package:supastore/features/admin_feature/admin_banner_feature/domain/usecases/upload_admin_banner_image.dart';
 import 'package:supastore/features/admin_feature/admin_banner_feature/presentation/providers/admin_banner_provider.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/data/datasources/admin_flash_sale_remote_data_source.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/data/repositories/admin_flash_sale_repository_impl.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/repositories/admin_flash_sale_repository.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/create_admin_flash_sale.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/delete_admin_flash_sale.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/get_admin_flash_sales.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/search_admin_flash_sale_products.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/update_admin_flash_sale.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/domain/usecases/update_admin_flash_sale_status.dart';
+import 'package:supastore/features/admin_feature/admin_flash_sale_feature/presentation/providers/admin_flash_sales_provider.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/datasources/admin_general_settings_remote_data_source.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/data/repositories/admin_general_settings_repository_impl.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/domain/repositories/admin_general_settings_repository.dart';
@@ -1425,5 +1435,85 @@ Future<void> setupInjector() async {
     ),
   );
 
+  //admin_flash_sales
+
+  getIt.registerLazySingleton<
+      AdminFlashSaleRemoteDataSource>(
+        () => AdminFlashSaleRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<
+      AdminFlashSaleRepository>(
+        () => AdminFlashSaleRepositoryImpl(
+      remoteDataSource:
+      getIt<AdminFlashSaleRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      GetAdminFlashSales>(
+        () => GetAdminFlashSales(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      CreateAdminFlashSale>(
+        () => CreateAdminFlashSale(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      UpdateAdminFlashSale>(
+        () => UpdateAdminFlashSale(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      DeleteAdminFlashSale>(
+        () => DeleteAdminFlashSale(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      UpdateAdminFlashSaleStatus>(
+        () => UpdateAdminFlashSaleStatus(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<
+      SearchAdminFlashSaleProducts>(
+        () => SearchAdminFlashSaleProducts(
+      repository:
+      getIt<AdminFlashSaleRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<
+      AdminFlashSalesProvider>(
+        () => AdminFlashSalesProvider(
+      getAdminFlashSales:
+      getIt<GetAdminFlashSales>(),
+      createAdminFlashSale:
+      getIt<CreateAdminFlashSale>(),
+      updateAdminFlashSale:
+      getIt<UpdateAdminFlashSale>(),
+      deleteAdminFlashSale:
+      getIt<DeleteAdminFlashSale>(),
+      updateAdminFlashSaleStatus:
+      getIt<UpdateAdminFlashSaleStatus>(),
+      searchAdminFlashSaleProducts:
+      getIt<SearchAdminFlashSaleProducts>(),
+    ),
+  );
 
 }
