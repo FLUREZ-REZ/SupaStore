@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -47,7 +48,7 @@ class HomeSearchBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Icon(
-                    Icons.search_rounded,
+                    Icons.search_outlined,
                     size: 20.sp,
                     color: AppColors.primary,
                   ),

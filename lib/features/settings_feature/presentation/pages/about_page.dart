@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 
 class AboutPage extends StatelessWidget {
@@ -64,7 +65,7 @@ class AboutPage extends StatelessWidget {
                 ),
 
                 child: Icon(
-                  Icons.storefront_outlined,
+                  Iconsax.shop_copy,
                   size: 52.sp,
                   color: AppColors.white,
                 ),
@@ -138,7 +139,7 @@ class AboutPage extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.info_outline,
+                          Iconsax.info_circle_copy,
                           size: 22.sp,
                           color:
                           primaryColor,
@@ -210,8 +211,7 @@ class AboutPage extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons
-                          .system_update_outlined,
+                      Iconsax.mobile_copy,
                       size: 22.sp,
                       color:
                       Colors.grey.shade600,

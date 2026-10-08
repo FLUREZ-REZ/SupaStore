@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -254,8 +255,7 @@ class HomeAppBar extends StatelessWidget {
 
               _HeaderIconButton(
                 icon:
-                Icons
-                    .notifications_none_rounded,
+                Iconsax.notification_copy,
                 onTap: () {
                   // TODO:
                   // NotificationsPage
@@ -342,8 +342,7 @@ class _UserAvatar extends StatelessWidget {
             ),
           )
               : Icon(
-            Icons
-                .person_outline_rounded,
+            Iconsax.user_copy,
             size: 20.sp,
             color: AppColors
                 .home_header,
@@ -379,7 +378,7 @@ class _CartIconButton
       children: [
         _HeaderIconButton(
           icon:
-          Icons.shopping_cart_outlined,
+          Iconsax.shopping_cart_copy,
           onTap: onTap,
         ),
 

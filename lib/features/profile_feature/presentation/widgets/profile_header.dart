@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import 'package:supastore/features/profile_feature/domain/entities/profile_entity.dart';
 
@@ -215,7 +216,7 @@ class _DefaultAvatar extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(
-        Icons.person_outline,
+        Iconsax.user_copy,
         size: 34.sp,
         color: color,
       ),

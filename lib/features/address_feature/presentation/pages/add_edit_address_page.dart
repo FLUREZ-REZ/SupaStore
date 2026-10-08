@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -185,7 +186,7 @@ class _AddEditAddressViewState
                     hint:
                     'مثلاً خانه یا محل کار',
                     icon:
-                    Icons.bookmark_outline,
+                    Iconsax.bookmark_copy,
                     textInputAction:
                     TextInputAction.next,
                     validator:
@@ -205,7 +206,7 @@ class _AddEditAddressViewState
                     hint:
                     'نام و نام خانوادگی',
                     icon:
-                    Icons.person_outline,
+                    Iconsax.user_copy,
                     textInputAction:
                     TextInputAction.next,
                     validator:
@@ -225,7 +226,7 @@ class _AddEditAddressViewState
                     hint:
                     '09123456789',
                     icon:
-                    Icons.phone_outlined,
+                    Iconsax.call_copy,
                     keyboardType:
                     TextInputType.phone,
                     textInputAction:
@@ -251,8 +252,7 @@ class _AddEditAddressViewState
                           _provinceController,
                           label: 'استان',
                           hint: 'استان',
-                          icon: Icons
-                              .map_outlined,
+                          icon: Iconsax.map_copy,
                           textInputAction:
                           TextInputAction.next,
                           validator:
@@ -271,8 +271,7 @@ class _AddEditAddressViewState
                           _cityController,
                           label: 'شهر',
                           hint: 'شهر',
-                          icon: Icons
-                              .location_city_outlined,
+                          icon: Iconsax.house_2_copy,
                           textInputAction:
                           TextInputAction.next,
                           validator:
@@ -295,7 +294,7 @@ class _AddEditAddressViewState
                     hint:
                     'خیابان، کوچه، پلاک، واحد و ...',
                     icon:
-                    Icons.home_outlined,
+                    Iconsax.house_copy,
                     maxLines: 4,
                     textInputAction:
                     TextInputAction.newline,
@@ -312,8 +311,7 @@ class _AddEditAddressViewState
                     _postalCodeController,
                     label: 'کد پستی',
                     hint: '۱۰ رقمی',
-                    icon: Icons
-                        .markunread_mailbox_outlined,
+                    icon: Iconsax.code_copy,
                     keyboardType:
                     TextInputType.number,
                     textInputAction:

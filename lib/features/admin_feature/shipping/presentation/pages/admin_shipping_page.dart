@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/features/admin_feature/shipping/domain/entities/admin_shipping_method_entity.dart';
@@ -56,7 +57,7 @@ class _AdminShippingPageState
                     provider.refresh();
                   },
                   icon: const Icon(
-                    Icons.refresh_rounded,
+                    Iconsax.refresh_copy,
                   ),
                 );
               },
@@ -174,7 +175,7 @@ class _AdminShippingPageState
               BorderRadius.circular(15.r),
             ),
             child: Icon(
-              Icons.local_shipping_outlined,
+              Iconsax.truck_fast_copy,
               color: Colors.indigo,
               size: 27.sp,
             ),
@@ -280,7 +281,7 @@ class _AdminShippingPageState
                     BorderRadius.circular(13.r),
                   ),
                   child: Icon(
-                    Icons.local_shipping_outlined,
+                    Iconsax.truck_copy,
                     size: 23.sp,
                     color: method.isActive
                         ? Colors.indigo
@@ -380,10 +381,8 @@ class _AdminShippingPageState
                           children: [
                             Icon(
                               method.isActive
-                                  ? Icons
-                                  .visibility_off_outlined
-                                  : Icons
-                                  .visibility_outlined,
+                                  ? Iconsax.eye_slash_copy
+                                  : Iconsax.eye_copy,
                               size: 20,
                             ),
                             SizedBox(width: 10.w),
@@ -401,7 +400,7 @@ class _AdminShippingPageState
                         child: Row(
                           children: [
                             Icon(
-                              Icons.delete_outline,
+                              Iconsax.trash_copy,
                               size: 20,
                               color: Colors.red.shade600,
                             ),
@@ -431,7 +430,7 @@ class _AdminShippingPageState
               children: [
                 Expanded(
                   child: _buildInfoItem(
-                    icon: Icons.payments_outlined,
+                    icon: Iconsax.card_copy,
                     title: 'هزینه',
                     value:
                     '${_formatPrice(method.cost)} تومان',
@@ -444,7 +443,7 @@ class _AdminShippingPageState
                 ),
                 Expanded(
                   child: _buildInfoItem(
-                    icon: Icons.schedule_outlined,
+                    icon: Iconsax.clock_copy,
                     title: 'زمان ارسال',
                     value:
                     method.estimatedDays
@@ -462,7 +461,7 @@ class _AdminShippingPageState
                 ),
                 Expanded(
                   child: _buildInfoItem(
-                    icon: Icons.sort_rounded,
+                    icon: Iconsax.sort_copy,
                     title: 'ترتیب',
                     value: method.sortOrder.toString(),
                   ),
@@ -556,7 +555,7 @@ class _AdminShippingPageState
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.local_shipping_outlined,
+                Iconsax.truck_copy,
                 size: 40.sp,
                 color: Colors.indigo,
               ),
@@ -622,7 +621,7 @@ class _AdminShippingPageState
           MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline_rounded,
+              Iconsax.warning_2_copy,
               size: 48.sp,
               color: Colors.red,
             ),

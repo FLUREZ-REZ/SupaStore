@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -188,7 +189,7 @@ class _ProfileView extends StatelessWidget {
                 children: [
                   ProfileMenuItem(
                     icon:
-                    Icons.edit_outlined,
+                    Iconsax.user_edit_copy,
                     title:
                     'ویرایش پروفایل',
                     onTap: () async {
@@ -222,7 +223,7 @@ class _ProfileView extends StatelessWidget {
 
                   ProfileMenuItem(
                     icon:
-                    Icons.shopping_bag_outlined,
+                    Iconsax.shopping_bag_copy,
                     title:
                     'همه سفارش‌ها',
                     onTap: () {
@@ -241,7 +242,7 @@ class _ProfileView extends StatelessWidget {
 
                   ProfileMenuItem(
                     icon:
-                    Icons.favorite_border,
+                    Iconsax.heart_copy,
                     title:
                     'علاقه‌مندی‌های من',
                     iconColor:
@@ -262,7 +263,7 @@ class _ProfileView extends StatelessWidget {
 
                   ProfileMenuItem(
                     icon:
-                    Icons.shopping_cart_outlined,
+                    Iconsax.truck_copy,
                     title:
                     'سبد خرید',
                     onTap: () {
@@ -291,7 +292,7 @@ class _ProfileView extends StatelessWidget {
                 children: [
                   ProfileMenuItem(
                     icon:
-                    Icons.location_on_outlined,
+                    Iconsax.location_copy,
                     title:
                     'آدرس‌های من',
                     onTap: () {
@@ -310,7 +311,7 @@ class _ProfileView extends StatelessWidget {
 
                   ProfileMenuItem(
                     icon:
-                    Icons.settings_outlined,
+                    Iconsax.setting_2_copy,
                     title:
                     'تنظیمات',
                     onTap: () {
@@ -335,7 +336,7 @@ class _ProfileView extends StatelessWidget {
                 children: [
                   ProfileMenuItem(
                     icon:
-                    Icons.logout_rounded,
+                    Iconsax.logout_copy,
                     title:
                     'خروج از حساب',
                     iconColor:
@@ -553,7 +554,7 @@ class _OrderStatusSection
               count: pendingCount,
               title: 'در انتظار',
               icon:
-              Icons.access_time_rounded,
+              Iconsax.clock_copy,
               color:
               const Color(0xFFF59E0B),
               status: 'pending',
@@ -574,7 +575,7 @@ class _OrderStatusSection
               title:
               'در حال پردازش',
               icon:
-              Icons.inventory_2_outlined,
+              Iconsax.box_copy,
               color:
               const Color(0xFF3B82F6),
               status: 'processing',
@@ -593,7 +594,7 @@ class _OrderStatusSection
               count: shippedCount,
               title: 'ارسال شده',
               icon:
-              Icons.local_shipping_outlined,
+              Iconsax.truck_fast_copy,
               color:
               const Color(0xFF22C55E),
               status: 'shipped',

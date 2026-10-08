@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/pages/admin_general_settings_page.dart';
@@ -34,7 +35,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 24.h),
 
               _buildSettingTile(
-                icon: Icons.storefront_outlined,
+                icon: Iconsax.shop_copy,
                 iconColor: Colors.red,
                 title: 'اطلاعات فروشگاه',
                 subtitle:
@@ -55,7 +56,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.local_shipping_outlined,
+                  icon: Iconsax.truck_fast_copy,
                   iconColor: Colors.indigo,
                   title: 'تنظیمات ارسال',
                   subtitle:
@@ -82,7 +83,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.payment_outlined,
+                  icon: Iconsax.card_copy,
                   iconColor: Colors.green,
                   title: 'تنظیمات پرداخت',
                   subtitle:
@@ -104,7 +105,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.notifications_none_rounded,
+                  icon: Iconsax.notification_copy,
                   iconColor: Colors.deepPurple,
                   title: 'تنظیمات اعلان‌ها',
                   subtitle:
@@ -119,7 +120,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.admin_panel_settings_outlined,
+                  icon: Iconsax.shield,
                   iconColor: Colors.teal,
                   title: 'مدیران و امنیت',
                   subtitle:
@@ -140,7 +141,7 @@ class AdminSettingsPage extends StatelessWidget {
               SizedBox(height: 10.h),
               _buildSettingsGroup([
                 _buildSettingTile(
-                  icon: Icons.tune_outlined,
+                  icon: Iconsax.setting_2_copy,
                   iconColor: Colors.blueGrey,
                   title: 'تنظیمات عمومی سیستم',
                   subtitle:
@@ -194,7 +195,7 @@ class AdminSettingsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(16.r),
             ),
             child: Icon(
-              Icons.settings_outlined,
+              Iconsax.setting_2_copy,
               size: 28.sp,
               color: Colors.red,
             ),

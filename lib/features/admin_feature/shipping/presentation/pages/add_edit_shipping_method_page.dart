@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/features/admin_feature/shipping/domain/entities/admin_shipping_method_entity.dart';
@@ -166,7 +167,7 @@ class _AddEditShippingMethodPageState
             child: Icon(
               isEditing
                   ? Icons.edit_location_alt_outlined
-                  : Icons.local_shipping_outlined,
+                  : Iconsax.truck_fast_copy,
               color: Colors.indigo,
               size: 27.sp,
             ),
@@ -232,7 +233,7 @@ class _AddEditShippingMethodPageState
             controller: _titleController,
             label: 'عنوان روش ارسال',
             hint: 'مثلاً پست پیشتاز',
-            icon: Icons.local_shipping_outlined,
+            icon: Iconsax.truck_copy,
             textInputAction:
             TextInputAction.next,
             validator: (value) {
@@ -253,7 +254,7 @@ class _AddEditShippingMethodPageState
             label: 'توضیحات',
             hint:
             'مثلاً ارسال با پست پیشتاز',
-            icon: Icons.description_outlined,
+            icon: Iconsax.message_copy,
             maxLines: 3,
             textInputAction:
             TextInputAction.newline,
@@ -265,7 +266,7 @@ class _AddEditShippingMethodPageState
             controller: _costController,
             label: 'هزینه ارسال',
             hint: 'مثلاً 70000',
-            icon: Icons.payments_outlined,
+            icon: Iconsax.card_copy,
             keyboardType:
             TextInputType.number,
             inputFormatters: [
@@ -304,7 +305,7 @@ class _AddEditShippingMethodPageState
             label: 'زمان تقریبی ارسال',
             hint:
             'مثلاً 2 تا 4 روز کاری',
-            icon: Icons.schedule_outlined,
+            icon: Iconsax.clock_copy,
             textInputAction:
             TextInputAction.next,
           ),
@@ -316,7 +317,7 @@ class _AddEditShippingMethodPageState
             _sortOrderController,
             label: 'ترتیب نمایش',
             hint: 'مثلاً 1',
-            icon: Icons.sort_rounded,
+            icon: Iconsax.sort_copy,
             keyboardType:
             TextInputType.number,
             inputFormatters: [
@@ -396,8 +397,8 @@ class _AddEditShippingMethodPageState
           ),
           child: Icon(
             _isActive
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
+                ? Iconsax.eye_copy
+                : Iconsax.eye_slash_copy,
             color: _isActive
                 ? Colors.green
                 : Colors.grey,
@@ -468,7 +469,7 @@ class _AddEditShippingMethodPageState
           children: [
             Icon(
               isEditing
-                  ? Icons.save_outlined
+                  ? Icons.check_circle_outline
                   : Icons.add_rounded,
               size: 21.sp,
             ),
@@ -617,7 +618,7 @@ class _AddEditShippingMethodPageState
         CrossAxisAlignment.start,
         children: [
           Icon(
-            Icons.error_outline_rounded,
+            Iconsax.warning_2_copy,
             color: Colors.red.shade600,
             size: 20.sp,
           ),

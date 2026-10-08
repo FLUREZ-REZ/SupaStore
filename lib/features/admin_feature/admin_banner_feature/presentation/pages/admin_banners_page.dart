@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
@@ -486,7 +487,7 @@ class _BannerCard extends StatelessWidget {
                     color: Colors.grey.shade100,
                     child: const Center(
                       child: Icon(
-                        Icons.broken_image_outlined,
+                        Iconsax.image_copy,
                       ),
                     ),
                   );
@@ -604,7 +605,7 @@ class _BannerCard extends StatelessWidget {
                   tooltip: 'حذف',
                   onPressed: onDelete,
                   icon: const Icon(
-                    Icons.delete_outline_rounded,
+                    Iconsax.trash_copy,
                     color: Colors.red,
                   ),
                 ),

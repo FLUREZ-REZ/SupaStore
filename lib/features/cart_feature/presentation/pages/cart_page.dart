@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -223,7 +224,7 @@ class _EmptyCart extends StatelessWidget {
                 ),
               ),
               child: Icon(
-                Icons.shopping_cart_outlined,
+                Iconsax.shopping_cart_copy,
                 size: 42.sp,
                 color: AppColors.cart_page_white,
               ),

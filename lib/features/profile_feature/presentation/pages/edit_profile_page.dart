@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -512,7 +513,7 @@ class _EditProfilePageState
                         'نام و نام خانوادگی',
 
                         icon:
-                        Icons.person_outline,
+                        Iconsax.user_copy,
                       ),
                     ),
 
@@ -560,7 +561,7 @@ class _EditProfilePageState
                         'شماره موبایل',
 
                         icon:
-                        Icons.phone_outlined,
+                        Iconsax.call_copy,
                       ),
                     ),
 

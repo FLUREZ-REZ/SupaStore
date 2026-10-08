@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -197,7 +198,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.delete_outline_rounded,
+                Iconsax.trash_copy,
                 color: _primaryRed,
                 size: 32.sp,
               ),
@@ -315,7 +316,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.warning_amber_rounded,
+                Iconsax.warning_2_copy,
                 color: _primaryRed,
                 size: 36.sp,
               ),
@@ -899,7 +900,7 @@ class _CategoryCard extends StatelessWidget {
               ),
               SizedBox(height: 7.h),
               _ActionButton(
-                icon: Icons.delete_outline_rounded,
+                icon: Iconsax.trash_copy,
                 tooltip: 'حذف',
                 color: _primaryRed,
                 onPressed: onDelete,
@@ -973,7 +974,7 @@ class _CategoryImage extends StatelessWidget {
   Widget _buildPlaceholder() {
     return const Center(
       child: Icon(
-        Icons.category_outlined,
+        Iconsax.category_copy,
         color: Colors.black26,
         size: 32,
       ),
@@ -1103,7 +1104,7 @@ class _EmptyState extends StatelessWidget {
           child: Icon(
             hasSearch
                 ? Icons.search_off_rounded
-                : Icons.category_outlined,
+                : Iconsax.category_copy,
             size: 48.sp,
             color: _primaryRed,
           ),
@@ -1197,7 +1198,7 @@ class _ErrorState extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.error_outline_rounded,
+                Iconsax.warning_2_copy,
                 color: _primaryRed,
                 size: 42.sp,
               ),

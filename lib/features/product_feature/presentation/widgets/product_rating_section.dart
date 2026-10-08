@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../domain/entities/product_entity.dart';
 
@@ -58,7 +59,7 @@ class ProductRatingSection extends StatelessWidget {
 
                   // STAR
                   Icon(
-                    Icons.star_rounded,
+                    Iconsax.star_copy,
                     color: Colors.amber,
                     size: 25.sp,
                   ),

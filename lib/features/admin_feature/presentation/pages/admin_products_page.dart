@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -463,7 +464,7 @@ class _ProductCard extends StatelessWidget {
               SizedBox(height: 8.h),
 
               _ActionButton(
-                icon: Icons.delete_outline,
+                icon: Iconsax.trash_copy,
                 label: 'حذف',
                 color: const Color(0xFFE21B23),
                 onPressed: onDelete,
@@ -505,7 +506,7 @@ class _ProductImage extends StatelessWidget {
         color: const Color(0xFFF5F5F5),
         child: imageUrl == null
             ? const Icon(
-          Icons.image_outlined,
+          Iconsax.image_copy,
           color: Colors.black26,
         )
             : CachedNetworkImage(
@@ -537,8 +538,7 @@ class _ProductImage extends StatelessWidget {
           errorWidget:
               (context, url, error) {
             return const Icon(
-              Icons
-                  .image_not_supported_outlined,
+              Iconsax.image_copy,
               color: Colors.black26,
             );
           },

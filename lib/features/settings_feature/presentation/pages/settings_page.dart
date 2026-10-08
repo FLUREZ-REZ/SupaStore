@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
@@ -110,7 +111,7 @@ class _SettingsView extends StatelessWidget {
 
                   SettingsMenuItem(
                     icon:
-                    Icons.notifications_none_rounded,
+                    Iconsax.notification_copy,
 
                     title: 'اعلان‌ها',
 
@@ -205,7 +206,7 @@ class _SettingsView extends StatelessWidget {
 
                   SettingsMenuItem(
                     icon:
-                    Icons.lock_outline_rounded,
+                    Iconsax.lock_copy,
 
                     title: 'حریم خصوصی',
 
@@ -234,7 +235,7 @@ class _SettingsView extends StatelessWidget {
 
                   SettingsMenuItem(
                     icon:
-                    Icons.info_outline_rounded,
+                    Iconsax.information_copy,
 
                     title: 'درباره ما',
 

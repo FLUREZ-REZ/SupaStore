@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../domain/entities/product_entity.dart';
 
@@ -43,7 +44,7 @@ class _ProductDescriptionSectionState
               children: [
 
                 Icon(
-                  Icons.description_outlined,
+                  Iconsax.message_copy,
                   size: 21.sp,
                   color: Colors.black87,
                 ),

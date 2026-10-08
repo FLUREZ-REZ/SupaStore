@@ -61,6 +61,7 @@ dependencies:
   app_links: 7.0.0
   fl_chart: ^1.2.0
   image: ^4.5.4
+  iconsax_flutter: ^1.0.1
 
   flutter_localizations:
     sdk: flutter

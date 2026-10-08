@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -43,8 +43,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
                   MainAxisAlignment.spaceAround,
                   children: [
                     _NavItem(
-                      icon: Icons.home_outlined,
-                      activeIcon: Icons.home,
+                      icon: Iconsax.home_2_copy,
+                      activeIcon: Iconsax.home_2,
                       label: 'خانه',
                       index: 0,
                       currentIndex: currentIndex,
@@ -52,8 +52,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
                     ),
 
                     _NavItem(
-                      icon: Icons.category_outlined,
-                      activeIcon: Icons.category,
+                      icon: Iconsax.category_copy,
+                      activeIcon: Iconsax.category,
                       label: 'دسته‌بندی',
                       index: 1,
                       currentIndex: currentIndex,
@@ -68,8 +68,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
 
                     _NavItem(
-                      icon: Icons.person_outline,
-                      activeIcon: Icons.person,
+                      icon: Iconsax.user_copy,
+                      activeIcon: Iconsax.user,
                       label: 'پروفایل',
                       index: 3,
                       currentIndex: currentIndex,
@@ -169,8 +169,8 @@ class _CartNavItem extends StatelessWidget {
               children: [
                 Icon(
                   isSelected
-                      ? Icons.shopping_cart
-                      : Icons.shopping_cart_outlined,
+                      ? Iconsax.shopping_cart
+                      : Iconsax.shopping_cart_copy,
                   size: 24.sp,
                 ),
 

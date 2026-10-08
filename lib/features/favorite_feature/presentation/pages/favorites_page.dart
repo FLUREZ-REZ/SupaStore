@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -229,7 +230,7 @@ class _EmptyFavorites
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.favorite_border,
+                Iconsax.heart_copy,
                 size: 60.sp,
                 color: Colors.red.shade300,
               ),

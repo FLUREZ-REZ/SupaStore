@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -565,7 +566,7 @@ class _AdminStoreInfoViewState
               BorderRadius.circular(15.r),
             ),
             child: Icon(
-              Icons.storefront_outlined,
+              Iconsax.shop_copy,
               color: Color(0xFF03045e),
               size: 27.sp,
             ),
@@ -655,8 +656,7 @@ class _AdminStoreInfoViewState
                         stackTrace,
                         ) {
                       return Icon(
-                        Icons
-                            .storefront_outlined,
+                        Iconsax.shop_copy,
                         size: 50.sp,
                         color:
                         Colors.grey.shade400,
@@ -665,7 +665,7 @@ class _AdminStoreInfoViewState
                   ),
                 )
                     : Icon(
-                  Icons.storefront_outlined,
+                  Iconsax.shop_copy,
                   size: 50.sp,
                   color: Colors.grey.shade400,
                 ),
@@ -761,7 +761,7 @@ class _AdminStoreInfoViewState
                 ),
               )
                   : const Icon(
-                Icons.upload_outlined,
+                Iconsax.document_upload_copy,
               ),
               label: Text(
                 provider.isUploadingLogo
@@ -797,7 +797,7 @@ class _AdminStoreInfoViewState
           controller: _storeNameController,
           label: 'نام فروشگاه',
           hint: 'مثلاً SupaStore',
-          icon: Icons.storefront_outlined,
+          icon: Iconsax.shop_copy,
           requiredField: true,
         ),
         SizedBox(height: 15.h),
@@ -805,14 +805,14 @@ class _AdminStoreInfoViewState
           controller: _taglineController,
           label: 'شعار فروشگاه',
           hint: 'مثلاً خرید سریع و مطمئن',
-          icon: Icons.auto_awesome_outlined,
+          icon: Iconsax.cloud_lightning_copy,
         ),
         SizedBox(height: 15.h),
         _buildTextField(
           controller: _descriptionController,
           label: 'توضیحات فروشگاه',
           hint: 'توضیح کوتاهی درباره فروشگاه...',
-          icon: Icons.description_outlined,
+          icon: Iconsax.message_copy,
           maxLines: 4,
         ),
       ],
@@ -826,7 +826,7 @@ class _AdminStoreInfoViewState
           controller: _phoneController,
           label: 'شماره تماس',
           hint: '02112345678',
-          icon: Icons.phone_outlined,
+          icon: Iconsax.call_copy,
           keyboardType: TextInputType.phone,
           textDirection: TextDirection.ltr,
         ),
@@ -835,7 +835,7 @@ class _AdminStoreInfoViewState
           controller: _emailController,
           label: 'ایمیل',
           hint: 'info@example.com',
-          icon: Icons.email_outlined,
+          icon: Iconsax.message_2_copy,
           keyboardType:
           TextInputType.emailAddress,
           textDirection: TextDirection.ltr,
@@ -851,7 +851,7 @@ class _AdminStoreInfoViewState
           controller: _addressController,
           label: 'آدرس کامل',
           hint: 'آدرس فروشگاه را وارد کنید',
-          icon: Icons.location_on_outlined,
+          icon: Iconsax.location_copy,
           maxLines: 4,
         ),
         SizedBox(height: 15.h),
@@ -859,7 +859,7 @@ class _AdminStoreInfoViewState
           controller: _postalCodeController,
           label: 'کد پستی',
           hint: '1234567890',
-          icon: Icons.markunread_mailbox_outlined,
+          icon: Iconsax.code_copy,
           keyboardType: TextInputType.number,
           textDirection: TextDirection.ltr,
         ),
@@ -874,7 +874,7 @@ class _AdminStoreInfoViewState
           controller: _instagramController,
           label: 'اینستاگرام',
           hint: '@supastore',
-          icon: Icons.camera_alt_outlined,
+          icon: Iconsax.instagram_copy,
           textDirection: TextDirection.ltr,
         ),
         SizedBox(height: 15.h),
@@ -882,7 +882,7 @@ class _AdminStoreInfoViewState
           controller: _telegramController,
           label: 'تلگرام',
           hint: '@supastore',
-          icon: Icons.send_outlined,
+          icon: Iconsax.send_1_copy,
           textDirection: TextDirection.ltr,
         ),
         SizedBox(height: 15.h),
@@ -890,7 +890,7 @@ class _AdminStoreInfoViewState
           controller: _websiteController,
           label: 'وب‌سایت',
           hint: 'https://example.com',
-          icon: Icons.language_outlined,
+          icon: Iconsax.link_1_copy,
           keyboardType: TextInputType.url,
           textDirection: TextDirection.ltr,
         ),
@@ -905,14 +905,14 @@ class _AdminStoreInfoViewState
           controller: _legalNameController,
           label: 'نام حقوقی / نام شرکت',
           hint: 'نام رسمی مجموعه',
-          icon: Icons.business_outlined,
+          icon: Iconsax.house_2_copy,
         ),
         SizedBox(height: 15.h),
         _buildTextField(
           controller: _nationalIdController,
           label: 'شناسه ملی / کد اقتصادی',
           hint: 'در صورت نیاز وارد کنید',
-          icon: Icons.badge_outlined,
+          icon: Iconsax.code_copy,
           keyboardType: TextInputType.number,
           textDirection: TextDirection.ltr,
         ),

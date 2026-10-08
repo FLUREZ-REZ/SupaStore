@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/dashboard/domain/entities/admin_dashboard_entity.dart';
@@ -162,28 +163,28 @@ class _StatsGridState extends State<_StatsGrid> {
               title: 'فروش امروز',
               value:
               '${_formatPrice(dashboard.todaySales)} تومان',
-              icon: Icons.payments_rounded,
+              icon: Iconsax.card_copy,
             ),
             _StatCard(
               title: 'سفارش‌ها',
               value: _formatNumber(
                 dashboard.periodOrders,
               ),
-              icon: Icons.shopping_bag_rounded,
+              icon: Iconsax.box_copy,
             ),
             _StatCard(
               title: 'محصولات',
               value: _formatNumber(
                 dashboard.totalProducts,
               ),
-              icon: Icons.inventory_2_rounded,
+              icon: Iconsax.shop_copy,
             ),
             _StatCard(
               title: 'کاربران',
               value: _formatNumber(
                 dashboard.totalUsers,
               ),
-              icon: Icons.people_alt_rounded,
+              icon: Iconsax.people_copy,
             ),
           ],
         ),
@@ -213,14 +214,14 @@ class _StatsGridState extends State<_StatsGrid> {
                     dashboard.todayOrders,
                   ),
                   icon:
-                  Icons.receipt_long_rounded,
+                  Iconsax.receipt_copy,
                 ),
                 _StatCard(
                   title: 'فروش ۷ روز اخیر',
                   value:
                   '${_formatPrice(dashboard.periodSales)} تومان',
                   icon:
-                  Icons.trending_up_rounded,
+                  Iconsax.trend_up_copy,
                 ),
               ],
             ),
@@ -652,7 +653,7 @@ class _ActionOrdersCard extends StatelessWidget {
                   ),
                 ),
                 child: Icon(
-                  Icons.priority_high_rounded,
+                  Iconsax.warning_2_copy,
                   size: 21.sp,
                   color:
                   const Color(0xFF03045e),
@@ -774,8 +775,7 @@ class _ActionOrdersCard extends StatelessWidget {
                         ),
                       ),
                       child: Icon(
-                        Icons
-                            .shopping_bag_rounded,
+                        Iconsax.box_copy,
                         size: 21.sp,
                         color:
                         const Color(
@@ -947,7 +947,7 @@ class _LowStockProductsCard
                   ),
                 ),
                 child: Icon(
-                  Icons.inventory_2_outlined,
+                  Iconsax.warning_2_copy,
                   size: 21.sp,
                   color:
                   const Color(0xFF03045e),
@@ -1028,7 +1028,7 @@ class _LowStockProductsCard
               child: Column(
                 children: [
                   Icon(
-                    Icons.inventory_2_rounded,
+                    Iconsax.box_copy,
                     size: 34.sp,
                     color: Colors.green,
                   ),
@@ -1087,8 +1087,7 @@ class _LowStockProductsCard
                             stackTrace,
                             ) {
                           return Icon(
-                            Icons
-                                .image_sharp,
+                            Iconsax.image_copy,
                             size:
                             21.sp,
                             color:
@@ -1097,8 +1096,7 @@ class _LowStockProductsCard
                         },
                       )
                           : Icon(
-                        Icons
-                            .inventory_2_outlined,
+                        Iconsax.box_copy,
                         size:
                         21.sp,
                         color:
@@ -1217,17 +1215,17 @@ class _OrderStatusCard extends StatelessWidget {
       _StatusItem(
         title: 'در انتظار بررسی',
         value: dashboard.pendingOrders,
-        icon: Icons.schedule_rounded,
+        icon: Iconsax.clock_copy,
       ),
       _StatusItem(
         title: 'در حال پردازش',
         value: dashboard.processingOrders,
-        icon: Icons.autorenew_rounded,
+        icon: Iconsax.refresh_copy,
       ),
       _StatusItem(
         title: 'ارسال شده',
         value: dashboard.shippedOrders,
-        icon: Icons.local_shipping_rounded,
+        icon: Iconsax.truck_copy,
       ),
       _StatusItem(
         title: 'تحویل داده شده',
@@ -1400,8 +1398,7 @@ class _RecentOrdersCard extends StatelessWidget {
                           ),
                         ),
                         child: Icon(
-                          Icons
-                              .shopping_bag_rounded,
+                          Iconsax.shopping_bag_copy,
                           color:
                           const Color(
                             0xFFcaf0f8,
@@ -1553,7 +1550,7 @@ class _ErrorView extends StatelessWidget {
           MainAxisSize.min,
           children: [
             Icon(
-              Icons.error_outline_rounded,
+              Iconsax.warning_2_copy,
               size: 48.sp,
               color: Colors.red,
             ),

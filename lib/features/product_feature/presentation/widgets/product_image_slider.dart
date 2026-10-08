@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class ProductImageSlider extends StatefulWidget {
@@ -140,7 +141,7 @@ class _ProductImageSliderState
               ) {
             return Center(
               child: Icon(
-                Icons.image_not_supported_outlined,
+                Iconsax.image_copy,
                 size: 60.sp,
                 color: Colors.grey,
               ),
@@ -164,7 +165,7 @@ class _ProductImageSliderState
         color: Colors.white,
         child: Center(
           child: Icon(
-            Icons.image_not_supported_outlined,
+            Iconsax.image_copy,
             size: 70.sp,
             color: Colors.grey,
           ),
@@ -593,7 +594,7 @@ class _ZoomableImageState
               error,
               ) {
             return Icon(
-              Icons.image_not_supported_outlined,
+              Iconsax.image_copy,
               color: Colors.white,
               size: 70.sp,
             );

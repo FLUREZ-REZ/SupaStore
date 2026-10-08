@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../domain/entities/product_entity.dart';
 
@@ -64,7 +65,7 @@ class AddToCartBar extends StatelessWidget {
                 onPressed: product.isAvailable
                     ? onAddToCart
                     : null,
-                icon: const Icon(Icons.shopping_cart_outlined),
+                icon: const Icon(Iconsax.truck_copy),
                 label: Text(
                   product.isAvailable
                       ? "افزودن به سبد"

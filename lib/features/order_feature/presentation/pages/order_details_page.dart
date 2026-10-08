@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
@@ -131,7 +132,7 @@ class _OrderHeader extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
-                  Icons.receipt_long_outlined,
+                  Iconsax.receipt_copy,
                   color: AppColors.primary,
                   size: 25.sp,
                 ),
@@ -324,7 +325,7 @@ class _OrderItemRow extends StatelessWidget {
                   height: 65.w,
                   color: Colors.grey.shade100,
                   child: Icon(
-                    Icons.image_not_supported_outlined,
+                    Iconsax.image_copy,
                     color: Colors.grey.shade400,
                     size: 24.sp,
                   ),
@@ -449,7 +450,7 @@ class _ShippingAddressCard extends StatelessWidget {
               if (receiverName != null &&
                   receiverName.isNotEmpty)
                 _AddressInfoRow(
-                  icon: Icons.person_outline,
+                  icon: Iconsax.user_copy,
                   title: 'تحویل گیرنده',
                   value: receiverName,
                 ),
@@ -457,7 +458,7 @@ class _ShippingAddressCard extends StatelessWidget {
               if (phone != null && phone.isNotEmpty) ...[
                 SizedBox(height: 12.h),
                 _AddressInfoRow(
-                  icon: Icons.phone_outlined,
+                  icon: Iconsax.call_copy,
                   title: 'شماره تماس',
                   value: phone,
                 ),
@@ -468,7 +469,7 @@ class _ShippingAddressCard extends StatelessWidget {
                   (city != null && city.isNotEmpty)) ...[
                 SizedBox(height: 12.h),
                 _AddressInfoRow(
-                  icon: Icons.location_city_outlined,
+                  icon: Iconsax.house_copy,
                   title: 'استان / شهر',
                   value: [
                     if (province != null &&
@@ -484,7 +485,7 @@ class _ShippingAddressCard extends StatelessWidget {
                   actualAddress.isNotEmpty) ...[
                 SizedBox(height: 12.h),
                 _AddressInfoRow(
-                  icon: Icons.home_outlined,
+                  icon: Iconsax.house_2_copy,
                   title: 'آدرس',
                   value: actualAddress,
                 ),
@@ -494,7 +495,7 @@ class _ShippingAddressCard extends StatelessWidget {
                   postalCode.isNotEmpty) ...[
                 SizedBox(height: 12.h),
                 _AddressInfoRow(
-                  icon: Icons.mail_outline_outlined,
+                  icon: Iconsax.code_copy,
                   title: 'کد پستی',
                   value: postalCode,
                 ),
@@ -548,7 +549,7 @@ class _ShippingAddressCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            Icons.location_on_outlined,
+            Iconsax.location_copy,
             color: AppColors.primary,
             size: 24.sp,
           ),
@@ -647,7 +648,7 @@ class _ShippingPaymentCard extends StatelessWidget {
       child: Column(
         children: [
           _InfoRow(
-            icon: Icons.local_shipping_outlined,
+            icon: Iconsax.truck_fast_copy,
             title: 'روش ارسال',
             value: 'ارسال معمولی',
           ),
@@ -655,7 +656,7 @@ class _ShippingPaymentCard extends StatelessWidget {
           SizedBox(height: 14.h),
 
           _InfoRow(
-            icon: Icons.payment_outlined,
+            icon: Iconsax.card_copy,
             title: 'روش پرداخت',
             value: _paymentText(
               order.paymentMethod ?? '',
@@ -665,7 +666,7 @@ class _ShippingPaymentCard extends StatelessWidget {
           SizedBox(height: 14.h),
 
           _InfoRow(
-            icon: Icons.account_balance_wallet_outlined,
+            icon: Iconsax.wallet_3_copy,
             title: 'وضعیت پرداخت',
             value: _paymentStatusText(
               order.paymentStatus ?? '',

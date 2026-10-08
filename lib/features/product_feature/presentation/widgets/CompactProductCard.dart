@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -95,7 +96,7 @@ class CompactProductCard extends StatelessWidget {
                               ) {
                             return const Center(
                               child: Icon(
-                                Icons.image_not_supported,
+                                Iconsax.image_copy,
                               ),
                             );
                           },
@@ -251,7 +252,7 @@ class CompactProductCard extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.star,
+                            Iconsax.star_copy,
                             size: 15.sp,
                             color: Colors.amber,
                           ),

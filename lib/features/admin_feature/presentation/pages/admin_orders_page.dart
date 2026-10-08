@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/address_feature/domain/usecases/get_address_by_id_use_case.dart';
@@ -72,7 +73,7 @@ class _AdminOrdersPageState
                   Column(
                     children: [
                       Icon(
-                        Icons.receipt_long_outlined,
+                        Iconsax.receipt_copy,
                         size: 48.sp,
                         color: Colors.grey.shade400,
                       ),
@@ -141,7 +142,7 @@ class _AdminOrdersPageState
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.error_outline_rounded,
+                Iconsax.warning_2_copy,
                 size: 34.sp,
                 color: Colors.red.shade600,
               ),
@@ -168,7 +169,7 @@ class _AdminOrdersPageState
             ElevatedButton.icon(
               onPressed: provider.loadOrders,
               icon: const Icon(
-                Icons.refresh_rounded,
+                Iconsax.refresh_copy,
               ),
               label: const Text(
                 'تلاش مجدد',
@@ -289,7 +290,7 @@ class _AdminOrderCard extends StatelessWidget {
             BorderRadius.circular(13.r),
           ),
           child: Icon(
-            Icons.receipt_long_rounded,
+            Iconsax.receipt_copy,
             size: 22.sp,
             color: Colors.white,
           ),
@@ -335,7 +336,7 @@ class _AdminOrderCard extends StatelessWidget {
       children: [
         Expanded(
           child: _InfoBox(
-            icon: Icons.shopping_bag_outlined,
+            icon: Iconsax.shopping_bag_copy,
             title: 'تعداد کالا',
             value:
             '${order.items.length} کالا',
@@ -346,7 +347,7 @@ class _AdminOrderCard extends StatelessWidget {
 
         Expanded(
           child: _InfoBox(
-            icon: Icons.credit_card_outlined,
+            icon: Iconsax.card_copy,
             title: 'وضعیت پرداخت',
             value: _paymentStatusText(
               order.paymentStatus,
@@ -380,7 +381,7 @@ class _AdminOrderCard extends StatelessWidget {
               BorderRadius.circular(10.r),
             ),
             child: Icon(
-              Icons.account_balance_wallet_outlined,
+              Iconsax.wallet_1_copy,
               size: 19.sp,
               color: Colors.white,
             ),

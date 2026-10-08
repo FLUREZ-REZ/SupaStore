@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:supastore/core/constants/price_formatter.dart';
@@ -167,7 +168,7 @@ class _OrdersPageState extends State<OrdersPage> {
                   ? null
                   : _loadOrders,
               icon: const Icon(
-                Icons.refresh,
+                Iconsax.refresh_copy,
               ),
             ),
           ],
@@ -490,7 +491,7 @@ class _OrderCard extends StatelessWidget {
                   ),
                 ),
                 child: Icon(
-                  Icons.receipt_long_outlined,
+                  Iconsax.receipt_copy,
                   color:
                   AppColors.primary,
                   size: 24.sp,
@@ -564,7 +565,7 @@ class _OrderCard extends StatelessWidget {
               Expanded(
                 child: _InfoItem(
                   icon:
-                  Icons.shopping_bag_outlined,
+                  Iconsax.shopping_bag_copy,
                   title: 'تعداد کالا',
                   value:
                   '${_totalItems(order)} کالا',
@@ -596,7 +597,7 @@ class _OrderCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.calendar_today_outlined,
+                Iconsax.calendar_1_copy,
                 size: 15.sp,
                 color: Colors.grey.shade500,
               ),
@@ -938,7 +939,7 @@ class _EmptyOrdersView
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.receipt_long_outlined,
+                Iconsax.receipt_copy,
                 size: 55.sp,
                 color:
                 Colors.grey.shade400,

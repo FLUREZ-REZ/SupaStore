@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supastore/features/admin_feature/Users/domain/entities/admin_user.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/pages/admin_user_details_page.dart';
@@ -239,7 +240,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             ),
           )
               : Icon(
-            Icons.refresh,
+            Iconsax.refresh_copy,
             color: Colors.white,
             size: 23.sp,
           ),
@@ -437,8 +438,8 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       ) {
     return Icon(
       user.isAdmin
-          ? Icons.admin_panel_settings_outlined
-          : Icons.person_outline,
+          ? Iconsax.shield_tick_copy
+          : Iconsax.user_copy,
       size: 30.sp,
       color: user.isAdmin
           ? Color(0xFF03045e)
@@ -516,8 +517,8 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         children: [
           Icon(
             isAdmin
-                ? Icons.admin_panel_settings_outlined
-                : Icons.person_outline,
+                ? Iconsax.shield_tick_copy
+                : Iconsax.user_copy,
             size: 15.sp,
             color: isAdmin
                 ? Color(0xFF03045e)
@@ -628,7 +629,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   ),
                 ),
                 icon: Icon(
-                  Icons.refresh,
+                  Iconsax.refresh_copy,
                   size: 19.sp,
                 ),
                 label: Text(
@@ -668,7 +669,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
               child: Icon(
                 hasSearch
                     ? Icons.search_off
-                    : Icons.people_outline,
+                    : Iconsax.people_copy,
                 size: 40.sp,
                 color: Colors.grey.shade500,
               ),

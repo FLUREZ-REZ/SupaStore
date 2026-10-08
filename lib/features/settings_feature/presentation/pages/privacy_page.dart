@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 
 class PrivacyPage extends StatelessWidget {
@@ -85,8 +86,7 @@ class PrivacyPage extends StatelessWidget {
                       ),
 
                       child: Icon(
-                        Icons
-                            .security_outlined,
+                        Iconsax.security_copy,
                         size: 28.sp,
                         color:
                         primaryColor,
@@ -144,7 +144,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'اطلاعاتی که دریافت می‌کنیم',
                 icon:
-                Icons.person_outline_rounded,
+                Iconsax.user_copy,
                 iconColor:
                 Colors.blue,
                 child: const Text(
@@ -160,7 +160,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'اطلاعات حساب کاربری',
                 icon:
-                Icons.account_circle_outlined,
+                Iconsax.profile_circle_copy,
                 iconColor:
                 Colors.green,
                 child: const Text(
@@ -176,7 +176,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'اطلاعات سفارش‌ها',
                 icon:
-                Icons.receipt_long_outlined,
+                Iconsax.receipt_copy,
                 iconColor:
                 Colors.orange,
                 child: const Text(
@@ -192,7 +192,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'امنیت اطلاعات',
                 icon:
-                Icons.lock_outline_rounded,
+                Iconsax.lock_1_copy,
                 iconColor:
                 Colors.red,
                 child: const Text(
@@ -208,7 +208,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'اشتراک‌گذاری اطلاعات',
                 icon:
-                Icons.share_outlined,
+                Iconsax.share_copy,
                 iconColor:
                 Colors.purple,
                 child: const Text(
@@ -224,7 +224,7 @@ class PrivacyPage extends StatelessWidget {
                 title:
                 'کنترل اطلاعات',
                 icon:
-                Icons.manage_accounts_outlined,
+                Iconsax.information_copy,
                 iconColor:
                 Colors.teal,
                 child: const Text(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -347,7 +348,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
             child: IconButton(
               onPressed: provider.isRefreshing ? null : _refresh,
               icon: Icon(
-                Icons.refresh_rounded,
+                Iconsax.refresh_copy,
                 size: 22.sp,
               ),
             ),
@@ -461,7 +462,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.star_rounded,
+                        Iconsax.star_copy,
                         color: Colors.amber,
                         size: 18,
                       ),
@@ -803,8 +804,8 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
             (index) {
           return Icon(
             index < rating
-                ? Icons.star_rounded
-                : Icons.star_border_rounded,
+                ? Iconsax.star
+                : Iconsax.star_1_copy,
             color: Colors.amber,
             size: 18.sp,
           );
@@ -898,7 +899,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Icon(
-          Icons.image_not_supported_outlined,
+          Iconsax.image_copy,
           color: Colors.grey.shade400,
         ),
       );
@@ -923,7 +924,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
             height: 54.w,
             color: Colors.grey.shade100,
             child: Icon(
-              Icons.broken_image_outlined,
+              Iconsax.image_copy,
               color: Colors.grey.shade400,
             ),
           );
@@ -1017,8 +1018,8 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
                 ? 'مخفی کردن'
                 : 'حذف',
             icon: review.isApproved
-                ? Icons.visibility_off_outlined
-                : Icons.delete_outline_rounded,
+                ? Iconsax.eye_slash_copy
+                : Iconsax.trash_copy,
             isDestructive: !review.isApproved,
             onPressed: provider.isActionLoading
                 ? null
@@ -1037,7 +1038,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
           Expanded(
             child: _buildActionButton(
               title: 'حذف',
-              icon: Icons.delete_outline_rounded,
+              icon: Iconsax.trash_copy,
               isDestructive: true,
               onPressed: provider.isActionLoading
                   ? null
@@ -1124,7 +1125,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
           MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.rate_review_outlined,
+              Iconsax.message_copy,
               size: 64.sp,
               color: Colors.grey.shade400,
             ),
@@ -1170,7 +1171,7 @@ class _AdminReviewsPageState extends State<AdminReviewsPage> {
       child: Row(
         children: [
           Icon(
-            Icons.error_outline_rounded,
+            Iconsax.warning_2_copy,
             color: Colors.red.shade700,
           ),
           SizedBox(width: 10.w),

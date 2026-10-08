@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
@@ -29,6 +30,7 @@ class CheckoutPage extends StatelessWidget {
     if (user == null) {
       return Scaffold(
         appBar: AppBar(
+
           title: const Text('تسویه حساب'),
         ),
         body: Center(
@@ -132,7 +134,7 @@ class _ProductsSection
           _SectionTitle(
             title: 'محصولات سفارش',
             icon:
-            Icons.shopping_bag_outlined,
+            Iconsax.shop_copy
           ),
           SizedBox(height: 12.h),
           ...provider.cartItems.map(
@@ -256,7 +258,7 @@ class _AddressSection
             _SectionTitle(
               title: 'آدرس ارسال',
               icon:
-              Icons.location_on_outlined,
+              Iconsax.location_copy,
             ),
             SizedBox(height: 16.h),
             const Center(
@@ -456,7 +458,7 @@ class _ShippingSection
           _SectionTitle(
             title: 'روش ارسال',
             icon:
-            Icons.local_shipping_outlined,
+            Iconsax.truck_fast_copy,
           ),
           SizedBox(height: 12.h),
           if (shippingProvider.isLoading)

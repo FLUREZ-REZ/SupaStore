@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
@@ -338,8 +339,7 @@ class ProductDetailsPage extends StatelessWidget {
                                 color:
                                 Colors.grey.shade100,
                                 child: Icon(
-                                  Icons
-                                      .image_not_supported_outlined,
+                                  Iconsax.image_copy,
                                   color:
                                   Colors.grey,
                                   size: 28.sp,
@@ -526,8 +526,7 @@ class ProductDetailsPage extends StatelessWidget {
                       );
                     },
                     icon: Icon(
-                      Icons
-                          .shopping_cart_outlined,
+                      Iconsax.shopping_cart_copy,
                       size: 21.sp,
                     ),
                     label: Text(
@@ -726,7 +725,7 @@ class ProductDetailsPage extends StatelessWidget {
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
-                  Icons.favorite_border,
+                  Iconsax.heart_copy,
                   color: Colors.white,
                 ),
               ),
@@ -738,7 +737,7 @@ class ProductDetailsPage extends StatelessWidget {
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
-                  Icons.share_outlined,
+                  Iconsax.share_copy,
                   color: Colors.white,
                 ),
               ),

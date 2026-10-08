@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/address_feature/domain/entities/address_entity.dart';
@@ -355,7 +356,7 @@ class _AdminOrderDetailsPageState
                   borderRadius: BorderRadius.circular(14.r),
                 ),
                 child: Icon(
-                  Icons.receipt_long_rounded,
+                  Iconsax.receipt_copy,
                   color: Color(0xFFcaf0f8),
                   size: 25.sp,
                 ),
@@ -404,7 +405,7 @@ class _AdminOrderDetailsPageState
             children: [
               Expanded(
                 child: _HeaderInfo(
-                  icon: Icons.calendar_today_rounded,
+                  icon: Iconsax.calendar_2_copy,
                   title: 'تاریخ ثبت',
                   value: _formatDate(order.createdAt),
                 ),
@@ -412,7 +413,7 @@ class _AdminOrderDetailsPageState
               SizedBox(width: 12.w),
               Expanded(
                 child: _HeaderInfo(
-                  icon: Icons.shopping_bag_outlined,
+                  icon: Iconsax.shopping_bag_copy,
                   title: 'تعداد کالا',
                   value: '${order.items.length} کالا',
                 ),
@@ -440,7 +441,7 @@ class _AdminOrderDetailsPageState
 
     return _SectionCard(
       title: 'وضعیت سفارش',
-      icon: Icons.local_shipping_outlined,
+      icon: Iconsax.truck_copy,
       child: Column(
         children: [
           if (isCanceled)
@@ -502,7 +503,7 @@ class _AdminOrderDetailsPageState
   Widget _buildCustomerCard(OrderEntity order) {
     return _SectionCard(
       title: 'اطلاعات مشتری',
-      icon: Icons.person_outline_rounded,
+      icon: Iconsax.user_copy,
       child: Column(
         children: [
           _InfoRow(
@@ -512,7 +513,7 @@ class _AdminOrderDetailsPageState
           ),
           SizedBox(height: 12.h),
           _InfoRow(
-            icon: Icons.access_time_rounded,
+            icon: Iconsax.clock_copy,
             title: 'آخرین بروزرسانی',
             value: _formatDate(order.updatedAt),
           ),
@@ -524,7 +525,7 @@ class _AdminOrderDetailsPageState
   Widget _buildAddressCard() {
     return _SectionCard(
       title: 'اطلاعات ارسال',
-      icon: Icons.location_on_outlined,
+      icon: Iconsax.location_copy,
       child: _isLoadingAddress
           ? const Center(
         child: Padding(
@@ -536,32 +537,32 @@ class _AdminOrderDetailsPageState
           ? Column(
         children: [
           _InfoRow(
-            icon: Icons.label_outline_rounded,
+            icon: Iconsax.subtitle_copy,
             title: 'عنوان',
             value: _address!.title,
           ),
           SizedBox(height: 12.h),
           _InfoRow(
-            icon: Icons.person_outline,
+            icon: Iconsax.user_copy,
             title: 'تحویل گیرنده',
             value: _address!.receiverName,
           ),
           SizedBox(height: 12.h),
           _InfoRow(
-            icon: Icons.phone_outlined,
+            icon: Iconsax.call_copy,
             title: 'شماره تماس',
             value: _address!.phone,
           ),
           SizedBox(height: 12.h),
           _InfoRow(
-            icon: Icons.map_outlined,
+            icon: Iconsax.map_copy,
             title: 'استان / شهر',
             value:
             '${_address!.province} - ${_address!.city}',
           ),
           SizedBox(height: 12.h),
           _InfoRow(
-            icon: Icons.home_outlined,
+            icon: Iconsax.house_2_copy,
             title: 'آدرس',
             value: _address!.address,
           ),
@@ -569,7 +570,7 @@ class _AdminOrderDetailsPageState
               _address!.postalCode!.isNotEmpty) ...[
             SizedBox(height: 12.h),
             _InfoRow(
-              icon: Icons.mail_outline_outlined,
+              icon: Iconsax.code_copy,
               title: 'کد پستی',
               value: _address!.postalCode!,
             ),
@@ -592,7 +593,7 @@ class _AdminOrderDetailsPageState
     }
 
     return _InfoRow(
-      icon: Icons.home_outlined,
+      icon: Iconsax.card_copy,
       title: 'آدرس',
       value: shippingAddress,
     );
@@ -604,11 +605,11 @@ class _AdminOrderDetailsPageState
 
     return _SectionCard(
       title: 'اطلاعات پرداخت',
-      icon: Icons.payment_outlined,
+      icon: Iconsax.card_copy,
       child: Column(
         children: [
           _InfoRow(
-            icon: Icons.credit_card_outlined,
+            icon: Iconsax.card_copy,
             title: 'روش پرداخت',
             value:
             _paymentMethodTitle(order.paymentMethod),
@@ -675,7 +676,7 @@ class _AdminOrderDetailsPageState
   Widget _buildProductsCard(OrderEntity order) {
     return _SectionCard(
       title: 'محصولات سفارش',
-      icon: Icons.inventory_2_outlined,
+      icon: Iconsax.box_1_copy,
       trailing: Text(
         '${order.items.length} کالا',
         style: TextStyle(
@@ -710,7 +711,7 @@ class _AdminOrderDetailsPageState
   Widget _buildPriceSummary(OrderEntity order) {
     return _SectionCard(
       title: 'خلاصه مالی',
-      icon: Icons.account_balance_wallet_outlined,
+      icon: Iconsax.wallet_1_copy,
       child: Column(
         children: [
           _PriceRow(
@@ -1139,14 +1140,14 @@ class _OrderProductItem extends StatelessWidget {
             errorBuilder:
                 (_, __, ___) {
               return Icon(
-                Icons.image_not_supported_outlined,
+                Iconsax.image_copy,
                 color: Colors.grey.shade400,
                 size: 28.sp,
               );
             },
           )
               : Icon(
-            Icons.image_outlined,
+            Iconsax.image_copy,
             color: Colors.grey.shade400,
             size: 28.sp,
           ),

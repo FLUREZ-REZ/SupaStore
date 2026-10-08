@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -137,8 +138,8 @@ class HorizontalProductCard extends StatelessWidget {
                             )
                                 : Icon(
                               isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
+                                  ? Iconsax.heart
+                                  : Iconsax.heart_copy,
                               size: 20.sp,
                               color: Colors.red,
                             ),

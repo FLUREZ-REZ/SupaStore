@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
@@ -497,8 +498,7 @@ class _AddressCard
                       BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons
-                          .location_on_outlined,
+                      Iconsax.location_copy,
                       color: Theme.of(
                         context,
                       )
@@ -573,7 +573,7 @@ class _AddressCard
 
               _InfoRow(
                 icon:
-                Icons.person_outline,
+                Iconsax.user_copy,
                 text:
                 address.receiverName,
               ),
@@ -588,7 +588,7 @@ class _AddressCard
 
               _InfoRow(
                 icon:
-                Icons.phone_outlined,
+                Iconsax.call_copy,
                 text: address.phone,
               ),
 
@@ -601,8 +601,7 @@ class _AddressCard
               // =================================================
 
               _InfoRow(
-                icon: Icons
-                    .location_city_outlined,
+                icon: Iconsax.house_copy,
                 text:
                 '${address.province}، ${address.city}',
               ),
@@ -617,8 +616,7 @@ class _AddressCard
                     .start,
                 children: [
                   Icon(
-                    Icons
-                        .home_outlined,
+                    Iconsax.house_2_copy,
                     size: 18.sp,
                     color: Colors
                         .grey
@@ -650,8 +648,7 @@ class _AddressCard
                   height: 8.h,
                 ),
                 _InfoRow(
-                  icon: Icons
-                      .markunread_mailbox_outlined,
+                  icon: Iconsax.code_copy,
                   text:
                   'کد پستی: ${address.postalCode}',
                 ),
@@ -706,8 +703,7 @@ class _AddressCard
                         : onEdit,
                     tooltip: 'ویرایش',
                     icon: const Icon(
-                      Icons
-                          .edit_outlined,
+                      Iconsax.edit_copy,
                     ),
                   ),
 
@@ -719,8 +715,7 @@ class _AddressCard
                         : onDelete,
                     tooltip: 'حذف',
                     icon: Icon(
-                      Icons
-                          .delete_outline,
+                      Iconsax.trash_copy,
                       color: Colors
                           .red
                           .shade400,
@@ -866,8 +861,7 @@ class _EmptyState
                 BoxShape.circle,
               ),
               child: Icon(
-                Icons
-                    .location_on_outlined,
+                Iconsax.location_copy,
                 size: 45.sp,
                 color: Theme.of(
                   context,
@@ -974,8 +968,7 @@ class _ErrorState
           MainAxisAlignment.center,
           children: [
             Icon(
-              Icons
-                  .error_outline,
+              Iconsax.information_copy,
               size: 50.sp,
               color:
               Colors.red.shade400,
@@ -1058,8 +1051,7 @@ class _ErrorBanner
       child: Row(
         children: [
           Icon(
-            Icons
-                .error_outline,
+            Iconsax.information_copy,
             color:
             Colors.red.shade600,
             size: 20.sp,
@@ -1083,7 +1075,7 @@ class _ErrorBanner
           IconButton(
             onPressed: onClose,
             icon: const Icon(
-              Icons.close,
+              Iconsax.close_circle_copy,
             ),
             iconSize: 18.sp,
             padding:

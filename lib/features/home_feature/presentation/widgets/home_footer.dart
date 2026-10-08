@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -24,52 +25,90 @@ class HomeFooter extends StatelessWidget {
           return Container(
             width: double.infinity,
             margin: EdgeInsets.only(
-              top: 24.h,
+              top: 32.h,
             ),
             padding: EdgeInsets.fromLTRB(
               20.w,
-              28.h,
+              30.h,
               20.w,
-              20.h,
+              22.h,
             ),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(28.r),
-                topRight: Radius.circular(28.r),
-              ),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F6),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
                 _StoreHeader(
-                  storeName: storeSettingsProvider.storeName,
-                  tagline: storeSettingsProvider.tagline,
+                  storeName:
+                  storeSettingsProvider
+                      .storeName,
+                  tagline:
+                  storeSettingsProvider
+                      .tagline,
                 ),
-                SizedBox(height: 28.h),
+
+                SizedBox(
+                  height: 28.h,
+                ),
+
                 _ServicesSection(),
-                SizedBox(height: 28.h),
+
+                SizedBox(
+                  height: 28.h,
+                ),
+
+                _FooterDivider(),
+
+                SizedBox(
+                  height: 24.h,
+                ),
+
                 _ContactSection(
-                  phone: storeSettingsProvider.phone,
-                  email: storeSettingsProvider.email,
-                  address: storeSettingsProvider.address,
-                  website: storeSettingsProvider.website,
+                  phone:
+                  storeSettingsProvider.phone,
+                  email:
+                  storeSettingsProvider.email,
+                  address:
+                  storeSettingsProvider.address,
+                  website:
+                  storeSettingsProvider.website,
                 ),
-                SizedBox(height: 28.h),
-                _LinksSection(),
-                SizedBox(height: 28.h),
-                _SocialSection(
-                  instagram: storeSettingsProvider.instagram,
-                  telegram: storeSettingsProvider.telegram,
+
+                SizedBox(
+                  height: 26.h,
                 ),
-                SizedBox(height: 28.h),
-                Divider(
-                  height: 1.h,
-                  color: Colors.grey.shade300,
+
+                _FooterDivider(),
+
+                SizedBox(
+                  height: 24.h,
                 ),
-                SizedBox(height: 18.h),
+
+                _LinksAndSocialSection(
+                  instagram:
+                  storeSettingsProvider
+                      .instagram,
+                  telegram:
+                  storeSettingsProvider
+                      .telegram,
+                ),
+
+                SizedBox(
+                  height: 24.h,
+                ),
+
+                _FooterDivider(),
+
+                SizedBox(
+                  height: 18.h,
+                ),
+
                 _Copyright(
-                  storeName: storeSettingsProvider.storeName,
+                  storeName:
+                  storeSettingsProvider
+                      .storeName,
                 ),
               ],
             ),
@@ -91,48 +130,66 @@ class _StoreHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cleanTagline = tagline?.trim();
+    final cleanTagline =
+    tagline?.trim();
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.center,
       children: [
         Container(
-          width: 52.w,
-          height: 52.w,
+          width: 46.w,
+          height: 46.w,
           decoration: BoxDecoration(
-            color: AppColors.orders_page_redi,
-            borderRadius: BorderRadius.circular(16.r),
+            color:
+            AppColors.orders_page_redi,
+            borderRadius:
+            BorderRadius.circular(14.r),
           ),
           child: Icon(
-            Icons.shopping_bag_outlined,
-            size: 27.sp,
+           Iconsax.bag_2_copy,
+            size: 23.sp,
             color: Colors.white,
           ),
         ),
-        SizedBox(width: 14.w),
+
+        SizedBox(
+          width: 13.w,
+        ),
+
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
               Text(
                 storeName,
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                overflow:
+                TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 17.sp,
+                  fontWeight:
+                  FontWeight.w800,
+                  color:
+                  const Color(0xFF222222),
                 ),
               ),
+
               if (cleanTagline != null &&
                   cleanTagline.isNotEmpty) ...[
-                SizedBox(height: 5.h),
+                SizedBox(
+                  height: 4.h,
+                ),
                 Text(
                   cleanTagline,
                   maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                  TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 13.sp,
-                    color: Colors.grey.shade600,
+                    fontSize: 11.sp,
+                    color:
+                    Colors.grey.shade600,
                     height: 1.5,
                   ),
                 ),
@@ -145,7 +202,8 @@ class _StoreHeader extends StatelessWidget {
   }
 }
 
-class _ServicesSection extends StatelessWidget {
+class _ServicesSection
+    extends StatelessWidget {
   const _ServicesSection();
 
   @override
@@ -154,25 +212,38 @@ class _ServicesSection extends StatelessWidget {
       children: [
         Expanded(
           child: _ServiceItem(
-            icon: Icons.local_shipping_outlined,
-            title: 'ارسال سریع',
-            subtitle: 'تحویل مطمئن',
+            icon:
+            Iconsax.truck_fast_copy,
+            title:
+            'ارسال سریع',
+            subtitle:
+            'تحویل مطمئن',
           ),
         ),
-        SizedBox(width: 10.w),
+
+        _VerticalDivider(),
+
         Expanded(
           child: _ServiceItem(
-            icon: Icons.security_outlined,
-            title: 'پرداخت امن',
-            subtitle: 'امن و مطمئن',
+            icon:
+            Iconsax.verify_copy,
+            title:
+            'پرداخت امن',
+            subtitle:
+            'امن و مطمئن',
           ),
         ),
-        SizedBox(width: 10.w),
+
+        _VerticalDivider(),
+
         Expanded(
           child: _ServiceItem(
-            icon: Icons.support_agent_outlined,
-            title: 'پشتیبانی',
-            subtitle: 'همراه شما',
+            icon:
+            Iconsax.message_copy,
+            title:
+            'پشتیبانی',
+            subtitle:
+            'همراه شما',
           ),
         ),
       ],
@@ -180,7 +251,8 @@ class _ServicesSection extends StatelessWidget {
   }
 }
 
-class _ServiceItem extends StatelessWidget {
+class _ServiceItem
+    extends StatelessWidget {
   const _ServiceItem({
     required this.icon,
     required this.title,
@@ -193,49 +265,77 @@ class _ServiceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          size: 23.sp,
+          color:
+          AppColors.orders_page_redi,
+        ),
+
+        SizedBox(
+          height: 8.h,
+        ),
+
+        Text(
+          title,
+          maxLines: 1,
+          overflow:
+          TextOverflow.ellipsis,
+          textAlign:
+          TextAlign.center,
+          style: TextStyle(
+            fontSize: 10.sp,
+            fontWeight:
+            FontWeight.w700,
+            color:
+            const Color(0xFF333333),
+          ),
+        ),
+
+        SizedBox(
+          height: 3.h,
+        ),
+
+        Text(
+          subtitle,
+          maxLines: 1,
+          overflow:
+          TextOverflow.ellipsis,
+          textAlign:
+          TextAlign.center,
+          style: TextStyle(
+            fontSize: 8.5.sp,
+            color:
+            Colors.grey.shade500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VerticalDivider
+    extends StatelessWidget {
+  const _VerticalDivider();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8.w,
-        vertical: 14.h,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 24.sp,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 3.h),
-          Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 9.sp,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
+      width: 1,
+      height: 38.h,
+      color:
+      Colors.grey.shade300,
+      margin: EdgeInsets.symmetric(
+        horizontal: 4.w,
       ),
     );
   }
 }
 
-class _ContactSection extends StatelessWidget {
+class _ContactSection
+    extends StatelessWidget {
   const _ContactSection({
     required this.phone,
     required this.email,
@@ -260,12 +360,14 @@ class _ContactSection extends StatelessWidget {
     try {
       await launchUrl(
         uri,
-        mode: LaunchMode.externalApplication,
+        mode:
+        LaunchMode.externalApplication,
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'امکان برقراری تماس وجود ندارد.',
@@ -287,12 +389,14 @@ class _ContactSection extends StatelessWidget {
     try {
       await launchUrl(
         uri,
-        mode: LaunchMode.externalApplication,
+        mode:
+        LaunchMode.externalApplication,
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'برنامه‌ای برای ارسال ایمیل پیدا نشد.',
@@ -306,19 +410,22 @@ class _ContactSection extends StatelessWidget {
       BuildContext context,
       String website,
       ) async {
-    String url = website.trim();
+    String url =
+    website.trim();
 
     if (!url.startsWith('http://') &&
         !url.startsWith('https://')) {
       url = 'https://$url';
     }
 
-    final uri = Uri.tryParse(url);
+    final uri =
+    Uri.tryParse(url);
 
     if (uri == null) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'آدرس وب‌سایت معتبر نیست.',
@@ -332,12 +439,14 @@ class _ContactSection extends StatelessWidget {
     try {
       await launchUrl(
         uri,
-        mode: LaunchMode.externalApplication,
+        mode:
+        LaunchMode.externalApplication,
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'امکان باز کردن وب‌سایت وجود ندارد.',
@@ -349,10 +458,17 @@ class _ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cleanPhone = phone?.trim();
-    final cleanEmail = email?.trim();
-    final cleanAddress = address?.trim();
-    final cleanWebsite = website?.trim();
+    final cleanPhone =
+    phone?.trim();
+
+    final cleanEmail =
+    email?.trim();
+
+    final cleanAddress =
+    address?.trim();
+
+    final cleanWebsite =
+    website?.trim();
 
     final hasPhone =
         cleanPhone != null &&
@@ -378,34 +494,51 @@ class _ContactSection extends StatelessWidget {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
         Text(
-          'اطلاعات تماس',
+          'تماس با ما',
           style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w800,
+            fontSize: 14.sp,
+            fontWeight:
+            FontWeight.w800,
+            color:
+            const Color(0xFF252525),
           ),
         ),
-        SizedBox(height: 14.h),
+
+        SizedBox(
+          height: 14.h,
+        ),
 
         if (hasAddress)
           _ContactItem(
-            icon: Icons.location_on_outlined,
-            title: 'آدرس',
-            value: cleanAddress!,
+            icon:
+            Iconsax.location_copy,
+            title:
+            'آدرس',
+            value:
+            cleanAddress!,
             onTap: null,
           ),
 
         if (hasAddress &&
-            (hasPhone || hasEmail || hasWebsite))
-          SizedBox(height: 10.h),
+            (hasPhone ||
+                hasEmail ||
+                hasWebsite))
+          SizedBox(
+            height: 10.h,
+          ),
 
         if (hasPhone)
           _ContactItem(
-            icon: Icons.phone_outlined,
-            title: 'تلفن',
-            value: cleanPhone!,
+            icon:
+            Iconsax.call_copy,
+            title:
+            'تلفن',
+            value:
+            cleanPhone!,
             onTap: () {
               _callPhone(
                 context,
@@ -415,14 +548,20 @@ class _ContactSection extends StatelessWidget {
           ),
 
         if (hasPhone &&
-            (hasEmail || hasWebsite))
-          SizedBox(height: 10.h),
+            (hasEmail ||
+                hasWebsite))
+          SizedBox(
+            height: 10.h,
+          ),
 
         if (hasEmail)
           _ContactItem(
-            icon: Icons.email_outlined,
-            title: 'ایمیل',
-            value: cleanEmail!,
+            icon:
+            Iconsax.send_1_copy,
+            title:
+            'ایمیل',
+            value:
+            cleanEmail!,
             onTap: () {
               _sendEmail(
                 context,
@@ -431,14 +570,20 @@ class _ContactSection extends StatelessWidget {
             },
           ),
 
-        if (hasEmail && hasWebsite)
-          SizedBox(height: 10.h),
+        if (hasEmail &&
+            hasWebsite)
+          SizedBox(
+            height: 10.h,
+          ),
 
         if (hasWebsite)
           _ContactItem(
-            icon: Icons.language_outlined,
-            title: 'وب‌سایت',
-            value: cleanWebsite!,
+            icon:
+            Iconsax.link_copy,
+            title:
+            'وب‌سایت',
+            value:
+            cleanWebsite!,
             onTap: () {
               _openWebsite(
                 context,
@@ -451,7 +596,8 @@ class _ContactSection extends StatelessWidget {
   }
 }
 
-class _ContactItem extends StatelessWidget {
+class _ContactItem
+    extends StatelessWidget {
   const _ContactItem({
     required this.icon,
     required this.title,
@@ -467,77 +613,82 @@ class _ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14.r),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14.r),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(14.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: Colors.grey.shade200,
-            ),
+        borderRadius:
+        BorderRadius.circular(10.r),
+        child: Padding(
+          padding:
+          EdgeInsets.symmetric(
+            vertical: 7.h,
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(11.r),
-                ),
+              SizedBox(
+                width: 30.w,
                 child: Icon(
                   icon,
-                  size: 21.sp,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary,
+                  size: 19.sp,
+                  color:
+                  AppColors.orders_page_redi,
                 ),
               ),
-              SizedBox(width: 12.w),
+
+              SizedBox(
+                width: 8.w,
+              ),
+
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 11.sp,
-                        color: Colors.grey.shade600,
+                        fontSize: 10.sp,
+                        color:
+                        Colors.grey.shade500,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+
+                    SizedBox(
+                      height: 2.h,
+                    ),
+
                     Text(
                       value,
                       maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                      overflow:
+                      TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        fontSize: 11.sp,
+                        fontWeight:
+                        FontWeight.w600,
+                        color:
+                        const Color(0xFF444444),
                         height: 1.5,
                       ),
                     ),
                   ],
                 ),
               ),
+
               if (onTap != null)
                 Padding(
-                  padding: EdgeInsets.only(
-                    top: 10.h,
+                  padding:
+                  EdgeInsets.only(
+                    top: 8.h,
                   ),
                   child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 13.sp,
-                    color: Colors.grey.shade400,
+                    Icons
+                        .arrow_back_ios_new_rounded,
+                    size: 11.sp,
+                    color:
+                    Colors.grey.shade400,
                   ),
                 ),
             ],
@@ -548,85 +699,9 @@ class _ContactItem extends StatelessWidget {
   }
 }
 
-class _LinksSection extends StatelessWidget {
-  const _LinksSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'دسترسی سریع',
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        SizedBox(height: 14.h),
-        _FooterLink(
-          title: 'درباره ما',
-          onTap: () {},
-        ),
-        _FooterLink(
-          title: 'تماس با ما',
-          onTap: () {},
-        ),
-        _FooterLink(
-          title: 'قوانین و مقررات',
-          onTap: () {},
-        ),
-        _FooterLink(
-          title: 'حریم خصوصی',
-          onTap: () {},
-        ),
-      ],
-    );
-  }
-}
-
-class _FooterLink extends StatelessWidget {
-  const _FooterLink({
-    required this.title,
-    required this.onTap,
-  });
-
-  final String title;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8.r),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 7.h,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.arrow_back_ios_new,
-              size: 12.sp,
-              color: Colors.grey.shade500,
-            ),
-            SizedBox(width: 7.w),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SocialSection extends StatelessWidget {
-  const _SocialSection({
+class _LinksAndSocialSection
+    extends StatelessWidget {
+  const _LinksAndSocialSection({
     required this.instagram,
     required this.telegram,
   });
@@ -638,7 +713,8 @@ class _SocialSection extends StatelessWidget {
       BuildContext context,
       String value,
       ) async {
-    final cleanValue = value.trim();
+    final cleanValue =
+    value.trim();
 
     final uri = Uri.tryParse(
       cleanValue.startsWith('http')
@@ -649,7 +725,8 @@ class _SocialSection extends StatelessWidget {
     if (uri == null) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'آدرس اینستاگرام معتبر نیست.',
@@ -663,12 +740,14 @@ class _SocialSection extends StatelessWidget {
     try {
       await launchUrl(
         uri,
-        mode: LaunchMode.externalApplication,
+        mode:
+        LaunchMode.externalApplication,
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'امکان باز کردن اینستاگرام وجود ندارد.',
@@ -682,7 +761,8 @@ class _SocialSection extends StatelessWidget {
       BuildContext context,
       String value,
       ) async {
-    final cleanValue = value.trim();
+    final cleanValue =
+    value.trim();
 
     final uri = Uri.tryParse(
       cleanValue.startsWith('http')
@@ -693,7 +773,8 @@ class _SocialSection extends StatelessWidget {
     if (uri == null) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'آدرس تلگرام معتبر نیست.',
@@ -707,12 +788,14 @@ class _SocialSection extends StatelessWidget {
     try {
       await launchUrl(
         uri,
-        mode: LaunchMode.externalApplication,
+        mode:
+        LaunchMode.externalApplication,
       );
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
           content: Text(
             'امکان باز کردن تلگرام وجود ندارد.',
@@ -724,8 +807,11 @@ class _SocialSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cleanInstagram = instagram?.trim();
-    final cleanTelegram = telegram?.trim();
+    final cleanInstagram =
+    instagram?.trim();
+
+    final cleanTelegram =
+    telegram?.trim();
 
     final hasInstagram =
         cleanInstagram != null &&
@@ -735,52 +821,154 @@ class _SocialSection extends StatelessWidget {
         cleanTelegram != null &&
             cleanTelegram.isNotEmpty;
 
-    if (!hasInstagram && !hasTelegram) {
-      return const SizedBox.shrink();
-    }
-
     return Row(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            'ما را دنبال کنید',
-            style: TextStyle(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
-            ),
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              Text(
+                'دسترسی سریع',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight:
+                  FontWeight.w800,
+                  color:
+                  const Color(0xFF252525),
+                ),
+              ),
+
+              SizedBox(
+                height: 10.h,
+              ),
+
+              _FooterLink(
+                title:
+                'درباره ما',
+                onTap: () {},
+              ),
+
+              _FooterLink(
+                title:
+                'تماس با ما',
+                onTap: () {},
+              ),
+
+              _FooterLink(
+                title:
+                'قوانین و مقررات',
+                onTap: () {},
+              ),
+
+              _FooterLink(
+                title:
+                'حریم خصوصی',
+                onTap: () {},
+              ),
+            ],
           ),
         ),
 
-        if (hasInstagram)
-          _SocialButton(
-            icon: Icons.camera_alt_outlined,
-            onTap: () {
-              _openInstagram(
-                context,
-                cleanInstagram!,
-              );
-            },
-          ),
+        if (hasInstagram ||
+            hasTelegram)
+          Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              Text(
+                'شبکه‌های اجتماعی',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight:
+                  FontWeight.w800,
+                  color:
+                  const Color(0xFF252525),
+                ),
+              ),
 
-        if (hasInstagram && hasTelegram)
-          SizedBox(width: 8.w),
+              SizedBox(
+                height: 12.h,
+              ),
 
-        if (hasTelegram)
-          _SocialButton(
-            icon: Icons.send_outlined,
-            onTap: () {
-              _openTelegram(
-                context,
-                cleanTelegram!,
-              );
-            },
+              Row(
+                children: [
+                  if (hasInstagram)
+                    _SocialButton(
+                      icon:
+                      Iconsax.instagram_copy,
+                      onTap: () {
+                        _openInstagram(
+                          context,
+                          cleanInstagram!,
+                        );
+                      },
+                    ),
+
+                  if (hasInstagram &&
+                      hasTelegram)
+                    SizedBox(
+                      width: 8.w,
+                    ),
+
+                  if (hasTelegram)
+                    _SocialButton(
+                      icon:
+                      Iconsax.send_2_copy,
+                      onTap: () {
+                        _openTelegram(
+                          context,
+                          cleanTelegram!,
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ],
           ),
       ],
     );
   }
 }
 
-class _SocialButton extends StatelessWidget {
+class _FooterLink
+    extends StatelessWidget {
+  const _FooterLink({
+    required this.title,
+    required this.onTap,
+  });
+
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius:
+      BorderRadius.circular(6.r),
+      child: Padding(
+        padding:
+        EdgeInsets.symmetric(
+          vertical: 4.h,
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 11.sp,
+            color:
+            Colors.grey.shade600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SocialButton
+    extends StatelessWidget {
   const _SocialButton({
     required this.icon,
     required this.onTap,
@@ -793,19 +981,30 @@ class _SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius:
+      BorderRadius.circular(11.r),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12.r),
-        child: SizedBox(
-          width: 42.w,
-          height: 42.w,
+        borderRadius:
+        BorderRadius.circular(11.r),
+        child: Container(
+          width: 40.w,
+          height: 40.w,
+          decoration: BoxDecoration(
+            borderRadius:
+            BorderRadius.circular(
+              11.r,
+            ),
+            border: Border.all(
+              color:
+              Colors.grey.shade200,
+            ),
+          ),
           child: Icon(
             icon,
-            size: 21.sp,
-            color: Theme.of(context)
-                .colorScheme
-                .primary,
+            size: 19.sp,
+            color:
+            AppColors.orders_page_redi,
           ),
         ),
       ),
@@ -813,7 +1012,23 @@ class _SocialButton extends StatelessWidget {
   }
 }
 
-class _Copyright extends StatelessWidget {
+class _FooterDivider
+    extends StatelessWidget {
+  const _FooterDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color:
+      Colors.grey.shade300,
+    );
+  }
+}
+
+class _Copyright
+    extends StatelessWidget {
   const _Copyright({
     required this.storeName,
   });
@@ -827,20 +1042,29 @@ class _Copyright extends StatelessWidget {
         children: [
           Text(
             '© ${DateTime.now().year} $storeName',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          SizedBox(height: 5.h),
-          Text(
-            'تمامی حقوق محفوظ است.',
-            textAlign: TextAlign.center,
+            textAlign:
+            TextAlign.center,
             style: TextStyle(
               fontSize: 10.sp,
-              color: Colors.grey.shade500,
+              fontWeight:
+              FontWeight.w600,
+              color:
+              Colors.grey.shade600,
+            ),
+          ),
+
+          SizedBox(
+            height: 4.h,
+          ),
+
+          Text(
+            'تمامی حقوق محفوظ است.',
+            textAlign:
+            TextAlign.center,
+            style: TextStyle(
+              fontSize: 9.sp,
+              color:
+              Colors.grey.shade500,
             ),
           ),
         ],

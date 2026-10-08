@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
@@ -161,12 +162,12 @@ class _AdminMainViewState extends State<_AdminMainView> {
       items.addAll([
         _AdminMenuItem(
           title: 'داشبورد',
-          icon: Icons.dashboard_rounded,
+          icon: Iconsax.home_1,
           page: const AdminDashboardPage(),
         ),
         _AdminMenuItem(
           title: 'محصولات',
-          icon: Icons.inventory_2_rounded,
+          icon: Iconsax.box_1_copy,
           page: ChangeNotifierProvider<AdminProductProvider>(
             create: (_) =>
                 getIt<AdminProductProvider>(),
@@ -175,7 +176,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
         ),
         _AdminMenuItem(
           title: 'دسته‌بندی‌ها',
-          icon: Icons.category_rounded,
+          icon: Iconsax.category_copy,
           page: ChangeNotifierProvider<AdminCategoryProvider>(
             create: (_) =>
                 getIt<AdminCategoryProvider>(),
@@ -184,17 +185,17 @@ class _AdminMainViewState extends State<_AdminMainView> {
         ),
         _AdminMenuItem(
           title: 'بنرها',
-          icon: Icons.image_rounded,
+          icon: Iconsax.picture_frame_copy,
           page: const AdminBannersPage(),
         ),
         _AdminMenuItem(
           title: 'سفارش‌ها',
-          icon: Icons.shopping_bag_rounded,
+          icon: Iconsax.box_copy,
           page: const AdminOrdersPage(),
         ),
         _AdminMenuItem(
           title: 'کاربران',
-          icon: Icons.people_alt_rounded,
+          icon: Iconsax.people_copy,
           page: ChangeNotifierProvider<AdminUserProvider>(
             create: (_) =>
                 getIt<AdminUserProvider>(),
@@ -203,7 +204,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
         ),
         _AdminMenuItem(
           title: 'نظرات',
-          icon: Icons.rate_review_rounded,
+          icon: Iconsax.message_copy,
           page: ChangeNotifierProvider<AdminReviewProvider>(
             create: (_) =>
                 getIt<AdminReviewProvider>(),
@@ -212,7 +213,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
         ),
         _AdminMenuItem(
           title: 'تنظیمات',
-          icon: Icons.settings_rounded,
+          icon: Iconsax.setting_2_copy,
           page: const AdminSettingsPage(),
         ),
       ]);
@@ -220,12 +221,12 @@ class _AdminMainViewState extends State<_AdminMainView> {
       items.addAll([
         _AdminMenuItem(
           title: 'داشبورد',
-          icon: Icons.dashboard_rounded,
+          icon: Iconsax.home_1_copy,
           page: const AdminDashboardPage(),
         ),
         _AdminMenuItem(
           title: 'سفارش‌ها',
-          icon: Icons.shopping_bag_rounded,
+          icon: Iconsax.box_1_copy,
           page: const AdminOrdersPage(),
         ),
       ]);
@@ -233,12 +234,12 @@ class _AdminMainViewState extends State<_AdminMainView> {
       items.addAll([
         _AdminMenuItem(
           title: 'داشبورد',
-          icon: Icons.dashboard_rounded,
+          icon: Iconsax.home_1_copy,
           page: const AdminDashboardPage(),
         ),
         _AdminMenuItem(
           title: 'محصولات',
-          icon: Icons.inventory_2_rounded,
+          icon: Iconsax.box_1_copy,
           page: ChangeNotifierProvider<AdminProductProvider>(
             create: (_) =>
                 getIt<AdminProductProvider>(),
@@ -247,7 +248,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
         ),
         _AdminMenuItem(
           title: 'دسته‌بندی‌ها',
-          icon: Icons.category_rounded,
+          icon: Iconsax.category_copy,
           page: ChangeNotifierProvider<AdminCategoryProvider>(
             create: (_) =>
                 getIt<AdminCategoryProvider>(),
@@ -388,7 +389,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.admin_panel_settings_rounded,
+                      Iconsax.shield_tick_copy,
                       color: Colors.white,
                       size: 34.sp,
                     ),
@@ -448,7 +449,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 leading: const Icon(
-                  Icons.logout_rounded,
+                  Iconsax.logout_copy,
                   color: Colors.red,
                 ),
                 title: const Text(

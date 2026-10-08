@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
@@ -138,9 +139,9 @@ class CartItem extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(6.w),
                         child: Icon(
-                          Icons.delete_outline,
+                          Iconsax.trash_copy,
                           color: Colors.red,
-                          size: 22.sp,
+                          size: 20.sp,
                         ),
                       ),
                     ),

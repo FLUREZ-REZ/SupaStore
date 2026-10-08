@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -144,7 +145,7 @@ class SupportPage extends StatelessWidget {
 
                   if (phone != null && phone.isNotEmpty)
                     _SupportItem(
-                      icon: Icons.phone_outlined,
+                      icon: Iconsax.call_copy,
                       title: 'تماس با پشتیبانی',
                       subtitle: phone,
                       iconColor: Colors.green,
@@ -161,7 +162,7 @@ class SupportPage extends StatelessWidget {
 
                   if (email != null && email.isNotEmpty)
                     _SupportItem(
-                      icon: Icons.email_outlined,
+                      icon: Iconsax.message_copy,
                       title: 'ایمیل پشتیبانی',
                       subtitle: email,
                       iconColor: Colors.blue,
@@ -198,7 +199,7 @@ class SupportPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Icon(
-                            Icons.access_time_rounded,
+                            Iconsax.clock_copy,
                             color: Colors.orange,
                             size: 23.sp,
                           ),
