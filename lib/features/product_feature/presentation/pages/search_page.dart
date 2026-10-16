@@ -36,6 +36,7 @@ class _SearchView extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
           surfaceTintColor: Colors.transparent,
+          foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
           title: Text(

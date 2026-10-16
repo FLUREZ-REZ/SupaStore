@@ -443,6 +443,8 @@ class _EditProfilePageState
 
           child: Scaffold(
             appBar: AppBar(
+              backgroundColor: Color(0xFFd90429),
+              foregroundColor: Colors.white,
               title: const Text(
                 'ویرایش پروفایل',
               ),

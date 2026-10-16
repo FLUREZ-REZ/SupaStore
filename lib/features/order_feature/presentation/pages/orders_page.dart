@@ -161,6 +161,7 @@ class _OrdersPageState extends State<OrdersPage> {
           elevation: 0,
           backgroundColor:
           AppColors.orders_page_redi,
+          foregroundColor: Colors.white,
 
           actions: [
             IconButton(

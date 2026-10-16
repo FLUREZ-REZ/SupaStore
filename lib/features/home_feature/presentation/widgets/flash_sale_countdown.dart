@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -97,9 +98,10 @@ class _FlashSaleCountdownState
 
     return Row(
       mainAxisSize: MainAxisSize.min,
+      textDirection: TextDirection.rtl,
       children: [
         _TimeBox(
-          value: _format(hours),
+          value: _format(seconds),
         ),
 
         SizedBox(width: 4.w),
@@ -133,7 +135,7 @@ class _FlashSaleCountdownState
         SizedBox(width: 4.w),
 
         _TimeBox(
-          value: _format(seconds),
+          value: _format(hours),
         ),
       ],
     );
@@ -160,7 +162,7 @@ class _TimeBox extends StatelessWidget {
       child: Text(
         value,
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: 9.sp,
           fontWeight: FontWeight.w800,
           color: Colors.black87,
         ),

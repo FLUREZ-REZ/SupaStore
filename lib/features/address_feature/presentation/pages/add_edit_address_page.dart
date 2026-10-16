@@ -158,6 +158,8 @@ class _AddEditAddressViewState
         Colors.grey.shade50,
 
         appBar: AppBar(
+          backgroundColor: Color(0xFFd90429),
+          foregroundColor: Colors.white,
           title: Text(
             isEdit
                 ? 'ویرایش آدرس'

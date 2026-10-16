@@ -49,6 +49,7 @@ class _FlashSaleView extends StatelessWidget {
 
         appBar: AppBar(
           backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
 
@@ -192,7 +193,7 @@ class _Pagination extends StatelessWidget {
           // ========================================================
 
           _PageButton(
-            icon: Icons.chevron_right_rounded,
+            icon: Icons.chevron_left_rounded,
 
             enabled:
             provider.hasNextPage &&
@@ -254,7 +255,7 @@ class _Pagination extends StatelessWidget {
           // ========================================================
 
           _PageButton(
-            icon: Icons.chevron_left_rounded,
+            icon: Icons.chevron_right_rounded,
 
             enabled:
             provider.hasPreviousPage &&

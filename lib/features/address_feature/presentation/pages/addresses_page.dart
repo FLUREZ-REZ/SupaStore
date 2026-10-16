@@ -63,6 +63,7 @@ class _AddressesView extends StatelessWidget {
 
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
+          foregroundColor: Colors.white,
           title: const Text(
             'آدرس‌های من',
           ),
@@ -918,6 +919,7 @@ class _EmptyState
               ),
               style:
               ElevatedButton.styleFrom(
+
                 padding:
                 EdgeInsets.symmetric(
                   horizontal: 22.w,

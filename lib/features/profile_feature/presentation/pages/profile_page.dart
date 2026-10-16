@@ -396,6 +396,7 @@ class _ProfileView extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: Color(0xFF161a1d),
           shape:
           RoundedRectangleBorder(
             borderRadius:
@@ -406,10 +407,14 @@ class _ProfileView extends StatelessWidget {
 
           title: const Text(
             'خروج از حساب',
+
+            style: TextStyle(color: Colors.white),
           ),
 
           content: const Text(
             'آیا مطمئن هستید که می‌خواهید از حساب خود خارج شوید؟',
+
+            style: TextStyle(color: Colors.white),
           ),
 
           actions: [

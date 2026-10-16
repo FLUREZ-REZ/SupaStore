@@ -74,6 +74,7 @@ class _CartView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.cart_page_redi ,
         surfaceTintColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
 
         centerTitle: true,

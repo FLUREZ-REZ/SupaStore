@@ -57,6 +57,7 @@ class _FavoritesView
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.favorite_page_redi,
+          foregroundColor: Colors.white,
           title: const Text(
             'علاقه‌مندی‌های من',
           ),
@@ -163,7 +164,7 @@ class _FavoritesView
           crossAxisCount: 2,
           crossAxisSpacing: 12.w,
           mainAxisSpacing: 12.h,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.48,
         ),
         itemCount:
         provider.favoriteProducts
