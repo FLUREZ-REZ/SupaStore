@@ -709,6 +709,7 @@ class ProductDetailsPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor:
             AppColors.primary,
+            foregroundColor: Colors.white,
             elevation: 0,
             centerTitle: true,
             title: Text(

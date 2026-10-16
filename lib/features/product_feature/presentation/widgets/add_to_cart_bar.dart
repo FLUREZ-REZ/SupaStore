@@ -12,8 +12,24 @@ class AddToCartBar extends StatelessWidget {
   });
 
   final ProductEntity product;
-
   final VoidCallback? onAddToCart;
+
+  String _formatPersianPrice(num price) {
+    final value = price.toInt().toString();
+
+    final formatted = value.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+          (match) => '٬',
+    );
+
+    const englishDigits = '0123456789';
+    const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+
+    return formatted.split('').map((char) {
+      final index = englishDigits.indexOf(char);
+      return index == -1 ? char : persianDigits[index];
+    }).join();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +50,16 @@ class AddToCartBar extends StatelessWidget {
                 children: [
                   if (product.hasDiscount)
                     Text(
-                      "${product.price} تومان",
+                      '${_formatPersianPrice(product.price)} تومان',
                       style: TextStyle(
                         decoration: TextDecoration.lineThrough,
                         color: Colors.grey,
                         fontSize: 13.sp,
                       ),
                     ),
-
                   SizedBox(height: 4.h),
-
                   Text(
-                    "${product.finalPrice} تومان",
+                    '${_formatPersianPrice(product.finalPrice)} تومان',
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -55,21 +69,19 @@ class AddToCartBar extends StatelessWidget {
                 ],
               ),
             ),
-
             SizedBox(width: 16.w),
-
             SizedBox(
               width: 160.w,
               height: 52.h,
               child: ElevatedButton.icon(
-                onPressed: product.isAvailable
-                    ? onAddToCart
-                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFd90429), // رنگ پس‌زمینه دکمه
+                  foregroundColor: Colors.white, // رنگ متن و آیکون
+                ),
+                onPressed: product.isAvailable ? onAddToCart : null,
                 icon: const Icon(Iconsax.truck_copy),
                 label: Text(
-                  product.isAvailable
-                      ? "افزودن به سبد"
-                      : "ناموجود",
+                  product.isAvailable ? 'افزودن به سبد' : 'ناموجود',
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
