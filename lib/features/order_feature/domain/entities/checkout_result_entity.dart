@@ -1,6 +1,8 @@
+
 class CheckoutResultEntity {
   const CheckoutResultEntity({
     required this.orderId,
+    required this.trackingCode,
     required this.paymentId,
     required this.amount,
     required this.currency,
@@ -11,6 +13,7 @@ class CheckoutResultEntity {
   });
 
   final String orderId;
+  final String trackingCode;
   final String paymentId;
   final int amount;
   final String currency;
@@ -24,11 +27,8 @@ class CheckoutResultEntity {
 
   /// Gateway-specific reference.
   ///
-  /// ZarinPal:
-  /// authority
-  ///
-  /// SEP:
-  /// token
+  /// ZarinPal: authority
+  /// SEP: token
   final String gatewayReference;
 
   final String paymentUrl;

@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
 import 'package:supastore/features/order_feature/domain/repositories/order_repository.dart';
@@ -15,15 +16,49 @@ class AdminOrderProvider extends ChangeNotifier {
   bool _isUpdating = false;
 
   String? _error;
+  String _searchQuery = '';
 
   List<OrderEntity> get orders =>
       List.unmodifiable(_orders);
+
+  /// سفارش‌هایی که با عبارت جست‌وجو مطابقت دارند.
+  List<OrderEntity> get filteredOrders {
+    final query = _searchQuery.trim().toLowerCase();
+
+    if (query.isEmpty) {
+      return List.unmodifiable(_orders);
+    }
+
+    return List.unmodifiable(
+      _orders.where((order) {
+        final trackingCode =
+            order.trackingCode?.toLowerCase() ?? '';
+
+        final orderId = order.id.toLowerCase();
+
+        return trackingCode.contains(query) ||
+            orderId.contains(query);
+      }),
+    );
+  }
+
+  String get searchQuery => _searchQuery;
 
   bool get isLoading => _isLoading;
 
   bool get isUpdating => _isUpdating;
 
   String? get error => _error;
+
+  void searchOrders(String query) {
+    _searchQuery = query.trim();
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    _searchQuery = '';
+    notifyListeners();
+  }
 
   Future<void> loadOrders() async {
     if (_isLoading) return;
@@ -35,13 +70,11 @@ class AdminOrderProvider extends ChangeNotifier {
 
     try {
       final result = await _repository.getAllOrders();
-
       _orders = result;
     } catch (e) {
       _error = _cleanError(e);
     } finally {
       _isLoading = false;
-
       notifyListeners();
     }
   }
@@ -86,7 +119,6 @@ class AdminOrderProvider extends ChangeNotifier {
       }
 
       _isUpdating = false;
-
       notifyListeners();
 
       return true;
@@ -94,7 +126,6 @@ class AdminOrderProvider extends ChangeNotifier {
       _error = _cleanError(e);
 
       _isUpdating = false;
-
       notifyListeners();
 
       return false;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -466,6 +467,7 @@ class _AddressInfoRow extends StatelessWidget {
   }
 }
 
+
 class _ShippingPaymentCard extends StatelessWidget {
   const _ShippingPaymentCard({required this.order});
 
@@ -473,6 +475,9 @@ class _ShippingPaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trackingCode = order.trackingCode?.trim() ?? '';
+    final hasTrackingCode = trackingCode.isNotEmpty;
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       padding: EdgeInsets.all(16.w),
@@ -489,6 +494,86 @@ class _ShippingPaymentCard extends StatelessWidget {
             value: 'ارسال معمولی',
           ),
           SizedBox(height: 14.h),
+
+          // کد رهگیری مرسوله
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Iconsax.receipt_copy,
+                size: 21.sp,
+                color: AppColors.primary,
+              ),
+              SizedBox(width: 10.w),
+              Text(
+                'کد رهگیری',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: hasTrackingCode
+                    ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SelectableText(
+                      trackingCode,
+                      textDirection: TextDirection.ltr,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    TextButton.icon(
+                      onPressed: () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: trackingCode),
+                        );
+
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'کد رهگیری کپی شد.',
+                              ),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                      },
+                      icon: Icon(
+                        Iconsax.copy_copy,
+                        size: 16.sp,
+                      ),
+                      label: const Text('کپی کد'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                )
+                    : Text(
+                  'هنوز ثبت نشده است',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 14.h),
           _InfoRow(
             icon: Iconsax.card_copy,
             title: 'روش پرداخت',
@@ -498,7 +583,7 @@ class _ShippingPaymentCard extends StatelessWidget {
           _InfoRow(
             icon: Iconsax.wallet_3_copy,
             title: 'وضعیت پرداخت',
-            value: _paymentStatusText(order.paymentStatus ?? ''),
+            value: _paymentStatusText(order.paymentStatus),
           ),
         ],
       ),
@@ -531,6 +616,7 @@ class _ShippingPaymentCard extends StatelessWidget {
     }
   }
 }
+
 
 class _OrderSummary extends StatelessWidget {
   const _OrderSummary({required this.order});

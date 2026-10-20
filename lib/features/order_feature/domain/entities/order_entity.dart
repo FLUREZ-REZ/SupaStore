@@ -1,8 +1,11 @@
+
 import 'order_item_entity.dart';
 
 class OrderEntity {
   final String id;
   final String userId;
+
+  final String? trackingCode;
 
   final String? addressId;
   final String? shippingMethodId;
@@ -26,6 +29,7 @@ class OrderEntity {
   const OrderEntity({
     required this.id,
     required this.userId,
+    this.trackingCode,
     this.addressId,
     this.shippingMethodId,
     required this.status,
@@ -44,6 +48,7 @@ class OrderEntity {
   OrderEntity copyWith({
     String? id,
     String? userId,
+    String? trackingCode,
     String? addressId,
     String? shippingMethodId,
     String? status,
@@ -61,24 +66,20 @@ class OrderEntity {
     return OrderEntity(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      trackingCode: trackingCode ?? this.trackingCode,
       addressId: addressId ?? this.addressId,
       shippingMethodId:
       shippingMethodId ?? this.shippingMethodId,
       status: status ?? this.status,
-      paymentStatus:
-      paymentStatus ?? this.paymentStatus,
-      paymentMethod:
-      paymentMethod ?? this.paymentMethod,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       subtotal: subtotal ?? this.subtotal,
       discount: discount ?? this.discount,
       shippingCost: shippingCost ?? this.shippingCost,
       totalPrice: totalPrice ?? this.totalPrice,
-      shippingAddress:
-      shippingAddress ?? this.shippingAddress,
-      createdAt:
-      createdAt ?? this.createdAt,
-      updatedAt:
-      updatedAt ?? this.updatedAt,
+      shippingAddress: shippingAddress ?? this.shippingAddress,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
     );
   }

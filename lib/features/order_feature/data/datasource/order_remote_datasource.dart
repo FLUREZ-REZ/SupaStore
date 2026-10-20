@@ -15,6 +15,7 @@ class OrderRemoteDataSource {
     id,
     user_id,
     address_id,
+    tracking_code,
     subtotal,
     discount,
     shipping_cost,
@@ -294,22 +295,55 @@ class OrderRemoteDataSource {
       'shipped',
       'delivered',
       'canceled',
+      'cancelled',
     };
 
     if (!allowedStatuses.contains(status)) {
-      throw Exception('وضعیت سفارش نامعتبر است.');
+      throw Exception('وضعیت سفارش نامعتبر است: $status');
     }
 
-    final response = await _supabase
-        .from('orders')
-        .update({
-      'status': status,
-    })
-        .eq('id', orderId)
-        .select(_orderSelect)
-        .single();
+    try {
+      debugPrint('UPDATE ORDER ID: $orderId');
+      debugPrint('UPDATE ORDER STATUS: $status');
 
-    return Map<String, dynamic>.from(response);
+
+      final currentUser = _supabase.auth.currentUser;
+
+      debugPrint('CURRENT USER ID: ${currentUser?.id}');
+      debugPrint('ORDER ID TO UPDATE: $orderId');
+      debugPrint('CURRENT SESSION: ${_supabase.auth.currentSession != null}');
+
+      final response = await _supabase
+          .from('orders')
+          .update({
+        'status': status,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      })
+          .eq('id', orderId)
+          .select(_orderSelect);
+
+      debugPrint('UPDATE ORDER RESPONSE: $response');
+
+      if (response.isEmpty) {
+        throw Exception(
+          'هیچ سفارشی به‌روزرسانی نشد. '
+              'شناسه سفارش یا دسترسی RLS را بررسی کن.',
+        );
+      }
+
+      if (response.length > 1) {
+        throw Exception('بیش از یک سفارش برگشت داده شد.');
+      }
+
+      return Map<String, dynamic>.from(response.first);
+    } on PostgrestException catch (e) {
+      debugPrint('UPDATE ORDER POSTGREST ERROR: ${e.message}');
+      debugPrint('UPDATE ORDER POSTGREST CODE: ${e.code}');
+      debugPrint('UPDATE ORDER POSTGREST DETAILS: ${e.details}');
+      debugPrint('UPDATE ORDER POSTGREST HINT: ${e.hint}');
+
+      throw Exception('خطای دیتابیس هنگام تغییر وضعیت: ${e.message}');
+    }
   }
 
 }

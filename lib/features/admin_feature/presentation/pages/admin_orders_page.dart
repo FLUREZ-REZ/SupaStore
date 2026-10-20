@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/address_feature/domain/usecases/get_address_by_id_use_case.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
@@ -9,18 +10,22 @@ import 'package:supastore/features/order_feature/presentation/pages/admin_order_
 import 'package:supastore/features/order_feature/presentation/providers/admin_order_provider.dart';
 
 class AdminOrdersPage extends StatefulWidget {
-  const AdminOrdersPage({
-    super.key,
-  });
+  const AdminOrdersPage({super.key});
 
   @override
-  State<AdminOrdersPage> createState() =>
-      _AdminOrdersPageState();
+  State<AdminOrdersPage> createState() => _AdminOrdersPageState();
 }
 
-class _AdminOrdersPageState
-    extends State<AdminOrdersPage> {
+class _AdminOrdersPageState extends State<AdminOrdersPage> {
   late final AdminOrderProvider _provider;
+  final TextEditingController _searchController = TextEditingController();
+
+  String _searchQuery = '';
+
+  static const Color _primaryColor = Color(0xFFE21B23);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+  static const Color _textColor = Color(0xFF222222);
+  static const Color _secondaryTextColor = Color(0xFF777777);
 
   @override
   void initState() {
@@ -28,95 +33,67 @@ class _AdminOrdersPageState
 
     _provider = getIt<AdminOrderProvider>();
 
-    WidgetsBinding.instance.addPostFrameCallback(
-          (_) {
-        _provider.loadOrders();
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.loadOrders();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<OrderEntity> _filterOrders(List<OrderEntity> orders) {
+    final query = _searchQuery.trim().toLowerCase();
+
+    if (query.isEmpty) {
+      return orders;
+    }
+
+    return orders.where((order) {
+      final trackingCode = order.trackingCode?.toLowerCase() ?? '';
+      final orderId = order.id.toLowerCase();
+
+      return trackingCode.contains(query) || orderId.contains(query);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
+    return ChangeNotifierProvider<AdminOrderProvider>.value(
       value: _provider,
       child: Consumer<AdminOrderProvider>(
-        builder: (
-            context,
-            provider,
-            child,
-            ) {
-          if (provider.isLoading &&
-              provider.orders.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+        builder: (context, provider, child) {
+          final orders = _filterOrders(provider.orders);
 
-          if (provider.error != null &&
-              provider.orders.isEmpty) {
-            return _buildError(
-              context,
-              provider,
-            );
-          }
-
-          if (provider.orders.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: provider.refreshOrders,
-              child: ListView(
-                physics:
-                const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: 300.h,
-                  ),
-                  Column(
-                    children: [
-                      Icon(
-                        Iconsax.receipt_copy,
-                        size: 48.sp,
-                        color: Colors.grey.shade400,
-                      ),
-                      SizedBox(height: 12.h),
-                      Text(
-                        'هیچ سفارشی ثبت نشده است.',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+          return Scaffold(
+            backgroundColor: _backgroundColor,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: true,
+              title: Text(
+                'مدیریت سفارش‌ها',
+                style: TextStyle(
+                  color: _textColor,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: provider.refreshOrders,
-            child: ListView.builder(
-              padding: EdgeInsets.fromLTRB(
-                16.w,
-                16.h,
-                16.w,
-                30.h,
-              ),
-              physics:
-              const AlwaysScrollableScrollPhysics(),
-              itemCount: provider.orders.length,
-              itemBuilder: (
-                  context,
-                  index,
-                  ) {
-                final order =
-                provider.orders[index];
-
-                return _AdminOrderCard(
-                  order: order,
-                  provider: provider,
-                );
-              },
+              iconTheme: const IconThemeData(color: _textColor),
+            ),
+            body: Column(
+              children: [
+                _buildSearchField(),
+                Expanded(
+                  child: _buildOrdersContent(
+                    context: context,
+                    provider: provider,
+                    orders: orders,
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -124,233 +101,365 @@ class _AdminOrdersPageState
     );
   }
 
-  Widget _buildError(
-      BuildContext context,
-      AdminOrderProvider provider,
-      ) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 68.w,
-              height: 68.w,
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Iconsax.warning_2_copy,
-                size: 34.sp,
-                color: Colors.red.shade600,
-              ),
+  Widget _buildSearchField() {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+      child: TextField(
+        controller: _searchController,
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.left,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'جست‌وجو با کد رهگیری یا شناسه سفارش',
+          hintTextDirection: TextDirection.rtl,
+          hintStyle: TextStyle(
+            fontSize: 12.sp,
+            color: _secondaryTextColor,
+          ),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: _secondaryTextColor,
+          ),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+            tooltip: 'پاک کردن جست‌وجو',
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              _searchController.clear();
+
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+          )
+              : null,
+          filled: true,
+          fillColor: _backgroundColor,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12.w,
+            vertical: 14.h,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: BorderSide(
+              color: Colors.grey.shade200,
             ),
-            SizedBox(height: 16.h),
-            Text(
-              'خطا در دریافت سفارش‌ها',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w800,
-              ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: const BorderSide(
+              color: _primaryColor,
             ),
-            SizedBox(height: 8.h),
-            Text(
-              provider.error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.sp,
-                height: 1.6,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            ElevatedButton.icon(
-              onPressed: provider.loadOrders,
-              icon: const Icon(
-                Iconsax.refresh_copy,
-              ),
-              label: const Text(
-                'تلاش مجدد',
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 22.w,
-                  vertical: 12.h,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(12.r),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOrdersContent({
+    required BuildContext context,
+    required AdminOrderProvider provider,
+    required List<OrderEntity> orders,
+  }) {
+    if (provider.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: _primaryColor,
+        ),
+      );
+    }
+
+    if (provider.error != null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: _primaryColor,
+                size: 42.sp,
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                provider.error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13.sp),
+              ),
+              SizedBox(height: 16.h),
+              ElevatedButton.icon(
+                onPressed: () => provider.loadOrders(),
+                icon: const Icon(Icons.refresh),
+                label: const Text('تلاش مجدد'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (orders.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _searchQuery.isNotEmpty
+                    ? Icons.search_off
+                    : Icons.shopping_bag_outlined,
+                size: 48.sp,
+                color: Colors.grey.shade400,
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                _searchQuery.isNotEmpty
+                    ? 'سفارشی با این کد یا شناسه پیدا نشد.'
+                    : 'هنوز سفارشی ثبت نشده است.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: _secondaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      color: _primaryColor,
+      onRefresh: () => provider.loadOrders(),
+      child: ListView.builder(
+        padding: EdgeInsets.all(12.w),
+        itemCount: orders.length,
+        itemBuilder: (context, index) {
+          final order = orders[index];
+
+          return _AdminOrderCard(
+            order: order,
+            provider: provider,
+          );
+        },
       ),
     );
   }
 }
 
 class _AdminOrderCard extends StatelessWidget {
+  final OrderEntity order;
+  final AdminOrderProvider provider;
+
   const _AdminOrderCard({
     required this.order,
     required this.provider,
   });
 
-  final OrderEntity order;
-  final AdminOrderProvider provider;
+  static const Color _primaryColor = Color(0xFFE21B23);
+  static const Color _textColor = Color(0xFF222222);
+  static const Color _secondaryTextColor = Color(0xFF777777);
+
+  String get _trackingCode {
+    final code = order.trackingCode?.trim();
+
+    if (code == null || code.isEmpty) {
+      return 'ثبت نشده';
+    }
+
+    return code;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(
-        bottom: 14.h,
-      ),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) =>
-                    AdminOrderDetailsPage(
-                      order: order,
-                      provider: provider,
-                      getAddressByIdUseCase:
-                      getIt<GetAddressByIdUseCase>(),
-                    ),
-              ),
-            );
-          },
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-
-                SizedBox(height: 16.h),
-
-                Divider(
-                  height: 1,
-                  color: Colors.grey.shade200,
-                ),
-
-                SizedBox(height: 16.h),
-
-                _buildInfoRow(),
-
-                SizedBox(height: 14.h),
-
-                _buildTotal(),
-
-                SizedBox(height: 14.h),
-
-                _buildDetailsHint(),
-
-                SizedBox(height: 14.h),
-
-                _buildStatusButton(context),
-              ],
+      child: Padding(
+        padding: EdgeInsets.all(14.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(context),
+            SizedBox(height: 14.h),
+            Divider(
+              height: 1,
+              color: Colors.grey.shade200,
             ),
-          ),
+            SizedBox(height: 12.h),
+            _buildInfoRow(
+              icon: Icons.receipt_long_outlined,
+              title: 'شناسه سفارش',
+              value: _shortOrderId(order.id),
+              direction: TextDirection.ltr,
+            ),
+            SizedBox(height: 10.h),
+            _buildInfoRow(
+              icon: Icons.local_shipping_outlined,
+              title: 'کد رهگیری',
+              value: _trackingCode,
+              direction: TextDirection.ltr,
+            ),
+            SizedBox(height: 10.h),
+            _buildInfoRow(
+              icon: Icons.shopping_bag_outlined,
+              title: 'تعداد اقلام',
+              value: '${order.items.length} مورد',
+            ),
+            SizedBox(height: 10.h),
+            _buildInfoRow(
+              icon: Icons.payment_outlined,
+              title: 'وضعیت پرداخت',
+              value: _paymentStatusLabel(order.paymentStatus),
+            ),
+            SizedBox(height: 14.h),
+            _buildTotal(),
+            SizedBox(height: 12.h),
+            _buildDetailsHint(context),
+            SizedBox(height: 12.h),
+            _buildStatusButton(context),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 44.w,
-          height: 44.w,
+          width: 42.w,
+          height: 42.w,
           decoration: BoxDecoration(
-            color: const Color(0xFF0077b6),
-            borderRadius:
-            BorderRadius.circular(13.r),
+            color: _primaryColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           child: Icon(
-            Iconsax.receipt_copy,
+            Icons.shopping_bag_outlined,
+            color: _primaryColor,
             size: 22.sp,
-            color: Colors.white,
           ),
         ),
-
-        SizedBox(width: 12.w),
-
+        SizedBox(width: 10.w),
         Expanded(
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'شماره سفارش',
+                'سفارش ${_shortOrderId(order.id)}',
+                textDirection: TextDirection.rtl,
                 style: TextStyle(
-                  fontSize: 10.5.sp,
-                  color: Colors.grey.shade500,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: _textColor,
                 ),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: 5.h),
               Text(
-                '#${_shortOrderId(order.id).toUpperCase()}',
+                _trackingCode,
+                textDirection: TextDirection.ltr,
                 style: TextStyle(
-                  fontSize: 14.5.sp,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.3,
+                  fontSize: 11.sp,
+                  color: _secondaryTextColor,
                 ),
               ),
             ],
           ),
         ),
+        SizedBox(width: 8.w),
+        IconButton(
+          tooltip: 'کپی کد رهگیری',
+          visualDensity: VisualDensity.compact,
+          onPressed: order.trackingCode == null ||
+              order.trackingCode!.trim().isEmpty
+              ? null
+              : () async {
+            final code = order.trackingCode!.trim();
 
-        _StatusBadge(
-          status: order.status,
+            await Clipboard.setData(
+              ClipboardData(text: code),
+            );
+
+            if (!context.mounted) return;
+
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text('کد رهگیری کپی شد.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+          },
+          icon: const Icon(
+            Icons.copy_outlined,
+            color: _primaryColor,
+          ),
         ),
+        _StatusBadge(status: order.status),
       ],
     );
   }
 
-  Widget _buildInfoRow() {
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String title,
+    required String value,
+    TextDirection direction = TextDirection.rtl,
+  }) {
     return Row(
       children: [
-        Expanded(
-          child: _InfoBox(
-            icon: Iconsax.shopping_bag_copy,
-            title: 'تعداد کالا',
-            value:
-            '${order.items.length} کالا',
+        Icon(
+          icon,
+          size: 17.sp,
+          color: _secondaryTextColor,
+        ),
+        SizedBox(width: 7.w),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: _secondaryTextColor,
           ),
         ),
-
-        SizedBox(width: 10.w),
-
-        Expanded(
-          child: _InfoBox(
-            icon: Iconsax.card_copy,
-            title: 'وضعیت پرداخت',
-            value: _paymentStatusText(
-              order.paymentStatus,
+        const Spacer(),
+        Flexible(
+          child: Text(
+            value,
+            textDirection: direction,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              color: _textColor,
             ),
           ),
         ),
@@ -360,93 +469,31 @@ class _AdminOrderCard extends StatelessWidget {
 
   Widget _buildTotal() {
     return Container(
-      width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 14.w,
-        vertical: 13.h,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFcaf0f8),
-        borderRadius:
-        BorderRadius.circular(13.r),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36.w,
-            height: 36.w,
-            decoration: BoxDecoration(
-              color: const Color(0xFF0077b6),
-              borderRadius:
-              BorderRadius.circular(10.r),
-            ),
-            child: Icon(
-              Iconsax.wallet_1_copy,
-              size: 19.sp,
-              color: Colors.white,
-            ),
-          ),
-
-          SizedBox(width: 10.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'مبلغ نهایی سفارش',
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  '${_formatPrice(order.totalPrice)} تومان',
-                  style: const TextStyle(
-                    color: Color(0xFF03045e),
-                  ).copyWith(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailsHint() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 14.w,
+        horizontal: 12.w,
         vertical: 12.h,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF023e8a),
-        borderRadius:
-        BorderRadius.circular(12.r),
+        color: const Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
-        mainAxisAlignment:
-        MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.touch_app_outlined,
-            size: 17.sp,
-            color: Colors.white,
-          ),
-          SizedBox(width: 7.w),
           Text(
-            'برای مشاهده جزئیات سفارش کلیک کنید',
+            'مبلغ کل',
             style: TextStyle(
-              fontSize: 11.sp,
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+              fontSize: 13.sp,
+              color: _secondaryTextColor,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            '${_formatPrice(order.totalPrice)} تومان',
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: _primaryColor,
             ),
           ),
         ],
@@ -454,416 +501,269 @@ class _AdminOrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusButton(
-      BuildContext context,
-      ) {
+  Widget _buildDetailsHint(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8.r),
+      onTap: () => _openDetails(context),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 5.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'مشاهده جزئیات سفارش',
+              style: TextStyle(
+                color: _primaryColor,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(width: 5.w),
+            Icon(
+              Icons.arrow_back_ios_new,
+              size: 13.sp,
+              color: _primaryColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openDetails(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AdminOrderDetailsPage(
+          order: order,
+          provider: provider,
+          getAddressByIdUseCase: getIt<GetAddressByIdUseCase>(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 47.h,
       child: OutlinedButton.icon(
-        onPressed: provider.isUpdating
-            ? null
-            : () {
-          _showStatusDialog(
-            context,
-            provider,
-          );
-        },
-        icon: Icon(
-          Icons.edit_outlined,
-          size: 18.sp,
-        ),
-        label: Text(
-          'تغییر وضعیت سفارش',
-          style: TextStyle(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        onPressed: () => _showStatusDialog(context),
+        icon: const Icon(Icons.edit_outlined),
+        label: const Text('تغییر وضعیت سفارش'),
         style: OutlinedButton.styleFrom(
-          backgroundColor:
-          const Color(0xFFef476f),
-          foregroundColor: Colors.white,
-          side: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          foregroundColor: _primaryColor,
+          side: const BorderSide(color: _primaryColor),
+          padding: EdgeInsets.symmetric(vertical: 11.h),
           shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(10.r),
           ),
         ),
       ),
     );
   }
 
-  Future<void> _showStatusDialog(
-      BuildContext context,
-      AdminOrderProvider provider,
-      ) async {
-    final selectedStatus =
-    await showDialog<String>(
+  Future<void> _showStatusDialog(BuildContext context) async {
+    const statuses = <String, String>{
+      'pending': 'در انتظار',
+      'processing': 'در حال پردازش',
+      'shipped': 'ارسال شده',
+      'delivered': 'تحویل شده',
+      'canceled': 'لغو شده',
+    };
+
+    String selectedStatus =
+    statuses.containsKey(order.status) ? order.status : 'pending';
+
+    final result = await showDialog<String>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.circular(18.r),
-          ),
-          title: const Text(
-            'وضعیت سفارش',
-          ),
-          content: Column(
-            mainAxisSize:
-            MainAxisSize.min,
-            children: [
-              _statusOption(
-                context,
-                'pending',
-                'در انتظار بررسی',
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text(
+                'تغییر وضعیت سفارش',
+                textAlign: TextAlign.right,
               ),
-              _statusOption(
-                context,
-                'processing',
-                'در حال پردازش',
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: statuses.entries.map((entry) {
+                  return RadioListTile<String>(
+                    value: entry.key,
+                    groupValue: selectedStatus,
+                    title: Text(
+                      entry.value,
+                      textAlign: TextAlign.right,
+                    ),
+                    activeColor: _primaryColor,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (value) {
+                      if (value == null) return;
+
+                      setDialogState(() {
+                        selectedStatus = value;
+                      });
+                    },
+                  );
+                }).toList(),
               ),
-              _statusOption(
-                context,
-                'shipped',
-                'ارسال شده',
-              ),
-              _statusOption(
-                context,
-                'delivered',
-                'تحویل داده شده',
-              ),
-              _statusOption(
-                context,
-                'canceled',
-                'لغو شده',
-              ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('انصراف'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () => Navigator.pop(
+                    dialogContext,
+                    selectedStatus,
+                  ),
+                  child: const Text('ثبت وضعیت'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
 
-    if (selectedStatus == null ||
-        selectedStatus == order.status) {
-      return;
-    }
+    if (result == null || result == order.status) return;
 
-    if (!context.mounted) {
-      return;
-    }
-
-    final success =
-    await provider.updateOrderStatus(
+    final success = await provider.updateOrderStatus(
       orderId: order.id,
-      status: selectedStatus,
+      status: result,
     );
 
-    if (!context.mounted) {
-      return;
-    }
+    if (!context.mounted) return;
 
-    if (success) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            'وضعیت سفارش با موفقیت تغییر کرد.',
-          ),
-        ),
-      );
-    } else if (provider.error != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
         SnackBar(
           content: Text(
-            provider.error!,
+            success
+                ? 'وضعیت سفارش به «${statuses[result]}» تغییر کرد.'
+                : 'تغییر وضعیت سفارش انجام نشد.',
           ),
         ),
       );
-    }
-  }
-
-  Widget _statusOption(
-      BuildContext context,
-      String value,
-      String title,
-      ) {
-    return RadioListTile<String>(
-      value: value,
-      groupValue: order.status,
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      onChanged: (value) {
-        if (value != null) {
-          Navigator.of(context).pop(
-            value,
-          );
-        }
-      },
-    );
   }
 
   String _shortOrderId(String id) {
-    if (id.length <= 8) {
-      return id;
-    }
-
+    if (id.length <= 8) return id;
     return id.substring(0, 8);
   }
 
-  String _formatPrice(int price) {
-    return price.toString().replaceAllMapped(
-      RegExp(
-        r'\B(?=(\d{3})+(?!\d))',
-      ),
+  String _formatPrice(num price) {
+    final value = price.round().toString();
+
+    return value.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
           (match) => ',',
     );
   }
 
-  String _paymentStatusText(
-      String status,
-      ) {
-    switch (status) {
+  String _paymentStatusLabel(String status) {
+    switch (status.toLowerCase()) {
       case 'paid':
         return 'پرداخت شده';
-
       case 'pending':
         return 'در انتظار پرداخت';
-
       case 'failed':
         return 'ناموفق';
-
-      case 'canceled':
-      case 'cancelled':
-        return 'لغو شده';
-
       case 'refunded':
-        return 'بازگشت وجه';
-
+        return 'مسترد شده';
+      case 'unpaid':
+        return 'پرداخت نشده';
       default:
         return status;
     }
   }
 }
 
-class _InfoBox extends StatelessWidget {
-  const _InfoBox({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius:
-        BorderRadius.circular(13.r),
-        border: Border.all(
-          color: Colors.grey.shade100,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34.w,
-            height: 34.w,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-              BorderRadius.circular(9.r),
-            ),
-            child: Icon(
-              icon,
-              size: 17.sp,
-              color: Colors.grey.shade700,
-            ),
-          ),
-
-          SizedBox(width: 8.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow:
-                  TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 9.5.sp,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow:
-                  TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11.5.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _StatusBadge extends StatelessWidget {
+  final String status;
+
   const _StatusBadge({
     required this.status,
   });
 
-  final String status;
-
   @override
   Widget build(BuildContext context) {
-    final config = _getStatusConfig();
+    final config = _getConfig(status);
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 10.w,
-        vertical: 7.h,
+        horizontal: 9.w,
+        vertical: 6.h,
       ),
       decoration: BoxDecoration(
         color: config.backgroundColor,
-        borderRadius:
-        BorderRadius.circular(10.r),
-        border: Border.all(
-          color: config.borderColor,
-        ),
+        borderRadius: BorderRadius.circular(20.r),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7.w,
-            height: 7.w,
-            decoration: BoxDecoration(
-              color: config.foregroundColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          SizedBox(width: 6.w),
-          Text(
-            config.title,
-            style: TextStyle(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w800,
-              color: config.foregroundColor,
-            ),
-          ),
-        ],
+      child: Text(
+        config.label,
+        style: TextStyle(
+          color: config.textColor,
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
-  _StatusConfig _getStatusConfig() {
-    switch (status) {
+  _StatusConfig _getConfig(String status) {
+    switch (status.toLowerCase()) {
       case 'pending':
-        return _StatusConfig(
-          title: 'در انتظار بررسی',
-          foregroundColor:
-          Colors.orange.shade700,
-          backgroundColor:
-          Colors.orange.withOpacity(0.08),
-          borderColor:
-          Colors.orange.withOpacity(0.15),
+        return const _StatusConfig(
+          label: 'در انتظار',
+          backgroundColor: Color(0xFFFFF3CD),
+          textColor: Color(0xFF856404),
         );
-
       case 'processing':
-        return _StatusConfig(
-          title: 'در حال پردازش',
-          foregroundColor:
-          Colors.blue.shade700,
-          backgroundColor:
-          Colors.blue.withOpacity(0.08),
-          borderColor:
-          Colors.blue.withOpacity(0.15),
+        return const _StatusConfig(
+          label: 'در حال پردازش',
+          backgroundColor: Color(0xFFDDEBFF),
+          textColor: Color(0xFF1556A6),
         );
-
       case 'shipped':
-        return _StatusConfig(
-          title: 'ارسال شده',
-          foregroundColor:
-          Colors.indigo.shade700,
-          backgroundColor:
-          Colors.indigo.withOpacity(0.08),
-          borderColor:
-          Colors.indigo.withOpacity(0.15),
+        return const _StatusConfig(
+          label: 'ارسال شده',
+          backgroundColor: Color(0xFFE5DDFB),
+          textColor: Color(0xFF5936A8),
         );
-
       case 'delivered':
-        return _StatusConfig(
-          title: 'تحویل داده شده',
-          foregroundColor:
-          Colors.green.shade700,
-          backgroundColor:
-          Colors.green.withOpacity(0.08),
-          borderColor:
-          Colors.green.withOpacity(0.15),
+        return const _StatusConfig(
+          label: 'تحویل شده',
+          backgroundColor: Color(0xFFD4EDDA),
+          textColor: Color(0xFF155724),
         );
-
       case 'canceled':
-      case 'cancelled':
-        return _StatusConfig(
-          title: 'لغو شده',
-          foregroundColor:
-          Colors.red.shade700,
-          backgroundColor:
-          Colors.red.withOpacity(0.08),
-          borderColor:
-          Colors.red.withOpacity(0.15),
+      case 'canceled':
+        return const _StatusConfig(
+          label: 'لغو شده',
+          backgroundColor: Color(0xFFF8D7DA),
+          textColor: Color(0xFF721C24),
         );
-
       default:
         return _StatusConfig(
-          title: status,
-          foregroundColor:
-          Colors.grey.shade700,
-          backgroundColor:
-          Colors.grey.withOpacity(0.08),
-          borderColor:
-          Colors.grey.withOpacity(0.15),
+          label: status,
+          backgroundColor: Colors.grey.shade200,
+          textColor: Colors.grey.shade800,
         );
     }
   }
 }
 
 class _StatusConfig {
-  const _StatusConfig({
-    required this.title,
-    required this.foregroundColor,
-    required this.backgroundColor,
-    required this.borderColor,
-  });
-
-  final String title;
-  final Color foregroundColor;
+  final String label;
   final Color backgroundColor;
-  final Color borderColor;
+  final Color textColor;
+
+  const _StatusConfig({
+    required this.label,
+    required this.backgroundColor,
+    required this.textColor,
+  });
 }

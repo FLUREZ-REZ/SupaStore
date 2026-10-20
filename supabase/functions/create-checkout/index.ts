@@ -1426,7 +1426,7 @@ Deno.serve(
                 "pending",
             })
             .select(
-              "id",
+              "id, tracking_code",
             )
             .single();
 
@@ -1891,6 +1891,7 @@ Deno.serve(
               true,
             order_id:
               order.id,
+            tracking_code: order.tracking_code,
             payment_id:
               payment.id,
             amount:
@@ -1999,6 +2000,7 @@ Deno.serve(
               true,
             order_id:
               order.id,
+            tracking_code: order.tracking_code,  
             payment_id:
               payment.id,
             amount:

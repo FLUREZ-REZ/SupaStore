@@ -146,6 +146,8 @@ class OrderRepositoryImpl implements OrderRepository {
   CheckoutResultEntity _mapCheckoutResult(
       Map<String, dynamic> map,
       ) {
+    final trackingCode = map['tracking_code'];
+
     final orderId = map['order_id'];
 
     final paymentId = map['payment_id'];
@@ -161,6 +163,12 @@ class OrderRepositoryImpl implements OrderRepository {
     final paymentUrl = map['payment_url'];
 
     final sandbox = map['sandbox'];
+
+    if (trackingCode is! String || trackingCode.isEmpty) {
+      throw Exception(
+        'کد رهگیری سفارش دریافت نشد.',
+      );
+    }
 
     if (orderId is! String || orderId.isEmpty) {
       throw Exception(
@@ -209,6 +217,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
     return CheckoutResultEntity(
       orderId: orderId,
+      trackingCode: trackingCode,
       paymentId: paymentId,
       amount: amount.toInt(),
       currency: currency,
@@ -244,6 +253,7 @@ class OrderRepositoryImpl implements OrderRepository {
       id: map['id'] as String,
       userId: map['user_id'] as String,
       addressId: map['address_id'] as String?,
+      trackingCode: map['tracking_code'] as String?,
       subtotal: map['subtotal'] as int,
       discount: map['discount'] as int,
       shippingCost: map['shipping_cost'] as int,
