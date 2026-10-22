@@ -1,9 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
@@ -15,6 +17,9 @@ import 'package:supastore/features/admin_feature/presentation/providers/admin_pr
 import 'package:supastore/features/admin_feature/review/presentation/providers/admin_review_provider.dart';
 import 'package:supastore/features/auth_feature/domain/usecases/logout.dart';
 
+import 'package:supastore/features/notification_feature/presentation/pages/admin_announcements_page.dart';
+import 'package:supastore/features/notification_feature/presentation/providers/notifications_provider.dart';
+
 import 'admin_categories_page.dart';
 import 'admin_dashboard_page.dart';
 import 'admin_orders_page.dart';
@@ -24,15 +29,12 @@ import 'admin_settings_page.dart';
 import 'admin_users_page.dart';
 
 class AdminMainPage extends StatelessWidget {
-  const AdminMainPage({
-    super.key,
-  });
+  const AdminMainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AdminAccessProvider>(
-      create: (_) =>
-      getIt<AdminAccessProvider>()..loadAccess(),
+      create: (_) => getIt<AdminAccessProvider>()..loadAccess(),
       child: const _AdminMainView(),
     );
   }
@@ -42,8 +44,7 @@ class _AdminMainView extends StatefulWidget {
   const _AdminMainView();
 
   @override
-  State<_AdminMainView> createState() =>
-      _AdminMainViewState();
+  State<_AdminMainView> createState() => _AdminMainViewState();
 }
 
 class _AdminMainViewState extends State<_AdminMainView> {
@@ -54,38 +55,23 @@ class _AdminMainViewState extends State<_AdminMainView> {
   @override
   void initState() {
     super.initState();
-
     _menuItems = [];
-
     _testAdminAccess();
   }
 
   Future<void> _testAdminAccess() async {
     final supabase = Supabase.instance.client;
-
     final user = supabase.auth.currentUser;
 
     debugPrint(
       '================ ADMIN ACCESS TEST ================',
     );
-
-    debugPrint(
-      'AUTH USER ID: ${user?.id}',
-    );
-
-    debugPrint(
-      'AUTH PHONE: ${user?.phone}',
-    );
+    debugPrint('AUTH USER ID: ${user?.id}');
+    debugPrint('AUTH PHONE: ${user?.phone}');
 
     if (user == null) {
-      debugPrint(
-        'USER IS NULL - USER IS NOT LOGGED IN',
-      );
-
-      debugPrint(
-        '====================================================',
-      );
-
+      debugPrint('USER IS NULL - USER IS NOT LOGGED IN');
+      debugPrint('====================================================');
       return;
     }
 
@@ -102,59 +88,38 @@ class _AdminMainViewState extends State<_AdminMainView> {
           .eq('id', user.id)
           .maybeSingle();
 
-      debugPrint(
-        'PROFILE: $profile',
-      );
+      debugPrint('PROFILE: $profile');
 
-      final role = await supabase.rpc(
-        'current_admin_role',
-      );
+      final role = await supabase.rpc('current_admin_role');
 
-      debugPrint(
-        'CURRENT ADMIN ROLE: $role',
-      );
+      debugPrint('CURRENT ADMIN ROLE: $role');
     } catch (e, stackTrace) {
-      debugPrint(
-        'ADMIN ACCESS TEST ERROR: $e',
-      );
-
-      debugPrint(
-        '$stackTrace',
-      );
+      debugPrint('ADMIN ACCESS TEST ERROR: $e');
+      debugPrint('$stackTrace');
     }
 
-    debugPrint(
-      '====================================================',
-    );
+    debugPrint('====================================================');
   }
 
   Future<void> _logout() async {
     try {
       await getIt<SignOut>()();
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       context.go('/auth');
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'خروج از حساب انجام نشد.',
-          ),
+          content: Text('خروج از حساب انجام نشد.'),
         ),
       );
     }
   }
 
-  void _buildMenuItems(
-      AdminAccessProvider accessProvider,
-      ) {
+  void _buildMenuItems(AdminAccessProvider accessProvider) {
     final List<_AdminMenuItem> items = [];
 
     if (accessProvider.isSuperAdmin) {
@@ -164,72 +129,53 @@ class _AdminMainViewState extends State<_AdminMainView> {
           icon: Iconsax.home_1,
           page: const AdminDashboardPage(),
         ),
-
         _AdminMenuItem(
           title: 'محصولات',
           icon: Iconsax.box_1_copy,
-          page: ChangeNotifierProvider<
-              AdminProductProvider>(
-            create: (_) =>
-                getIt<AdminProductProvider>(),
+          page: ChangeNotifierProvider<AdminProductProvider>(
+            create: (_) => getIt<AdminProductProvider>(),
             child: const AdminProductsPage(),
           ),
         ),
-
         _AdminMenuItem(
           title: 'دسته‌بندی‌ها',
           icon: Iconsax.category_copy,
-          page: ChangeNotifierProvider<
-              AdminCategoryProvider>(
-            create: (_) =>
-                getIt<AdminCategoryProvider>(),
+          page: ChangeNotifierProvider<AdminCategoryProvider>(
+            create: (_) => getIt<AdminCategoryProvider>(),
             child: const AdminCategoriesPage(),
           ),
         ),
-
-        // -----------------------------
-        // Flash Sale
-        // -----------------------------
         _AdminMenuItem(
           title: 'فروش ویژه',
           icon: Icons.local_offer_outlined,
           page: const AdminFlashSalesPage(),
         ),
-
         _AdminMenuItem(
           title: 'بنرها',
           icon: Iconsax.picture_frame_copy,
           page: const AdminBannersPage(),
         ),
-
         _AdminMenuItem(
           title: 'سفارش‌ها',
           icon: Iconsax.box_copy,
           page: const AdminOrdersPage(),
         ),
-
         _AdminMenuItem(
           title: 'کاربران',
           icon: Iconsax.people_copy,
-          page: ChangeNotifierProvider<
-              AdminUserProvider>(
-            create: (_) =>
-                getIt<AdminUserProvider>(),
+          page: ChangeNotifierProvider<AdminUserProvider>(
+            create: (_) => getIt<AdminUserProvider>(),
             child: AdminUsersPage(),
           ),
         ),
-
         _AdminMenuItem(
           title: 'نظرات',
           icon: Iconsax.message_copy,
-          page: ChangeNotifierProvider<
-              AdminReviewProvider>(
-            create: (_) =>
-                getIt<AdminReviewProvider>(),
+          page: ChangeNotifierProvider<AdminReviewProvider>(
+            create: (_) => getIt<AdminReviewProvider>(),
             child: const AdminReviewsPage(),
           ),
         ),
-
         _AdminMenuItem(
           title: 'تنظیمات',
           icon: Iconsax.setting_2_copy,
@@ -243,7 +189,6 @@ class _AdminMainViewState extends State<_AdminMainView> {
           icon: Iconsax.home_1_copy,
           page: const AdminDashboardPage(),
         ),
-
         _AdminMenuItem(
           title: 'سفارش‌ها',
           icon: Iconsax.box_1_copy,
@@ -257,38 +202,43 @@ class _AdminMainViewState extends State<_AdminMainView> {
           icon: Iconsax.home_1_copy,
           page: const AdminDashboardPage(),
         ),
-
         _AdminMenuItem(
           title: 'محصولات',
           icon: Iconsax.box_1_copy,
-          page: ChangeNotifierProvider<
-              AdminProductProvider>(
-            create: (_) =>
-                getIt<AdminProductProvider>(),
+          page: ChangeNotifierProvider<AdminProductProvider>(
+            create: (_) => getIt<AdminProductProvider>(),
             child: const AdminProductsPage(),
           ),
         ),
-
         _AdminMenuItem(
           title: 'دسته‌بندی‌ها',
           icon: Iconsax.category_copy,
-          page: ChangeNotifierProvider<
-              AdminCategoryProvider>(
-            create: (_) =>
-                getIt<AdminCategoryProvider>(),
+          page: ChangeNotifierProvider<AdminCategoryProvider>(
+            create: (_) => getIt<AdminCategoryProvider>(),
             child: const AdminCategoriesPage(),
           ),
         ),
-
-        // -----------------------------
-        // Flash Sale
-        // -----------------------------
         _AdminMenuItem(
           title: 'فروش ویژه',
           icon: Icons.local_offer_outlined,
           page: const AdminFlashSalesPage(),
         ),
       ]);
+    }
+
+    // اطلاعیه‌ها برای ادمین اصلی و ادمین محصولات
+    if (accessProvider.isSuperAdmin ||
+        accessProvider.isProductManager) {
+      items.add(
+        _AdminMenuItem(
+          title: 'اطلاعیه‌ها',
+          icon: Iconsax.notification_copy,
+          page: ChangeNotifierProvider<NotificationsProvider>(
+            create: (_) => getIt<NotificationsProvider>(),
+            child: const AdminAnnouncementsPage(),
+          ),
+        ),
+      );
     }
 
     _menuItems = items;
@@ -299,8 +249,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
   }
 
   void _selectPage(int index) {
-    if (index < 0 ||
-        index >= _menuItems.length) {
+    if (index < 0 || index >= _menuItems.length) {
       return;
     }
 
@@ -313,15 +262,13 @@ class _AdminMainViewState extends State<_AdminMainView> {
 
   @override
   Widget build(BuildContext context) {
-    final accessProvider =
-    context.watch<AdminAccessProvider>();
+    final accessProvider = context.watch<AdminAccessProvider>();
 
     if (accessProvider.isLoading) {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor:
-          Color(0xFFF7F7F8),
+          backgroundColor: Color(0xFFF7F7F8),
           body: Center(
             child: CircularProgressIndicator(
               color: Color(0xFFE21B23),
@@ -335,8 +282,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor:
-          Color(0xFFF7F7F8),
+          backgroundColor: Color(0xFFF7F7F8),
           body: Center(
             child: Padding(
               padding: EdgeInsets.all(24),
@@ -356,8 +302,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor:
-          Color(0xFFF7F7F8),
+          backgroundColor: Color(0xFFF7F7F8),
           body: Center(
             child: Text(
               'دسترسی مدیریتی برای حساب شما فعال نیست.',
@@ -371,41 +316,32 @@ class _AdminMainViewState extends State<_AdminMainView> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor:
-        const Color(0xFFF7F7F8),
+        backgroundColor: const Color(0xFFF7F7F8),
         appBar: AppBar(
           elevation: 0,
-          backgroundColor:
-          const Color(0xFF03045e),
-          foregroundColor:
-          Colors.white,
+          backgroundColor: const Color(0xFF03045E),
+          foregroundColor: Colors.white,
           centerTitle: true,
           title: Text(
             _menuItems[_selectedIndex].title,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 17.sp,
-              fontWeight:
-              FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
         drawer: _buildDrawer(),
         body: IndexedStack(
           index: _selectedIndex,
-          children: _menuItems
-              .map(
-                (item) => item.page,
-          )
-              .toList(),
+          children: _menuItems.map((item) => item.page).toList(),
         ),
       ),
     );
   }
 
   Widget _buildDrawer() {
-    final accessProvider =
-    context.read<AdminAccessProvider>();
+    final accessProvider = context.read<AdminAccessProvider>();
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -414,8 +350,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
           children: [
             Container(
               width: double.infinity,
-              padding:
-              EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 20.w,
                 24.h,
                 20.w,
@@ -426,79 +361,48 @@ class _AdminMainViewState extends State<_AdminMainView> {
                   Container(
                     width: 64.w,
                     height: 64.w,
-                    decoration:
-                    const BoxDecoration(
-                      color:
-                      Color(0xFF03045e),
-                      shape:
-                      BoxShape.circle,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF03045E),
+                      shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Iconsax
-                          .shield_tick_copy,
-                      color:
-                      Colors.white,
+                      Iconsax.shield_tick_copy,
+                      color: Colors.white,
                       size: 34.sp,
                     ),
                   ),
-
-                  SizedBox(
-                    height: 12.h,
-                  ),
-
+                  SizedBox(height: 12.h),
                   Text(
                     'مدیریت فروشگاه',
-                    textAlign:
-                    TextAlign.center,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color:
-                      const Color(
-                        0xFF03045e,
-                      ),
+                      color: const Color(0xFF03045E),
                       fontSize: 19.sp,
-                      fontWeight:
-                      FontWeight.w800,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-
-                  SizedBox(
-                    height: 4.h,
-                  ),
-
+                  SizedBox(height: 4.h),
                   Text(
-                    _getRoleTitle(
-                      accessProvider.adminRole,
-                    ),
-                    textAlign:
-                    TextAlign.center,
+                    _getRoleTitle(accessProvider.adminRole),
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color:
-                      Colors.black54,
+                      color: Colors.black54,
                     ),
                   ),
                 ],
               ),
             ),
-
-            const Divider(
-              height: 1,
-            ),
-
+            const Divider(height: 1),
             Expanded(
-              child:
-              ListView.builder(
-                padding:
-                EdgeInsets.symmetric(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
                   horizontal: 10.w,
                   vertical: 12.h,
                 ),
-                itemCount:
-                _menuItems.length,
-                itemBuilder:
-                    (context, index) {
-                  final item =
-                  _menuItems[index];
+                itemCount: _menuItems.length,
+                itemBuilder: (context, index) {
+                  final item = _menuItems[index];
 
                   return _drawerItem(
                     index: index,
@@ -508,21 +412,12 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 },
               ),
             ),
-
-            const Divider(
-              height: 1,
-            ),
-
+            const Divider(height: 1),
             Padding(
-              padding:
-              EdgeInsets.all(10.w),
+              padding: EdgeInsets.all(10.w),
               child: ListTile(
-                shape:
-                RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(
-                    12.r,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 leading: const Icon(
                   Iconsax.logout_copy,
@@ -530,12 +425,10 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 ),
                 title: const Text(
                   'خروج از حساب',
-                  textAlign:
-                  TextAlign.right,
+                  textAlign: TextAlign.right,
                   style: TextStyle(
                     color: Colors.red,
-                    fontWeight:
-                    FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 onTap: _logout,
@@ -552,68 +445,46 @@ class _AdminMainViewState extends State<_AdminMainView> {
     required IconData icon,
     required String title,
   }) {
-    final selected =
-        _selectedIndex == index;
+    final selected = _selectedIndex == index;
 
     return Padding(
-      padding:
-      EdgeInsets.symmetric(
-        vertical: 3.h,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 3.h),
       child: ListTile(
         selected: selected,
-        selectedTileColor:
-        const Color(0xFFcaf0f8),
-        shape:
-        RoundedRectangleBorder(
-          borderRadius:
-          BorderRadius.circular(
-            12.r,
-          ),
+        selectedTileColor: const Color(0xFFCAF0F8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
         ),
         leading: Icon(
           icon,
           color: selected
-              ? const Color(
-            0xFF03045e,
-          )
+              ? const Color(0xFF03045E)
               : Colors.black54,
         ),
         title: Text(
           title,
-          textAlign:
-          TextAlign.right,
+          textAlign: TextAlign.right,
           style: TextStyle(
             fontSize: 13.5.sp,
-            fontWeight: selected
-                ? FontWeight.w700
-                : FontWeight.w500,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected
-                ? const Color(
-              0xFF03045e,
-            )
+                ? const Color(0xFF03045E)
                 : Colors.black87,
           ),
         ),
-        onTap: () =>
-            _selectPage(index),
+        onTap: () => _selectPage(index),
       ),
     );
   }
 
-  String _getRoleTitle(
-      String role,
-      ) {
+  String _getRoleTitle(String role) {
     switch (role) {
       case 'super_admin':
         return 'مدیر ارشد';
-
       case 'order_manager':
         return 'مدیر سفارش‌ها';
-
       case 'product_manager':
         return 'مدیر محصولات';
-
       default:
         return 'پنل مدیریت';
     }

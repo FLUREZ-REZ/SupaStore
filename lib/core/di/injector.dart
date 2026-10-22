@@ -168,6 +168,10 @@ import 'package:supastore/features/home_feature/domain/repositories/home_reposit
 import 'package:supastore/features/home_feature/domain/repositories/category_repository.dart';
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
 import 'package:supastore/features/home_feature/presentation/providers/category_provider.dart';
+import 'package:supastore/features/notification_feature/data/datasources/notifications_remote_data_source.dart';
+import 'package:supastore/features/notification_feature/data/repositories/notifications_repository_impl.dart';
+import 'package:supastore/features/notification_feature/domain/repositories/notifications_repository.dart';
+import 'package:supastore/features/notification_feature/presentation/providers/notifications_provider.dart';
 
 // ============================================================
 // ORDER FEATURE
@@ -1515,5 +1519,26 @@ Future<void> setupInjector() async {
       getIt<SearchAdminFlashSaleProducts>(),
     ),
   );
+
+  //notification :
+
+  // Notifications Feature
+
+  getIt.registerLazySingleton<NotificationsRemoteDataSource>(
+        () => NotificationsRemoteDataSource(),
+  );
+
+  getIt.registerLazySingleton<NotificationsRepository>(
+        () => NotificationsRepositoryImpl(
+      remoteDataSource: getIt<NotificationsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<NotificationsProvider>(
+        () => NotificationsProvider(
+      repository: getIt<NotificationsRepository>(),
+    ),
+  );
+
 
 }

@@ -3,12 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
 
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
+import 'package:supastore/features/notification_feature/presentation/pages/notifications_page.dart';
+import 'package:supastore/features/notification_feature/presentation/providers/notifications_provider.dart';
 
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
@@ -254,11 +257,17 @@ class HomeAppBar extends StatelessWidget {
               // ==================================================
 
               _HeaderIconButton(
-                icon:
-                Iconsax.notification_copy,
+                icon: Iconsax.notification_copy,
                 onTap: () {
-                  // TODO:
-                  // NotificationsPage
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ChangeNotifierProvider<NotificationsProvider>(
+                        create: (_) => getIt<NotificationsProvider>()
+                          ..loadNotifications(),
+                        child: const NotificationsPage(),
+                      ),
+                    ),
+                  );
                 },
               ),
 
