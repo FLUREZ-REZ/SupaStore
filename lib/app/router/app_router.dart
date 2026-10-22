@@ -22,6 +22,8 @@ import 'package:supastore/features/flash_sale_feature/presentation/pages/flash_s
 
 import 'package:supastore/features/home_feature/domain/entities/category_entity.dart';
 import 'package:supastore/features/home_feature/presentation/pages/main_page.dart';
+import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
+import 'package:supastore/features/order_feature/presentation/pages/order_details_page.dart';
 
 import 'package:supastore/features/product_feature/domain/entities/product_entity.dart';
 import 'package:supastore/features/product_feature/presentation/pages/popular_products_page.dart';
@@ -402,6 +404,23 @@ class AppRouter {
               return const FlashSalePage();
             },
           ),
+
+          // ======================================================
+// Order Details
+// ======================================================
+
+          GoRoute(
+            path: '/order-details',
+            name: 'order-details',
+            builder: (context, state) {
+              final order = state.extra as OrderEntity;
+
+              return OrderDetailsPage(
+                order: order,
+              );
+            },
+          ),
+
         ],
       ),
     ],

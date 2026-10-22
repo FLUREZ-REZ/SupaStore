@@ -102,4 +102,30 @@ class OrderProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<OrderEntity?> findOrderById(
+      String userId,
+      String orderId,
+      ) async {
+    try {
+      final result = await _repository.getUserOrders(userId);
+
+      _orders = result;
+      _error = null;
+      notifyListeners();
+
+      for (final order in result) {
+        if (order.id == orderId) {
+          return order;
+        }
+      }
+
+      return null;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
 }

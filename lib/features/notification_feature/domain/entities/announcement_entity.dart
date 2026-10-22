@@ -6,6 +6,7 @@ class AnnouncementEntity {
   final String body;
   final DateTime publishedAt;
   final DateTime createdAt;
+  final DateTime? expiresAt;
   final bool isRead;
 
   const AnnouncementEntity({
@@ -15,8 +16,22 @@ class AnnouncementEntity {
     required this.body,
     required this.publishedAt,
     required this.createdAt,
+    required this.expiresAt,
     required this.isRead,
   });
+
+  /// آیا اطلاعیه منقضی شده است؟
+  bool get isExpired {
+    final expiry = expiresAt;
+    return expiry != null &&
+        !expiry.isAfter(DateTime.now().toUtc());
+  }
+
+  /// آیا اطلاعیه در حال حاضر معتبر است؟
+  bool get isActive {
+    return !isExpired &&
+        !publishedAt.toUtc().isAfter(DateTime.now().toUtc());
+  }
 
   factory AnnouncementEntity.fromMap(
       Map<String, dynamic> map, {
@@ -33,6 +48,9 @@ class AnnouncementEntity {
       createdAt: DateTime.parse(
         map['created_at'] as String,
       ),
+      expiresAt: map['expires_at'] == null
+          ? null
+          : DateTime.parse(map['expires_at'] as String),
       isRead: isRead,
     );
   }

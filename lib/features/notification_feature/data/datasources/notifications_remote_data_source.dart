@@ -1,12 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supastore/features/notification_feature/domain/entities/admin_announcement_entity.dart';
+import 'package:supastore/features/notification_feature/domain/entities/admin_announcements_lists.dart';
+
 import '../../domain/entities/announcement_entity.dart';
 import '../../domain/entities/notification_entity.dart';
 
 class NotificationsRemoteDataSource {
   NotificationsRemoteDataSource();
 
-  final SupabaseClient _supabase =
-      Supabase.instance.client;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   String get _userId {
     final user = _supabase.auth.currentUser;
@@ -18,8 +20,7 @@ class NotificationsRemoteDataSource {
     return user.id;
   }
 
-  Future<List<NotificationEntity>>
-  getNotifications() async {
+  Future<List<NotificationEntity>> getNotifications() async {
     final response = await _supabase
         .from('notifications')
         .select()
@@ -35,22 +36,20 @@ class NotificationsRemoteDataSource {
         .toList();
   }
 
-  Future<List<AnnouncementEntity>>
-  getAnnouncements() async {
+  /// دریافت اطلاعیه‌های فعال برای کاربران
+  Future<List<AnnouncementEntity>> getAnnouncements() async {
+    final now = DateTime.now().toUtc().toIso8601String();
+
     final response = await _supabase
         .from('announcements')
         .select()
         .eq('is_published', true)
-        .lte(
-      'published_at',
-      DateTime.now().toUtc().toIso8601String(),
-    )
+        .lte('published_at', now)
+        .or('expires_at.is.null,expires_at.gt.$now')
         .order('published_at', ascending: false);
 
     final announcements = (response as List)
-        .map(
-          (item) => Map<String, dynamic>.from(item),
-    )
+        .map((item) => Map<String, dynamic>.from(item))
         .toList();
 
     if (announcements.isEmpty) {
@@ -88,9 +87,7 @@ class NotificationsRemoteDataSource {
   Future<void> markAnnouncementAsRead(
       String announcementId,
       ) async {
-    await _supabase
-        .from('announcement_reads')
-        .upsert(
+    await _supabase.from('announcement_reads').upsert(
       {
         'announcement_id': announcementId,
         'user_id': _userId,
@@ -100,15 +97,16 @@ class NotificationsRemoteDataSource {
     );
   }
 
+  /// انتشار اطلاعیه با تاریخ انقضای اختیاری
   Future<void> publishAnnouncement({
     required String title,
     required String body,
+    DateTime? expiresAt,
   }) async {
     final normalizedTitle = title.trim();
     final normalizedBody = body.trim();
 
-    if (normalizedTitle.isEmpty ||
-        normalizedBody.isEmpty) {
+    if (normalizedTitle.isEmpty || normalizedBody.isEmpty) {
       throw ArgumentError(
         'عنوان و متن اطلاعیه نباید خالی باشند.',
       );
@@ -126,11 +124,71 @@ class NotificationsRemoteDataSource {
       );
     }
 
+    if (expiresAt != null &&
+        !expiresAt.toUtc().isAfter(DateTime.now().toUtc())) {
+      throw ArgumentError(
+        'تاریخ انقضا باید در آینده باشد.',
+      );
+    }
+
     await _supabase.from('announcements').insert({
       'author_id': _userId,
       'title': normalizedTitle,
       'body': normalizedBody,
       'is_published': true,
+      'expires_at': expiresAt?.toUtc().toIso8601String(),
     });
   }
+
+  Future<AdminAnnouncementsPage> getAdminAnnouncements({
+    required int page,
+    int pageSize = 10,
+  }) async {
+    if (page < 0 || pageSize < 1) {
+      throw ArgumentError(
+        'شماره صفحه یا اندازه صفحه نامعتبر است.',
+      );
+    }
+
+    final from = page * pageSize;
+    final to = from + pageSize;
+
+    final response = await _supabase
+        .from('announcements')
+        .select()
+        .order('created_at', ascending: false)
+        .range(from, to);
+
+    final rows = (response as List)
+        .map(
+          (item) => Map<String, dynamic>.from(item),
+    )
+        .toList();
+
+    final hasMore = rows.length > pageSize;
+
+    final items = rows
+        .take(pageSize)
+        .map(
+          (item) => AdminAnnouncementEntity.fromMap(item),
+    )
+        .toList();
+
+    return AdminAnnouncementsPage(
+      items: items,
+      hasMore: hasMore,
+    );
+  }
+
+  Future<void> deleteAnnouncement(String announcementId) async {
+    if (announcementId.trim().isEmpty) {
+      throw ArgumentError('شناسه اطلاعیه معتبر نیست.');
+    }
+
+    await _supabase
+        .from('announcements')
+        .delete()
+        .eq('id', announcementId);
+  }
+
 }

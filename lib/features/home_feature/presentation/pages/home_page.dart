@@ -8,9 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/di/injector.dart';
 
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
-
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
-
 import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
 
 import 'package:supastore/features/home_feature/presentation/providers/banner_provider.dart';
@@ -31,6 +29,8 @@ import 'package:supastore/features/product_feature/presentation/widgets/popular_
 import 'package:supastore/features/product_feature/presentation/widgets/product_horizontal_list.dart';
 
 import 'package:supastore/features/notification_feature/presentation/providers/notifications_provider.dart';
+import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
+import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    await context.read<CartProvider>().loadCart(user.id);
+    await getIt<CartProvider>().loadCart(user.id);
   }
 
   @override
@@ -358,6 +358,10 @@ class _HomeNotificationListenerState
     });
   }
 
+  // ============================================================
+  // CHECK UNREAD ORDER NOTIFICATIONS
+  // ============================================================
+
   Future<void> _checkOrderNotifications() async {
     if (!mounted || _checkingNotifications || _dialogShown) {
       return;
@@ -372,15 +376,17 @@ class _HomeNotificationListenerState
     _checkingNotifications = true;
 
     try {
-      final provider = context.read<NotificationsProvider>();
+      final notificationProvider =
+      context.read<NotificationsProvider>();
 
-      await provider.loadNotifications();
+      await notificationProvider.loadNotifications();
 
       if (!mounted) {
         return;
       }
 
-      final pendingNotifications = provider.notifications.where(
+      final pendingNotifications =
+      notificationProvider.notifications.where(
             (notification) =>
         notification.type == 'order_status' &&
             !notification.isRead,
@@ -395,7 +401,10 @@ class _HomeNotificationListenerState
 
       _dialogShown = true;
 
-      await showDialog<void>(
+      // اگر کاربر سفارش را انتخاب کند، شیء کامل سفارش برگردانده می‌شود.
+      // اگر «متوجه شدم» را بزند، مقدار برگشتی null خواهد بود.
+      final OrderEntity? selectedOrder =
+      await showDialog<OrderEntity?>(
         context: context,
         barrierDismissible: false,
         builder: (dialogContext) {
@@ -436,30 +445,117 @@ class _HomeNotificationListenerState
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE21B23),
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 13.h,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // ==========================================
+                    // VIEW ORDER BUTTON
+                    // ==========================================
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE21B23),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: 13.h,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
+                      onPressed: () async {
+                        final orderId = notification.orderId;
+
+                        if (orderId == null || orderId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'شناسه سفارش در این اعلان موجود نیست.',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final currentUser =
+                            Supabase.instance.client.auth.currentUser;
+
+                        if (currentUser == null) {
+                          return;
+                        }
+
+                        try {
+                          final orderProvider = getIt<OrderProvider>();
+
+                          final order =
+                          await orderProvider.findOrderById(
+                            currentUser.id,
+                            orderId,
+                          );
+
+                          if (!mounted) {
+                            return;
+                          }
+
+                          if (order == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'سفارش موردنظر پیدا نشد. دوباره تلاش کنید.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop(order);
+                          }
+                        } catch (e, stackTrace) {
+                          debugPrint(
+                            'Failed to load order from notification: $e',
+                          );
+                          debugPrintStack(stackTrace: stackTrace);
+
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'دریافت اطلاعات سفارش با خطا مواجه شد.',
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      child: Text(
+                        'مشاهده سفارش',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                        ),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                    },
-                    child: Text(
-                      'متوجه شدم',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
+
+                    SizedBox(height: 8.h),
+
+                    // ==========================================
+                    // ACKNOWLEDGE BUTTON
+                    // ==========================================
+
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop();
+                      },
+                      child: Text(
+                        'متوجه شدم',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -471,15 +567,27 @@ class _HomeNotificationListenerState
         return;
       }
 
-      // ثبت خوانده‌شدن پس از بسته‌شدن پاپ‌آپ
-      final success = await provider.markNotificationAsRead(
+      // ثبت خوانده‌شدن پس از انتخاب یکی از دکمه‌ها
+      final success =
+      await notificationProvider.markNotificationAsRead(
         notification.id,
       );
 
       if (!success) {
         debugPrint(
-          'Failed to mark notification as read: '
-              '${notification.id}',
+          'Failed to mark notification as read: ${notification.id}',
+        );
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      // اگر سفارش انتخاب شده باشد، جزئیات همان سفارش باز می‌شود.
+      if (selectedOrder != null) {
+        context.pushNamed(
+          'order-details',
+          extra: selectedOrder,
         );
       }
     } catch (e, stackTrace) {
