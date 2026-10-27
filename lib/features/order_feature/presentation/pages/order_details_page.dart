@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supastore/core/constants/price_formatter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
+
+// =============================================================
+// ORDER DETAILS PAGE
+// =============================================================
 
 class OrderDetailsPage extends StatelessWidget {
   const OrderDetailsPage({
@@ -57,8 +62,14 @@ class OrderDetailsPage extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER HEADER
+// =============================================================
+
 class _OrderHeader extends StatelessWidget {
-  const _OrderHeader({required this.order});
+  const _OrderHeader({
+    required this.order,
+  });
 
   final OrderEntity order;
 
@@ -154,8 +165,14 @@ class _OrderHeader extends StatelessWidget {
   }
 }
 
+// =============================================================
+// SECTION TITLE
+// =============================================================
+
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title});
+  const _SectionTitle({
+    required this.title,
+  });
 
   final String title;
 
@@ -177,8 +194,14 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER ITEMS
+// =============================================================
+
 class _OrderItemsSection extends StatelessWidget {
-  const _OrderItemsSection({required this.order});
+  const _OrderItemsSection({
+    required this.order,
+  });
 
   final OrderEntity order;
 
@@ -201,8 +224,14 @@ class _OrderItemsSection extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER ITEM ROW WITH IMAGE SHIMMER
+// =============================================================
+
 class _OrderItemRow extends StatelessWidget {
-  const _OrderItemRow({required this.item});
+  const _OrderItemRow({
+    required this.item,
+  });
 
   final dynamic item;
 
@@ -224,16 +253,35 @@ class _OrderItemRow extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10.r),
-            child: imageUrl == null
-                ? _buildImagePlaceholder()
-                : Image.network(
-              imageUrl,
+            child: SizedBox(
               width: 65.w,
               height: 65.w,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return _buildImagePlaceholder();
-              },
+              child: imageUrl == null
+                  ? _buildImagePlaceholder()
+                  : Image.network(
+                imageUrl,
+                width: 65.w,
+                height: 65.w,
+                fit: BoxFit.cover,
+
+                // SHIMMER WHILE IMAGE LOADS
+                loadingBuilder: (
+                    context,
+                    child,
+                    loadingProgress,
+                    ) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+
+                  return const _OrderImageShimmer();
+                },
+
+                // IMAGE ERROR
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildImagePlaceholder();
+                },
+              ),
             ),
           ),
           SizedBox(width: 12.w),
@@ -298,8 +346,31 @@ class _OrderItemRow extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER IMAGE SHIMMER
+// =============================================================
+
+class _OrderImageShimmer extends StatelessWidget {
+  const _OrderImageShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ShimmerBox(
+      width: double.infinity,
+      height: double.infinity,
+      radius: 0,
+    );
+  }
+}
+
+// =============================================================
+// SHIPPING ADDRESS
+// =============================================================
+
 class _ShippingAddressCard extends StatelessWidget {
-  const _ShippingAddressCard({required this.address});
+  const _ShippingAddressCard({
+    required this.address,
+  });
 
   final String? address;
 
@@ -321,7 +392,8 @@ class _ShippingAddressCard extends StatelessWidget {
       final decoded = jsonDecode(address!);
 
       if (decoded is Map<String, dynamic>) {
-        final receiverName = decoded['receiver_name']?.toString().trim();
+        final receiverName =
+        decoded['receiver_name']?.toString().trim();
         final phone = decoded['phone']?.toString().trim();
         final province = decoded['province']?.toString().trim();
         final city = decoded['city']?.toString().trim();
@@ -353,7 +425,8 @@ class _ShippingAddressCard extends StatelessWidget {
                   icon: Iconsax.house_copy,
                   title: 'استان / شهر',
                   value: [
-                    if (province != null && province.isNotEmpty) province,
+                    if (province != null && province.isNotEmpty)
+                      province,
                     if (city != null && city.isNotEmpty) city,
                   ].join(' - '),
                 ),
@@ -379,20 +452,22 @@ class _ShippingAddressCard extends StatelessWidget {
         );
       }
 
-      return _buildCard(
-        const Text(
-          'اطلاعات آدرس نامعتبر است',
-          style: TextStyle(fontSize: 13, color: Colors.black87),
-        ),
-      );
+      return _buildInvalidAddressCard();
     } catch (_) {
-      return _buildCard(
-        const Text(
-          'اطلاعات آدرس نامعتبر است',
-          style: TextStyle(fontSize: 13, color: Colors.black87),
-        ),
-      );
+      return _buildInvalidAddressCard();
     }
+  }
+
+  Widget _buildInvalidAddressCard() {
+    return _buildCard(
+      const Text(
+        'اطلاعات آدرس نامعتبر است',
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.black87,
+        ),
+      ),
+    );
   }
 
   Widget _buildCard(Widget child) {
@@ -419,6 +494,10 @@ class _ShippingAddressCard extends StatelessWidget {
     );
   }
 }
+
+// =============================================================
+// ADDRESS INFO ROW
+// =============================================================
 
 class _AddressInfoRow extends StatelessWidget {
   const _AddressInfoRow({
@@ -467,9 +546,14 @@ class _AddressInfoRow extends StatelessWidget {
   }
 }
 
+// =============================================================
+// SHIPPING AND PAYMENT
+// =============================================================
 
 class _ShippingPaymentCard extends StatelessWidget {
-  const _ShippingPaymentCard({required this.order});
+  const _ShippingPaymentCard({
+    required this.order,
+  });
 
   final OrderEntity order;
 
@@ -495,7 +579,8 @@ class _ShippingPaymentCard extends StatelessWidget {
           ),
           SizedBox(height: 14.h),
 
-          // کد رهگیری مرسوله
+          // TRACKING CODE
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -541,9 +626,7 @@ class _ShippingPaymentCard extends StatelessWidget {
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'کد رهگیری کپی شد.',
-                              ),
+                              content: Text('کد رهگیری کپی شد.'),
                               duration: Duration(seconds: 2),
                             ),
                           );
@@ -617,9 +700,14 @@ class _ShippingPaymentCard extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER SUMMARY
+// =============================================================
 
 class _OrderSummary extends StatelessWidget {
-  const _OrderSummary({required this.order});
+  const _OrderSummary({
+    required this.order,
+  });
 
   final OrderEntity order;
 
@@ -662,6 +750,10 @@ class _OrderSummary extends StatelessWidget {
   }
 }
 
+// =============================================================
+// SUMMARY ROW
+// =============================================================
+
 class _SummaryRow extends StatelessWidget {
   const _SummaryRow({
     required this.title,
@@ -683,7 +775,8 @@ class _SummaryRow extends StatelessWidget {
           title,
           style: TextStyle(
             fontSize: isTotal ? 15.sp : 13.sp,
-            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            fontWeight:
+            isTotal ? FontWeight.bold : FontWeight.normal,
             color: isDiscount ? Colors.green : Colors.black87,
           ),
         ),
@@ -704,6 +797,10 @@ class _SummaryRow extends StatelessWidget {
     );
   }
 }
+
+// =============================================================
+// INFO ROW
+// =============================================================
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
@@ -749,8 +846,14 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
+// =============================================================
+// ORDER STATUS BADGE
+// =============================================================
+
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+  const _StatusBadge({
+    required this.status,
+  });
 
   final String status;
 
@@ -810,5 +913,83 @@ class _StatusBadge extends StatelessWidget {
       default:
         return status;
     }
+  }
+}
+
+// =============================================================
+// REUSABLE SHIMMER BOX
+// No additional package required
+// =============================================================
+
+class ShimmerBox extends StatefulWidget {
+  const ShimmerBox({
+    super.key,
+    required this.width,
+    required this.height,
+    this.radius = 8,
+  });
+
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  State<ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(widget.radius),
+          child: SizedBox(
+            width: widget.width,
+            height: widget.height,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment(
+                    -1.5 + 3 * _controller.value,
+                    0,
+                  ),
+                  end: Alignment(
+                    -0.5 + 3 * _controller.value,
+                    0,
+                  ),
+                  colors: [
+                    Colors.grey.shade200,
+                    Colors.grey.shade100,
+                    Colors.grey.shade300,
+                  ],
+                  stops: const [0.25, 0.5, 0.75],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

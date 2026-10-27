@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -5,14 +6,11 @@ import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/core/theme/app_colors.dart';
-
 import 'package:supastore/features/product_feature/presentation/providers/search_provider.dart';
 import 'package:supastore/features/product_feature/presentation/widgets/product_grid.dart';
 
 class SearchPage extends StatelessWidget {
-  const SearchPage({
-    super.key,
-  });
+  const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +30,6 @@ class _SearchView extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: const Color(0xFFF8F8F8),
-
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
           surfaceTintColor: Colors.transparent,
@@ -48,36 +45,22 @@ class _SearchView extends StatelessWidget {
             ),
           ),
         ),
-
         body: Consumer<SearchProvider>(
-          builder: (
-              context,
-              provider,
-              child,
-              ) {
+          builder: (context, provider, child) {
             return Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    16.w,
-                    12.h,
-                    16.w,
-                    8.h,
-                  ),
+                  padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14.r),
-                      border: Border.all(
-                        color: Colors.grey.shade200,
-                      ),
+                      border: Border.all(color: Colors.grey.shade200),
                     ),
                     child: TextField(
                       autofocus: true,
                       onChanged: provider.search,
-                      onSubmitted: (value) {
-                        provider.addSearchHistory(value);
-                      },
+                      onSubmitted: provider.addSearchHistory,
                       textInputAction: TextInputAction.search,
                       style: TextStyle(
                         fontSize: 13.sp,
@@ -107,12 +90,11 @@ class _SearchView extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Expanded(
                   child: Builder(
-                    builder: (_) {
-                      if (provider.isLoading &&
-                          provider.products.isEmpty) {
+                    builder: (context) {
+                      // شیمر فقط در بارگذاری اولیه نمایش داده می‌شود.
+                      if (provider.isLoading && provider.products.isEmpty) {
                         return const _SearchLoading();
                       }
 
@@ -126,9 +108,7 @@ class _SearchView extends StatelessWidget {
 
                       if (provider.products.isEmpty) {
                         if (provider.history.isNotEmpty) {
-                          return _SearchHistory(
-                            provider: provider,
-                          );
+                          return _SearchHistory(provider: provider);
                         }
 
                         return const _EmptyView();
@@ -149,20 +129,13 @@ class _SearchView extends StatelessWidget {
                                   );
                                 },
                                 onFavoriteTap: (product) {
-                                  // FavoriteProvider
-                                  // را بعداً اینجا وصل می‌کنیم.
+                                  // اتصال FavoriteProvider را بعداً اضافه کن.
                                 },
                               ),
                             ),
                           ),
-
-                          _Pagination(
-                            provider: provider,
-                          ),
-
-                          SizedBox(
-                            height: 8.h,
-                          ),
+                          _Pagination(provider: provider),
+                          SizedBox(height: 8.h),
                         ],
                       );
                     },
@@ -177,27 +150,201 @@ class _SearchView extends StatelessWidget {
   }
 }
 
-class _SearchLoading extends StatelessWidget {
+// ============================================================
+// SEARCH SHIMMER
+// ============================================================
+
+class _SearchLoading extends StatefulWidget {
   const _SearchLoading();
 
   @override
+  State<_SearchLoading> createState() => _SearchLoadingState();
+}
+
+class _SearchLoadingState extends State<_SearchLoading>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+
+    _animation = Tween<double>(
+      begin: -1.5,
+      end: 2.5,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 25.w,
-        height: 25.w,
-        child: const CircularProgressIndicator(
-          strokeWidth: 2.2,
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return GridView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            16.w,
+            12.h,
+            16.w,
+            20.h,
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12.w,
+            mainAxisSpacing: 12.h,
+            childAspectRatio: 0.48,
+          ),
+          itemCount: 6,
+          itemBuilder: (context, index) {
+            return _SearchProductShimmer(
+              animationValue: _animation.value,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _SearchProductShimmer extends StatelessWidget {
+  const _SearchProductShimmer({
+    required this.animationValue,
+  });
+
+  final double animationValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(9.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 5,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10.r),
+              child: SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: _ShimmerBox(
+                  animationValue: animationValue,
+                  height: double.infinity,
+                  radius: 10.r,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          _ShimmerBox(
+            animationValue: animationValue,
+            width: double.infinity,
+            height: 12.h,
+          ),
+          SizedBox(height: 7.h),
+          _ShimmerBox(
+            animationValue: animationValue,
+            width: 90.w,
+            height: 10.h,
+          ),
+          const Spacer(),
+          _ShimmerBox(
+            animationValue: animationValue,
+            width: 55.w,
+            height: 10.h,
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              Expanded(
+                child: _ShimmerBox(
+                  animationValue: animationValue,
+                  height: 15.h,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              _ShimmerBox(
+                animationValue: animationValue,
+                width: 30.w,
+                height: 20.h,
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          _ShimmerBox(
+            animationValue: animationValue,
+            width: 75.w,
+            height: 9.h,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  const _ShimmerBox({
+    required this.animationValue,
+    required this.height,
+    this.width,
+    this.radius = 6,
+  });
+
+  final double animationValue;
+  final double height;
+  final double? width;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        gradient: LinearGradient(
+          begin: Alignment(animationValue - 1, 0),
+          end: Alignment(animationValue, 0),
+          colors: [
+            Colors.grey.shade200,
+            Colors.grey.shade100,
+            Colors.grey.shade300,
+          ],
         ),
       ),
     );
   }
 }
 
+// ============================================================
+// SEARCH HISTORY
+// ============================================================
+
 class _SearchHistory extends StatelessWidget {
-  const _SearchHistory({
-    required this.provider,
-  });
+  const _SearchHistory({required this.provider});
 
   final SearchProvider provider;
 
@@ -205,10 +352,7 @@ class _SearchHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.only(
-        top: 8.h,
-        bottom: 20.h,
-      ),
+      padding: EdgeInsets.only(top: 8.h, bottom: 20.h),
       children: [
         Padding(
           padding: EdgeInsets.symmetric(
@@ -225,9 +369,7 @@ class _SearchHistory extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-
               const Spacer(),
-
               TextButton(
                 onPressed: provider.clearHistory,
                 style: TextButton.styleFrom(
@@ -236,8 +378,7 @@ class _SearchHistory extends StatelessWidget {
                     vertical: 4.h,
                   ),
                   minimumSize: Size.zero,
-                  tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
                   'پاک کردن',
@@ -251,85 +392,76 @@ class _SearchHistory extends StatelessWidget {
             ],
           ),
         ),
-
         SizedBox(height: 4.h),
-
-        ...provider.history.map(
-              (item) {
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 3.h,
-              ),
-              child: Material(
-                color: Colors.white,
+        ...provider.history.map((item) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 3.h,
+            ),
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.r),
+              child: InkWell(
+                onTap: () => provider.search(item),
                 borderRadius: BorderRadius.circular(12.r),
-                child: InkWell(
-                  onTap: () {
-                    provider.search(item);
-                  },
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 14.w,
-                      vertical: 13.h,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 34.w,
-                          height: 34.w,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
-                            borderRadius:
-                            BorderRadius.circular(10.r),
-                          ),
-                          child: Icon(
-                            Icons.history_rounded,
-                            size: 18.sp,
-                            color: Colors.grey.shade600,
-                          ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 13.h,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 34.w,
+                        height: 34.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
-
-                        SizedBox(width: 12.w),
-
-                        Expanded(
-                          child: Text(
-                            item,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        child: Icon(
+                          Icons.history_rounded,
+                          size: 18.sp,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Text(
+                          item,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-
-                        SizedBox(width: 8.w),
-
-                        Icon(
-                          Icons.north_west_rounded,
-                          size: 17.sp,
-                          color: Colors.grey.shade400,
-                        ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Icon(
+                        Icons.north_west_rounded,
+                        size: 17.sp,
+                        color: Colors.grey.shade400,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        }),
       ],
     );
   }
 }
 
+// ============================================================
+// PAGINATION
+// ============================================================
+
 class _Pagination extends StatelessWidget {
-  const _Pagination({
-    required this.provider,
-  });
+  const _Pagination({required this.provider});
 
   final SearchProvider provider;
 
@@ -347,14 +479,10 @@ class _Pagination extends StatelessWidget {
         children: [
           _PageButton(
             icon: Icons.chevron_right_rounded,
-            enabled:
-            provider.hasNextPage &&
-                !provider.isLoading,
+            enabled: provider.hasNextPage && !provider.isLoading,
             onTap: provider.nextPage,
           ),
-
           SizedBox(width: 10.w),
-
           Container(
             width: 40.w,
             height: 40.w,
@@ -372,20 +500,14 @@ class _Pagination extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(width: 10.w),
-
           _PageButton(
             icon: Icons.chevron_left_rounded,
-            enabled:
-            provider.hasPreviousPage &&
-                !provider.isLoading,
+            enabled: provider.hasPreviousPage && !provider.isLoading,
             onTap: provider.previousPage,
           ),
-
           if (provider.isLoading) ...[
             SizedBox(width: 10.w),
-
             SizedBox(
               width: 14.w,
               height: 14.w,
@@ -434,15 +556,17 @@ class _PageButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 22.sp,
-            color: enabled
-                ? Colors.black87
-                : Colors.grey.shade300,
+            color: enabled ? Colors.black87 : Colors.grey.shade300,
           ),
         ),
       ),
     );
   }
 }
+
+// ============================================================
+// ERROR VIEW
+// ============================================================
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({
@@ -467,9 +591,7 @@ class _ErrorView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.grey.shade200,
-                ),
+                border: Border.all(color: Colors.grey.shade200),
               ),
               child: Icon(
                 Icons.error_outline_rounded,
@@ -477,9 +599,7 @@ class _ErrorView extends StatelessWidget {
                 color: Colors.grey.shade500,
               ),
             ),
-
             SizedBox(height: 14.h),
-
             Text(
               'مشکلی پیش آمده',
               style: TextStyle(
@@ -487,9 +607,7 @@ class _ErrorView extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-
             SizedBox(height: 7.h),
-
             Text(
               error,
               textAlign: TextAlign.center,
@@ -499,9 +617,7 @@ class _ErrorView extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-
             SizedBox(height: 14.h),
-
             TextButton(
               onPressed: onRetry,
               child: Text(
@@ -520,6 +636,10 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
+// ============================================================
+// EMPTY VIEW
+// ============================================================
+
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
 
@@ -527,9 +647,7 @@ class _EmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30.w,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 30.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -539,9 +657,7 @@ class _EmptyView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.grey.shade200,
-                ),
+                border: Border.all(color: Colors.grey.shade200),
               ),
               child: Icon(
                 Icons.search_off_rounded,
@@ -549,9 +665,7 @@ class _EmptyView extends StatelessWidget {
                 color: Colors.grey.shade400,
               ),
             ),
-
             SizedBox(height: 18.h),
-
             Text(
               'محصولی یافت نشد',
               style: TextStyle(
@@ -560,9 +674,7 @@ class _EmptyView extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-
             SizedBox(height: 6.h),
-
             Text(
               'عبارت دیگری را برای جستجو امتحان کنید.',
               textAlign: TextAlign.center,

@@ -105,39 +105,6 @@ class _SettingsView extends StatelessWidget {
 
               child: Column(
                 children: [
-                  // ==================================
-                  // NOTIFICATIONS
-                  // ==================================
-
-                  SettingsMenuItem(
-                    icon:
-                    Iconsax.notification_copy,
-
-                    title: 'اعلان‌ها',
-
-                    iconColor:
-                    Theme.of(context)
-                        .colorScheme
-                        .primary,
-
-                    onTap: () {
-                      settingsProvider
-                          .toggleNotifications();
-                    },
-
-                    trailing: Switch(
-                      value: settingsProvider
-                          .notificationsEnabled,
-
-                      onChanged:
-                      settingsProvider
-                          .setNotificationsEnabled,
-                    ),
-                  ),
-
-                  const Divider(
-                    height: 1,
-                  ),
 
                   // ==================================
                   // SUPPORT

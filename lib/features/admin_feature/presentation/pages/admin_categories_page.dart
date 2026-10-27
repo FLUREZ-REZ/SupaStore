@@ -36,7 +36,6 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-
       context.read<AdminCategoryProvider>().initialize();
     });
   }
@@ -46,7 +45,6 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
     _searchDebounce?.cancel();
     _scrollController.dispose();
     _searchController.dispose();
-
     super.dispose();
   }
 
@@ -75,9 +73,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // ---------------------------------------------------------------------------
 
   void _onSearchChanged(String value) {
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
 
     _searchDebounce?.cancel();
 
@@ -95,7 +91,6 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
 
   void _clearSearch() {
     _searchDebounce?.cancel();
-
     _searchController.clear();
 
     setState(() {});
@@ -122,18 +117,14 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
     );
   }
 
-  Future<void> _openEditCategory(
-      AdminCategory category,
-      ) async {
+  Future<void> _openEditCategory(AdminCategory category) async {
     final provider = context.read<AdminCategoryProvider>();
 
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(
           value: provider,
-          child: AdminCategoryFormPage(
-            category: category,
-          ),
+          child: AdminCategoryFormPage(category: category),
         ),
       ),
     );
@@ -143,35 +134,23 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // Delete
   // ---------------------------------------------------------------------------
 
-  Future<void> _deleteCategory(
-      AdminCategory category,
-      ) async {
-    final confirmed = await _showDeleteConfirmationDialog(
-      category,
-    );
+  Future<void> _deleteCategory(AdminCategory category) async {
+    final confirmed = await _showDeleteConfirmationDialog(category);
 
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
 
     final provider = context.read<AdminCategoryProvider>();
 
     try {
-      await provider.deleteCategory(
-        categoryId: category.id,
-      );
+      await provider.deleteCategory(categoryId: category.id);
 
       if (!mounted) return;
 
-      _showSuccessSnackBar(
-        'دسته‌بندی با موفقیت حذف شد.',
-      );
+      _showSuccessSnackBar('دسته‌بندی با موفقیت حذف شد.');
     } catch (e) {
       if (!mounted) return;
 
-      final message = _extractErrorMessage(e);
-
-      await _showDeleteErrorDialog(
-        message,
-      );
+      await _showDeleteErrorDialog(_extractErrorMessage(e));
     }
   }
 
@@ -221,12 +200,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                 color: const Color(0xFF555555),
               ),
             ),
-            actionsPadding: EdgeInsets.fromLTRB(
-              16.w,
-              0,
-              16.w,
-              16.h,
-            ),
+            actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
             actions: [
               Row(
                 children: [
@@ -237,13 +211,8 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _primaryRed,
-                        side: const BorderSide(
-                          color: _primaryRed,
-                        ),
-                        minimumSize: Size(
-                          double.infinity,
-                          46.h,
-                        ),
+                        side: const BorderSide(color: _primaryRed),
+                        minimumSize: Size(double.infinity, 46.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
@@ -266,10 +235,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                       style: FilledButton.styleFrom(
                         backgroundColor: _primaryRed,
                         foregroundColor: Colors.white,
-                        minimumSize: Size(
-                          double.infinity,
-                          46.h,
-                        ),
+                        minimumSize: Size(double.infinity, 46.h),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
@@ -293,9 +259,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
     );
   }
 
-  Future<void> _showDeleteErrorDialog(
-      String message,
-      ) async {
+  Future<void> _showDeleteErrorDialog(String message) async {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -350,12 +314,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                 ),
               ),
             ),
-            actionsPadding: EdgeInsets.fromLTRB(
-              16.w,
-              0,
-              16.w,
-              16.h,
-            ),
+            actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
             actions: [
               SizedBox(
                 width: double.infinity,
@@ -366,10 +325,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                   style: FilledButton.styleFrom(
                     backgroundColor: _primaryRed,
                     foregroundColor: Colors.white,
-                    minimumSize: Size(
-                      double.infinity,
-                      48.h,
-                    ),
+                    minimumSize: Size(double.infinity, 48.h),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
@@ -391,19 +347,12 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
     );
   }
 
-  String _extractErrorMessage(
-      Object error,
-      ) {
+  String _extractErrorMessage(Object error) {
     if (error is CategoryHasProductsException) {
       return error.message;
     }
 
-    final rawMessage = error.toString();
-
-    final message = rawMessage.replaceFirst(
-      'Exception: ',
-      '',
-    );
+    final message = error.toString().replaceFirst('Exception: ', '');
 
     if (message.trim().isEmpty) {
       return 'خطایی هنگام حذف دسته‌بندی رخ داد.';
@@ -416,9 +365,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // SnackBar
   // ---------------------------------------------------------------------------
 
-  void _showSuccessSnackBar(
-      String message,
-      ) {
+  void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -475,17 +422,14 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // Image URL
   // ---------------------------------------------------------------------------
 
-  String? _getImageUrl(
-      String? imagePath,
-      ) {
+  String? _getImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.trim().isEmpty) {
       return null;
     }
 
     final path = imagePath.trim();
 
-    if (path.startsWith('http://') ||
-        path.startsWith('https://')) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
       return path;
     }
 
@@ -505,38 +449,25 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
       child: Scaffold(
         backgroundColor: _backgroundColor,
         body: Consumer<AdminCategoryProvider>(
-          builder: (
-              context,
-              provider,
-              child,
-              ) {
-            if (provider.isLoading &&
-                provider.categories.isEmpty) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: _primaryRed,
-                ),
-              );
+          builder: (context, provider, child) {
+            // شیمر فقط در بارگذاری اولیه نمایش داده می‌شود.
+            if (provider.isLoading && provider.categories.isEmpty) {
+              return const _CategoriesShimmer();
             }
 
-            if (provider.error != null &&
-                provider.categories.isEmpty) {
+            if (provider.error != null && provider.categories.isEmpty) {
               return _ErrorState(
                 message: _extractErrorMessage(
                   Exception(provider.error),
                 ),
                 onRetry: () {
-                  provider.loadCategories(
-                    refresh: true,
-                  );
+                  provider.loadCategories(refresh: true);
                 },
               );
             }
 
             if (provider.categories.isEmpty) {
-              return _buildEmptyState(
-                provider,
-              );
+              return _buildEmptyState(provider);
             }
 
             return RefreshIndicator(
@@ -557,7 +488,6 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                       child: _buildSearchAndAddRow(),
                     ),
                   ),
-
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
                       16.w,
@@ -567,39 +497,20 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (
-                            context,
-                            index,
-                            ) {
-                          if (index >=
-                              provider.categories.length) {
-                            return _buildLoadingMore(
-                              provider,
-                            );
+                            (context, index) {
+                          if (index >= provider.categories.length) {
+                            return _buildLoadingMore(provider);
                           }
 
-                          final category =
-                          provider.categories[index];
+                          final category = provider.categories[index];
 
                           return Padding(
-                            padding: EdgeInsets.only(
-                              bottom: 10.h,
-                            ),
+                            padding: EdgeInsets.only(bottom: 10.h),
                             child: _CategoryCard(
                               category: category,
-                              imageUrl: _getImageUrl(
-                                category.imageUrl,
-                              ),
-                              onEdit: () {
-                                _openEditCategory(
-                                  category,
-                                );
-                              },
-                              onDelete: () {
-                                _deleteCategory(
-                                  category,
-                                );
-                              },
+                              imageUrl: _getImageUrl(category.imageUrl),
+                              onEdit: () => _openEditCategory(category),
+                              onDelete: () => _deleteCategory(category),
                             ),
                           );
                         },
@@ -627,9 +538,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
       children: [
         _buildAddCategoryButton(),
         SizedBox(width: 10.w),
-        Expanded(
-          child: _buildSearchField(),
-        ),
+        Expanded(child: _buildSearchField()),
       ],
     );
   }
@@ -639,9 +548,7 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
       height: 52.h,
       child: FilledButton.icon(
         onPressed: _openAddCategory,
-        icon: const Icon(
-          Icons.add_rounded,
-        ),
+        icon: const Icon(Icons.add_rounded),
         label: Text(
           'دسته‌بندی جدید',
           style: TextStyle(
@@ -650,12 +557,10 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
           ),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: Color(0xFF0096c7),
+          backgroundColor: const Color(0xFF0096C7),
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: EdgeInsets.symmetric(
-            horizontal: 14.w,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 14.w),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.r),
           ),
@@ -677,20 +582,16 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
         textDirection: TextDirection.rtl,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: 'جستجوی',
+          hintText: 'جستجوی دسته‌بندی',
           hintStyle: TextStyle(
             fontSize: 13.sp,
             color: Colors.black45,
           ),
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-          ),
+          prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
             onPressed: _clearSearch,
-            icon: const Icon(
-              Icons.clear_rounded,
-            ),
+            icon: const Icon(Icons.clear_rounded),
           )
               : null,
           filled: true,
@@ -723,23 +624,15 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // Empty State
   // ---------------------------------------------------------------------------
 
-  Widget _buildEmptyState(
-      AdminCategoryProvider provider,
-      ) {
-    final hasSearch =
-        _searchController.text.trim().isNotEmpty;
+  Widget _buildEmptyState(AdminCategoryProvider provider) {
+    final hasSearch = _searchController.text.trim().isNotEmpty;
 
     return RefreshIndicator(
       color: _primaryRed,
       onRefresh: _refresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          24.w,
-          24.h,
-          24.w,
-          100.h,
-        ),
+        padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 100.h),
         children: [
           _buildSearchAndAddRow(),
           SizedBox(height: 70.h),
@@ -756,17 +649,247 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // Loading More
   // ---------------------------------------------------------------------------
 
-  Widget _buildLoadingMore(
-      AdminCategoryProvider provider,
-      ) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 20.h,
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(
-          color: _primaryRed,
+  Widget _buildLoadingMore(AdminCategoryProvider provider) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 12),
+      child: _CategoryCardShimmer(),
+    );
+  }
+}
+
+// =============================================================================
+// Shimmer - Initial Loading
+// =============================================================================
+
+class _CategoriesShimmer extends StatelessWidget {
+  const _CategoriesShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
+      child: _ShimmerEffect(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                _SkeletonBox(
+                  width: 132.w,
+                  height: 52.h,
+                  radius: 14.r,
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: _SkeletonBox(
+                    width: double.infinity,
+                    height: 52.h,
+                    radius: 14.r,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 18.h),
+            const _CategoryCardSkeleton(),
+            SizedBox(height: 10),
+            const _CategoryCardSkeleton(),
+            SizedBox(height: 10),
+            const _CategoryCardSkeleton(),
+            SizedBox(height: 10),
+            const _CategoryCardSkeleton(),
+            SizedBox(height: 10),
+            const _CategoryCardSkeleton(),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Shimmer - Pagination Loading
+// =============================================================================
+
+class _CategoryCardShimmer extends StatelessWidget {
+  const _CategoryCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return _ShimmerEffect(
+      child: const _CategoryCardSkeleton(),
+    );
+  }
+}
+
+// =============================================================================
+// Shimmer Animation
+// =============================================================================
+
+class _ShimmerEffect extends StatefulWidget {
+  const _ShimmerEffect({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  State<_ShimmerEffect> createState() => _ShimmerEffectState();
+}
+
+class _ShimmerEffectState extends State<_ShimmerEffect>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) {
+        final position = -1.5 + (_controller.value * 3);
+
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment(position, 0),
+              end: Alignment(position + 1.5, 0),
+              colors: const [
+                Color(0xFFEAEAEA),
+                Color(0xFFF8F8F8),
+                Color(0xFFEAEAEA),
+              ],
+              stops: const [0.1, 0.5, 0.9],
+            ).createShader(bounds);
+          },
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+// =============================================================================
+// Skeleton Box
+// =============================================================================
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    required this.width,
+    required this.height,
+    this.radius = 8,
+  });
+
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAEAEA),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Category Card Skeleton
+// =============================================================================
+
+class _CategoryCardSkeleton extends StatelessWidget {
+  const _CategoryCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFEAEAEA)),
+      ),
+      child: Row(
+        children: [
+          _SkeletonBox(
+            width: 82.w,
+            height: 82.w,
+            radius: 14.r,
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SkeletonBox(
+                  width: 125.w,
+                  height: 14.h,
+                  radius: 5.r,
+                ),
+                SizedBox(height: 10.h),
+                _SkeletonBox(
+                  width: 95.w,
+                  height: 10.h,
+                  radius: 5.r,
+                ),
+                SizedBox(height: 13.h),
+                Wrap(
+                  spacing: 6.w,
+                  runSpacing: 5.h,
+                  children: [
+                    _SkeletonBox(
+                      width: 72.w,
+                      height: 23.h,
+                      radius: 7.r,
+                    ),
+                    _SkeletonBox(
+                      width: 58.w,
+                      height: 23.h,
+                      radius: 7.r,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Column(
+            children: [
+              _SkeletonBox(
+                width: 38.w,
+                height: 38.w,
+                radius: 10.r,
+              ),
+              SizedBox(height: 7.h),
+              _SkeletonBox(
+                width: 38.w,
+                height: 38.w,
+                radius: 10.r,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -798,9 +921,7 @@ class _CategoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: const Color(0xFFEAEAEA),
-        ),
+        border: Border.all(color: const Color(0xFFEAEAEA)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.035),
@@ -811,24 +932,11 @@ class _CategoryCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // -------------------------------------------------------------------
-          // Image
-          // -------------------------------------------------------------------
-
-          _CategoryImage(
-            imageUrl: imageUrl,
-          ),
-
+          _CategoryImage(imageUrl: imageUrl),
           SizedBox(width: 14.w),
-
-          // -------------------------------------------------------------------
-          // Info
-          // -------------------------------------------------------------------
-
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   category.name,
@@ -840,9 +948,7 @@ class _CategoryCard extends StatelessWidget {
                     color: const Color(0xFF222222),
                   ),
                 ),
-
                 SizedBox(height: 6.h),
-
                 Directionality(
                   textDirection: TextDirection.ltr,
                   child: Text(
@@ -856,25 +962,20 @@ class _CategoryCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 9.h),
-
                 Wrap(
                   spacing: 6.w,
                   runSpacing: 5.h,
                   children: [
                     _CategoryBadge(
                       icon: Icons.sort_rounded,
-                      text:
-                      'ترتیب ${category.sortOrder}',
+                      text: 'ترتیب ${category.sortOrder}',
                     ),
                     _CategoryBadge(
                       icon: category.isActive
                           ? Icons.check_circle_outline_rounded
                           : Icons.block_rounded,
-                      text: category.isActive
-                          ? 'فعال'
-                          : 'غیرفعال',
+                      text: category.isActive ? 'فعال' : 'غیرفعال',
                       color: category.isActive
                           ? Colors.green
                           : _primaryRed,
@@ -884,13 +985,7 @@ class _CategoryCard extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(width: 10.w),
-
-          // -------------------------------------------------------------------
-          // Actions
-          // -------------------------------------------------------------------
-
           Column(
             children: [
               _ActionButton(
@@ -941,32 +1036,17 @@ class _CategoryImage extends StatelessWidget {
         fit: BoxFit.cover,
         memCacheWidth: 250,
         memCacheHeight: 250,
-        placeholder: (
-            context,
-            url,
-            ) {
-          return _buildLoading();
-        },
-        errorWidget: (
-            context,
-            url,
-            error,
-            ) {
-          return _buildPlaceholder();
-        },
+        placeholder: (context, url) => _buildLoading(),
+        errorWidget: (context, url, error) => _buildPlaceholder(),
       ),
     );
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: Color(0xFFE21B23),
-        ),
+    return const _ShimmerEffect(
+      child: ColoredBox(
+        color: Color(0xFFEAEAEA),
+        child: SizedBox.expand(),
       ),
     );
   }
@@ -1001,8 +1081,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor =
-        color ?? const Color(0xFF555555);
+    final buttonColor = color ?? const Color(0xFF555555);
 
     return Tooltip(
       message: tooltip,
@@ -1044,8 +1123,7 @@ class _CategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final badgeColor =
-        color ?? const Color(0xFF777777);
+    final badgeColor = color ?? const Color(0xFF777777);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -1079,6 +1157,10 @@ class _CategoryBadge extends StatelessWidget {
   }
 }
 
+// =============================================================================
+// Empty State
+// =============================================================================
+
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.hasSearch,
@@ -1109,9 +1191,7 @@ class _EmptyState extends StatelessWidget {
             color: _primaryRed,
           ),
         ),
-
         SizedBox(height: 20.h),
-
         Text(
           hasSearch
               ? 'دسته‌بندی‌ای پیدا نشد'
@@ -1123,9 +1203,7 @@ class _EmptyState extends StatelessWidget {
             color: const Color(0xFF222222),
           ),
         ),
-
         SizedBox(height: 8.h),
-
         Text(
           hasSearch
               ? 'عبارت جستجو را تغییر دهید.'
@@ -1137,17 +1215,12 @@ class _EmptyState extends StatelessWidget {
             height: 1.7,
           ),
         ),
-
         if (!hasSearch) ...[
           SizedBox(height: 24.h),
           FilledButton.icon(
             onPressed: onAdd,
-            icon: const Icon(
-              Icons.add_rounded,
-            ),
-            label: const Text(
-              'ایجاد دسته‌بندی',
-            ),
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('ایجاد دسته‌بندی'),
             style: FilledButton.styleFrom(
               backgroundColor: _primaryRed,
               foregroundColor: Colors.white,
@@ -1203,9 +1276,7 @@ class _ErrorState extends StatelessWidget {
                 size: 42.sp,
               ),
             ),
-
             SizedBox(height: 18.h),
-
             Text(
               'خطایی رخ داد',
               style: TextStyle(
@@ -1214,9 +1285,7 @@ class _ErrorState extends StatelessWidget {
                 color: const Color(0xFF222222),
               ),
             ),
-
             SizedBox(height: 10.h),
-
             Text(
               message,
               textAlign: TextAlign.center,
@@ -1226,9 +1295,7 @@ class _ErrorState extends StatelessWidget {
                 height: 1.8,
               ),
             ),
-
             SizedBox(height: 20.h),
-
             FilledButton(
               onPressed: onRetry,
               style: FilledButton.styleFrom(
@@ -1239,9 +1306,7 @@ class _ErrorState extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
-              child: const Text(
-                'تلاش مجدد',
-              ),
+              child: const Text('تلاش مجدد'),
             ),
           ],
         ),

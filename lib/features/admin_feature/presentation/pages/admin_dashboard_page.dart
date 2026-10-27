@@ -8,6 +8,349 @@ import 'package:supastore/features/admin_feature/dashboard/domain/entities/admin
 import 'package:supastore/features/admin_feature/dashboard/presentaion/providers/admin_dashboard_provider.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
 
+
+class _DashboardShimmer extends StatefulWidget {
+  const _DashboardShimmer();
+
+  @override
+  State<_DashboardShimmer> createState() =>
+      _DashboardShimmerState();
+}
+
+class _DashboardShimmerState extends State<_DashboardShimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.all(16.w),
+            children: [
+              SizedBox(height: 6.h),
+
+              _DashboardSkeletonBox(
+                animation: _controller,
+                width: 175.w,
+                height: 22.h,
+              ),
+
+              SizedBox(height: 10.h),
+
+              _DashboardSkeletonBox(
+                animation: _controller,
+                width: 220.w,
+                height: 14.h,
+              ),
+
+              SizedBox(height: 20.h),
+
+              // آمار فروشگاه
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 4,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 12.h,
+                  childAspectRatio: 1.5,
+                ),
+                itemBuilder: (context, index) {
+                  return Container(
+                    padding: EdgeInsets.all(14.w),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF023e8a),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _DashboardSkeletonBox(
+                          animation: _controller,
+                          width: 27.w,
+                          height: 27.w,
+                        ),
+                        _DashboardSkeletonBox(
+                          animation: _controller,
+                          width: 75.w,
+                          height: 12.h,
+                        ),
+                        _DashboardSkeletonBox(
+                          animation: _controller,
+                          width: 100.w,
+                          height: 17.h,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              SizedBox(height: 20.h),
+
+              // نمودار فروش
+              _DashboardSkeletonSection(
+                animation: _controller,
+                height: 320.h,
+                titleWidth: 135.w,
+                subtitleWidth: 160.w,
+                child: SizedBox(
+                  height: 195.h,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      70.h,
+                      110.h,
+                      90.h,
+                      150.h,
+                      120.h,
+                      175.h,
+                      135.h,
+                    ].map((barHeight) {
+                      return _DashboardSkeletonBox(
+                        animation: _controller,
+                        width: 18.w,
+                        height: barHeight,
+                        radius: 5.r,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 20.h),
+
+              // سفارش‌های نیازمند اقدام
+              _DashboardSkeletonSection(
+                animation: _controller,
+                height: 250.h,
+                titleWidth: 175.w,
+                rowCount: 3,
+              ),
+
+              SizedBox(height: 20.h),
+
+              // محصولات با موجودی کم
+              _DashboardSkeletonSection(
+                animation: _controller,
+                height: 250.h,
+                titleWidth: 105.w,
+                rowCount: 3,
+                showThumbnail: true,
+              ),
+
+              SizedBox(height: 20.h),
+
+              // وضعیت سفارش‌ها
+              _DashboardSkeletonSection(
+                animation: _controller,
+                height: 255.h,
+                titleWidth: 140.w,
+                rowCount: 5,
+                compactRows: true,
+              ),
+
+              SizedBox(height: 20.h),
+
+              // آخرین سفارش‌ها
+              _DashboardSkeletonSection(
+                animation: _controller,
+                height: 245.h,
+                titleWidth: 130.w,
+                rowCount: 3,
+                showThumbnail: true,
+              ),
+
+              SizedBox(height: 20.h),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DashboardSkeletonSection extends StatelessWidget {
+  const _DashboardSkeletonSection({
+    required this.animation,
+    required this.height,
+    required this.titleWidth,
+    this.subtitleWidth,
+    this.rowCount = 0,
+    this.showThumbnail = false,
+    this.compactRows = false,
+    this.child,
+  });
+
+  final Animation<double> animation;
+  final double height;
+  final double titleWidth;
+  final double? subtitleWidth;
+  final int rowCount;
+  final bool showThumbnail;
+  final bool compactRows;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFCAF0F8),
+        borderRadius: BorderRadius.circular(18.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DashboardSkeletonBox(
+            animation: animation,
+            width: titleWidth,
+            height: 19.h,
+          ),
+
+          if (subtitleWidth != null) ...[
+            SizedBox(height: 8.h),
+            _DashboardSkeletonBox(
+              animation: animation,
+              width: subtitleWidth!,
+              height: 12.h,
+            ),
+          ],
+
+          if (child != null) ...[
+            const Spacer(),
+            child!,
+          ],
+
+          if (rowCount > 0) ...[
+            SizedBox(height: 20.h),
+            ...List.generate(rowCount, (index) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: compactRows ? 15.h : 12.h,
+                ),
+                child: Row(
+                  children: [
+                    if (showThumbnail) ...[
+                      _DashboardSkeletonBox(
+                        animation: animation,
+                        width: 43.w,
+                        height: 43.w,
+                        radius: 10.r,
+                      ),
+                      SizedBox(width: 10.w),
+                    ] else if (!compactRows) ...[
+                      _DashboardSkeletonBox(
+                        animation: animation,
+                        width: 32.w,
+                        height: 32.w,
+                        radius: 8.r,
+                      ),
+                      SizedBox(width: 10.w),
+                    ],
+
+                    Expanded(
+                      child: _DashboardSkeletonBox(
+                        animation: animation,
+                        width: double.infinity,
+                        height: compactRows ? 12.h : 14.h,
+                        radius: 4.r,
+                      ),
+                    ),
+
+                    SizedBox(width: 12.w),
+
+                    _DashboardSkeletonBox(
+                      animation: animation,
+                      width: compactRows ? 28.w : 48.w,
+                      height: compactRows ? 13.h : 25.h,
+                      radius: 6.r,
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardSkeletonBox extends StatelessWidget {
+  const _DashboardSkeletonBox({
+    required this.animation,
+    required this.width,
+    required this.height,
+    this.radius = 6,
+  });
+
+  final Animation<double> animation;
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          final start = -1.5 + animation.value * 3;
+
+          return ShaderMask(
+            blendMode: BlendMode.srcATop,
+            shaderCallback: (bounds) {
+              return LinearGradient(
+                begin: Alignment(start, 0),
+                end: Alignment(start + 1, 0),
+                colors: const [
+                  Color(0xFFDCEAF0),
+                  Color(0xFFF8FCFD),
+                  Color(0xFFDCEAF0),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ).createShader(bounds);
+            },
+            child: Container(
+              width: width,
+              height: height,
+              color: const Color(0xFFDCEAF0),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({
     super.key,
@@ -35,9 +378,7 @@ class _AdminDashboardView extends StatelessWidget {
           child,
           ) {
         if (provider.isLoading && !provider.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const _DashboardShimmer();
         }
 
         if (provider.error != null && !provider.hasData) {

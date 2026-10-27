@@ -11,6 +11,10 @@ import 'package:supastore/features/flash_sale_feature/domain/entities/flash_sale
 import 'package:supastore/features/flash_sale_feature/presentation/providers/flash_sale_provider.dart';
 import 'package:supastore/features/flash_sale_feature/presentation/widgets/flash_sale_product_grid.dart';
 
+// ==================================================================
+// FLASH SALE PAGE
+// ==================================================================
+
 class FlashSalePage extends StatelessWidget {
   const FlashSalePage({
     super.key,
@@ -18,11 +22,9 @@ class FlashSalePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) =>
-      getIt<FlashSaleProvider>()
+    return ChangeNotifierProvider<FlashSaleProvider>(
+      create: (_) => getIt<FlashSaleProvider>()
         ..fetchFlashSales(),
-
       child: const _FlashSaleView(),
     );
   }
@@ -32,14 +34,37 @@ class FlashSalePage extends StatelessWidget {
 // FLASH SALE VIEW
 // ==================================================================
 
-class _FlashSaleView extends StatelessWidget {
+class _FlashSaleView extends StatefulWidget {
   const _FlashSaleView();
+
+  @override
+  State<_FlashSaleView> createState() => _FlashSaleViewState();
+}
+
+class _FlashSaleViewState extends State<_FlashSaleView> {
+  bool _minimumLoadingFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+
+    Future<void>.delayed(
+      const Duration(seconds: 1),
+          () {
+        if (!mounted) return;
+
+        setState(() {
+          _minimumLoadingFinished = true;
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
 
@@ -52,7 +77,6 @@ class _FlashSaleView extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-
           title: Text(
             'شگفت‌انگیزها',
             style: AppTextStyles.second_title_section,
@@ -70,14 +94,16 @@ class _FlashSaleView extends StatelessWidget {
               child,
               ) {
             // ======================================================
-            // INITIAL LOADING
+            // INITIAL SHIMMER
+            //
+            // شیمری حداقل ۲ ثانیه نمایش داده می‌شود.
+            // اگر دریافت اطلاعات بیشتر طول بکشد، تا پایان آن
+            // نمایش شیمری ادامه پیدا می‌کند.
             // ======================================================
 
-            if (provider.isLoading &&
-                provider.items.isEmpty) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+            if (provider.items.isEmpty &&
+                (!_minimumLoadingFinished || provider.isLoading)) {
+              return const _FlashSaleShimmer();
             }
 
             // ======================================================
@@ -88,9 +114,31 @@ class _FlashSaleView extends StatelessWidget {
                 provider.items.isEmpty) {
               return _ErrorView(
                 error: provider.errorMessage!,
+                onRetry: () async {
+                  // برای تلاش مجدد نیز حداقل زمان شیمری را اعمال کن.
+                  setState(() {
+                    _minimumLoadingFinished = false;
+                  });
 
-                onRetry: () {
-                  provider.fetchFlashSales();
+                  final stopwatch = Stopwatch()..start();
+
+                  try {
+                    await provider.fetchFlashSales();
+                  } finally {
+                    const minimumDuration = Duration(seconds: 2);
+                    final remaining =
+                        minimumDuration - stopwatch.elapsed;
+
+                    if (remaining > Duration.zero) {
+                      await Future<void>.delayed(remaining);
+                    }
+
+                    if (mounted) {
+                      setState(() {
+                        _minimumLoadingFinished = true;
+                      });
+                    }
+                  }
                 },
               );
             }
@@ -109,17 +157,11 @@ class _FlashSaleView extends StatelessWidget {
 
             return Column(
               children: [
-                // ==================================================
-                // FLASH SALE GRID
-                // ==================================================
-
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: provider.refresh,
-
                     child: FlashSaleProductGrid(
                       products: provider.items,
-
                       onProductTap: (
                           FlashSaleProductEntity item,
                           ) {
@@ -128,31 +170,243 @@ class _FlashSaleView extends StatelessWidget {
                           extra: item.product,
                         );
                       },
-
                       onFavoriteTap: (
                           FlashSaleProductEntity item,
                           ) {
-                        // FavoriteProvider
-                        // در کارت مدیریت می‌شود.
+                        // مدیریت علاقه‌مندی در کارت محصول انجام می‌شود.
                       },
                     ),
                   ),
                 ),
 
-                // ==================================================
                 // PAGINATION
-                // ==================================================
 
                 _Pagination(
                   provider: provider,
                 ),
 
-                SizedBox(
-                  height: 10.h,
-                ),
+                SizedBox(height: 10.h),
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+// ==================================================================
+// FLASH SALE SHIMMER
+// ==================================================================
+
+class _FlashSaleShimmer extends StatefulWidget {
+  const _FlashSaleShimmer();
+
+  @override
+  State<_FlashSaleShimmer> createState() => _FlashSaleShimmerState();
+}
+
+class _FlashSaleShimmerState extends State<_FlashSaleShimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: EdgeInsets.fromLTRB(
+        12.w,
+        14.h,
+        12.w,
+        20.h,
+      ),
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: 6,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12.w,
+        mainAxisSpacing: 12.h,
+        childAspectRatio: 0.57,
+      ),
+      itemBuilder: (context, index) {
+        return Container(
+          padding: EdgeInsets.all(10.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: const Color(0xFFF0F0F0),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // IMAGE PLACEHOLDER
+
+              Expanded(
+                flex: 6,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: _ShimmerBlock(
+                    controller: _controller,
+                    radius: 12.r,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 12.h),
+
+              // PRODUCT TITLE
+
+              _ShimmerLine(
+                controller: _controller,
+                width: 0.90,
+                height: 12.h,
+              ),
+
+              SizedBox(height: 8.h),
+
+              _ShimmerLine(
+                controller: _controller,
+                width: 0.68,
+                height: 12.h,
+              ),
+
+              const Spacer(),
+
+              // OLD PRICE
+
+              _ShimmerLine(
+                controller: _controller,
+                width: 0.48,
+                height: 10.h,
+              ),
+
+              SizedBox(height: 8.h),
+
+              // DISCOUNTED PRICE
+
+              _ShimmerLine(
+                controller: _controller,
+                width: 0.75,
+                height: 15.h,
+              ),
+
+              SizedBox(height: 10.h),
+
+              // BOTTOM BUTTON / ACTION
+
+              _ShimmerLine(
+                controller: _controller,
+                width: 1,
+                height: 30.h,
+                radius: 8.r,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ==================================================================
+// SHIMMER BLOCK
+// ==================================================================
+
+class _ShimmerBlock extends StatelessWidget {
+  const _ShimmerBlock({
+    required this.controller,
+    this.radius = 8,
+  });
+
+  final AnimationController controller;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment(
+                -1.5 + 3 * controller.value,
+                0,
+              ),
+              end: Alignment(
+                -0.5 + 3 * controller.value,
+                0,
+              ),
+              colors: const [
+                Color(0xFFEAEAEA),
+                Color(0xFFF8F8F8),
+                Color(0xFFEAEAEA),
+              ],
+              stops: const [
+                0.0,
+                0.5,
+                1.0,
+              ],
+            ).createShader(bounds);
+          },
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAEAEA),
+              borderRadius: BorderRadius.circular(radius),
+            ),
+            child: const SizedBox.expand(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ==================================================================
+// SHIMMER LINE
+// ==================================================================
+
+class _ShimmerLine extends StatelessWidget {
+  const _ShimmerLine({
+    required this.controller,
+    required this.width,
+    required this.height,
+    this.radius = 5,
+  });
+
+  final AnimationController controller;
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: width,
+      alignment: Alignment.centerRight,
+      child: SizedBox(
+        height: height,
+        child: _ShimmerBlock(
+          controller: controller,
+          radius: radius,
         ),
       ),
     );
@@ -172,115 +426,74 @@ class _Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentPage =
-        provider.currentPage + 1;
+    final currentPage = provider.currentPage + 1;
 
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 20.w,
         vertical: 8.h,
       ),
-
       child: Row(
-        mainAxisAlignment:
-        MainAxisAlignment.center,
-
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // ========================================================
           // NEXT
-          //
-          // فلش راست = صفحه بعد
-          // ========================================================
 
           _PageButton(
             icon: Icons.chevron_left_rounded,
-
-            enabled:
-            provider.hasNextPage &&
-                !provider.isLoading,
-
+            enabled: provider.hasNextPage && !provider.isLoading,
             onTap: () {
               provider.nextPage();
             },
           ),
 
-          SizedBox(
-            width: 12.w,
-          ),
+          SizedBox(width: 12.w),
 
-          // ========================================================
           // CURRENT PAGE
-          // ========================================================
 
           Container(
             height: 34.h,
-
             constraints: BoxConstraints(
               minWidth: 34.w,
             ),
-
             padding: EdgeInsets.symmetric(
               horizontal: 10.w,
             ),
-
             alignment: Alignment.center,
-
             decoration: BoxDecoration(
               color: AppColors.primary,
-
-              borderRadius:
-              BorderRadius.circular(9.r),
+              borderRadius: BorderRadius.circular(9.r),
             ),
-
             child: Text(
               '$currentPage',
-
               style: TextStyle(
                 fontSize: 12.sp,
-                fontWeight:
-                FontWeight.w700,
+                fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
             ),
           ),
 
-          SizedBox(
-            width: 12.w,
-          ),
+          SizedBox(width: 12.w),
 
-          // ========================================================
           // PREVIOUS
-          //
-          // فلش چپ = صفحه قبل
-          // ========================================================
 
           _PageButton(
             icon: Icons.chevron_right_rounded,
-
-            enabled:
-            provider.hasPreviousPage &&
+            enabled: provider.hasPreviousPage &&
                 !provider.isLoading,
-
             onTap: () {
               provider.previousPage();
             },
           ),
 
-          // ========================================================
-          // LOADING
-          // ========================================================
+          // PAGINATION LOADING
 
           if (provider.isLoading) ...[
-            SizedBox(
-              width: 10.w,
-            ),
-
+            SizedBox(width: 10.w),
             SizedBox(
               width: 14.w,
               height: 14.w,
-
-              child:
-              const CircularProgressIndicator(
+              child: const CircularProgressIndicator(
                 strokeWidth: 1.8,
               ),
             ),
@@ -312,27 +525,16 @@ class _PageButton extends StatelessWidget {
       color: enabled
           ? Colors.white
           : Colors.grey.shade100,
-
-      borderRadius:
-      BorderRadius.circular(9.r),
-
+      borderRadius: BorderRadius.circular(9.r),
       child: InkWell(
-        onTap: enabled
-            ? onTap
-            : null,
-
-        borderRadius:
-        BorderRadius.circular(9.r),
-
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(9.r),
         child: SizedBox(
           width: 36.w,
           height: 36.w,
-
           child: Icon(
             icon,
-
             size: 20.sp,
-
             color: enabled
                 ? Colors.grey.shade800
                 : Colors.grey.shade400,
@@ -361,11 +563,8 @@ class _ErrorView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(24.w),
-
         child: Column(
-          mainAxisSize:
-          MainAxisSize.min,
-
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.error_outline_rounded,
@@ -373,32 +572,22 @@ class _ErrorView extends StatelessWidget {
               color: Colors.grey.shade500,
             ),
 
-            SizedBox(
-              height: 12.h,
-            ),
+            SizedBox(height: 12.h),
 
             Text(
               error,
-
-              textAlign:
-              TextAlign.center,
-
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.sp,
                 color: Colors.grey.shade700,
               ),
             ),
 
-            SizedBox(
-              height: 16.h,
-            ),
+            SizedBox(height: 16.h),
 
             TextButton(
               onPressed: onRetry,
-
-              child: const Text(
-                'تلاش مجدد',
-              ),
+              child: const Text('تلاش مجدد'),
             ),
           ],
         ),
@@ -418,9 +607,7 @@ class _EmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisSize:
-        MainAxisSize.min,
-
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.local_offer_outlined,
@@ -428,16 +615,11 @@ class _EmptyView extends StatelessWidget {
             color: Colors.grey.shade400,
           ),
 
-          SizedBox(
-            height: 10.h,
-          ),
+          SizedBox(height: 10.h),
 
           Text(
             'در حال حاضر محصول شگفت‌انگیزی وجود ندارد',
-
-            textAlign:
-            TextAlign.center,
-
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13.sp,
               color: Colors.grey.shade600,

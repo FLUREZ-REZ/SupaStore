@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +10,268 @@ import 'package:supastore/features/order_feature/domain/entities/order_entity.da
 import 'package:supastore/features/order_feature/presentation/pages/admin_order_details_page.dart';
 import 'package:supastore/features/order_feature/presentation/providers/admin_order_provider.dart';
 
+// ============================================================
+// ORDERS SHIMMER
+// ============================================================
+
+class _OrdersShimmer extends StatefulWidget {
+  const _OrdersShimmer();
+
+  @override
+  State<_OrdersShimmer> createState() => _OrdersShimmerState();
+}
+
+class _OrdersShimmerState extends State<_OrdersShimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(12.w),
+        children: [
+          SizedBox(height: 8.h),
+
+          _ShimmerBox(
+            animation: _controller,
+            width: 165.w,
+            height: 22.h,
+          ),
+
+          SizedBox(height: 18.h),
+
+          Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Row(
+              children: [
+                _ShimmerBox(
+                  animation: _controller,
+                  width: 22.w,
+                  height: 22.w,
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: _ShimmerBox(
+                    animation: _controller,
+                    width: double.infinity,
+                    height: 17.h,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 16.h),
+
+          ...List.generate(
+            4,
+                (index) => Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: _OrderCardShimmer(
+                animation: _controller,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderCardShimmer extends StatelessWidget {
+  const _OrderCardShimmer({
+    required this.animation,
+  });
+
+  final Animation<double> animation;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              _ShimmerBox(
+                animation: animation,
+                width: 42.w,
+                height: 42.w,
+                radius: 12.r,
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _ShimmerBox(
+                      animation: animation,
+                      width: 115.w,
+                      height: 14.h,
+                    ),
+                    SizedBox(height: 7.h),
+                    _ShimmerBox(
+                      animation: animation,
+                      width: 145.w,
+                      height: 10.h,
+                    ),
+                  ],
+                ),
+              ),
+              _ShimmerBox(
+                animation: animation,
+                width: 65.w,
+                height: 27.h,
+                radius: 20.r,
+              ),
+            ],
+          ),
+
+          SizedBox(height: 14.h),
+          Divider(height: 1, color: Colors.grey.shade200),
+          SizedBox(height: 14.h),
+
+          ...List.generate(
+            4,
+                (index) => Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: Row(
+                children: [
+                  _ShimmerBox(
+                    animation: animation,
+                    width: 17.w,
+                    height: 17.w,
+                  ),
+                  SizedBox(width: 8.w),
+                  _ShimmerBox(
+                    animation: animation,
+                    width: 75.w,
+                    height: 12.h,
+                  ),
+                  const Spacer(),
+                  _ShimmerBox(
+                    animation: animation,
+                    width: index == 1 ? 100.w : 75.w,
+                    height: 12.h,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(height: 2.h),
+
+          _ShimmerBox(
+            animation: animation,
+            width: double.infinity,
+            height: 43.h,
+            radius: 10.r,
+          ),
+
+          SizedBox(height: 12.h),
+
+          _ShimmerBox(
+            animation: animation,
+            width: double.infinity,
+            height: 38.h,
+            radius: 10.r,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  const _ShimmerBox({
+    required this.animation,
+    required this.width,
+    required this.height,
+    this.radius = 6,
+  });
+
+  final Animation<double> animation;
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          final start = -1.5 + animation.value * 3;
+
+          return ShaderMask(
+            blendMode: BlendMode.srcATop,
+            shaderCallback: (bounds) {
+              return LinearGradient(
+                begin: Alignment(start, 0),
+                end: Alignment(start + 1, 0),
+                colors: const [
+                  Color(0xFFE7EAF0),
+                  Color(0xFFF8FAFC),
+                  Color(0xFFE7EAF0),
+                ],
+                stops: const [0, 0.5, 1],
+              ).createShader(bounds);
+            },
+            child: Container(
+              width: width,
+              height: height,
+              color: const Color(0xFFE7EAF0),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ============================================================
+// ADMIN ORDERS PAGE
+// ============================================================
+
 class AdminOrdersPage extends StatefulWidget {
   const AdminOrdersPage({super.key});
 
@@ -18,7 +281,9 @@ class AdminOrdersPage extends StatefulWidget {
 
 class _AdminOrdersPageState extends State<AdminOrdersPage> {
   late final AdminOrderProvider _provider;
-  final TextEditingController _searchController = TextEditingController();
+
+  final TextEditingController _searchController =
+  TextEditingController();
 
   String _searchQuery = '';
 
@@ -55,7 +320,8 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
       final trackingCode = order.trackingCode?.toLowerCase() ?? '';
       final orderId = order.id.toLowerCase();
 
-      return trackingCode.contains(query) || orderId.contains(query);
+      return trackingCode.contains(query) ||
+          orderId.contains(query);
     }).toList();
   }
 
@@ -81,7 +347,9 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              iconTheme: const IconThemeData(color: _textColor),
+              iconTheme: const IconThemeData(
+                color: _textColor,
+              ),
             ),
             body: Column(
               children: [
@@ -170,15 +438,14 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
     required AdminOrderProvider provider,
     required List<OrderEntity> orders,
   }) {
-    if (provider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          color: _primaryColor,
-        ),
-      );
+    // شیمر فقط هنگام بارگذاری اولیه نمایش داده می‌شود.
+    // هنگام Refresh، اگر سفارش‌های قبلی وجود داشته باشند،
+    // لیست آن‌ها از صفحه حذف نمی‌شود.
+    if (provider.isLoading && provider.orders.isEmpty) {
+      return const _OrdersShimmer();
     }
 
-    if (provider.error != null) {
+    if (provider.error != null && provider.orders.isEmpty) {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(24.w),
@@ -247,6 +514,7 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
       color: _primaryColor,
       onRefresh: () => provider.loadOrders(),
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(12.w),
         itemCount: orders.length,
         itemBuilder: (context, index) {
@@ -261,6 +529,10 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
     );
   }
 }
+
+// ============================================================
+// ADMIN ORDER CARD
+// ============================================================
 
 class _AdminOrderCard extends StatelessWidget {
   final OrderEntity order;
@@ -682,6 +954,10 @@ class _AdminOrderCard extends StatelessWidget {
   }
 }
 
+// ============================================================
+// STATUS BADGE
+// ============================================================
+
 class _StatusBadge extends StatelessWidget {
   final String status;
 
@@ -721,31 +997,36 @@ class _StatusBadge extends StatelessWidget {
           backgroundColor: Color(0xFFFFF3CD),
           textColor: Color(0xFF856404),
         );
+
       case 'processing':
         return const _StatusConfig(
           label: 'در حال پردازش',
           backgroundColor: Color(0xFFDDEBFF),
           textColor: Color(0xFF1556A6),
         );
+
       case 'shipped':
         return const _StatusConfig(
           label: 'ارسال شده',
           backgroundColor: Color(0xFFE5DDFB),
           textColor: Color(0xFF5936A8),
         );
+
       case 'delivered':
         return const _StatusConfig(
           label: 'تحویل شده',
           backgroundColor: Color(0xFFD4EDDA),
           textColor: Color(0xFF155724),
         );
+
       case 'canceled':
-      case 'canceled':
+      case 'cancelled':
         return const _StatusConfig(
           label: 'لغو شده',
           backgroundColor: Color(0xFFF8D7DA),
           textColor: Color(0xFF721C24),
         );
+
       default:
         return _StatusConfig(
           label: status,

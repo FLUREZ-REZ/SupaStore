@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -33,9 +32,7 @@ import 'package:supastore/features/order_feature/domain/entities/order_entity.da
 import 'package:supastore/features/order_feature/presentation/providers/order_provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -52,32 +49,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // ============================================================
-  // LOAD FAVORITES
-  // ============================================================
-
   Future<void> _loadFavorites() async {
     final user = Supabase.instance.client.auth.currentUser;
 
-    if (user == null || !mounted) {
-      return;
-    }
+    if (user == null || !mounted) return;
 
     await context.read<FavoriteProvider>().loadFavorites(
       userId: user.id,
     );
   }
 
-  // ============================================================
-  // LOAD CART
-  // ============================================================
-
   Future<void> _loadCart() async {
     final user = Supabase.instance.client.auth.currentUser;
 
-    if (user == null || !mounted) {
-      return;
-    }
+    if (user == null || !mounted) return;
 
     await getIt<CartProvider>().loadCart(user.id);
   }
@@ -114,25 +99,15 @@ class _HomePageContent extends StatelessWidget {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // ==================================================
-            // APP BAR
-            // ==================================================
-
             const SliverToBoxAdapter(
               child: HomeAppBar(),
             ),
-
-            // ==================================================
-            // SEARCH
-            // ==================================================
 
             SliverToBoxAdapter(
               child: HomeSearchBar(),
             ),
 
-            // ==================================================
             // HERO BANNER
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -142,9 +117,7 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // CATEGORIES HEADER
-            // ==================================================
 
             SliverToBoxAdapter(
               child: SectionHeader(
@@ -155,9 +128,7 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // CATEGORIES
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -173,9 +144,7 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // FLASH SALE
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -195,9 +164,7 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // NEWEST PRODUCTS HEADER
-            // ==================================================
 
             SliverToBoxAdapter(
               child: SectionHeader(
@@ -208,9 +175,7 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // NEWEST PRODUCTS
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -219,19 +184,11 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
-            // SPACE
-            // ==================================================
-
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 25.h,
-              ),
+              child: SizedBox(height: 25.h),
             ),
 
-            // ==================================================
             // PROMOTIONAL BANNERS
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -241,19 +198,11 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
-            // SPACE
-            // ==================================================
-
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 25.h,
-              ),
+              child: SizedBox(height: 25.h),
             ),
 
-            // ==================================================
             // POPULAR PRODUCTS HEADER
-            // ==================================================
 
             SliverToBoxAdapter(
               child: SectionHeader(
@@ -264,27 +213,17 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
             // POPULAR PRODUCTS
-            // ==================================================
 
             const SliverToBoxAdapter(
               child: PopularProductsSection(),
             ),
 
-            // ==================================================
-            // SPACE
-            // ==================================================
-
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 20.h,
-              ),
+              child: SizedBox(height: 20.h),
             ),
 
-            // ==================================================
             // SINGLE BANNER
-            // ==================================================
 
             SliverToBoxAdapter(
               child: ChangeNotifierProvider(
@@ -294,32 +233,18 @@ class _HomePageContent extends StatelessWidget {
               ),
             ),
 
-            // ==================================================
-            // SPACE
-            // ==================================================
-
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 24.h,
-              ),
+              child: SizedBox(height: 24.h),
             ),
 
-            // ==================================================
             // FOOTER
-            // ==================================================
 
             const SliverToBoxAdapter(
               child: HomeFooter(),
             ),
 
-            // ==================================================
-            // BOTTOM SPACE
-            // ==================================================
-
             SliverToBoxAdapter(
-              child: SizedBox(
-                height: 20.h,
-              ),
+              child: SizedBox(height: 20.h),
             ),
           ],
         ),
@@ -358,10 +283,6 @@ class _HomeNotificationListenerState
     });
   }
 
-  // ============================================================
-  // CHECK UNREAD ORDER NOTIFICATIONS
-  // ============================================================
-
   Future<void> _checkOrderNotifications() async {
     if (!mounted || _checkingNotifications || _dialogShown) {
       return;
@@ -369,9 +290,7 @@ class _HomeNotificationListenerState
 
     final user = Supabase.instance.client.auth.currentUser;
 
-    if (user == null) {
-      return;
-    }
+    if (user == null) return;
 
     _checkingNotifications = true;
 
@@ -381,9 +300,7 @@ class _HomeNotificationListenerState
 
       await notificationProvider.loadNotifications();
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       final pendingNotifications =
       notificationProvider.notifications.where(
@@ -392,17 +309,12 @@ class _HomeNotificationListenerState
             !notification.isRead,
       );
 
-      if (pendingNotifications.isEmpty) {
-        return;
-      }
+      if (pendingNotifications.isEmpty) return;
 
-      // نمایش یک اعلان در هر بار ورود به صفحه اصلی
       final notification = pendingNotifications.first;
 
       _dialogShown = true;
 
-      // اگر کاربر سفارش را انتخاب کند، شیء کامل سفارش برگردانده می‌شود.
-      // اگر «متوجه شدم» را بزند، مقدار برگشتی null خواهد بود.
       final OrderEntity? selectedOrder =
       await showDialog<OrderEntity?>(
         context: context,
@@ -448,10 +360,6 @@ class _HomeNotificationListenerState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // ==========================================
-                    // VIEW ORDER BUTTON
-                    // ==========================================
-
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE21B23),
@@ -480,9 +388,7 @@ class _HomeNotificationListenerState
                         final currentUser =
                             Supabase.instance.client.auth.currentUser;
 
-                        if (currentUser == null) {
-                          return;
-                        }
+                        if (currentUser == null) return;
 
                         try {
                           final orderProvider = getIt<OrderProvider>();
@@ -493,9 +399,7 @@ class _HomeNotificationListenerState
                             orderId,
                           );
 
-                          if (!mounted) {
-                            return;
-                          }
+                          if (!mounted) return;
 
                           if (order == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -539,10 +443,6 @@ class _HomeNotificationListenerState
 
                     SizedBox(height: 8.h),
 
-                    // ==========================================
-                    // ACKNOWLEDGE BUTTON
-                    // ==========================================
-
                     TextButton(
                       onPressed: () {
                         Navigator.of(dialogContext).pop();
@@ -563,11 +463,8 @@ class _HomeNotificationListenerState
         },
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      // ثبت خوانده‌شدن پس از انتخاب یکی از دکمه‌ها
       final success =
       await notificationProvider.markNotificationAsRead(
         notification.id,
@@ -579,11 +476,8 @@ class _HomeNotificationListenerState
         );
       }
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      // اگر سفارش انتخاب شده باشد، جزئیات همان سفارش باز می‌شود.
       if (selectedOrder != null) {
         context.pushNamed(
           'order-details',
@@ -605,48 +499,234 @@ class _HomeNotificationListenerState
 }
 
 // ==================================================================
+// REUSABLE HOME SHIMMER WIDGETS
+// ==================================================================
+
+class _HomeShimmerBlock extends StatefulWidget {
+  final double width;
+  final double height;
+  final double radius;
+
+  const _HomeShimmerBlock({
+    required this.width,
+    required this.height,
+    this.radius = 10,
+  });
+
+  @override
+  State<_HomeShimmerBlock> createState() => _HomeShimmerBlockState();
+}
+
+class _HomeShimmerBlockState extends State<_HomeShimmerBlock>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return SizedBox(
+          width: widget.width,
+          height: widget.height,
+          child: ShaderMask(
+            blendMode: BlendMode.srcATop,
+            shaderCallback: (bounds) => LinearGradient(
+              begin: Alignment(
+                -1.5 + 3 * _controller.value,
+                0,
+              ),
+              end: Alignment(
+                -0.5 + 3 * _controller.value,
+                0,
+              ),
+              colors: const [
+                Color(0xFFEAEAEA),
+                Color(0xFFF8F8F8),
+                Color(0xFFEAEAEA),
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            ).createShader(bounds),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAEAEA),
+                borderRadius: BorderRadius.circular(widget.radius),
+              ),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ==================================================================
+// BANNER SHIMMER
+// ==================================================================
+
+class _HomeBannerShimmer extends StatelessWidget {
+  final double height;
+
+  const _HomeBannerShimmer({
+    required this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 8.h,
+      ),
+      child: _HomeShimmerBlock(
+        width: double.infinity,
+        height: height.h,
+        radius: 16.r,
+      ),
+    );
+  }
+}
+
+// ==================================================================
+// PRODUCT SHIMMER
+// ==================================================================
+
+class _HomeProductShimmer extends StatelessWidget {
+  final double height;
+
+  const _HomeProductShimmer({
+    required this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height.h,
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: 8.h,
+        ),
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 3,
+        separatorBuilder: (_, __) => SizedBox(width: 12.w),
+        itemBuilder: (context, index) {
+          return Container(
+            width: 155.w,
+            padding: EdgeInsets.all(10.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: const Color(0xFFF0F0F0),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _HomeShimmerBlock(
+                  width: 135.w,
+                  height: 145.h,
+                  radius: 10.r,
+                ),
+
+                SizedBox(height: 10.h),
+
+                _HomeShimmerBlock(
+                  width: 125.w,
+                  height: 12.h,
+                  radius: 5.r,
+                ),
+
+                SizedBox(height: 8.h),
+
+                _HomeShimmerBlock(
+                  width: 85.w,
+                  height: 11.h,
+                  radius: 5.r,
+                ),
+
+                const Spacer(),
+
+                _HomeShimmerBlock(
+                  width: 95.w,
+                  height: 14.h,
+                  radius: 5.r,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ==================================================================
 // PROMOTIONAL BANNERS
 // ==================================================================
 
-class _PromotionalBanners extends StatelessWidget {
+class _PromotionalBanners extends StatefulWidget {
   const _PromotionalBanners();
+
+  @override
+  State<_PromotionalBanners> createState() =>
+      _PromotionalBannersState();
+}
+
+class _PromotionalBannersState extends State<_PromotionalBanners> {
+  bool _minimumLoadingFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _minimumLoadingFinished = true);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<BannerProvider>(
-      builder: (
-          context,
-          provider,
-          child,
-          ) {
-        // LOADING
-        if (provider.isPromotionalLoading &&
-            provider.promotionalBanners.isEmpty) {
-          return SizedBox(
-            height: 180.h,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+      builder: (context, provider, child) {
+        if (provider.isPromotionalLoading ||
+            !_minimumLoadingFinished) {
+          return const _HomeBannerShimmer(height: 180);
         }
 
-        // ERROR
         if (provider.promotionalError != null &&
             provider.promotionalBanners.isEmpty) {
           debugPrint(
-            'Promotional Banner Error: '
-                '${provider.promotionalError}',
+            'Promotional Banner Error: ${provider.promotionalError}',
           );
-
           return const SizedBox.shrink();
         }
 
-        // EMPTY
         if (provider.promotionalBanners.isEmpty) {
           return const SizedBox.shrink();
         }
 
-        // GRID
         return PromotionalBannerGrid(
           banners: provider.promotionalBanners,
         );
@@ -659,54 +739,55 @@ class _PromotionalBanners extends StatelessWidget {
 // SINGLE BANNER
 // ==================================================================
 
-class _SingleBannerSection extends StatelessWidget {
+class _SingleBannerSection extends StatefulWidget {
   const _SingleBannerSection();
+
+  @override
+  State<_SingleBannerSection> createState() =>
+      _SingleBannerSectionState();
+}
+
+class _SingleBannerSectionState extends State<_SingleBannerSection> {
+  bool _minimumLoadingFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _minimumLoadingFinished = true);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<BannerProvider>(
-      builder: (
-          context,
-          provider,
-          child,
-          ) {
-        // LOADING
-        if (provider.isSingleLoading &&
-            provider.singleBanners.isEmpty) {
-          return SizedBox(
-            height: 180.h,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+      builder: (context, provider, child) {
+        if (provider.isSingleLoading ||
+            !_minimumLoadingFinished) {
+          return const _HomeBannerShimmer(height: 180);
         }
 
-        // ERROR
         if (provider.singleError != null &&
             provider.singleBanners.isEmpty) {
           debugPrint(
-            'Single Banner Error: '
-                '${provider.singleError}',
+            'Single Banner Error: ${provider.singleError}',
           );
-
           return const SizedBox.shrink();
         }
 
-        // EMPTY
         if (provider.singleBanners.isEmpty) {
           return const SizedBox.shrink();
         }
 
-        // GET FIRST SINGLE BANNER
         final banner = provider.singleBanners.first;
 
-        // SINGLE BANNER WIDGET
         return SingleBanner(
           banner: banner,
           onTap: () {
-            debugPrint(
-              'Single Banner: ${banner.title}',
-            );
+            debugPrint('Single Banner: ${banner.title}');
           },
         );
       },
@@ -726,62 +807,67 @@ class _NewestProducts extends StatefulWidget {
 }
 
 class _NewestProductsState extends State<_NewestProducts> {
+  bool _minimumLoadingFinished = false;
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
+      if (!mounted) return;
+      _loadNewestProducts();
+    });
+  }
+
+  Future<void> _loadNewestProducts() async {
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      await context.read<ProductProvider>().loadNewestProducts();
+    } catch (error, stackTrace) {
+      debugPrint('Failed to load newest products: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      const minimumDuration = Duration(seconds: 10);
+      final remaining = minimumDuration - stopwatch.elapsed;
+
+      if (remaining > Duration.zero) {
+        await Future<void>.delayed(remaining);
       }
 
-      context.read<ProductProvider>().loadNewestProducts();
-    });
+      if (mounted) {
+        setState(() => _minimumLoadingFinished = true);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
-      builder: (
-          context,
-          provider,
-          child,
-          ) {
-        // LOADING
-        if (provider.isLoading) {
-          return SizedBox(
-            height: 300.h,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+      builder: (context, provider, child) {
+        if (provider.isLoading ||
+            !_minimumLoadingFinished) {
+          return const _HomeProductShimmer(height: 300);
         }
 
-        // ERROR
         if (provider.error != null) {
           return SizedBox(
             height: 300.h,
             child: Center(
-              child: Text(
-                provider.error!,
-              ),
+              child: Text(provider.error!),
             ),
           );
         }
 
-        // EMPTY
         if (provider.products.isEmpty) {
           return SizedBox(
             height: 200.h,
             child: const Center(
-              child: Text(
-                'محصولی یافت نشد',
-              ),
+              child: Text('محصولی یافت نشد'),
             ),
           );
         }
 
-        // PRODUCT LIST
         return ProductHorizontalList(
           products: provider.products,
           onProductTap: (product) {
@@ -791,9 +877,7 @@ class _NewestProductsState extends State<_NewestProducts> {
             );
           },
           onFavoriteTap: (product) {
-            debugPrint(
-              'Favorite: ${product.id}',
-            );
+            debugPrint('Favorite: ${product.id}');
           },
         );
       },

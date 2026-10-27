@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -18,8 +20,47 @@ import 'package:supastore/features/notification_feature/presentation/providers/n
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
-class HomeAppBar extends StatelessWidget {
+class HomeAppBar extends StatefulWidget {
   const HomeAppBar({super.key});
+
+  @override
+  State<HomeAppBar> createState() => _HomeAppBarState();
+}
+
+class _HomeAppBarState extends State<HomeAppBar>
+    with SingleTickerProviderStateMixin {
+  bool _minimumShimmerFinished = false;
+  late final AnimationController _shimmerController;
+  Timer? _minimumShimmerTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+
+    // Minimum shimmer duration: 2 seconds.
+    _minimumShimmerTimer = Timer(
+      const Duration(seconds: 1),
+          () {
+        if (!mounted) return;
+
+        setState(() {
+          _minimumShimmerFinished = true;
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _minimumShimmerTimer?.cancel();
+    _shimmerController.dispose();
+    super.dispose();
+  }
 
   // ============================================================
   // OPEN EDIT PROFILE
@@ -59,7 +100,8 @@ class HomeAppBar extends StatelessWidget {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider<NotificationsProvider>.value(
+        builder: (_) =>
+        ChangeNotifierProvider<NotificationsProvider>.value(
           value: notificationProvider,
           child: const NotificationsPage(),
         ),
@@ -71,27 +113,23 @@ class HomeAppBar extends StatelessWidget {
     await notificationProvider.loadNotifications();
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
 
-    // ============================================================
-    // PROFILE PROVIDER
-    // ============================================================
-
     final profileProvider = context.watch<ProfileProvider>();
     final profile = profileProvider.profile;
-
-    // ============================================================
-    // CART PROVIDER
-    // ============================================================
 
     final cartProvider = context.watch<CartProvider>();
     final cartCount = cartProvider.totalItems;
 
-    // ============================================================
-    // USER INFO
-    // ============================================================
+    // Show shimmer for at least 2 seconds, and longer if loading continues.
+    final showProfileShimmer = !_minimumShimmerFinished ||
+        (profileProvider.isLoading && profile == null);
 
     String title;
     String subtitle;
@@ -101,28 +139,16 @@ class HomeAppBar extends StatelessWidget {
       subtitle = 'در حال دریافت اطلاعات...';
     } else {
       final fullName = profile?.fullName?.trim();
-
-      final phone =
-          profile?.phone?.trim() ?? user?.phone?.trim();
+      final phone = profile?.phone?.trim() ?? user?.phone?.trim();
 
       if (fullName != null && fullName.isNotEmpty) {
         title = fullName;
-
-        subtitle = phone?.isNotEmpty == true
-            ? phone!
-            : 'ویرایش پروفایل';
+        subtitle = phone?.isNotEmpty == true ? phone! : 'ویرایش پروفایل';
       } else {
         title = 'کاربر';
-
-        subtitle = phone?.isNotEmpty == true
-            ? phone!
-            : 'ویرایش پروفایل';
+        subtitle = phone?.isNotEmpty == true ? phone! : 'ویرایش پروفایل';
       }
     }
-
-    // ============================================================
-    // HEADER
-    // ============================================================
 
     return Container(
       width: double.infinity,
@@ -144,34 +170,29 @@ class HomeAppBar extends StatelessWidget {
           textDirection: TextDirection.rtl,
           child: Row(
             children: [
-              // ==================================================
               // USER AVATAR
-              // ==================================================
-
               _UserAvatar(
-                isLoading: profileProvider.isLoading && profile == null,
-                onTap: () {
-                  _openEditProfile(context);
-                },
+                isLoading: showProfileShimmer,
+                shimmerController: _shimmerController,
+                onTap: () => _openEditProfile(context),
               ),
 
               SizedBox(width: 10.w),
 
-              // ==================================================
-              // USER INFO
-              // ==================================================
-
+              // USER INFORMATION
               Expanded(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12.r),
-                    onTap: () {
-                      _openEditProfile(context);
-                    },
+                    onTap: () => _openEditProfile(context),
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 4.h),
-                      child: Column(
+                      child: showProfileShimmer
+                          ? _UserInfoShimmer(
+                        controller: _shimmerController,
+                      )
+                          : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -205,35 +226,22 @@ class HomeAppBar extends StatelessWidget {
 
               SizedBox(width: 12.w),
 
-              // ==================================================
-              // NOTIFICATION ICON WITH BADGE
-              // ==================================================
-
+              // NOTIFICATIONS
               Consumer<NotificationsProvider>(
                 builder: (context, notificationProvider, child) {
-                  final notificationCount =
-                      notificationProvider.unreadCount;
-
                   return _NotificationIconButton(
-                    count: notificationCount,
-                    onTap: () {
-                      _openNotifications(context);
-                    },
+                    count: notificationProvider.unreadCount,
+                    onTap: () => _openNotifications(context),
                   );
                 },
               ),
 
               SizedBox(width: 8.w),
 
-              // ==================================================
               // CART
-              // ==================================================
-
               _CartIconButton(
                 count: cartCount,
-                onTap: () {
-                  _openCart(context);
-                },
+                onTap: () => _openCart(context),
               ),
             ],
           ),
@@ -243,17 +251,106 @@ class HomeAppBar extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ================================================================
+// SHIMMER EFFECT
+// ================================================================
+
+class _ShimmerBlock extends StatelessWidget {
+  const _ShimmerBlock({
+    required this.controller,
+    this.width,
+    this.height,
+    this.radius = 8,
+  });
+
+  final AnimationController controller;
+  final double? width;
+  final double? height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final progress = controller.value * 2 - 1;
+
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment(progress - 1, 0),
+              end: Alignment(progress + 1, 0),
+              colors: [
+                const Color(0xFFE5E5E5),
+                const Color(0xFFF8F8F8),
+                const Color(0xFFE5E5E5),
+              ],
+              stops: const [0.25, 0.5, 0.75],
+            ).createShader(bounds);
+          },
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE5E5E5),
+              borderRadius: BorderRadius.circular(radius.r),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ================================================================
+// USER INFORMATION SHIMMER
+// ================================================================
+
+class _UserInfoShimmer extends StatelessWidget {
+  const _UserInfoShimmer({
+    required this.controller,
+  });
+
+  final AnimationController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _ShimmerBlock(
+          controller: controller,
+          width: 95.w,
+          height: 13.h,
+          radius: 4,
+        ),
+        SizedBox(height: 7.h),
+        _ShimmerBlock(
+          controller: controller,
+          width: 115.w,
+          height: 9.h,
+          radius: 4,
+        ),
+      ],
+    );
+  }
+}
+
+// ================================================================
 // USER AVATAR
-// ==================================================================
+// ================================================================
 
 class _UserAvatar extends StatelessWidget {
   const _UserAvatar({
     required this.isLoading,
+    required this.shimmerController,
     required this.onTap,
   });
 
   final bool isLoading;
+  final AnimationController shimmerController;
   final VoidCallback onTap;
 
   @override
@@ -275,10 +372,12 @@ class _UserAvatar extends StatelessWidget {
             ),
           ),
           child: isLoading
-              ? Padding(
-            padding: EdgeInsets.all(12.w),
-            child: const CircularProgressIndicator(
-              strokeWidth: 2,
+              ? ClipOval(
+            child: _ShimmerBlock(
+              controller: shimmerController,
+              width: 44.w,
+              height: 44.w,
+              radius: 44,
             ),
           )
               : Icon(
@@ -292,9 +391,9 @@ class _UserAvatar extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ================================================================
 // NOTIFICATION ICON BUTTON
-// ==================================================================
+// ================================================================
 
 class _NotificationIconButton extends StatelessWidget {
   const _NotificationIconButton({
@@ -348,9 +447,9 @@ class _NotificationIconButton extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ================================================================
 // CART ICON BUTTON
-// ==================================================================
+// ================================================================
 
 class _CartIconButton extends StatelessWidget {
   const _CartIconButton({
@@ -405,9 +504,9 @@ class _CartIconButton extends StatelessWidget {
   }
 }
 
-// ==================================================================
+// ================================================================
 // HEADER ICON BUTTON
-// ==================================================================
+// ================================================================
 
 class _HeaderIconButton extends StatelessWidget {
   const _HeaderIconButton({
