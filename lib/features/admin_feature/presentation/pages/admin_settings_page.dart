@@ -101,21 +101,6 @@ class AdminSettingsPage extends StatelessWidget {
 
               SizedBox(height: 22.h),
 
-              _buildSectionTitle('اعلان‌ها'),
-              SizedBox(height: 10.h),
-              _buildSettingsGroup([
-                _buildSettingTile(
-                  icon: Iconsax.notification_copy,
-                  iconColor: Colors.deepPurple,
-                  title: 'تنظیمات اعلان‌ها',
-                  subtitle:
-                  'اعلان سفارش، پرداخت، تغییر وضعیت و نظر جدید',
-                  onTap: () {},
-                ),
-              ]),
-
-              SizedBox(height: 22.h),
-
               _buildSectionTitle('مدیران و امنیت'),
               SizedBox(height: 10.h),
               _buildSettingsGroup([

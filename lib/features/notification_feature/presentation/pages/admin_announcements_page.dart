@@ -1017,7 +1017,7 @@ class _AdminAnnouncementsPageState
                     ),
                   )
                       : const Icon(
-                    Iconsax.profile_delete_copy,
+                    Iconsax.trash_copy,
                     color: _primaryColor,
                     size: 20,
                   ),
