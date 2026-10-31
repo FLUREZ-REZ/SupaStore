@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -328,41 +329,43 @@ Future<void> main() async {
 // MyApp
 // ============================================================
 
+
 class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-  });
+  const MyApp({super.key});
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
+  Widget build(BuildContext context) {
+    final viewportSize = MediaQuery.sizeOf(context);
+
+    // در وب، مقیاس ScreenUtil را بر اساس اندازه واقعی
+    // فضای نمایش تنظیم می‌کنیم تا ابعاد ثابت بزرگ نشوند.
+    final Size designSize = kIsWeb
+        ? Size(
+      viewportSize.width > 0
+          ? viewportSize.width
+          : 390,
+      viewportSize.height > 0
+          ? viewportSize.height
+          : 844,
+    )
+        : const Size(390, 844);
+
     return ScreenUtilInit(
-      designSize: const Size(
-        390,
-        844,
-      ),
+      designSize: designSize,
       minTextAdapt: true,
-      builder: (
-          _,
-          child,
-          ) {
+      builder: (context, child) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-
           theme: AppTheme.lightTheme,
-
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-
           supportedLocales: const [
             Locale('fa'),
             Locale('en'),
           ],
-
           routerConfig: AppRouter.router,
         );
       },
