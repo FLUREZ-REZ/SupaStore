@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:supastore/core/di/injector.dart';
 
+import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/auth_feature/data/services/auth_role_service.dart';
 import 'package:supastore/features/auth_feature/presentation/providers/otp_provider.dart';
 import 'package:supastore/features/auth_feature/presentation/widgets/otp_header.dart';
@@ -32,6 +31,8 @@ class _OtpPageState extends State<OtpPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final provider = context.read<OtpProvider>();
 
       provider.setPhone(widget.phoneNumber);
@@ -51,8 +52,7 @@ class _OtpPageState extends State<OtpPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!mounted) return;
 
-          final authRoleService =
-          getIt<AuthRoleService>();
+          final authRoleService = getIt<AuthRoleService>();
 
           final isAdmin =
           await authRoleService.isCurrentUserAdmin();
@@ -79,7 +79,7 @@ class _OtpPageState extends State<OtpPage> {
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(12),
               ),
               content: const Text(
                 'کد تایید صحیح نیست.',
@@ -101,7 +101,7 @@ class _OtpPageState extends State<OtpPage> {
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(12),
               ),
               content: const Text(
                 'خطا در ارتباط با سرور.',
@@ -130,63 +130,126 @@ class _OtpPageState extends State<OtpPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 24.w,
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 28.h,
-                ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final height = constraints.maxHeight;
 
-                OtpHeader(
-                  phoneNumber: widget.phoneNumber,
-                ),
+              final bool isMobile = width < 600;
+              final bool isTablet = width >= 600 && width < 1024;
 
-                SizedBox(
-                  height: 46.h,
-                ),
+              final double contentWidth = isMobile
+                  ? width
+                  : isTablet
+                  ? 480
+                  : 500;
 
-                const OtpPinField(),
+              final double horizontalPadding = isMobile
+                  ? 24
+                  : isTablet
+                  ? 32
+                  : 40;
 
-                SizedBox(
-                  height: 26.h,
-                ),
+              final double topSpacing = isMobile
+                  ? (height * 0.04).clamp(16.0, 32.0)
+                  : isTablet
+                  ? 36
+                  : 42;
 
-                const OtpTimer(),
+              final double headerSpacing = isMobile
+                  ? 38
+                  : isTablet
+                  ? 46
+                  : 52;
 
-                SizedBox(
-                  height: 8.h,
-                ),
+              final double pinTimerSpacing = isMobile ? 24 : 30;
 
-                const OtpResendButton(),
+              final double timerResendSpacing = isMobile ? 8 : 12;
 
-                const Spacer(),
+              final double bottomSpacing = isMobile ? 20 : 24;
 
-                const OtpVerifyButton(),
+              return Center(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: height,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: contentWidth,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: horizontalPadding,
+                          ),
+                          child: IntrinsicHeight(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(height: topSpacing),
 
-                SizedBox(
-                  height: 18.h,
-                ),
+                                // OTP HEADER
+                                OtpHeader(
+                                  phoneNumber: widget.phoneNumber,
+                                ),
 
-                Text(
-                  'کد ارسال‌شده را وارد کنید',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 10.5.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black54,
+                                SizedBox(height: headerSpacing),
+
+                                // OTP INPUT
+                                const OtpPinField(),
+
+                                SizedBox(height: pinTimerSpacing),
+
+                                // TIMER
+                                const OtpTimer(),
+
+                                SizedBox(height: timerResendSpacing),
+
+                                // RESEND BUTTON
+                                const OtpResendButton(),
+
+                                const Spacer(),
+
+                                SizedBox(
+                                  height: isMobile ? 48 : 64,
+                                ),
+
+                                // VERIFY BUTTON
+                                const OtpVerifyButton(),
+
+                                SizedBox(height: bottomSpacing),
+
+                                // HELPER TEXT
+                                Text(
+                                  'کد ارسال‌شده را وارد کنید',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: isMobile
+                                        ? 11
+                                        : isTablet
+                                        ? 12
+                                        : 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black54,
+                                    height: 1.6,
+                                  ),
+                                ),
+
+                                SizedBox(height: bottomSpacing),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-
-                SizedBox(
-                  height: 20.h,
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

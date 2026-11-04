@@ -337,8 +337,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewportSize = MediaQuery.sizeOf(context);
 
-    // در وب، مقیاس ScreenUtil را بر اساس اندازه واقعی
-    // فضای نمایش تنظیم می‌کنیم تا ابعاد ثابت بزرگ نشوند.
+
     final Size designSize = kIsWeb
         ? Size(
       viewportSize.width > 0
