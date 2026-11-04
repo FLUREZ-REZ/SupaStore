@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:supastore/features/home_feature/presentation/widgets/home_content_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+
 
 class HomeSearchBar extends StatelessWidget {
   const HomeSearchBar({
@@ -67,94 +68,92 @@ class HomeSearchBar extends StatelessWidget {
 
         return Directionality(
           textDirection: TextDirection.rtl,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: isDesktop ? 850 : double.infinity,
+          child: HomeContentContainer(
+            maxWidth: 1200,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
               ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: verticalPadding,
-                ),
-                child: Material(
-                  color: Colors.white,
+              child: Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(radius),
+                child: InkWell(
                   borderRadius: BorderRadius.circular(radius),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(radius),
-                    onTap: () {
-                      context.pushNamed('search');
-                    },
-                    child: Container(
-                      height: searchHeight,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
+                  onTap: () {
+                    context.pushNamed('search');
+                  },
+                  child: Container(
+                    height: searchHeight,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(radius),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
+                        width: 1,
                       ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(radius),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 1,
+                    ),
+                    child: Row(
+                      children: [
+                        // Search Icon
+
+                        Container(
+                          width: iconContainerSize,
+                          height: iconContainerSize,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.07),
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Icon(
+                            Icons.search_rounded,
+                            size: iconSize,
+                            color: AppColors.primary,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          // Search Icon
-                          Container(
-                            width: iconContainerSize,
-                            height: iconContainerSize,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.07),
-                              borderRadius: BorderRadius.circular(9),
-                            ),
-                            child: Icon(
-                              Icons.search_rounded,
-                              size: iconSize,
-                              color: AppColors.primary,
-                            ),
-                          ),
 
-                          const SizedBox(width: 12),
+                        const SizedBox(width: 12),
 
-                          // Search Hint
-                          Expanded(
-                            child: RichText(
-                              textDirection: TextDirection.rtl,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'جستجو در ',
-                                    style: AppTextStyles.auth_textfield
-                                        .copyWith(
-                                      color: Colors.grey.shade500,
-                                      fontSize: hintFontSize,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                        // Search Hint
+
+                        Expanded(
+                          child: RichText(
+                            textDirection: TextDirection.rtl,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'جستجو در ',
+                                  style: AppTextStyles.auth_textfield.copyWith(
+                                    color: Colors.grey.shade500,
+                                    fontSize: hintFontSize,
+                                    fontWeight: FontWeight.w400,
                                   ),
-                                  TextSpan(
-                                    text: 'سوپااستور',
-                                    style: TextStyle(
-                                      color: AppColors.primary,
-                                      fontFamily: 'roosta',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: brandFontSize,
-                                    ),
+                                ),
+                                TextSpan(
+                                  text: 'سوپااستور',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontFamily: 'roosta',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: brandFontSize,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
+                        ),
 
-                          // Arrow Icon
-                          Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: isDesktop ? 16 : 15,
-                            color: Colors.grey.shade400,
-                          ),
-                        ],
-                      ),
+                        // Arrow Icon
+
+                        Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: isDesktop ? 16 : 15,
+                          color: Colors.grey.shade400,
+                        ),
+                      ],
                     ),
                   ),
                 ),

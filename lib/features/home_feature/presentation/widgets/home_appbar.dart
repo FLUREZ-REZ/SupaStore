@@ -20,6 +20,8 @@ import 'package:supastore/features/notification_feature/presentation/providers/n
 import 'package:supastore/features/profile_feature/presentation/pages/edit_profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
+import 'home_content_container.dart';
+
 class HomeAppBar extends StatefulWidget {
   const HomeAppBar({super.key});
 
@@ -30,7 +32,9 @@ class HomeAppBar extends StatefulWidget {
 class _HomeAppBarState extends State<HomeAppBar>
     with SingleTickerProviderStateMixin {
   bool _minimumShimmerFinished = false;
+
   late final AnimationController _shimmerController;
+
   Timer? _minimumShimmerTimer;
 
   @override
@@ -42,7 +46,7 @@ class _HomeAppBarState extends State<HomeAppBar>
       duration: const Duration(milliseconds: 1400),
     )..repeat();
 
-    // Minimum shimmer duration: 2 seconds.
+    // Minimum shimmer duration.
     _minimumShimmerTimer = Timer(
       const Duration(seconds: 1),
           () {
@@ -59,6 +63,7 @@ class _HomeAppBarState extends State<HomeAppBar>
   void dispose() {
     _minimumShimmerTimer?.cancel();
     _shimmerController.dispose();
+
     super.dispose();
   }
 
@@ -100,8 +105,7 @@ class _HomeAppBarState extends State<HomeAppBar>
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-        ChangeNotifierProvider<NotificationsProvider>.value(
+        builder: (_) => ChangeNotifierProvider<NotificationsProvider>.value(
           value: notificationProvider,
           child: const NotificationsPage(),
         ),
@@ -127,7 +131,6 @@ class _HomeAppBarState extends State<HomeAppBar>
     final cartProvider = context.watch<CartProvider>();
     final cartCount = cartProvider.totalItems;
 
-    // Show shimmer for at least 2 seconds, and longer if loading continues.
     final showProfileShimmer = !_minimumShimmerFinished ||
         (profileProvider.isLoading && profile == null);
 
@@ -159,91 +162,98 @@ class _HomeAppBarState extends State<HomeAppBar>
           bottomRight: Radius.circular(24.r),
         ),
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          20.w,
-          14.h,
-          20.w,
-          10.h,
-        ),
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Row(
-            children: [
-              // USER AVATAR
-              _UserAvatar(
-                isLoading: showProfileShimmer,
-                shimmerController: _shimmerController,
-                onTap: () => _openEditProfile(context),
-              ),
+      child: HomeContentContainer(
+        maxWidth: 1200,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20.w,
+            14.h,
+            20.w,
+            10.h,
+          ),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Row(
+              children: [
+                // USER AVATAR
 
-              SizedBox(width: 10.w),
+                _UserAvatar(
+                  isLoading: showProfileShimmer,
+                  shimmerController: _shimmerController,
+                  onTap: () => _openEditProfile(context),
+                ),
 
-              // USER INFORMATION
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12.r),
-                    onTap: () => _openEditProfile(context),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 4.h),
-                      child: showProfileShimmer
-                          ? _UserInfoShimmer(
-                        controller: _shimmerController,
-                      )
-                          : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.user.copyWith(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
+                SizedBox(width: 10.w),
+
+                // USER INFORMATION
+
+                Expanded(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12.r),
+                      onTap: () => _openEditProfile(context),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        child: showProfileShimmer
+                            ? _UserInfoShimmer(
+                          controller: _shimmerController,
+                        )
+                            : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.user.copyWith(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 3.h),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.userName.copyWith(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black54,
+                            SizedBox(height: 3.h),
+                            Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.userName.copyWith(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(width: 12.w),
+                SizedBox(width: 12.w),
 
-              // NOTIFICATIONS
-              Consumer<NotificationsProvider>(
-                builder: (context, notificationProvider, child) {
-                  return _NotificationIconButton(
-                    count: notificationProvider.unreadCount,
-                    onTap: () => _openNotifications(context),
-                  );
-                },
-              ),
+                // NOTIFICATIONS
 
-              SizedBox(width: 8.w),
+                Consumer<NotificationsProvider>(
+                  builder: (context, notificationProvider, child) {
+                    return _NotificationIconButton(
+                      count: notificationProvider.unreadCount,
+                      onTap: () => _openNotifications(context),
+                    );
+                  },
+                ),
 
-              // CART
-              _CartIconButton(
-                count: cartCount,
-                onTap: () => _openCart(context),
-              ),
-            ],
+                SizedBox(width: 8.w),
+
+                // CART
+
+                _CartIconButton(
+                  count: cartCount,
+                  onTap: () => _openCart(context),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -281,10 +291,10 @@ class _ShimmerBlock extends StatelessWidget {
             return LinearGradient(
               begin: Alignment(progress - 1, 0),
               end: Alignment(progress + 1, 0),
-              colors: [
-                const Color(0xFFE5E5E5),
-                const Color(0xFFF8F8F8),
-                const Color(0xFFE5E5E5),
+              colors: const [
+                Color(0xFFE5E5E5),
+                Color(0xFFF8F8F8),
+                Color(0xFFE5E5E5),
               ],
               stops: const [0.25, 0.5, 0.75],
             ).createShader(bounds);

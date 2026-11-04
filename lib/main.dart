@@ -16,10 +16,10 @@ import 'package:supastore/core/theme/app_theme.dart';
 import 'package:supastore/features/admin_feature/admin_general_settings_feature/presentation/providers/general_settings_provider.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
 import 'package:supastore/features/favorite_feature/presentation/providers/favorite_provider.dart';
+import 'package:supastore/features/home_feature/presentation/utils/app_scroll_behavior.dart';
 import 'package:supastore/features/intro_feature/intro_binding.dart';
 import 'package:supastore/features/splash_feature/splash_binding.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 // ============================================================
 // Payment Deep Link Service
@@ -54,8 +54,7 @@ class PaymentDeepLinkService {
     // ----------------------------------------------------------
 
     try {
-      final initialUri =
-      await _appLinks.getInitialLink();
+      final initialUri = await _appLinks.getInitialLink();
 
       if (initialUri != null) {
         debugPrint(
@@ -74,21 +73,20 @@ class PaymentDeepLinkService {
     // App already running
     // ----------------------------------------------------------
 
-    _subscription =
-        _appLinks.uriLinkStream.listen(
-              (uri) {
-            debugPrint(
-              'Deep Link Received: $uri',
-            );
-
-            _handleUri(uri);
-          },
-          onError: (error) {
-            debugPrint(
-              'Deep Link Stream Error: $error',
-            );
-          },
+    _subscription = _appLinks.uriLinkStream.listen(
+          (uri) {
+        debugPrint(
+          'Deep Link Received: $uri',
         );
+
+        _handleUri(uri);
+      },
+      onError: (error) {
+        debugPrint(
+          'Deep Link Stream Error: $error',
+        );
+      },
+    );
   }
 
   void _handleUri(Uri uri) {
@@ -136,14 +134,11 @@ class PaymentDeepLinkService {
     // Parameters
     // ----------------------------------------------------------
 
-    final orderId =
-    uri.queryParameters['order_id'];
+    final orderId = uri.queryParameters['order_id'];
 
-    final status =
-    uri.queryParameters['status'];
+    final status = uri.queryParameters['status'];
 
-    final refId =
-    uri.queryParameters['ref_id'];
+    final refId = uri.queryParameters['ref_id'];
 
     debugPrint(
       'Payment Deep Link Data:',
@@ -165,8 +160,7 @@ class PaymentDeepLinkService {
     // Validate Order ID
     // ----------------------------------------------------------
 
-    if (orderId == null ||
-        orderId.isEmpty) {
+    if (orderId == null || orderId.isEmpty) {
       debugPrint(
         'Payment Deep Link rejected: order_id missing.',
       );
@@ -178,8 +172,7 @@ class PaymentDeepLinkService {
     // Navigate
     // ----------------------------------------------------------
 
-    WidgetsBinding.instance
-        .addPostFrameCallback(
+    WidgetsBinding.instance.addPostFrameCallback(
           (_) {
         try {
           _router.go(
@@ -212,14 +205,12 @@ class PaymentDeepLinkService {
   }
 }
 
-
 // ============================================================
 // Main
 // ============================================================
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -254,8 +245,7 @@ Future<void> main() async {
   // Deep Link Service
   // ----------------------------------------------------------
 
-  final paymentDeepLinkService =
-  PaymentDeepLinkService(
+  final paymentDeepLinkService = PaymentDeepLinkService(
     router: AppRouter.router,
   );
 
@@ -283,8 +273,7 @@ Future<void> main() async {
         // ======================================================
 
         ChangeNotifierProvider<FavoriteProvider>(
-          create: (_) =>
-              getIt<FavoriteProvider>(),
+          create: (_) => getIt<FavoriteProvider>(),
         ),
 
         // ======================================================
@@ -293,8 +282,7 @@ Future<void> main() async {
 
         ChangeNotifierProvider<StoreSettingsProvider>(
           create: (_) {
-            final provider =
-            getIt<StoreSettingsProvider>();
+            final provider = getIt<StoreSettingsProvider>();
 
             provider.loadSettings();
 
@@ -306,7 +294,6 @@ Future<void> main() async {
           create: (_) => getIt<GeneralSettingsProvider>()
             ..loadSettings(),
         ),
-
       ],
       child: const MyApp(),
     ),
@@ -316,19 +303,16 @@ Future<void> main() async {
   // Start Deep Link Listener
   // ----------------------------------------------------------
 
-  WidgetsBinding.instance
-      .addPostFrameCallback(
+  WidgetsBinding.instance.addPostFrameCallback(
         (_) {
       paymentDeepLinkService.initialize();
     },
   );
 }
 
-
 // ============================================================
 // MyApp
 // ============================================================
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -336,7 +320,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewportSize = MediaQuery.sizeOf(context);
-
 
     final Size designSize = kIsWeb
         ? Size(
@@ -355,16 +338,26 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
+
+          // ====================================================
+          // GLOBAL MOUSE DRAG SCROLLING
+          // ====================================================
+
+          scrollBehavior: const AppScrollBehavior(),
+
           theme: AppTheme.lightTheme,
+
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+
           supportedLocales: const [
             Locale('fa'),
             Locale('en'),
           ],
+
           routerConfig: AppRouter.router,
         );
       },

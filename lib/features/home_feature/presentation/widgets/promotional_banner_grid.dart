@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:supastore/features/home_feature/domain/entities/banner_entity.dart';
 import 'package:supastore/features/home_feature/presentation/utils/banner_navigation_handler.dart';
+import 'package:supastore/features/home_feature/presentation/widgets/home_content_container.dart';
 
 // ==================================================================
 // PROMOTIONAL BANNER GRID
@@ -52,40 +53,36 @@ class PromotionalBannerGrid extends StatelessWidget {
 
     final visibleBanners = banners.take(4).toList();
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1400,
+    return HomeContentContainer(
+      maxWidth: 1200,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: visibleBanners.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            childAspectRatio: childAspectRatio,
           ),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: visibleBanners.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: spacing,
-              mainAxisSpacing: spacing,
-              childAspectRatio: childAspectRatio,
-            ),
-            itemBuilder: (context, index) {
-              final banner = visibleBanners[index];
+          itemBuilder: (context, index) {
+            final banner = visibleBanners[index];
 
-              return _PromotionalBannerItem(
-                banner: banner,
-                borderRadius: borderRadius,
-                onTap: () {
-                  BannerNavigationHandler.handle(
-                    context: context,
-                    banner: banner,
-                  );
-                },
-              );
-            },
-          ),
+            return _PromotionalBannerItem(
+              banner: banner,
+              borderRadius: borderRadius,
+              onTap: () {
+                BannerNavigationHandler.handle(
+                  context: context,
+                  banner: banner,
+                );
+              },
+            );
+          },
         ),
       ),
     );
