@@ -1,8 +1,8 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/core/theme/app_text_styles.dart';
-
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -13,61 +13,85 @@ class SectionHeader extends StatelessWidget {
   });
 
   final String title;
-
   final VoidCallback? onSeeAll;
-
   final bool showSeeAll;
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isMobile = screenWidth < 600;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
+
+    final double horizontalPadding = isMobile
+        ? 16
+        : isTablet
+        ? 20
+        : 24;
+
+    final double titleFontSize = isMobile
+        ? 16
+        : isTablet
+        ? 15
+        : 16;
+
+    final double seeAllFontSize = 12;
+    final double iconSize = isMobile ? 18 : 17;
+
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8.h,
+        horizontal: horizontalPadding,
+        vertical: isMobile ? 8 : 10,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyles.section_title.copyWith(
-                color: AppColors.section_header,
-                fontWeight: FontWeight.bold,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.section_title.copyWith(
+                  color: AppColors.section_header,
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
 
-          if (showSeeAll)
-            InkWell(
-              borderRadius: BorderRadius.circular(8.r),
-              onTap: onSeeAll,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 6.w,
-                  vertical: 4.h,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'مشاهده همه',
-                      style: AppTextStyles.section_title.copyWith(
-                        color: AppColors.section_seeAll,
-                        fontWeight: FontWeight.w600,
+            if (showSeeAll)
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: onSeeAll,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'مشاهده همه',
+                        style: AppTextStyles.section_title.copyWith(
+                          color: AppColors.section_seeAll,
+                          fontSize: seeAllFontSize,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-
-                    SizedBox(width: 2.w),
-
-                    Icon(
-                      Icons.chevron_right,
-                      size: 18.sp,
-                      color: AppColors.primary,
-                    ),
-                  ],
+                      const SizedBox(width: 2),
+                      Icon(
+                        Icons.chevron_left,
+                        size: iconSize,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

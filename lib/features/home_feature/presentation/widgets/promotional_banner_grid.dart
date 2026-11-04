@@ -1,13 +1,9 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
-import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/home_feature/domain/entities/banner_entity.dart';
 import 'package:supastore/features/home_feature/presentation/utils/banner_navigation_handler.dart';
-import 'package:supastore/features/product_feature/presentation/providers/product_provider.dart';
 
 // ==================================================================
 // PROMOTIONAL BANNER GRID
@@ -27,86 +23,71 @@ class PromotionalBannerGrid extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    final bool isMobile = screenWidth < 600;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
+
+    final int crossAxisCount = isMobile || isTablet ? 2 : 4;
+
+    final double horizontalPadding = isMobile
+        ? 16
+        : isTablet
+        ? 24
+        : 28;
+
+    final double spacing = isMobile
+        ? 10
+        : isTablet
+        ? 14
+        : 16;
+
+    final double childAspectRatio = isMobile
+        ? 1.2
+        : isTablet
+        ? 1.5
+        : 1.25;
+
+    final double borderRadius = isMobile ? 12 : 16;
+
     final visibleBanners = banners.take(4).toList();
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: visibleBanners.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10.w,
-          mainAxisSpacing: 10.h,
-          childAspectRatio: 1.2,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 1400,
         ),
-        itemBuilder: (context, index) {
-          final banner = visibleBanners[index];
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+          ),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: visibleBanners.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: spacing,
+              childAspectRatio: childAspectRatio,
+            ),
+            itemBuilder: (context, index) {
+              final banner = visibleBanners[index];
 
-          return _PromotionalBannerItem(
-            banner: banner,
-            onTap: () {
-              BannerNavigationHandler.handle(
-                context: context,
+              return _PromotionalBannerItem(
                 banner: banner,
+                borderRadius: borderRadius,
+                onTap: () {
+                  BannerNavigationHandler.handle(
+                    context: context,
+                    banner: banner,
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _handleBannerTap(
-      BuildContext context,
-      BannerEntity banner,
-      ) async {
-    if (!banner.hasAction) {
-      return;
-    }
-
-    switch (banner.actionType) {
-      case 'product':
-        await _openProduct(
-          context,
-          banner.actionValue!,
-        );
-        break;
-
-      case 'category':
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  Future<void> _openProduct(
-      BuildContext context,
-      String productId,
-      ) async {
-    final productProvider = getIt<ProductProvider>();
-
-    final product = await productProvider.getProductById(productId);
-
-    if (!context.mounted) {
-      return;
-    }
-
-    if (product == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('محصول مورد نظر پیدا نشد'),
+          ),
         ),
-      );
-
-      return;
-    }
-
-    context.pushNamed(
-      'product-details',
-      extra: product,
+      ),
     );
   }
 }
@@ -119,16 +100,18 @@ class _PromotionalBannerItem extends StatelessWidget {
   const _PromotionalBannerItem({
     required this.banner,
     required this.onTap,
+    required this.borderRadius,
   });
 
   final BannerEntity banner;
   final VoidCallback onTap;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(14.r),
+      borderRadius: BorderRadius.circular(borderRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -136,8 +119,9 @@ class _PromotionalBannerItem extends StatelessWidget {
           imageUrl: banner.imageUrl,
           fit: BoxFit.cover,
           width: double.infinity,
-          memCacheWidth: 700,
-          maxWidthDiskCache: 1000,
+          height: double.infinity,
+          memCacheWidth: 900,
+          maxWidthDiskCache: 1200,
           placeholder: (context, url) {
             return const _BannerShimmer();
           },
@@ -171,7 +155,7 @@ class _BannerShimmerState extends State<_BannerShimmer>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration( seconds : 1),
+      duration: const Duration(seconds: 1),
     )..repeat();
   }
 
@@ -183,31 +167,45 @@ class _BannerShimmerState extends State<_BannerShimmer>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            gradient: LinearGradient(
-              begin: Alignment(-1.5 + _controller.value * 3, 0),
-              end: Alignment(-0.5 + _controller.value * 3, 0),
-              colors: [
-                Colors.grey.shade200,
-                Colors.grey.shade100,
-                Colors.grey.shade200,
-              ],
-              stops: const [0.1, 0.5, 0.9],
-            ),
-          ),
-          child: Center(
-            child: Icon(
-              Icons.image_outlined,
-              size: 25.sp,
-              color: Colors.white.withOpacity(0.65),
-            ),
-          ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double iconSize =
+        (constraints.maxWidth * 0.10).clamp(20.0, 30.0);
+
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                gradient: LinearGradient(
+                  begin: Alignment(
+                    -1.5 + _controller.value * 3,
+                    0,
+                  ),
+                  end: Alignment(
+                    -0.5 + _controller.value * 3,
+                    0,
+                  ),
+                  colors: [
+                    Colors.grey.shade200,
+                    Colors.grey.shade100,
+                    Colors.grey.shade200,
+                  ],
+                  stops: const [0.1, 0.5, 0.9],
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.image_outlined,
+                  size: iconSize,
+                  color: Colors.white.withOpacity(0.65),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -223,14 +221,23 @@ class _BannerError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey.shade100,
-      alignment: Alignment.center,
-      child: Icon(
-        Icons.image_not_supported_outlined,
-        size: 26.sp,
-        color: Colors.grey,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double iconSize =
+        (constraints.maxWidth * 0.10).clamp(22.0, 32.0);
+
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.grey.shade100,
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            size: iconSize,
+            color: Colors.grey,
+          ),
+        );
+      },
     );
   }
 }

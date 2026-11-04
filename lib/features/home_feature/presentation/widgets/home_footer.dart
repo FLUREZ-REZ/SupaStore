@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,93 +7,147 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/admin_feature/settings/presentation/provider/store_settings_provider.dart';
 
-// مسیرها را مطابق ساختار پروژه خودت تنظیم کن.
 import 'package:supastore/features/settings_feature/presentation/pages/about_page.dart';
 import 'package:supastore/features/settings_feature/presentation/pages/privacy_page.dart';
 import 'package:supastore/features/settings_feature/presentation/pages/support_page.dart';
 
 class HomeFooter extends StatelessWidget {
-  const HomeFooter({
-    super.key,
-  });
+  const HomeFooter({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Consumer<StoreSettingsProvider>(
-        builder: (
-            context,
-            storeSettingsProvider,
-            child,
-            ) {
-          return Container(
-            width: double.infinity,
-            margin: EdgeInsets.only(
-              top: 32.h,
-            ),
-            padding: EdgeInsets.fromLTRB(
-              20.w,
-              30.h,
-              20.w,
-              22.h,
-            ),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F6),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _StoreHeader(
-                  storeName: storeSettingsProvider.storeName,
-                  tagline: storeSettingsProvider.tagline,
+        builder: (context, storeSettingsProvider, child) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+
+              final isDesktop = width >= 1000;
+              final horizontalPadding = isDesktop
+                  ? 32.0
+                  : width >= 600
+                  ? 24.0
+                  : 18.0;
+
+              return Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: 32),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF5F5F6),
                 ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 1280,
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        isDesktop ? 36 : 28,
+                        horizontalPadding,
+                        22,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _StoreHeader(
+                            storeName: storeSettingsProvider.storeName,
+                            tagline: storeSettingsProvider.tagline,
+                          ),
 
-                SizedBox(height: 28.h),
+                          SizedBox(height: isDesktop ? 32 : 26),
 
-                const _ServicesSection(),
+                          const _ServicesSection(),
 
-                SizedBox(height: 28.h),
+                          SizedBox(height: isDesktop ? 32 : 26),
 
-                const _FooterDivider(),
+                          const _FooterDivider(),
 
-                SizedBox(height: 24.h),
+                          SizedBox(height: isDesktop ? 28 : 22),
 
-                _ContactSection(
-                  phone: storeSettingsProvider.phone,
-                  email: storeSettingsProvider.email,
-                  address: storeSettingsProvider.address,
-                  website: storeSettingsProvider.website,
+                          if (isDesktop)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 6,
+                                  child: _ContactSection(
+                                    phone: storeSettingsProvider.phone,
+                                    email: storeSettingsProvider.email,
+                                    address: storeSettingsProvider.address,
+                                    website: storeSettingsProvider.website,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 32),
+
+                                Container(
+                                  width: 1,
+                                  height: 150,
+                                  color: Colors.grey.shade300,
+                                ),
+
+                                const SizedBox(width: 32),
+
+                                Expanded(
+                                  flex: 5,
+                                  child: _LinksAndSocialSection(
+                                    instagram:
+                                    storeSettingsProvider.instagram,
+                                    telegram:
+                                    storeSettingsProvider.telegram,
+                                  ),
+                                ),
+                              ],
+                            )
+                          else ...[
+                            _ContactSection(
+                              phone: storeSettingsProvider.phone,
+                              email: storeSettingsProvider.email,
+                              address: storeSettingsProvider.address,
+                              website: storeSettingsProvider.website,
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            const _FooterDivider(),
+
+                            const SizedBox(height: 22),
+
+                            _LinksAndSocialSection(
+                              instagram: storeSettingsProvider.instagram,
+                              telegram: storeSettingsProvider.telegram,
+                            ),
+                          ],
+
+                          const SizedBox(height: 24),
+
+                          const _FooterDivider(),
+
+                          const SizedBox(height: 18),
+
+                          _Copyright(
+                            storeName: storeSettingsProvider.storeName,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-
-                SizedBox(height: 26.h),
-
-                const _FooterDivider(),
-
-                SizedBox(height: 24.h),
-
-                _LinksAndSocialSection(
-                  instagram: storeSettingsProvider.instagram,
-                  telegram: storeSettingsProvider.telegram,
-                ),
-
-                SizedBox(height: 24.h),
-
-                const _FooterDivider(),
-
-                SizedBox(height: 18.h),
-
-                _Copyright(
-                  storeName: storeSettingsProvider.storeName,
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
     );
   }
 }
+
+// ------------------------------------------------------------
+// Store Header
+// ------------------------------------------------------------
 
 class _StoreHeader extends StatelessWidget {
   const _StoreHeader({
@@ -106,26 +160,36 @@ class _StoreHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+    final isTablet = width >= 600 && width < 1000;
+
+    final iconBoxSize = isDesktop
+        ? 52.0
+        : isTablet
+        ? 48.0
+        : 44.0;
+
     final cleanTagline = tagline?.trim();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 46.w,
-          height: 46.w,
+          width: iconBoxSize,
+          height: iconBoxSize,
           decoration: BoxDecoration(
             color: AppColors.orders_page_redi,
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(
             Iconsax.bag_2_copy,
-            size: 23.sp,
+            size: isDesktop ? 25 : 22,
             color: Colors.white,
           ),
         ),
 
-        SizedBox(width: 13.w),
+        const SizedBox(width: 13),
 
         Expanded(
           child: Column(
@@ -136,20 +200,25 @@ class _StoreHeader extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 17.sp,
+                  fontSize: isDesktop
+                      ? 19
+                      : isTablet
+                      ? 18
+                      : 16,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF222222),
                 ),
               ),
 
               if (cleanTagline != null && cleanTagline.isNotEmpty) ...[
-                SizedBox(height: 4.h),
+                const SizedBox(height: 5),
+
                 Text(
                   cleanTagline,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: isDesktop ? 12 : 11,
                     color: Colors.grey.shade600,
                     height: 1.5,
                   ),
@@ -163,11 +232,18 @@ class _StoreHeader extends StatelessWidget {
   }
 }
 
+// ------------------------------------------------------------
+// Services
+// ------------------------------------------------------------
+
 class _ServicesSection extends StatelessWidget {
   const _ServicesSection();
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     return Row(
       children: [
         const Expanded(
@@ -215,15 +291,23 @@ class _ServiceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+    final isTablet = width >= 600 && width < 1000;
+
     return Column(
       children: [
         Icon(
           icon,
-          size: 23.sp,
+          size: isDesktop
+              ? 27
+              : isTablet
+              ? 24
+              : 22,
           color: AppColors.orders_page_redi,
         ),
 
-        SizedBox(height: 8.h),
+        const SizedBox(height: 8),
 
         Text(
           title,
@@ -231,13 +315,13 @@ class _ServiceItem extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 10.sp,
+            fontSize: isDesktop ? 12 : 10,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF333333),
           ),
         ),
 
-        SizedBox(height: 3.h),
+        const SizedBox(height: 4),
 
         Text(
           subtitle,
@@ -245,7 +329,7 @@ class _ServiceItem extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 8.5.sp,
+            fontSize: isDesktop ? 10 : 9,
             color: Colors.grey.shade500,
           ),
         ),
@@ -261,14 +345,16 @@ class _VerticalDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 1,
-      height: 38.h,
+      height: 42,
       color: Colors.grey.shade300,
-      margin: EdgeInsets.symmetric(
-        horizontal: 4.w,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
 }
+
+// ------------------------------------------------------------
+// Contact Section
+// ------------------------------------------------------------
 
 class _ContactSection extends StatelessWidget {
   const _ContactSection({
@@ -347,7 +433,6 @@ class _ContactSection extends StatelessWidget {
     if (uri == null ||
         (uri.scheme != 'http' && uri.scheme != 'https') ||
         uri.host.isEmpty) {
-      if (!context.mounted) return;
       _showError(context, 'آدرس وب‌سایت معتبر نیست.');
       return;
     }
@@ -377,6 +462,9 @@ class _ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     final cleanPhone = phone?.trim();
     final cleanEmail = email?.trim();
     final cleanAddress = address?.trim();
@@ -397,13 +485,13 @@ class _ContactSection extends StatelessWidget {
         Text(
           'تماس با ما',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: isDesktop ? 16 : 14,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF252525),
           ),
         ),
 
-        SizedBox(height: 14.h),
+        const SizedBox(height: 14),
 
         if (hasAddress)
           _ContactItem(
@@ -414,7 +502,7 @@ class _ContactSection extends StatelessWidget {
           ),
 
         if (hasAddress && (hasPhone || hasEmail || hasWebsite))
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
 
         if (hasPhone)
           _ContactItem(
@@ -427,7 +515,7 @@ class _ContactSection extends StatelessWidget {
           ),
 
         if (hasPhone && (hasEmail || hasWebsite))
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
 
         if (hasEmail)
           _ContactItem(
@@ -440,7 +528,7 @@ class _ContactSection extends StatelessWidget {
           ),
 
         if (hasEmail && hasWebsite)
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
 
         if (hasWebsite)
           _ContactItem(
@@ -471,28 +559,29 @@ class _ContactItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10),
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: 7.h,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 7),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 30.w,
+                width: 32,
                 child: Icon(
                   icon,
-                  size: 19.sp,
+                  size: isDesktop ? 21 : 19,
                   color: AppColors.orders_page_redi,
                 ),
               ),
 
-              SizedBox(width: 8.w),
+              const SizedBox(width: 8),
 
               Expanded(
                 child: Column(
@@ -501,19 +590,19 @@ class _ContactItem extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 10.sp,
+                        fontSize: isDesktop ? 11 : 10,
                         color: Colors.grey.shade500,
                       ),
                     ),
 
-                    SizedBox(height: 2.h),
+                    const SizedBox(height: 3),
 
                     Text(
                       value,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: isDesktop ? 12 : 11,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF444444),
                         height: 1.5,
@@ -525,12 +614,10 @@ class _ContactItem extends StatelessWidget {
 
               if (onTap != null)
                 Padding(
-                  padding: EdgeInsets.only(
-                    top: 8.h,
-                  ),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    size: 11.sp,
+                    size: 11,
                     color: Colors.grey.shade400,
                   ),
                 ),
@@ -541,6 +628,10 @@ class _ContactItem extends StatelessWidget {
     );
   }
 }
+
+// ------------------------------------------------------------
+// Quick Links & Social Networks
+// ------------------------------------------------------------
 
 class _LinksAndSocialSection extends StatelessWidget {
   const _LinksAndSocialSection({
@@ -567,7 +658,6 @@ class _LinksAndSocialSection extends StatelessWidget {
     final uri = Uri.tryParse(url);
 
     if (uri == null || uri.host.isEmpty) {
-      if (!context.mounted) return;
       _showSocialError(context, errorMessage);
       return;
     }
@@ -597,6 +687,9 @@ class _LinksAndSocialSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     final cleanInstagram = instagram?.trim();
     final cleanTelegram = telegram?.trim();
 
@@ -610,19 +703,20 @@ class _LinksAndSocialSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
+          flex: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'دسترسی سریع',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: isDesktop ? 16 : 14,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF252525),
                 ),
               ),
 
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
 
               _FooterLink(
                 title: 'درباره ما',
@@ -671,58 +765,62 @@ class _LinksAndSocialSection extends StatelessWidget {
           ),
         ),
 
-        if (hasInstagram || hasTelegram)
-          SizedBox(width: 10.w),
+        if (hasInstagram || hasTelegram) ...[
+          SizedBox(width: isDesktop ? 24 : 12),
 
-        if (hasInstagram || hasTelegram)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'شبکه‌های اجتماعی',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF252525),
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'شبکه‌های اجتماعی',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: isDesktop ? 16 : 14,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF252525),
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 12.h),
+                const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  if (hasInstagram)
-                    _SocialButton(
-                      icon: Iconsax.instagram_copy,
-                      onTap: () {
-                        _openSocial(
-                          context,
-                          cleanInstagram!,
-                          'https://instagram.com/',
-                          'امکان باز کردن اینستاگرام وجود ندارد.',
-                        );
-                      },
-                    ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (hasInstagram)
+                      _SocialButton(
+                        icon: Iconsax.instagram_copy,
+                        onTap: () {
+                          _openSocial(
+                            context,
+                            cleanInstagram!,
+                            'https://instagram.com/',
+                            'امکان باز کردن اینستاگرام وجود ندارد.',
+                          );
+                        },
+                      ),
 
-                  if (hasInstagram && hasTelegram)
-                    SizedBox(width: 8.w),
-
-                  if (hasTelegram)
-                    _SocialButton(
-                      icon: Iconsax.send_2_copy,
-                      onTap: () {
-                        _openSocial(
-                          context,
-                          cleanTelegram!,
-                          'https://t.me/',
-                          'امکان باز کردن تلگرام وجود ندارد.',
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ],
+                    if (hasTelegram)
+                      _SocialButton(
+                        icon: Iconsax.send_2_copy,
+                        onTap: () {
+                          _openSocial(
+                            context,
+                            cleanTelegram!,
+                            'https://t.me/',
+                            'امکان باز کردن تلگرام وجود ندارد.',
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
+        ],
       ],
     );
   }
@@ -739,17 +837,18 @@ class _FooterLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6.r),
+      borderRadius: BorderRadius.circular(6),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 4.h,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text(
           title,
           style: TextStyle(
-            fontSize: 11.sp,
+            fontSize: isDesktop ? 12 : 11,
             color: Colors.grey.shade600,
           ),
         ),
@@ -769,24 +868,29 @@ class _SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
+    final size = isDesktop ? 44.0 : 40.0;
+
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(11.r),
+      borderRadius: BorderRadius.circular(11),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(11.r),
+        borderRadius: BorderRadius.circular(11),
         child: Container(
-          width: 40.w,
-          height: 40.w,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(11.r),
+            borderRadius: BorderRadius.circular(11),
             border: Border.all(
               color: Colors.grey.shade200,
             ),
           ),
           child: Icon(
             icon,
-            size: 19.sp,
+            size: isDesktop ? 21 : 19,
             color: AppColors.orders_page_redi,
           ),
         ),
@@ -794,6 +898,10 @@ class _SocialButton extends StatelessWidget {
     );
   }
 }
+
+// ------------------------------------------------------------
+// Divider
+// ------------------------------------------------------------
 
 class _FooterDivider extends StatelessWidget {
   const _FooterDivider();
@@ -808,6 +916,10 @@ class _FooterDivider extends StatelessWidget {
   }
 }
 
+// ------------------------------------------------------------
+// Copyright
+// ------------------------------------------------------------
+
 class _Copyright extends StatelessWidget {
   const _Copyright({
     required this.storeName,
@@ -817,6 +929,9 @@ class _Copyright extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final isDesktop = width >= 1000;
+
     return Center(
       child: Column(
         children: [
@@ -824,19 +939,19 @@ class _Copyright extends StatelessWidget {
             '© ${DateTime.now().year} $storeName',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: isDesktop ? 12 : 10,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade600,
             ),
           ),
 
-          SizedBox(height: 4.h),
+          const SizedBox(height: 5),
 
           Text(
             'تمامی حقوق محفوظ است.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 9.sp,
+              fontSize: isDesktop ? 11 : 9,
               color: Colors.grey.shade500,
             ),
           ),

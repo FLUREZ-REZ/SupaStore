@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import 'package:supastore/core/di/injector.dart';
-
 import 'package:supastore/features/cart_feature/presentation/pages/cart_page.dart';
 import 'package:supastore/features/cart_feature/presentation/providers/cart_provider.dart';
-
 import 'package:supastore/features/category_feature/presentation/pages/category_list_page.dart';
-
 import 'package:supastore/features/home_feature/presentation/pages/home_page.dart';
-import 'package:supastore/features/home_feature/presentation/widgets/custom_bottom_navigation_bar.dart';
-
+import 'package:supastore/features/home_feature/presentation/widgets/responsive_navigation_layout.dart';
 import 'package:supastore/features/profile_feature/presentation/pages/profile_page.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
@@ -172,23 +167,13 @@ class _MainPageState extends State<MainPage> {
       // ==========================================================
 
       child: Scaffold(
-        // --------------------------------------------------------
-        // BODY
-        // --------------------------------------------------------
-
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _pages,
-        ),
-
-        // --------------------------------------------------------
-        // BOTTOM NAVIGATION
-        // --------------------------------------------------------
-
-        bottomNavigationBar:
-        CustomBottomNavigationBar(
+        body: ResponsiveNavigationLayout(
           currentIndex: _currentIndex,
           onTap: _changeTab,
+          child: IndexedStack(
+            index: _currentIndex,
+            children: _pages,
+          ),
         ),
       ),
     );
