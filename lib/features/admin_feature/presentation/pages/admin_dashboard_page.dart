@@ -1,20 +1,54 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/dashboard/domain/entities/admin_dashboard_entity.dart';
 import 'package:supastore/features/admin_feature/dashboard/presentaion/providers/admin_dashboard_provider.dart';
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
 
+// ============================================================
+// RESPONSIVE HELPERS
+// ============================================================
+
+extension _DashboardResponsiveUnits on num {
+  double get w => toDouble();
+  double get h => toDouble();
+  double get sp => toDouble();
+  double get r => toDouble();
+}
+
+class _DashboardBreakpoints {
+  static const double mobile = 600;
+  static const double tablet = 900;
+  static const double desktop = 1100;
+}
+
+bool _isTablet(double width) {
+  return width >= _DashboardBreakpoints.mobile &&
+      width < _DashboardBreakpoints.desktop;
+}
+
+bool _isDesktop(double width) {
+  return width >= _DashboardBreakpoints.desktop;
+}
+
+int _statsColumns(double width) {
+  if (width >= _DashboardBreakpoints.desktop) return 4;
+  if (width >= _DashboardBreakpoints.mobile) return 2;
+  return 2;
+}
+
+// ============================================================
+// DASHBOARD SHIMMER
+// ============================================================
 
 class _DashboardShimmer extends StatefulWidget {
   const _DashboardShimmer();
 
   @override
-  State<_DashboardShimmer> createState() =>
-      _DashboardShimmerState();
+  State<_DashboardShimmer> createState() => _DashboardShimmerState();
 }
 
 class _DashboardShimmerState extends State<_DashboardShimmer>
@@ -39,155 +73,152 @@ class _DashboardShimmerState extends State<_DashboardShimmer>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(16.w),
-            children: [
-              SizedBox(height: 6.h),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = _statsColumns(width);
 
-              _DashboardSkeletonBox(
-                animation: _controller,
-                width: 175.w,
-                height: 22.h,
-              ),
-
-              SizedBox(height: 10.h),
-
-              _DashboardSkeletonBox(
-                animation: _controller,
-                width: 220.w,
-                height: 14.h,
-              ),
-
-              SizedBox(height: 20.h),
-
-              // آمار فروشگاه
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.w,
-                  mainAxisSpacing: 12.h,
-                  childAspectRatio: 1.5,
-                ),
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.all(14.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF023e8a),
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _DashboardSkeletonBox(
-                          animation: _controller,
-                          width: 27.w,
-                          height: 27.w,
-                        ),
-                        _DashboardSkeletonBox(
-                          animation: _controller,
-                          width: 75.w,
-                          height: 12.h,
-                        ),
-                        _DashboardSkeletonBox(
-                          animation: _controller,
-                          width: 100.w,
-                          height: 17.h,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-
-              SizedBox(height: 20.h),
-
-              // نمودار فروش
-              _DashboardSkeletonSection(
-                animation: _controller,
-                height: 320.h,
-                titleWidth: 135.w,
-                subtitleWidth: 160.w,
-                child: SizedBox(
-                  height: 195.h,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      70.h,
-                      110.h,
-                      90.h,
-                      150.h,
-                      120.h,
-                      175.h,
-                      135.h,
-                    ].map((barHeight) {
-                      return _DashboardSkeletonBox(
-                        animation: _controller,
-                        width: 18.w,
-                        height: barHeight,
-                        radius: 5.r,
-                      );
-                    }).toList(),
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(width < 600 ? 12 : 20),
+                children: [
+                  const SizedBox(height: 6),
+                  _DashboardSkeletonBox(
+                    animation: _controller,
+                    width: 175,
+                    height: 22,
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  _DashboardSkeletonBox(
+                    animation: _controller,
+                    width: 220,
+                    height: 14,
+                  ),
+                  const SizedBox(height: 20),
+
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 4,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: width >= 1100 ? 1.8 : 1.5,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF023e8a),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _DashboardSkeletonBox(
+                              animation: _controller,
+                              width: 27,
+                              height: 27,
+                            ),
+                            _DashboardSkeletonBox(
+                              animation: _controller,
+                              width: 75,
+                              height: 12,
+                            ),
+                            _DashboardSkeletonBox(
+                              animation: _controller,
+                              width: 100,
+                              height: 17,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _DashboardSkeletonSection(
+                    animation: _controller,
+                    height: 320,
+                    titleWidth: 135,
+                    subtitleWidth: 160,
+                    child: SizedBox(
+                      height: 195,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          70.0,
+                          110.0,
+                          90.0,
+                          150.0,
+                          120.0,
+                          175.0,
+                          135.0,
+                        ].map((barHeight) {
+                          return _DashboardSkeletonBox(
+                            animation: _controller,
+                            width: 18,
+                            height: barHeight,
+                            radius: 5,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _DashboardSkeletonSection(
+                    animation: _controller,
+                    height: 250,
+                    titleWidth: 175,
+                    rowCount: 3,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _DashboardSkeletonSection(
+                    animation: _controller,
+                    height: 250,
+                    titleWidth: 105,
+                    rowCount: 3,
+                    showThumbnail: true,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _DashboardSkeletonSection(
+                    animation: _controller,
+                    height: 255,
+                    titleWidth: 140,
+                    rowCount: 5,
+                    compactRows: true,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _DashboardSkeletonSection(
+                    animation: _controller,
+                    height: 245,
+                    titleWidth: 130,
+                    rowCount: 3,
+                    showThumbnail: true,
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
               ),
-
-              SizedBox(height: 20.h),
-
-              // سفارش‌های نیازمند اقدام
-              _DashboardSkeletonSection(
-                animation: _controller,
-                height: 250.h,
-                titleWidth: 175.w,
-                rowCount: 3,
-              ),
-
-              SizedBox(height: 20.h),
-
-              // محصولات با موجودی کم
-              _DashboardSkeletonSection(
-                animation: _controller,
-                height: 250.h,
-                titleWidth: 105.w,
-                rowCount: 3,
-                showThumbnail: true,
-              ),
-
-              SizedBox(height: 20.h),
-
-              // وضعیت سفارش‌ها
-              _DashboardSkeletonSection(
-                animation: _controller,
-                height: 255.h,
-                titleWidth: 140.w,
-                rowCount: 5,
-                compactRows: true,
-              ),
-
-              SizedBox(height: 20.h),
-
-              // آخرین سفارش‌ها
-              _DashboardSkeletonSection(
-                animation: _controller,
-                height: 245.h,
-                titleWidth: 130.w,
-                rowCount: 3,
-                showThumbnail: true,
-              ),
-
-              SizedBox(height: 20.h),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -219,10 +250,10 @@ class _DashboardSkeletonSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFCAF0F8),
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,66 +261,60 @@ class _DashboardSkeletonSection extends StatelessWidget {
           _DashboardSkeletonBox(
             animation: animation,
             width: titleWidth,
-            height: 19.h,
+            height: 19,
           ),
-
           if (subtitleWidth != null) ...[
-            SizedBox(height: 8.h),
+            const SizedBox(height: 8),
             _DashboardSkeletonBox(
               animation: animation,
               width: subtitleWidth!,
-              height: 12.h,
+              height: 12,
             ),
           ],
-
           if (child != null) ...[
             const Spacer(),
             child!,
           ],
-
           if (rowCount > 0) ...[
-            SizedBox(height: 20.h),
+            const SizedBox(height: 20),
             ...List.generate(rowCount, (index) {
               return Padding(
                 padding: EdgeInsets.only(
-                  bottom: compactRows ? 15.h : 12.h,
+                  bottom: compactRows ? 15 : 12,
                 ),
                 child: Row(
                   children: [
                     if (showThumbnail) ...[
                       _DashboardSkeletonBox(
                         animation: animation,
-                        width: 43.w,
-                        height: 43.w,
-                        radius: 10.r,
+                        width: 43,
+                        height: 43,
+                        radius: 10,
                       ),
-                      SizedBox(width: 10.w),
+                      const SizedBox(width: 10),
                     ] else if (!compactRows) ...[
                       _DashboardSkeletonBox(
                         animation: animation,
-                        width: 32.w,
-                        height: 32.w,
-                        radius: 8.r,
+                        width: 32,
+                        height: 32,
+                        radius: 8,
                       ),
-                      SizedBox(width: 10.w),
+                      const SizedBox(width: 10),
                     ],
-
                     Expanded(
                       child: _DashboardSkeletonBox(
                         animation: animation,
                         width: double.infinity,
-                        height: compactRows ? 12.h : 14.h,
-                        radius: 4.r,
+                        height: compactRows ? 12 : 14,
+                        radius: 4,
                       ),
                     ),
-
-                    SizedBox(width: 12.w),
-
+                    const SizedBox(width: 12),
                     _DashboardSkeletonBox(
                       animation: animation,
-                      width: compactRows ? 28.w : 48.w,
-                      height: compactRows ? 13.h : 25.h,
-                      radius: 6.r,
+                      width: compactRows ? 28 : 48,
+                      height: compactRows ? 13 : 25,
+                      radius: 6,
                     ),
                   ],
                 ),
@@ -335,7 +360,7 @@ class _DashboardSkeletonBox extends StatelessWidget {
                   Color(0xFFF8FCFD),
                   Color(0xFFDCEAF0),
                 ],
-                stops: const [0.0, 0.5, 1.0],
+                stops: const [0, 0.5, 1],
               ).createShader(bounds);
             },
             child: Container(
@@ -350,17 +375,17 @@ class _DashboardSkeletonBox extends StatelessWidget {
   }
 }
 
+// ============================================================
+// DASHBOARD PAGE
+// ============================================================
 
 class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({
-    super.key,
-  });
+  const AdminDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AdminDashboardProvider>(
-      create: (_) =>
-      getIt<AdminDashboardProvider>()..loadDashboard(),
+      create: (_) => getIt<AdminDashboardProvider>()..loadDashboard(),
       child: const _AdminDashboardView(),
     );
   }
@@ -372,11 +397,7 @@ class _AdminDashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AdminDashboardProvider>(
-      builder: (
-          context,
-          provider,
-          child,
-          ) {
+      builder: (context, provider, child) {
         if (provider.isLoading && !provider.hasData) {
           return const _DashboardShimmer();
         }
@@ -397,71 +418,139 @@ class _AdminDashboardView extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
-          onRefresh: provider.refreshDashboard,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(16.w),
-            children: [
-              SizedBox(height: 6.h),
-              Text(
-                'خلاصه وضعیت فروشگاه',
-                style: TextStyle(
-                  color: Color (0xFF03045e),
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w800,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final desktop = _isDesktop(width);
+
+            final horizontalPadding = width < 600
+                ? 12.0
+                : width < 1100
+                ? 20.0
+                : 28.0;
+
+            return RefreshIndicator(
+              onRefresh: provider.refreshDashboard,
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: 16,
+                  ),
+                  children: [
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 1440,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 6),
+
+                            const Text(
+                              'خلاصه وضعیت فروشگاه',
+                              style: TextStyle(
+                                color: Color(0xFF03045E),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            const Text(
+                              'نمای کلی عملکرد فروشگاه',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            _StatsGrid(
+                              dashboard: dashboard,
+                            ),
+
+                            const SizedBox(height: 22),
+
+                            if (desktop)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: _SalesChartCard(
+                                      salesByDay: dashboard.salesByDay,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 18),
+                                  Expanded(
+                                    flex: 2,
+                                    child: _ActionOrdersCard(
+                                      orders: dashboard.actionOrders,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else ...[
+                              _SalesChartCard(
+                                salesByDay: dashboard.salesByDay,
+                              ),
+                              const SizedBox(height: 18),
+                              _ActionOrdersCard(
+                                orders: dashboard.actionOrders,
+                              ),
+                            ],
+
+                            const SizedBox(height: 20),
+
+                            if (desktop)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _LowStockProductsCard(
+                                      products: dashboard.lowStockProducts,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 18),
+                                  Expanded(
+                                    child: _OrderStatusCard(
+                                      dashboard: dashboard,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else ...[
+                              _LowStockProductsCard(
+                                products: dashboard.lowStockProducts,
+                              ),
+                              const SizedBox(height: 18),
+                              _OrderStatusCard(
+                                dashboard: dashboard,
+                              ),
+                            ],
+
+                            const SizedBox(height: 20),
+
+                            _RecentOrdersCard(
+                              orders: dashboard.recentOrders,
+                            ),
+
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              SizedBox(height: 6.h),
-
-              Text(
-                'نمای کلی عملکرد فروشگاه',
-                style: TextStyle(
-                  fontSize: 12.5.sp,
-                  color: Colors.black54,
-                ),
-              ),
-
-              SizedBox(height: 18.h),
-
-              _StatsGrid(
-                dashboard: dashboard,
-              ),
-
-              SizedBox(height: 20.h),
-
-              _SalesChartCard(
-                salesByDay: dashboard.salesByDay,
-              ),
-
-              SizedBox(height: 20.h),
-
-              _ActionOrdersCard(
-                orders: dashboard.actionOrders,
-              ),
-
-              SizedBox(height: 20.h),
-
-              _LowStockProductsCard(
-                products: dashboard.lowStockProducts,
-
-
-              ),
-
-              SizedBox(height: 20.h),
-
-              _OrderStatusCard(
-                dashboard: dashboard,
-              ),
-
-              SizedBox(height: 20.h),
-
-              _RecentOrdersCard(
-                orders: dashboard.recentOrders,
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -490,131 +579,112 @@ class _StatsGridState extends State<_StatsGrid> {
   Widget build(BuildContext context) {
     final dashboard = widget.dashboard;
 
-    return Column(
-      children: [
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12.h,
-          crossAxisSpacing: 12.w,
-          childAspectRatio: 1.5,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = _statsColumns(constraints.maxWidth);
+        final aspectRatio = constraints.maxWidth >= 1100 ? 1.9 : 1.55;
+
+        Widget buildGrid(List<Widget> cards) {
+          return GridView.count(
+            crossAxisCount: columns,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: aspectRatio,
+            children: cards,
+          );
+        }
+
+        return Column(
           children: [
-            _StatCard(
-              title: 'فروش امروز',
-              value:
-              '${_formatPrice(dashboard.todaySales)} تومان',
-              icon: Iconsax.card_copy,
-            ),
-            _StatCard(
-              title: 'سفارش‌ها',
-              value: _formatNumber(
-                dashboard.periodOrders,
+            buildGrid([
+              _StatCard(
+                title: 'فروش امروز',
+                value: '${_formatPrice(dashboard.todaySales)} تومان',
+                icon: Iconsax.card_copy,
               ),
-              icon: Iconsax.box_copy,
-            ),
-            _StatCard(
-              title: 'محصولات',
-              value: _formatNumber(
-                dashboard.totalProducts,
+              _StatCard(
+                title: 'سفارش‌ها',
+                value: _formatNumber(dashboard.periodOrders),
+                icon: Iconsax.box_copy,
               ),
-              icon: Iconsax.shop_copy,
-            ),
-            _StatCard(
-              title: 'کاربران',
-              value: _formatNumber(
-                dashboard.totalUsers,
+              _StatCard(
+                title: 'محصولات',
+                value: _formatNumber(dashboard.totalProducts),
+                icon: Iconsax.shop_copy,
               ),
-              icon: Iconsax.people_copy,
+              _StatCard(
+                title: 'کاربران',
+                value: _formatNumber(dashboard.totalUsers),
+                icon: Iconsax.people_copy,
+              ),
+            ]),
+
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: _isExpanded
+                  ? Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: buildGrid([
+                  _StatCard(
+                    title: 'سفارش امروز',
+                    value: _formatNumber(dashboard.todayOrders),
+                    icon: Iconsax.receipt_copy,
+                  ),
+                  _StatCard(
+                    title: 'فروش ۷ روز اخیر',
+                    value: '${_formatPrice(dashboard.periodSales)} تومان',
+                    icon: Iconsax.trend_up_copy,
+                  ),
+                ]),
+              )
+                  : const SizedBox.shrink(),
+            ),
+
+            const SizedBox(height: 8),
+
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded;
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _isExpanded ? 'نمایش کمتر' : 'نمایش بیشتر',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    AnimatedRotation(
+                      turns: _isExpanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 300),
+                      child: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 23,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
-        ),
-
-        AnimatedSize(
-          duration: const Duration(
-            milliseconds: 300,
-          ),
-          curve: Curves.easeInOut,
-          child: _isExpanded
-              ? Padding(
-            padding: EdgeInsets.only(
-              top: 12.h,
-            ),
-            child: GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics:
-              const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12.h,
-              crossAxisSpacing: 12.w,
-              childAspectRatio: 1.5,
-              children: [
-                _StatCard(
-                  title: 'سفارش امروز',
-                  value: _formatNumber(
-                    dashboard.todayOrders,
-                  ),
-                  icon:
-                  Iconsax.receipt_copy,
-                ),
-                _StatCard(
-                  title: 'فروش ۷ روز اخیر',
-                  value:
-                  '${_formatPrice(dashboard.periodSales)} تومان',
-                  icon:
-                  Iconsax.trend_up_copy,
-                ),
-              ],
-            ),
-          )
-              : const SizedBox.shrink(),
-        ),
-
-        SizedBox(height: 8.h),
-
-        InkWell(
-          onTap: () {
-            setState(() {
-              _isExpanded = !_isExpanded;
-            });
-          },
-          borderRadius: BorderRadius.circular(12.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 6.h,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _isExpanded
-                      ? 'نمایش کمتر'
-                      : 'نمایش بیشتر',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black54,
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                AnimatedRotation(
-                  turns: _isExpanded ? 0.5 : 0.0,
-                  duration: const Duration(
-                    milliseconds: 300,
-                  ),
-                  curve: Curves.easeInOut,
-                  child: Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 23.sp,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -633,39 +703,35 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(14.w),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Color(0xFFcaf0f8),
-        borderRadius: BorderRadius.circular(16.r),
+        color: const Color(0xFFCAF0F8),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
-        mainAxisAlignment:
-        MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Icon(
             icon,
-            size: 27.sp,
-            color: const Color(0xFF03045e),
+            size: 27,
+            color: const Color(0xFF03045E),
           ),
-
           Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 11.sp,
+            style: const TextStyle(
+              fontSize: 12,
               color: Colors.black54,
             ),
           ),
-
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 15.sp,
+            style: const TextStyle(
+              fontSize: 15,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -679,10 +745,6 @@ class _StatCard extends StatelessWidget {
 // SALES CHART
 // ============================================================
 
-// ============================================================
-// SALES BAR CHART
-// ============================================================
-
 class _SalesChartCard extends StatelessWidget {
   const _SalesChartCard({
     required this.salesByDay,
@@ -692,219 +754,183 @@ class _SalesChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF03045e),
-        borderRadius: BorderRadius.circular(18.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'فروش ۷ روز اخیر',
-            style: TextStyle(
-              color: const Color(0xFFcaf0f8),
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w800,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final chartHeight = constraints.maxWidth < 400 ? 220.0 : 250.0;
+        final barWidth = constraints.maxWidth < 400 ? 15.0 : 22.0;
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF03045E),
+            borderRadius: BorderRadius.circular(18),
           ),
-
-          SizedBox(height: 4.h),
-
-          Text(
-            'میزان فروش روزانه',
-            style: TextStyle(
-              fontSize: 11.5.sp,
-              color: const Color(0xFFcaf0f8),
-            ),
-          ),
-
-          SizedBox(height: 24.h),
-
-          SizedBox(
-            height: 250.h,
-            child: salesByDay.isEmpty
-                ? Center(
-              child: Text(
-                'داده‌ای برای نمایش وجود ندارد.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'فروش ۷ روز اخیر',
                 style: TextStyle(
-                  color: const Color(0xFFcaf0f8),
-                  fontSize: 12.sp,
+                  color: Color(0xFFCAF0F8),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-            )
-                : BarChart(
-              BarChartData(
-                minY: 0,
-
-                alignment: BarChartAlignment.spaceAround,
-
-                maxY: _getMaxY(),
-
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: _getInterval(),
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: Colors.white.withOpacity(0.12),
-                      strokeWidth: 1,
-                    );
-                  },
+              const SizedBox(height: 4),
+              const Text(
+                'میزان فروش روزانه',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFFCAF0F8),
                 ),
-
-                borderData: FlBorderData(
-                  show: false,
-                ),
-
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: false,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: chartHeight,
+                child: salesByDay.isEmpty
+                    ? const Center(
+                  child: Text(
+                    'داده‌ای برای نمایش وجود ندارد.',
+                    style: TextStyle(
+                      color: Color(0xFFCAF0F8),
+                      fontSize: 12,
                     ),
                   ),
-
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: false,
-                    ),
-                  ),
-
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 45.w,
-                      interval: _getInterval(),
-                      getTitlesWidget: (
-                          value,
-                          meta,
-                          ) {
-                        return Text(
-                          _compactPricePersian(value),
-                          style: TextStyle(
-                            fontSize: 8.5.sp,
-                            color:
-                            const Color(0xFFcaf0f8),
-                          ),
+                )
+                    : BarChart(
+                  BarChartData(
+                    minY: 0,
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: _getMaxY(),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: _getInterval(),
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Colors.white.withOpacity(0.12),
+                          strokeWidth: 1,
                         );
                       },
                     ),
-                  ),
+                    borderData: FlBorderData(show: false),
+                    titlesData: FlTitlesData(
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 45,
+                          interval: _getInterval(),
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              _compactPricePersian(value),
+                              style: const TextStyle(
+                                fontSize: 9,
+                                color: Color(0xFFCAF0F8),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 32,
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
 
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 32.h,
-                      getTitlesWidget: (
-                          value,
-                          meta,
-                          ) {
-                        final index = value.toInt();
+                            if (index < 0 ||
+                                index >= salesByDay.length) {
+                              return const SizedBox.shrink();
+                            }
 
-                        if (index < 0 ||
-                            index >= salesByDay.length) {
-                          return const SizedBox.shrink();
-                        }
+                            final date = salesByDay[index].date;
 
-                        final date =
-                            salesByDay[index].date;
-
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            top: 8.h,
-                          ),
-                          child: Text(
-                            '${_toPersianDigits(date.day.toString())}/${_toPersianDigits(date.month.toString())}',
-                            style: TextStyle(
-                              fontSize: 9.sp,
-                              color:
-                              const Color(0xFFcaf0f8),
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                '${_toPersianDigits(date.day.toString())}/${_toPersianDigits(date.month.toString())}',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Color(0xFFCAF0F8),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipItem: (
+                            group,
+                            groupIndex,
+                            rod,
+                            rodIndex,
+                            ) {
+                          return BarTooltipItem(
+                            '${_formatPrice(rod.toY.toInt())} تومان',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
                             ),
-                          ),
+                          );
+                        },
+                      ),
+                    ),
+                    barGroups: List.generate(
+                      salesByDay.length,
+                          (index) {
+                        final sales = salesByDay[index].sales;
+
+                        return BarChartGroupData(
+                          x: index,
+                          barsSpace: 0,
+                          barRods: [
+                            BarChartRodData(
+                              toY: sales.toDouble(),
+                              width: barWidth,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5),
+                              ),
+                              color: const Color(0xFF00B4D8),
+                              backDrawRodData:
+                              BackgroundBarChartRodData(
+                                show: true,
+                                toY: _getMaxY(),
+                                color: Colors.white.withOpacity(0.06),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
                   ),
                 ),
-
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData:
-                  BarTouchTooltipData(
-                    getTooltipItem: (
-                        group,
-                        groupIndex,
-                        rod,
-                        rodIndex,
-                        ) {
-                      return BarTooltipItem(
-                        '${_formatPrice(rod.toY.toInt())} تومان',
-                        TextStyle(
-                          color: Colors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                barGroups: List.generate(
-                  salesByDay.length,
-                      (index) {
-                    final sales =
-                        salesByDay[index].sales;
-
-                    return BarChartGroupData(
-                      x: index,
-                      barsSpace: 0,
-                      barRods: [
-                        BarChartRodData(
-                          toY: sales.toDouble(),
-                          width: 18.w,
-                          borderRadius:
-                          BorderRadius.only(
-                            topLeft:
-                            Radius.circular(5.r),
-                            topRight:
-                            Radius.circular(5.r),
-                          ),
-                          color:
-                          const Color(0xFF00B4D8),
-                          backDrawRodData:
-                          BackgroundBarChartRodData(
-                            show: true,
-                            toY: _getMaxY(),
-                            color:
-                            Colors.white
-                                .withOpacity(0.06),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   double _getMaxY() {
-    if (salesByDay.isEmpty) {
-      return 100;
-    }
+    if (salesByDay.isEmpty) return 100;
 
     final maxSales = salesByDay
         .map((item) => item.sales)
         .reduce((a, b) => a > b ? a : b);
 
-    if (maxSales == 0) {
-      return 100;
-    }
+    if (maxSales == 0) return 100;
 
     return maxSales * 1.2;
   }
@@ -912,33 +938,15 @@ class _SalesChartCard extends StatelessWidget {
   double _getInterval() {
     final maxY = _getMaxY();
 
-    if (maxY <= 1000) {
-      return 200;
-    }
-
-    if (maxY <= 10000) {
-      return 2000;
-    }
-
-    if (maxY <= 100000) {
-      return 20000;
-    }
-
-    if (maxY <= 1000000) {
-      return 200000;
-    }
-
-    if (maxY <= 10000000) {
-      return 2000000;
-    }
+    if (maxY <= 1000) return 200;
+    if (maxY <= 10000) return 2000;
+    if (maxY <= 100000) return 20000;
+    if (maxY <= 1000000) return 200000;
+    if (maxY <= 10000000) return 2000000;
 
     return maxY / 5;
   }
 }
-
-// ============================================================
-// PERSIAN COMPACT PRICE
-// ============================================================
 
 String _compactPricePersian(double value) {
   if (value >= 1000000000) {
@@ -970,122 +978,92 @@ class _ActionOrdersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFF0096c7),
-        borderRadius:
-        BorderRadius.circular(18.r),
+        color: const Color(0xFF0096C7),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 38.w,
-                height: 38.w,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
-                  color:
-                  const Color(0xFFcaf0f8),
-                  borderRadius:
-                  BorderRadius.circular(
-                    11.r,
-                  ),
+                  color: const Color(0xFFCAF0F8),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(
+                child: const Icon(
                   Iconsax.warning_2_copy,
-                  size: 21.sp,
-                  color:
-                  const Color(0xFF03045e),
+                  size: 21,
+                  color: Color(0xFF03045E),
                 ),
               ),
-
-              SizedBox(width: 10.w),
-
-              Expanded(
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'سفارش‌های نیازمند اقدام',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight:
-                        FontWeight.w800,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 3.h),
+                    SizedBox(height: 3),
                     Text(
                       'سفارش‌هایی که نیاز به پیگیری دارند',
                       style: TextStyle(
-                        fontSize: 11.sp,
-                        color:
-                        Color(0xFF03045e),
+                        fontSize: 11,
+                        color: Color(0xFF03045E),
                       ),
                     ),
                   ],
                 ),
               ),
-
               if (orders.isNotEmpty)
                 Container(
-                  padding:
-                  EdgeInsets.symmetric(
-                    horizontal: 9.w,
-                    vertical: 5.h,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                    const Color(0xFFade8f4),
-                    borderRadius:
-                    BorderRadius.circular(
-                      8.r,
-                    ),
+                    color: const Color(0xFFADE8F4),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    _formatNumber(
-                      orders.length,
-                    ),
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight:
-                      FontWeight.w800,
-                      color:
-                      const Color(
-                        0xFF03045e,
-                      ),
+                    _formatNumber(orders.length),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF03045E),
                     ),
                   ),
                 ),
             ],
           ),
-
-          SizedBox(height: 16.h),
-
+          const SizedBox(height: 16),
           if (orders.isEmpty)
             Container(
               width: double.infinity,
-              padding:
-              EdgeInsets.symmetric(
-                vertical: 20.h,
-              ),
-              child: Column(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Column(
                 children: [
                   Icon(
                     Icons.check_circle_outline_rounded,
-                    size: 34.sp,
+                    size: 34,
                     color: Colors.green,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Text(
                     'سفارشی برای پیگیری وجود ندارد.',
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      color:
-                      Colors.black54,
+                      fontSize: 12,
+                      color: Colors.black54,
                     ),
                   ),
                 ],
@@ -1094,80 +1072,50 @@ class _ActionOrdersCard extends StatelessWidget {
           else
             ...orders.map(
                   (order) => Padding(
-                padding:
-                EdgeInsets.only(
-                  bottom: 10.h,
-                ),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [
                     Container(
-                      width: 42.w,
-                      height: 42.w,
-                      decoration:
-                      BoxDecoration(
-                        color:
-                        const Color(
-                          0xFFcaf0f8,
-                        ),
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                          11.r,
-                        ),
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCAF0F8),
+                        borderRadius: BorderRadius.circular(11),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Iconsax.box_copy,
-                        size: 21.sp,
-                        color:
-                        const Color(
-                          0xFF03045e,
-                        ),
+                        size: 21,
+                        color: Color(0xFF03045E),
                       ),
                     ),
-
-                    SizedBox(width: 10.w),
-
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'سفارش #${_shortOrderId(order.id)}',
                             maxLines: 1,
-                            overflow:
-                            TextOverflow
-                                .ellipsis,
-                            style:
-                            TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
                               color: Colors.white,
-                              fontSize:
-                              12.sp,
-                              fontWeight:
-                              FontWeight
-                                  .w700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: 4.h),
+                          const SizedBox(height: 4),
                           Text(
                             '${_formatPrice(order.totalPrice)} تومان',
-                            style:
-                            TextStyle(
-                              fontSize:
-                              9.sp,
-                              color:
-                              Color(0xFF03045e),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Color(0xFF03045E),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    _ActionOrderStatus(
-                      status:
-                      order.status,
-                    ),
+                    const SizedBox(width: 8),
+                    _ActionOrderStatus(status: order.status),
                   ],
                 ),
               ),
@@ -1178,8 +1126,7 @@ class _ActionOrdersCard extends StatelessWidget {
   }
 }
 
-class _ActionOrderStatus
-    extends StatelessWidget {
+class _ActionOrderStatus extends StatelessWidget {
   const _ActionOrderStatus({
     required this.status,
   });
@@ -1195,50 +1142,38 @@ class _ActionOrderStatus
     switch (status) {
       case 'pending':
         text = 'بررسی';
-        color =
-        const Color(0xFF03045e);
-        background =
-        const Color(0xFFF2F7A0);
+        color = const Color(0xFF03045E);
+        background = const Color(0xFFF2F7A0);
         break;
-
       case 'processing':
         text = 'پردازش';
-        color =
-        const Color(0xFF1565C0);
-        background =
-        const Color(0xFFE3F2FD);
+        color = const Color(0xFF1565C0);
+        background = const Color(0xFFE3F2FD);
         break;
-
       case 'shipped':
         text = 'پیگیری ارسال';
-        color =
-        const Color(0xFF6A1B9A);
-        background =
-        const Color(0xFFF3E5F5);
+        color = const Color(0xFF6A1B9A);
+        background = const Color(0xFFF3E5F5);
         break;
-
       default:
         text = status;
         color = Colors.black54;
-        background =
-        const Color(0xFFF3F3F3);
+        background = const Color(0xFFF3F3F3);
     }
 
     return Container(
-      padding:
-      EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius:
-        BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 9.5.sp,
+          fontSize: 10,
           fontWeight: FontWeight.w700,
           color: color,
         ),
@@ -1251,135 +1186,102 @@ class _ActionOrderStatus
 // LOW STOCK PRODUCTS
 // ============================================================
 
-class _LowStockProductsCard
-    extends StatelessWidget {
+class _LowStockProductsCard extends StatelessWidget {
   const _LowStockProductsCard({
-
     required this.products,
   });
 
-  final List<AdminLowStockProductEntity>
-  products;
+  final List<AdminLowStockProductEntity> products;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFF023e8a),
-        borderRadius:
-        BorderRadius.circular(18.r),
+        color: const Color(0xFF023E8A),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 38.w,
-                height: 38.w,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
-                  color:
-                  const Color(0xFFcaf0f8),
-                  borderRadius:
-                  BorderRadius.circular(
-                    11.r,
-                  ),
+                  color: const Color(0xFFCAF0F8),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(
+                child: const Icon(
                   Iconsax.warning_2_copy,
-                  size: 21.sp,
-                  color:
-                  const Color(0xFF03045e),
+                  size: 21,
+                  color: Color(0xFF03045E),
                 ),
               ),
-
-              SizedBox(width: 10.w),
-
-              Expanded(
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'موجودی کم',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight:
-                        FontWeight.w800,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 8),
                     Text(
                       'محصولاتی که نیاز به تأمین موجودی دارند',
                       style: TextStyle(
-                        fontSize: 11.sp,
-                        color:
-                        Color(0xFFade8f4),
+                        fontSize: 11,
+                        color: Color(0xFFADE8F4),
                       ),
                     ),
                   ],
                 ),
               ),
-
               if (products.isNotEmpty)
                 Container(
-                  padding:
-                  EdgeInsets.symmetric(
-                    horizontal: 9.w,
-                    vertical: 5.h,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                    const Color(0xFFcaf0f8),
-                    borderRadius:
-                    BorderRadius.circular(
-                      8.r,
-                    ),
+                    color: const Color(0xFFCAF0F8),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    _formatNumber(
-                      products.length,
-                    ),
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight:
-                      FontWeight.w800,
-                      color:
-                      const Color(
-                        0xFF03045e,
-                      ),
+                    _formatNumber(products.length),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF03045E),
                     ),
                   ),
                 ),
             ],
           ),
-
-          SizedBox(height: 16.h),
-
+          const SizedBox(height: 16),
           if (products.isEmpty)
             Container(
               width: double.infinity,
-              padding:
-              EdgeInsets.symmetric(
-                vertical: 20.h,
-              ),
-              child: Column(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Column(
                 children: [
                   Icon(
                     Iconsax.box_copy,
-                    size: 34.sp,
+                    size: 34,
                     color: Colors.green,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Text(
                     'محصولی با موجودی کم وجود ندارد.',
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      color:
-                      Colors.black54,
+                      fontSize: 12,
+                      color: Colors.white70,
                     ),
                   ),
                 ],
@@ -1388,87 +1290,53 @@ class _LowStockProductsCard
           else
             ...products.map(
                   (product) => Padding(
-                padding:
-                EdgeInsets.only(
-                  bottom: 10.h,
-                ),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [
                     Container(
-                      width: 46.w,
-                      height: 46.w,
-                      decoration:
-                      BoxDecoration(
-                        color:
-                        const Color(
-                          0xFFcaf0f8,
-                        ),
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                          11.r,
-                        ),
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCAF0F8),
+                        borderRadius: BorderRadius.circular(11),
                       ),
-                      clipBehavior:
-                      Clip.antiAlias,
-                      child:
-                      product.thumbnail !=
-                          null &&
-                          product.thumbnail!
-                              .isNotEmpty
+                      clipBehavior: Clip.antiAlias,
+                      child: product.thumbnail != null &&
+                          product.thumbnail!.isNotEmpty
                           ? Image.network(
                         product.thumbnail!,
-                        width: 46.w,
-                        height: 46.w,
+                        width: 46,
+                        height: 46,
                         fit: BoxFit.cover,
-                        errorBuilder:
-                            (
-                            context,
-                            error,
-                            stackTrace,
-                            ) {
-                          return Icon(
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
                             Iconsax.image_copy,
-                            size:
-                            21.sp,
-                            color:
-                            Color(0xFF03045e),
+                            size: 21,
+                            color: Color(0xFF03045E),
                           );
                         },
                       )
-                          : Icon(
+                          : const Icon(
                         Iconsax.box_copy,
-                        size:
-                        21.sp,
-                        color:
-                        Colors.black54,
+                        size: 21,
+                        color: Colors.black54,
                       ),
                     ),
-
-                    SizedBox(width: 10.w),
-
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         product.title,
                         maxLines: 2,
-                        overflow:
-                        TextOverflow
-                            .ellipsis,
-                        style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12.sp,
-                          fontWeight:
-                          FontWeight.w600,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-
-                    SizedBox(width: 8.w),
-
-                    _StockBadge(
-                      stock:
-                      product.stock,
-                    ),
+                    const SizedBox(width: 8),
+                    _StockBadge(stock: product.stock),
                   ],
                 ),
               ),
@@ -1488,49 +1356,38 @@ class _StockBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool critical = stock <= 2;
+    final critical = stock <= 2;
 
     return Container(
-      padding:
-      EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 6.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: critical
             ? const Color(0xFFFFE9EA)
             : const Color(0xFFFFF3E0),
-        borderRadius:
-        BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: [
           Text(
             _formatNumber(stock),
             style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight:
-              FontWeight.w800,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
               color: critical
-                  ? const Color(
-                0xFFE21B23,
-              )
-                  : const Color(
-                0xFFF57C00,
-              ),
+                  ? const Color(0xFFE21B23)
+                  : const Color(0xFFF57C00),
             ),
           ),
           Text(
             'موجودی',
             style: TextStyle(
-              fontSize: 8.5.sp,
+              fontSize: 9,
               color: critical
-                  ? const Color(
-                0xFFE21B23,
-              )
-                  : const Color(
-                0xFFF57C00,
-              ),
+                  ? const Color(0xFFE21B23)
+                  : const Color(0xFFF57C00),
             ),
           ),
         ],
@@ -1581,66 +1438,49 @@ class _OrderStatusCard extends StatelessWidget {
     ];
 
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFF90e0ef),
-        borderRadius:
-        BorderRadius.circular(18.r),
+        color: const Color(0xFF90E0EF),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'وضعیت سفارش‌ها',
             style: TextStyle(
-              color: Color (0xFF03045e),
-              fontSize: 16.sp,
-              fontWeight:
-              FontWeight.w800,
+              color: Color(0xFF03045E),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
             ),
           ),
-
-          SizedBox(height: 14.h),
-
+          const SizedBox(height: 14),
           ...items.map(
                 (item) => Padding(
-              padding:
-              EdgeInsets.only(
-                bottom: 10.h,
-              ),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
                   Icon(
                     item.icon,
-                    size: 21.sp,
-                    color:
-                    const Color(
-                      0xFF03045e,
-                    ),
+                    size: 21,
+                    color: const Color(0xFF03045E),
                   ),
-
-                  SizedBox(width: 10.w),
-
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       item.title,
-                      style: TextStyle(
-                        color: Color(0xFF03045e),
-                        fontSize: 12.5.sp,
+                      style: const TextStyle(
+                        color: Color(0xFF03045E),
+                        fontSize: 13,
                       ),
                     ),
                   ),
-
                   Text(
-                    _formatNumber(
-                      item.value,
-                    ),
-                    style: TextStyle(
-                      color: Color(0xFF03045e),
-                      fontSize: 13.sp,
-                      fontWeight:
-                      FontWeight.w800,
+                    _formatNumber(item.value),
+                    style: const TextStyle(
+                      color: Color(0xFF03045E),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -1679,118 +1519,78 @@ class _RecentOrdersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color (0xFFcaf0f8),
-        borderRadius:
-        BorderRadius.circular(18.r),
+        color: const Color(0xFFCAF0F8),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'آخرین سفارش‌ها',
             style: TextStyle(
-              color: Color (0xFF03045e),
-              fontSize: 16.sp,
-              fontWeight:
-              FontWeight.w800,
+              color: Color(0xFF03045E),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
             ),
           ),
-
-          SizedBox(height: 12.h),
-
+          const SizedBox(height: 12),
           if (orders.isEmpty)
             const Padding(
               padding: EdgeInsets.all(16),
               child: Center(
-                child: Text(
-                  'هنوز سفارشی ثبت نشده است.',
-                ),
+                child: Text('هنوز سفارشی ثبت نشده است.'),
               ),
             )
           else
             ...orders.map(
                   (order) {
-                final status =
-                    order.status;
-
                 return Padding(
-                  padding:
-                  EdgeInsets.only(
-                    bottom: 10.h,
-                  ),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: Row(
                     children: [
                       Container(
-                        width: 42.w,
-                        height: 42.w,
-                        decoration:
-                        BoxDecoration(
-                          color:
-                          const Color(
-                            0xFF03045e,
-                          ),
-                          borderRadius:
-                          BorderRadius
-                              .circular(
-                            12.r,
-                          ),
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF03045E),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Iconsax.shopping_bag_copy,
-                          color:
-                          const Color(
-                            0xFFcaf0f8,
-                          ),
-                          size: 22.sp,
+                          color: Color(0xFFCAF0F8),
+                          size: 22,
                         ),
                       ),
-
-                      SizedBox(width: 10.w),
-
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'سفارش #${_shortOrderId(order.id)}',
-                              style:
-                              TextStyle(
-                                color: Color (0xFF03045e),
-                                fontSize:
-                                12.sp,
-                                fontWeight:
-                                FontWeight
-                                    .w700,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF03045E),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-
-                            SizedBox(
-                              height: 4.h,
-                            ),
-
+                            const SizedBox(height: 4),
                             Text(
                               '${_formatPrice(order.totalPrice)} تومان',
-                              style:
-                              TextStyle(
-                                fontSize:
-                                9.sp,
-                                color:
-                                Color(0xFF023e8a),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF023E8A),
                               ),
                             ),
                           ],
                         ),
                       ),
-
-                      _OrderStatusBadge(
-                        status:
-                        status,
-                      ),
+                      const SizedBox(width: 8),
+                      _OrderStatusBadge(status: order.status),
                     ],
                   ),
                 );
@@ -1802,8 +1602,7 @@ class _RecentOrdersCard extends StatelessWidget {
   }
 }
 
-class _OrderStatusBadge
-    extends StatelessWidget {
+class _OrderStatusBadge extends StatelessWidget {
   const _OrderStatusBadge({
     required this.status,
   });
@@ -1818,49 +1617,38 @@ class _OrderStatusBadge
       case 'pending':
         text = 'در انتظار';
         break;
-
       case 'processing':
         text = 'پردازش';
         break;
-
       case 'shipped':
         text = 'ارسال شده';
         break;
-
       case 'delivered':
         text = 'تحویل شده';
         break;
-
       case 'canceled':
       case 'cancelled':
         text = 'لغو شده';
         break;
-
       default:
         text = status;
     }
 
     return Container(
-      padding:
-      EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
-        color:
-        const Color(0xFF03045e),
-        borderRadius:
-        BorderRadius.circular(
-          8.r,
-        ),
+        color: const Color(0xFF03045E),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: Color (0xFFcaf0f8),
-          fontSize: 9.5.sp,
-          fontWeight:
-          FontWeight.w600,
+        style: const TextStyle(
+          color: Color(0xFFCAF0F8),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -1868,7 +1656,7 @@ class _OrderStatusBadge
 }
 
 // ============================================================
-// ERROR
+// ERROR VIEW
 // ============================================================
 
 class _ErrorView extends StatelessWidget {
@@ -1884,34 +1672,24 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding:
-        EdgeInsets.all(24.w),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisSize:
-          MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Iconsax.warning_2_copy,
-              size: 48.sp,
+              size: 48,
               color: Colors.red,
             ),
-
-            SizedBox(height: 12.h),
-
+            const SizedBox(height: 12),
             Text(
               message,
-              textAlign:
-              TextAlign.center,
+              textAlign: TextAlign.center,
             ),
-
-            SizedBox(height: 16.h),
-
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: onRetry,
-              child:
-              const Text(
-                'تلاش مجدد',
-              ),
+              child: const Text('تلاش مجدد'),
             ),
           ],
         ),
@@ -1926,21 +1704,17 @@ class _ErrorView extends StatelessWidget {
 
 String _formatNumber(int value) {
   final text = value.toString();
-
   final buffer = StringBuffer();
 
   for (int i = 0; i < text.length; i++) {
-    if (i > 0 &&
-        (text.length - i) % 3 == 0) {
+    if (i > 0 && (text.length - i) % 3 == 0) {
       buffer.write(',');
     }
 
     buffer.write(text[i]);
   }
 
-  return _toPersianDigits(
-    buffer.toString(),
-  );
+  return _toPersianDigits(buffer.toString());
 }
 
 String _formatPrice(int value) {
@@ -1976,8 +1750,7 @@ String _toPersianDigits(String value) {
   const persian = '۰۱۲۳۴۵۶۷۸۹';
 
   return value.split('').map((char) {
-    final index =
-    english.indexOf(char);
+    final index = english.indexOf(char);
 
     if (index == -1) {
       return char;

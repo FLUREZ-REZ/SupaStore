@@ -48,7 +48,17 @@ class _AdminMainView extends StatefulWidget {
 }
 
 class _AdminMainViewState extends State<_AdminMainView> {
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _secondaryColor = Color(0xFF023E8A);
+  static const Color _selectedColor = Color(0xFFCAF0F8);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+
   int _selectedIndex = 0;
+
+  // null: انتخاب حالت پیش‌فرض براساس عرض صفحه
+  // دسکتاپ: باز
+  // تبلت: بسته
+  bool? _sidebarExpanded;
 
   late List<_AdminMenuItem> _menuItems;
 
@@ -248,7 +258,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
     }
   }
 
-  void _selectPage(int index) {
+  void _selectPage(int index, {bool closeDrawer = false}) {
     if (index < 0 || index >= _menuItems.length) {
       return;
     }
@@ -257,7 +267,18 @@ class _AdminMainViewState extends State<_AdminMainView> {
       _selectedIndex = index;
     });
 
-    Navigator.of(context).pop();
+    if (closeDrawer) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _toggleSidebar(double width) {
+    setState(() {
+      final bool currentExpanded =
+          _sidebarExpanded ?? width >= 1100;
+
+      _sidebarExpanded = !currentExpanded;
+    });
   }
 
   @override
@@ -268,7 +289,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor: Color(0xFFF7F7F8),
+          backgroundColor: _backgroundColor,
           body: Center(
             child: CircularProgressIndicator(
               color: Color(0xFFE21B23),
@@ -282,7 +303,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor: Color(0xFFF7F7F8),
+          backgroundColor: _backgroundColor,
           body: Center(
             child: Padding(
               padding: EdgeInsets.all(24),
@@ -302,7 +323,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor: Color(0xFFF7F7F8),
+          backgroundColor: _backgroundColor,
           body: Center(
             child: Text(
               'دسترسی مدیریتی برای حساب شما فعال نیست.',
@@ -315,30 +336,474 @@ class _AdminMainViewState extends State<_AdminMainView> {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7F7F8),
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: const Color(0xFF03045E),
-          foregroundColor: Colors.white,
-          centerTitle: true,
-          title: Text(
-            _menuItems[_selectedIndex].title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w700,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+
+          final bool isMobile = width < 768;
+          final bool isTablet = width >= 768 && width < 1100;
+
+          final bool sidebarExpanded =
+              _sidebarExpanded ?? !isTablet;
+
+          return Scaffold(
+            backgroundColor: _backgroundColor,
+
+            appBar: AppBar(
+              elevation: 0,
+              backgroundColor: _primaryColor,
+              foregroundColor: Colors.white,
+              centerTitle: isMobile,
+              automaticallyImplyLeading: isMobile,
+              title: Text(
+                _menuItems[_selectedIndex].title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 17.sp : 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              actions: [
+                if (!isMobile)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      end: 20,
+                    ),
+                    child: Center(
+                      child: Text(
+                        isTablet ? 'پنل مدیریت' : 'SupaStore Admin',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            drawer: isMobile ? _buildDrawer() : null,
+
+            body: isMobile
+                ? IndexedStack(
+              index: _selectedIndex,
+              children: _menuItems
+                  .map((item) => item.page)
+                  .toList(),
+            )
+                : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSidebar(
+                  expanded: sidebarExpanded,
+                  accessProvider: accessProvider,
+                  screenWidth: width,
+                ),
+
+                Expanded(
+                  child: IndexedStack(
+                    index: _selectedIndex,
+                    children: _menuItems
+                        .map((item) => item.page)
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // DESKTOP / TABLET SIDEBAR WITH FLOATING TOGGLE
+  // ============================================================
+
+  Widget _buildSidebar({
+    required bool expanded,
+    required AdminAccessProvider accessProvider,
+    required double screenWidth,
+  }) {
+    final double sidebarWidth = expanded ? 250 : 76;
+
+    return SizedBox(
+      width: sidebarWidth,
+
+      // Stack اجازه می‌دهد دکمه فلش از لبه سایدبار بیرون بیاید.
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // خود سایدبار
+          Positioned.fill(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              width: sidebarWidth,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  left: BorderSide(
+                    color: Color(0xFFEAEAEA),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Column(
+                children: [
+                  _buildSidebarHeader(
+                    expanded: expanded,
+                    accessProvider: accessProvider,
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFEAEAEA),
+                  ),
+
+                  if (expanded)
+                    const Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                        18,
+                        20,
+                        18,
+                        10,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'منوی اصلی',
+                          style: TextStyle(
+                            color: Colors.black45,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(height: 14),
+
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: expanded ? 12 : 8,
+                        vertical: 5,
+                      ),
+                      itemCount: _menuItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _menuItems[index];
+
+                        return _sidebarItem(
+                          index: index,
+                          icon: item.icon,
+                          title: item.title,
+                          expanded: expanded,
+                        );
+                      },
+                    ),
+                  ),
+
+                  const Divider(
+                    height: 1,
+                    color: Color(0xFFEAEAEA),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: expanded ? 12 : 8,
+                      vertical: 12,
+                    ),
+                    child: _sidebarLogout(
+                      expanded: expanded,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        drawer: _buildDrawer(),
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _menuItems.map((item) => item.page).toList(),
+
+          // دکمه فلش متصل به لبه سایدبار
+          Positioned(
+            left: -16,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: _sidebarToggleButton(
+                expanded: expanded,
+                screenWidth: screenWidth,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // SIDEBAR HEADER
+  // ============================================================
+
+  Widget _buildSidebarHeader({
+    required bool expanded,
+    required AdminAccessProvider accessProvider,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      height: 105,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: expanded ? 18 : 8,
+      ),
+      decoration: const BoxDecoration(
+        color: _primaryColor,
+      ),
+      child: expanded
+          ? Row(
+        children: [
+          Container(
+            width: 45,
+            height: 45,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Iconsax.shield_tick_copy,
+              color: _primaryColor,
+              size: 25,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'مدیریت فروشگاه',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  _getRoleTitle(accessProvider.adminRole),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
+          : const Center(
+        child: Icon(
+          Iconsax.shield_tick_copy,
+          color: Colors.white,
+          size: 29,
         ),
       ),
     );
   }
+
+  // ============================================================
+  // FLOATING ARROW BUTTON
+  // ============================================================
+
+  Widget _sidebarToggleButton({
+    required bool expanded,
+    required double screenWidth,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _toggleSidebar(screenWidth),
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 32,
+          height: 54,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFE1E5EA),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 8,
+                offset: const Offset(-2, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: child,
+                );
+              },
+              child: Icon(
+                expanded
+                    ? Icons.chevron_right
+                    : Icons.chevron_left,
+                key: ValueKey<bool>(expanded),
+                color: _primaryColor,
+                size: 25,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SIDEBAR MENU ITEM
+  // ============================================================
+
+  Widget _sidebarItem({
+    required int index,
+    required IconData icon,
+    required String title,
+    required bool expanded,
+  }) {
+    final bool selected = _selectedIndex == index;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Tooltip(
+        message: expanded ? '' : title,
+        waitDuration: const Duration(milliseconds: 400),
+        child: Material(
+          color: selected ? _selectedColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _selectPage(index),
+            child: SizedBox(
+              height: 49,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: expanded ? 12 : 0,
+                ),
+                child: Row(
+                  mainAxisAlignment: expanded
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 21,
+                      color: selected
+                          ? _primaryColor
+                          : Colors.black54,
+                    ),
+
+                    if (expanded) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: selected
+                                ? _primaryColor
+                                : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      if (selected)
+                        Container(
+                          width: 4,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            color: _secondaryColor,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SIDEBAR LOGOUT
+  // ============================================================
+
+  Widget _sidebarLogout({required bool expanded}) {
+    return Tooltip(
+      message: expanded ? '' : 'خروج از حساب',
+      child: Material(
+        color: const Color(0xFFFFF1F1),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: _logout,
+          child: SizedBox(
+            height: 48,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: expanded ? 12 : 0,
+              ),
+              child: Row(
+                mainAxisAlignment: expanded
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Iconsax.logout_copy,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                  if (expanded) ...[
+                    const SizedBox(width: 12),
+                    const Text(
+                      'خروج از حساب',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // MOBILE DRAWER
+  // ============================================================
 
   Widget _buildDrawer() {
     final accessProvider = context.read<AdminAccessProvider>();
@@ -368,7 +833,6 @@ class _AdminMainViewState extends State<_AdminMainView> {
 
             return Column(
               children: [
-                // سربرگ جمع‌وجور
                 SizedBox(
                   height: headerHeight,
                   width: double.infinity,
@@ -380,7 +844,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                           width: compact ? 42.w : 48.w,
                           height: compact ? 42.w : 48.w,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF03045E),
+                            color: _primaryColor,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -400,7 +864,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: const Color(0xFF03045E),
+                                  color: _primaryColor,
                                   fontSize: compact ? 15.sp : 17.sp,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -425,7 +889,6 @@ class _AdminMainViewState extends State<_AdminMainView> {
 
                 const Divider(height: 1),
 
-                // آیتم‌ها بدون ListView و بدون اسکرول
                 Expanded(
                   child: _menuItems.isEmpty
                       ? const SizedBox.shrink()
@@ -457,7 +920,6 @@ class _AdminMainViewState extends State<_AdminMainView> {
 
                 const Divider(height: 1),
 
-                // خروج در پایین منو
                 SizedBox(
                   height: footerHeight,
                   width: double.infinity,
@@ -509,13 +971,11 @@ class _AdminMainViewState extends State<_AdminMainView> {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 1.h),
       child: Material(
-        color: selected
-            ? const Color(0xFFCAF0F8)
-            : Colors.transparent,
+        color: selected ? _selectedColor : Colors.transparent,
         borderRadius: BorderRadius.circular(12.r),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => _selectPage(index),
+          onTap: () => _selectPage(index, closeDrawer: true),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: Row(
@@ -523,9 +983,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 Icon(
                   icon,
                   size: compact ? 18.sp : 20.sp,
-                  color: selected
-                      ? const Color(0xFF03045E)
-                      : Colors.black54,
+                  color: selected ? _primaryColor : Colors.black54,
                 ),
                 SizedBox(width: 10.w),
                 Expanded(
@@ -539,9 +997,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                       fontWeight: selected
                           ? FontWeight.w700
                           : FontWeight.w500,
-                      color: selected
-                          ? const Color(0xFF03045E)
-                          : Colors.black87,
+                      color: selected ? _primaryColor : Colors.black87,
                     ),
                   ),
                 ),

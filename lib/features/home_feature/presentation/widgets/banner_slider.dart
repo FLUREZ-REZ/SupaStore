@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -93,8 +94,8 @@ class _BannerSliderState extends State<BannerSlider>
                 : isTablet
                 ? (screenWidth * 0.29).clamp(240.0, 300.0)
                 : isLaptop
-                ? (screenWidth * 0.25).clamp(330.0, 400.0)
-                : (screenWidth * 0.23).clamp(400.0, 480.0);
+                ? (screenWidth * 0.30).clamp(330.0, 450.0)
+                : (screenWidth * 0.30).clamp(400.0, 520.0);
 
             // ============================================
             // RESPONSIVE HORIZONTAL PADDING
@@ -202,7 +203,9 @@ class _BannerSliderState extends State<BannerSlider>
                                 .read<BannerProvider>()
                                 .loadHeroBanners();
                           },
-                          icon: const Icon(Icons.refresh_rounded),
+                          icon: const Icon(
+                            Icons.refresh_rounded,
+                          ),
                           label: const Text('تلاش مجدد'),
                         ),
                       ],
@@ -291,7 +294,6 @@ class _BannerSliderState extends State<BannerSlider>
                           height: bannerHeight,
                           viewportFraction: 1.0,
 
-                          // AUTO PLAY
                           autoPlay: banners.length > 1,
                           autoPlayInterval:
                           const Duration(seconds: 4),
@@ -299,10 +301,8 @@ class _BannerSliderState extends State<BannerSlider>
                           const Duration(milliseconds: 600),
                           autoPlayCurve: Curves.easeInOut,
 
-                          // NO SIDE BANNERS
                           enlargeCenterPage: false,
 
-                          // PAGE CHANGED
                           onPageChanged: (index, reason) {
                             if (!mounted) return;
 
@@ -396,9 +396,7 @@ class _BannerSliderShimmer extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(height: indicatorSpacing),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -511,15 +509,14 @@ class _BannerItem extends StatelessWidget {
           imageUrl: imageUrl,
           width: double.infinity,
           height: height,
+
+          // حفظ نمایش کامل‌تر در دسکتاپ نیازمند
+          // هماهنگی نسبت تصویر با فضای نمایش است.
           fit: BoxFit.cover,
+          alignment: Alignment.center,
 
-          // MEMORY CACHE
-          memCacheWidth: 1920,
+          // محدودیت رزولوشن Cache حذف شده است.
 
-          // DISK CACHE
-          maxWidthDiskCache: 1920,
-
-          // SHIMMER WHILE IMAGE IS LOADING
           placeholder: (context, url) {
             return _ShimmerBox(
               controller: shimmerController,
@@ -529,7 +526,6 @@ class _BannerItem extends StatelessWidget {
             );
           },
 
-          // IMAGE ERROR
           errorWidget: (context, url, error) {
             return Container(
               height: height,
