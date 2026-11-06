@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
@@ -123,9 +124,7 @@ class _AdminAnnouncementsPageState
     );
 
     if (!expiration.isAfter(DateTime.now())) {
-      _showSnackBar(
-        'تاریخ و ساعت انقضا باید در آینده باشد.',
-      );
+      _showSnackBar('تاریخ و ساعت انقضا باید در آینده باشد.');
       return;
     }
 
@@ -255,7 +254,10 @@ class _AdminAnnouncementsPageState
                 onPressed: () {
                   Navigator.of(dialogContext).pop(true);
                 },
-                icon: const Icon(Iconsax.profile_delete_copy, size: 18),
+                icon: const Icon(
+                  Iconsax.profile_delete_copy,
+                  size: 18,
+                ),
                 label: const Text('حذف اطلاعیه'),
                 style: FilledButton.styleFrom(
                   backgroundColor: _primaryColor,
@@ -341,11 +343,14 @@ class _AdminAnnouncementsPageState
           body: Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: _buildEmptyState(
-                icon: Iconsax.lock_copy,
-                title: 'دسترسی امکان‌پذیر نیست',
-                message:
-                'حساب شما اجازه ورود به بخش مدیریت اطلاعیه‌ها را ندارد.',
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: _buildEmptyState(
+                  icon: Iconsax.lock_copy,
+                  title: 'دسترسی امکان‌پذیر نیست',
+                  message:
+                  'حساب شما اجازه ورود به بخش مدیریت اطلاعیه‌ها را ندارد.',
+                ),
               ),
             ),
           ),
@@ -404,16 +409,67 @@ class _AdminAnnouncementsPageState
         ),
         body: SafeArea(
           top: false,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-            children: [
-              _buildPublishForm(),
-              const SizedBox(height: 24),
-              _buildAnnouncementsList(),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final horizontalPadding =
+              constraints.maxWidth >= 1000
+                  ? 32.0
+                  : constraints.maxWidth >= 600
+                  ? 24.0
+                  : 14.0;
+
+              return ListView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  20,
+                  horizontalPadding,
+                  32,
+                ),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 1200,
+                      ),
+                      child: _buildResponsiveContent(
+                        constraints.maxWidth,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildResponsiveContent(double width) {
+    if (width >= 1050) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 5,
+            child: _buildAnnouncementsList(),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            flex: 4,
+            child: _buildPublishForm(),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildPublishForm(),
+        const SizedBox(height: 24),
+        _buildAnnouncementsList(),
+      ],
     );
   }
 
@@ -962,68 +1018,85 @@ class _AdminAnnouncementsPageState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  announcement.title,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                    color: Color(0xFF252830),
-                    fontSize: 14,
-                    height: 1.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: status.color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  status.label,
-                  style: TextStyle(
-                    color: status.color,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 2),
-              SizedBox(
-                width: 34,
-                height: 34,
-                child: IconButton(
-                  tooltip: 'حذف اطلاعیه',
-                  padding: EdgeInsets.zero,
-                  onPressed: isDeleting
-                      ? null
-                      : () =>
-                      _confirmDeleteAnnouncement(announcement),
-                  icon: isDeleting
-                      ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: _primaryColor,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth - 90,
                     ),
-                  )
-                      : const Icon(
-                    Iconsax.trash_copy,
-                    color: _primaryColor,
-                    size: 20,
+                    child: Text(
+                      announcement.title,
+                      textAlign: TextAlign.right,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF252830),
+                        fontSize: 14,
+                        height: 1.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: status.color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          status.label,
+                          style: TextStyle(
+                            color: status.color,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      SizedBox(
+                        width: 34,
+                        height: 34,
+                        child: IconButton(
+                          tooltip: 'حذف اطلاعیه',
+                          padding: EdgeInsets.zero,
+                          onPressed: isDeleting
+                              ? null
+                              : () => _confirmDeleteAnnouncement(
+                            announcement,
+                          ),
+                          icon: isDeleting
+                              ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: _primaryColor,
+                            ),
+                          )
+                              : const Icon(
+                            Iconsax.trash_copy,
+                            color: _primaryColor,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 8),
           Text(

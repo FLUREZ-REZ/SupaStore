@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -39,6 +38,10 @@ class AddEditAddressPage extends StatelessWidget {
   }
 }
 
+// =========================================================
+// ADD / EDIT VIEW
+// =========================================================
+
 class _AddEditAddressView extends StatefulWidget {
   const _AddEditAddressView({
     required this.address,
@@ -49,7 +52,8 @@ class _AddEditAddressView extends StatefulWidget {
   final String userId;
 
   @override
-  State<_AddEditAddressView> createState() => _AddEditAddressViewState();
+  State<_AddEditAddressView> createState() =>
+      _AddEditAddressViewState();
 }
 
 class _AddEditAddressViewState extends State<_AddEditAddressView> {
@@ -67,7 +71,8 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
 
   bool get isEdit => widget.address != null;
 
-  static const _primaryColor = Color(0xFFD90429);
+  static const Color _primaryColor = Color(0xFFD90429);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
 
   @override
   void initState() {
@@ -75,15 +80,27 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
 
     final address = widget.address;
 
-    _titleController = TextEditingController(text: address?.title ?? '');
-    _receiverNameController =
-        TextEditingController(text: address?.receiverName ?? '');
-    _phoneController = TextEditingController(text: address?.phone ?? '');
-    _provinceController = TextEditingController(text: address?.province ?? '');
-    _cityController = TextEditingController(text: address?.city ?? '');
-    _addressController = TextEditingController(text: address?.address ?? '');
-    _postalCodeController =
-        TextEditingController(text: address?.postalCode ?? '');
+    _titleController = TextEditingController(
+      text: address?.title ?? '',
+    );
+    _receiverNameController = TextEditingController(
+      text: address?.receiverName ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: address?.phone ?? '',
+    );
+    _provinceController = TextEditingController(
+      text: address?.province ?? '',
+    );
+    _cityController = TextEditingController(
+      text: address?.city ?? '',
+    );
+    _addressController = TextEditingController(
+      text: address?.address ?? '',
+    );
+    _postalCodeController = TextEditingController(
+      text: address?.postalCode ?? '',
+    );
 
     _isDefault = address?.isDefault ?? false;
   }
@@ -97,6 +114,7 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
     _cityController.dispose();
     _addressController.dispose();
     _postalCodeController.dispose();
+
     super.dispose();
   }
 
@@ -107,186 +125,329 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7F7F8),
+        backgroundColor: _backgroundColor,
         appBar: AppBar(
-          title: Text(isEdit ? 'ویرایش آدرس' : 'افزودن آدرس'),
+
           centerTitle: true,
           backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-        body: Form(
-          key: _formKey,
-          child: ListView(
-            padding: EdgeInsets.all(16.w),
-            children: [
-              _sectionTitle('اطلاعات گیرنده'),
-              _SectionCard(
-                children: [
-                  _AppTextField(
-                    controller: _titleController,
-                    label: 'عنوان آدرس',
-                    hint: 'مثلاً خانه یا محل کار',
-                    icon: Iconsax.bookmark_copy,
-                    validator: _requiredValidator('عنوان آدرس'),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  _AppTextField(
-                    controller: _receiverNameController,
-                    label: 'نام و نام خانوادگی گیرنده',
-                    hint: 'نام گیرنده',
-                    icon: Iconsax.user_copy,
-                    validator: _requiredValidator('نام گیرنده'),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  _AppTextField(
-                    controller: _phoneController,
-                    label: 'شماره تماس',
-                    hint: '09123456789',
-                    icon: Iconsax.call_copy,
-                    keyboardType: TextInputType.phone,
-                    validator: _phoneValidator,
-                    textInputAction: TextInputAction.next,
-                  ),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              _sectionTitle('نشانی و کد پستی'),
-              _SectionCard(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _AppTextField(
-                          controller: _provinceController,
-                          label: 'استان',
-                          hint: 'استان',
-                          icon: Iconsax.map_copy,
-                          validator: _requiredValidator('استان'),
-                          textInputAction: TextInputAction.next,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+
+            final horizontalPadding = width >= 1200
+                ? 32.0
+                : width >= 700
+                ? 24.0
+                : 16.0;
+
+            return Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  24,
+                  horizontalPadding,
+                  32,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 850,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(width),
+                        const SizedBox(height: 24),
+
+                        _sectionTitle('اطلاعات گیرنده'),
+                        _SectionCard(
+                          children: [
+                            _AppTextField(
+                              controller: _titleController,
+                              label: 'عنوان آدرس',
+                              hint: 'مثلاً خانه یا محل کار',
+                              icon: Iconsax.bookmark_copy,
+                              validator:
+                              _requiredValidator('عنوان آدرس'),
+                              textInputAction: TextInputAction.next,
+                            ),
+                            _AppTextField(
+                              controller: _receiverNameController,
+                              label: 'نام و نام خانوادگی گیرنده',
+                              hint: 'نام گیرنده',
+                              icon: Iconsax.user_copy,
+                              validator:
+                              _requiredValidator('نام گیرنده'),
+                              textInputAction: TextInputAction.next,
+                            ),
+                            _AppTextField(
+                              controller: _phoneController,
+                              label: 'شماره تماس',
+                              hint: '09123456789',
+                              icon: Iconsax.call_copy,
+                              keyboardType: TextInputType.phone,
+                              validator: _phoneValidator,
+                              textInputAction: TextInputAction.next,
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Expanded(
-                        child: _AppTextField(
-                          controller: _cityController,
-                          label: 'شهر',
-                          hint: 'شهر',
-                          icon: Iconsax.house_2_copy,
-                          validator: _requiredValidator('شهر'),
-                          textInputAction: TextInputAction.next,
+
+                        const SizedBox(height: 24),
+
+                        _sectionTitle('نشانی و کد پستی'),
+                        _SectionCard(
+                          children: [
+                            _buildProvinceCityFields(width),
+
+                            _AppTextField(
+                              controller: _addressController,
+                              label: 'آدرس کامل',
+                              hint: 'خیابان، کوچه، پلاک، واحد و ...',
+                              icon: Iconsax.house_copy,
+                              maxLines: 3,
+                              validator: _addressValidator,
+                              textInputAction: TextInputAction.newline,
+                            ),
+
+                            _AppTextField(
+                              controller: _postalCodeController,
+                              label: 'کد پستی',
+                              hint: '۱۰ رقم',
+                              icon: Iconsax.code_copy,
+                              keyboardType: TextInputType.number,
+                              validator: _postalCodeValidator,
+                              textInputAction: TextInputAction.done,
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  _AppTextField(
-                    controller: _addressController,
-                    label: 'آدرس کامل',
-                    hint: 'خیابان، کوچه، پلاک، واحد و ...',
-                    icon: Iconsax.house_copy,
-                    maxLines: 3,
-                    validator: _addressValidator,
-                    textInputAction: TextInputAction.newline,
-                  ),
-                  _AppTextField(
-                    controller: _postalCodeController,
-                    label: 'کد پستی',
-                    hint: '۱۰ رقم',
-                    icon: Iconsax.code_copy,
-                    keyboardType: TextInputType.number,
-                    validator: _postalCodeValidator,
-                    textInputAction: TextInputAction.done,
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              _SectionCard(
-                children: [
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _isDefault,
-                    activeColor: _primaryColor,
-                    onChanged: provider.isUpdating
-                        ? null
-                        : (value) {
-                      setState(() => _isDefault = value);
-                    },
-                    title: Text(
-                      'آدرس پیش‌فرض',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'برای سفارش‌های بعدی به‌صورت پیش‌فرض انتخاب شود.',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    secondary: const Icon(Iconsax.location_copy),
-                  ),
-                ],
-              ),
-              if (provider.error != null) ...[
-                SizedBox(height: 16.h),
-                _ErrorMessage(message: provider.error!),
-              ],
-              SizedBox(height: 22.h),
-              SizedBox(
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: provider.isUpdating ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: _primaryColor.withOpacity(0.6),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                  child: provider.isUpdating
-                      ? SizedBox(
-                    width: 22.w,
-                    height: 22.w,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                      : Text(
-                    isEdit ? 'ذخیره تغییرات' : 'ذخیره آدرس',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
+
+                        const SizedBox(height: 18),
+
+                        _SectionCard(
+                          children: [
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              value: _isDefault,
+                              activeColor: _primaryColor,
+                              onChanged: provider.isUpdating
+                                  ? null
+                                  : (value) {
+                                setState(() {
+                                  _isDefault = value;
+                                });
+                              },
+                              title: const Text(
+                                'آدرس پیش‌فرض',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'برای سفارش‌های بعدی به‌صورت پیش‌فرض انتخاب شود.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.6,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              secondary: const Icon(
+                                Iconsax.location_copy,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        if (provider.error != null) ...[
+                          const SizedBox(height: 16),
+                          _ErrorMessage(
+                            message: provider.error!,
+                          ),
+                        ],
+
+                        const SizedBox(height: 24),
+
+                        SizedBox(
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed:
+                            provider.isUpdating ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _primaryColor,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor:
+                              _primaryColor.withValues(alpha: 0.6),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: provider.isUpdating
+                                ? const SizedBox(
+                              width: 23,
+                              height: 23,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : Text(
+                              isEdit
+                                  ? 'ذخیره تغییرات'
+                                  : 'ذخیره آدرس',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 12.h),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
+  // =========================================================
+  // HEADER
+  // =========================================================
+
+  Widget _buildHeader(double width) {
+    final isDesktop = width >= 900;
+
+    return Container(
+      padding: EdgeInsets.all(isDesktop ? 22 : 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: _primaryColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Iconsax.location_add_copy,
+              color: _primaryColor,
+              size: 25,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isEdit ? 'ویرایش اطلاعات آدرس' : 'ثبت آدرس جدید',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'اطلاعات گیرنده و نشانی محل تحویل سفارش را وارد کنید.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.6,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // PROVINCE / CITY RESPONSIVE FIELDS
+  // =========================================================
+
+  Widget _buildProvinceCityFields(double width) {
+    final provinceField = _AppTextField(
+      controller: _provinceController,
+      label: 'استان',
+      hint: 'استان',
+      icon: Iconsax.map_copy,
+      validator: _requiredValidator('استان'),
+      textInputAction: TextInputAction.next,
+    );
+
+    final cityField = _AppTextField(
+      controller: _cityController,
+      label: 'شهر',
+      hint: 'شهر',
+      icon: Iconsax.house_2_copy,
+      validator: _requiredValidator('شهر'),
+      textInputAction: TextInputAction.next,
+    );
+
+    if (width < 600) {
+      return Column(
+        children: [
+          provinceField,
+          cityField,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: provinceField),
+        const SizedBox(width: 12),
+        Expanded(child: cityField),
+      ],
+    );
+  }
+
+  // =========================================================
+  // SECTION TITLE
+  // =========================================================
+
   Widget _sectionTitle(String title) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10.h, right: 4.w),
+      padding: const EdgeInsets.only(
+        bottom: 10,
+        right: 4,
+      ),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 14.sp,
+        style: const TextStyle(
+          fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: const Color(0xFF292929),
+          color: Color(0xFF292929),
         ),
       ),
     );
   }
+
+  // =========================================================
+  // SUBMIT
+  // =========================================================
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -325,7 +486,9 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isEdit ? 'آدرس با موفقیت ویرایش شد.' : 'آدرس با موفقیت اضافه شد.',
+          isEdit
+              ? 'آدرس با موفقیت ویرایش شد.'
+              : 'آدرس با موفقیت اضافه شد.',
         ),
       ),
     );
@@ -333,11 +496,16 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
     Navigator.pop(context);
   }
 
+  // =========================================================
+  // VALIDATORS
+  // =========================================================
+
   String? Function(String?) _requiredValidator(String field) {
     return (value) {
       if (value == null || value.trim().isEmpty) {
         return '$field را وارد کنید';
       }
+
       return null;
     };
   }
@@ -345,7 +513,9 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
   String? _phoneValidator(String? value) {
     final phone = value?.trim() ?? '';
 
-    if (phone.isEmpty) return 'شماره تماس را وارد کنید';
+    if (phone.isEmpty) {
+      return 'شماره تماس را وارد کنید';
+    }
 
     if (!RegExp(r'^09\d{9}$').hasMatch(phone)) {
       return 'شماره تماس معتبر نیست';
@@ -357,8 +527,13 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
   String? _addressValidator(String? value) {
     final address = value?.trim() ?? '';
 
-    if (address.isEmpty) return 'آدرس کامل را وارد کنید';
-    if (address.length < 10) return 'آدرس وارد شده کوتاه است';
+    if (address.isEmpty) {
+      return 'آدرس کامل را وارد کنید';
+    }
+
+    if (address.length < 10) {
+      return 'آدرس وارد شده کوتاه است';
+    }
 
     return null;
   }
@@ -366,7 +541,9 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
   String? _postalCodeValidator(String? value) {
     final postalCode = value?.trim() ?? '';
 
-    if (postalCode.isEmpty) return 'کد پستی را وارد کنید';
+    if (postalCode.isEmpty) {
+      return 'کد پستی را وارد کنید';
+    }
 
     if (!RegExp(r'^\d{10}$').hasMatch(postalCode)) {
       return 'کد پستی باید ۱۰ رقم باشد';
@@ -376,26 +553,40 @@ class _AddEditAddressViewState extends State<_AddEditAddressView> {
   }
 }
 
+// =========================================================
+// SECTION CARD
+// =========================================================
+
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.children});
+  const _SectionCard({
+    required this.children,
+  });
 
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(14.w),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: children,
       ),
     );
   }
 }
+
+// =========================================================
+// APP TEXT FIELD
+// =========================================================
 
 class _AppTextField extends StatelessWidget {
   const _AppTextField({
@@ -418,10 +609,12 @@ class _AppTextField extends StatelessWidget {
   final int maxLines;
   final String? Function(String?)? validator;
 
+  static const Color _primaryColor = Color(0xFFD90429);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
+      padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
@@ -429,46 +622,63 @@ class _AppTextField extends StatelessWidget {
         maxLines: maxLines,
         validator: validator,
         textDirection: TextDirection.rtl,
-        style: TextStyle(fontSize: 13.sp),
+        style: const TextStyle(
+          fontSize: 13,
+        ),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
-          prefixIcon: Icon(icon, size: 20.sp),
+          prefixIcon: Icon(
+            icon,
+            size: 20,
+          ),
           alignLabelWithHint: maxLines > 1,
           filled: true,
           fillColor: const Color(0xFFFAFAFA),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 12.w,
-            vertical: 14.h,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 16,
           ),
-          labelStyle: TextStyle(fontSize: 12.sp),
+          labelStyle: const TextStyle(
+            fontSize: 12,
+          ),
           hintStyle: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 12,
             color: Colors.grey.shade500,
           ),
-          errorStyle: TextStyle(fontSize: 10.sp),
+          errorStyle: const TextStyle(
+            fontSize: 11,
+          ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(
-              color: Color(0xFFD90429),
+              color: _primaryColor,
               width: 1.3,
             ),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.red.shade300),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.red.shade300,
+            ),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.red.shade400),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.red.shade400,
+            ),
           ),
         ),
       ),
@@ -476,8 +686,14 @@ class _AppTextField extends StatelessWidget {
   }
 }
 
+// =========================================================
+// ERROR MESSAGE
+// =========================================================
+
 class _ErrorMessage extends StatelessWidget {
-  const _ErrorMessage({required this.message});
+  const _ErrorMessage({
+    required this.message,
+  });
 
   final String message;
 
@@ -485,27 +701,29 @@ class _ErrorMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: Colors.red.shade100),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.red.shade100,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Iconsax.warning_2_copy,
-            size: 19.sp,
+            size: 20,
             color: Colors.red.shade600,
           ),
-          SizedBox(width: 8.w),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
-                fontSize: 11.sp,
-                height: 1.5,
+                fontSize: 12,
+                height: 1.6,
                 color: Colors.red.shade700,
               ),
             ),

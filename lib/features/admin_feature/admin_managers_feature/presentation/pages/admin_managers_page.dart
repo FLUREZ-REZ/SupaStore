@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/core/di/injector.dart';
 import 'package:supastore/features/admin_feature/admin_managers_feature/domain/entities/admin_manager_entity.dart';
 import 'package:supastore/features/admin_feature/admin_managers_feature/presentation/providers/admin_managers_provider.dart';
@@ -8,14 +8,14 @@ import 'package:supastore/features/admin_feature/admin_managers_feature/presenta
 class AdminManagersPage extends StatelessWidget {
   const AdminManagersPage({super.key});
 
-  static const Color _primaryRed = Color(0xFF023e8a);
+  static const Color _primaryRed = Color(0xFF023E8A);
+  static const Color _primaryColor = Color(0xFF03045E);
   static const Color _background = Color(0xFFF7F7F8);
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) =>
-      getIt<AdminManagersProvider>()..loadManagers(),
+      create: (_) => getIt<AdminManagersProvider>()..loadManagers(),
       child: const _AdminManagersView(),
     );
   }
@@ -31,21 +31,20 @@ class _AdminManagersView extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AdminManagersPage._background,
         appBar: AppBar(
-          title: const Text('مدیریت مدیران'),
+
           centerTitle: false,
-          backgroundColor: Color(0xFF03045e),
+          backgroundColor: AdminManagersPage._primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           actions: [
             IconButton(
+              tooltip: 'بارگذاری مجدد',
               onPressed: () {
-                context
-                    .read<AdminManagersProvider>()
-                    .loadManagers();
+                context.read<AdminManagersProvider>().loadManagers();
               },
               icon: const Icon(Icons.refresh),
             ),
-            SizedBox(width: 8.w),
+            const SizedBox(width: 8),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
@@ -62,113 +61,107 @@ class _AdminManagersView extends StatelessWidget {
     );
   }
 
-  Future<void> _showAddManagerDialog(
-      BuildContext context,
-      ) async {
+  Future<void> _showAddManagerDialog(BuildContext context) async {
     final phoneController = TextEditingController();
 
-    await showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: AlertDialog(
-            title: const Text('افزودن مدیر'),
-            content: SizedBox(
-              width: 420.w,
-              child: TextField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'شماره موبایل',
-                  hintText: '09123456789',
-                  border: OutlineInputBorder(),
+    try {
+      await showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              title: const Text('افزودن مدیر'),
+              content: SizedBox(
+                width: 420,
+                child: TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
+                  decoration: const InputDecoration(
+                    labelText: 'شماره موبایل',
+                    hintText: '09123456789',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('انصراف'),
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AdminManagersPage._primaryRed,
+                  ),
+                  onPressed: () async {
+                    final phone = _normalizePhone(
+                      phoneController.text,
+                    );
+
+                    if (phone.isEmpty) {
+                      _showMessage(
+                        context,
+                        'شماره موبایل را وارد کنید.',
+                      );
+                      return;
+                    }
+
+                    Navigator.pop(dialogContext);
+
+                    final provider =
+                    context.read<AdminManagersProvider>();
+
+                    final profile = await provider.findProfileByPhone(
+                      phone: phone,
+                    );
+
+                    if (!context.mounted) return;
+
+                    if (profile == null) {
+                      _showMessage(
+                        context,
+                        'کاربری با این شماره پیدا نشد.',
+                      );
+                      return;
+                    }
+
+                    await _showManagerForm(
+                      context,
+                      profile,
+                    );
+                  },
+                  child: const Text('جستجو'),
+                ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                },
-                child: const Text('انصراف'),
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor:
-                  AdminManagersPage._primaryRed,
-                ),
-                onPressed: () async {
-                  final phone = _normalizePhone(
-                    phoneController.text,
-                  );
-
-                  if (phone.isEmpty) {
-                    _showMessage(
-                      context,
-                      'شماره موبایل را وارد کنید.',
-                    );
-                    return;
-                  }
-
-                  Navigator.pop(dialogContext);
-
-                  final provider =
-                  context.read<AdminManagersProvider>();
-
-                  final profile =
-                  await provider.findProfileByPhone(
-                    phone: phone,
-                  );
-
-                  if (!context.mounted) return;
-
-                  if (profile == null) {
-                    _showMessage(
-                      context,
-                      'کاربری با این شماره پیدا نشد.',
-                    );
-                    return;
-                  }
-
-                  await _showManagerForm(
-                    context,
-                    profile,
-                  );
-                },
-                child: const Text('جستجو'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    phoneController.dispose();
+          );
+        },
+      );
+    } finally {
+      phoneController.dispose();
+    }
   }
 
   Future<void> _showManagerForm(
       BuildContext context,
       AdminManagerEntity manager,
       ) async {
-    String selectedRole =
-    manager.adminRole == 'none'
+    String selectedRole = manager.adminRole == 'none'
         ? 'order_manager'
         : manager.adminRole;
 
     bool isActive = manager.isActive;
 
-    final provider =
-    context.read<AdminManagersProvider>();
+    final provider = context.read<AdminManagersProvider>();
 
     await showDialog(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (
-              dialogContext,
-              setState,
-              ) {
+          builder: (dialogContext, setState) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: AlertDialog(
@@ -178,59 +171,59 @@ class _AdminManagersView extends StatelessWidget {
                       : 'مدیر جدید',
                 ),
                 content: SizedBox(
-                  width: 460.w,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
-                    children: [
-                      _InfoRow(
-                        title: 'شماره موبایل',
-                        value: manager.phone,
-                      ),
-                      SizedBox(height: 12.h),
-                      DropdownButtonFormField<String>(
-                        value: selectedRole,
-                        decoration: const InputDecoration(
-                          labelText: 'نقش مدیر',
-                          border: OutlineInputBorder(),
+                  width: 460,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _InfoRow(
+                          title: 'شماره موبایل',
+                          value: manager.phone,
                         ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'super_admin',
-                            child: Text('مدیر کل'),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: selectedRole,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'نقش مدیر',
+                            border: OutlineInputBorder(),
                           ),
-                          DropdownMenuItem(
-                            value: 'order_manager',
-                            child: Text('مدیر سفارش‌ها'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'product_manager',
-                            child: Text('مدیر محصولات'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value == null) return;
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'super_admin',
+                              child: Text('مدیر کل'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'order_manager',
+                              child: Text('مدیر سفارش‌ها'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'product_manager',
+                              child: Text('مدیر محصولات'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value == null) return;
 
-                          setState(() {
-                            selectedRole = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 8.h),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text(
-                          'مدیر فعال باشد',
+                            setState(() {
+                              selectedRole = value;
+                            });
+                          },
                         ),
-                        value: isActive,
-                        onChanged: (value) {
-                          setState(() {
-                            isActive = value;
-                          });
-                        },
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('مدیر فعال باشد'),
+                          value: isActive,
+                          onChanged: (value) {
+                            setState(() {
+                              isActive = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 actions: [
@@ -242,20 +235,15 @@ class _AdminManagersView extends StatelessWidget {
                   ),
                   FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor:
-                      AdminManagersPage._primaryRed,
+                      backgroundColor: AdminManagersPage._primaryRed,
                     ),
                     onPressed: () async {
-                      final selectedRoleValue =
-                          selectedRole;
-
-                      final selectedActiveValue =
-                          isActive;
+                      final selectedRoleValue = selectedRole;
+                      final selectedActiveValue = isActive;
 
                       Navigator.pop(dialogContext);
 
-                      final success =
-                      await provider.updateManager(
+                      final success = await provider.updateManager(
                         userId: manager.id,
                         adminRole: selectedRoleValue,
                         isActive: selectedActiveValue,
@@ -271,8 +259,7 @@ class _AdminManagersView extends StatelessWidget {
                       } else {
                         _showMessage(
                           context,
-                          provider.errorMessage ??
-                              'خطایی رخ داد.',
+                          provider.errorMessage ?? 'خطایی رخ داد.',
                         );
                       }
                     },
@@ -325,10 +312,15 @@ class _AdminManagersView extends StatelessWidget {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
+          behavior: SnackBarBehavior.floating,
         ),
       );
   }
 }
+
+// ================================================================
+// MANAGERS BODY
+// ================================================================
 
 class _ManagersBody extends StatelessWidget {
   const _ManagersBody();
@@ -336,11 +328,7 @@ class _ManagersBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AdminManagersProvider>(
-      builder: (
-          context,
-          provider,
-          _,
-          ) {
+      builder: (context, provider, _) {
         if (provider.isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
@@ -351,25 +339,30 @@ class _ManagersBody extends StatelessWidget {
             provider.managers.isEmpty) {
           return Center(
             child: Padding(
-              padding: EdgeInsets.all(24.w),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    provider.errorMessage!,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16.h),
-                  FilledButton(
-                    onPressed: provider.loadManagers,
-                    child: const Text('تلاش مجدد'),
-                  ),
-                ],
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 420,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      provider.errorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: provider.loadManagers,
+                      child: const Text('تلاش مجدد'),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -383,35 +376,69 @@ class _ManagersBody extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
-          onRefresh: provider.loadManagers,
-          child: ListView.separated(
-            padding: EdgeInsets.fromLTRB(
-              16.w,
-              20.h,
-              16.w,
-              100.h,
-            ),
-            itemCount: provider.managers.length,
-            separatorBuilder: (_, __) =>
-                SizedBox(height: 10.h),
-            itemBuilder: (
-                context,
-                index,
-                ) {
-              final manager =
-              provider.managers[index];
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
 
-              return _ManagerCard(
-                manager: manager,
-              );
-            },
-          ),
+            final isDesktop = width >= 1100;
+            final isTablet = width >= 650 && width < 1100;
+
+            final horizontalPadding = isDesktop
+                ? 32.0
+                : isTablet
+                ? 24.0
+                : 16.0;
+
+            final crossAxisCount = isDesktop
+                ? 3
+                : isTablet
+                ? 2
+                : 1;
+
+            return RefreshIndicator(
+              onRefresh: provider.loadManagers,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 1400,
+                  ),
+                  child: GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      24,
+                      horizontalPadding,
+                      110,
+                    ),
+                    gridDelegate:
+                    SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 12,
+                      mainAxisExtent: 150,
+                    ),
+                    itemCount: provider.managers.length,
+                    itemBuilder: (context, index) {
+                      final manager = provider.managers[index];
+
+                      return _ManagerCard(
+                        manager: manager,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
 }
+
+// ================================================================
+// MANAGER CARD
+// ================================================================
 
 class _ManagerCard extends StatelessWidget {
   const _ManagerCard({
@@ -425,65 +452,75 @@ class _ManagerCard extends StatelessWidget {
     return Card(
       elevation: 0,
       color: Colors.white,
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         side: BorderSide(
           color: Colors.grey.shade200,
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: const EdgeInsets.all(14),
         child: Row(
           children: [
             CircleAvatar(
-              radius: 26.r,
+              radius: 25,
               backgroundColor: Colors.grey.shade100,
               backgroundImage:
               manager.avatarUrl != null &&
                   manager.avatarUrl!.isNotEmpty
-                  ? NetworkImage(
-                manager.avatarUrl!,
-              )
+                  ? NetworkImage(manager.avatarUrl!)
                   : null,
-              child:
-              manager.avatarUrl == null ||
+              child: manager.avatarUrl == null ||
                   manager.avatarUrl!.isEmpty
                   ? const Icon(
                 Icons.person_outline,
+                color: Colors.grey,
               )
                   : null,
             ),
-            SizedBox(width: 14.w),
+
+            const SizedBox(width: 12),
+
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    manager.fullName?.trim().isNotEmpty ==
-                        true
+                    manager.fullName?.trim().isNotEmpty == true
                         ? manager.fullName!
                         : 'بدون نام',
-                    style: TextStyle(
-                      fontSize: 15.sp,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 5.h),
+
+                  const SizedBox(height: 5),
+
                   Text(
                     manager.phone,
+                    textDirection: TextDirection.ltr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 12,
                       color: Colors.grey.shade600,
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  Row(
+
+                  const SizedBox(height: 9),
+
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
                       _RoleBadge(
                         role: manager.adminRole,
                       ),
-                      SizedBox(width: 8.w),
                       _StatusBadge(
                         isActive: manager.isActive,
                       ),
@@ -492,7 +529,9 @@ class _ManagerCard extends StatelessWidget {
                 ],
               ),
             ),
+
             PopupMenuButton<String>(
+              tooltip: 'عملیات',
               onSelected: (value) async {
                 switch (value) {
                   case 'edit':
@@ -524,15 +563,11 @@ class _ManagerCard extends StatelessWidget {
                 ),
                 PopupMenuItem(
                   value: 'toggle',
-                  child: Text(
-                    'فعال / غیرفعال کردن',
-                  ),
+                  child: Text('فعال / غیرفعال کردن'),
                 ),
                 PopupMenuItem(
                   value: 'remove',
-                  child: Text(
-                    'حذف دسترسی مدیریتی',
-                  ),
+                  child: Text('حذف دسترسی مدیریتی'),
                 ),
               ],
             ),
@@ -546,71 +581,71 @@ class _ManagerCard extends StatelessWidget {
       BuildContext context,
       AdminManagerEntity manager,
       ) async {
-    String selectedRole = manager.adminRole;
+    String selectedRole = _validRole(manager.adminRole);
     bool isActive = manager.isActive;
 
-    final provider =
-    context.read<AdminManagersProvider>();
+    final provider = context.read<AdminManagersProvider>();
 
     await showDialog(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (
-              dialogContext,
-              setState,
-              ) {
+          builder: (dialogContext, setState) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: AlertDialog(
                 title: const Text('ویرایش مدیر'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: selectedRole,
-                      decoration: const InputDecoration(
-                        labelText: 'نقش',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'super_admin',
-                          child: Text('مدیر کل'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'order_manager',
-                          child: Text(
-                            'مدیر سفارش‌ها',
+                content: SizedBox(
+                  width: 460,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: selectedRole,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'نقش',
+                            border: OutlineInputBorder(),
                           ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'super_admin',
+                              child: Text('مدیر کل'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'order_manager',
+                              child: Text('مدیر سفارش‌ها'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'product_manager',
+                              child: Text('مدیر محصولات'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value == null) return;
+
+                            setState(() {
+                              selectedRole = value;
+                            });
+                          },
                         ),
-                        DropdownMenuItem(
-                          value: 'product_manager',
-                          child: Text(
-                            'مدیر محصولات',
-                          ),
+
+                        const SizedBox(height: 8),
+
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('فعال'),
+                          value: isActive,
+                          onChanged: (value) {
+                            setState(() {
+                              isActive = value;
+                            });
+                          },
                         ),
                       ],
-                      onChanged: (value) {
-                        if (value == null) return;
-
-                        setState(() {
-                          selectedRole = value;
-                        });
-                      },
                     ),
-                    SizedBox(height: 8.h),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('فعال'),
-                      value: isActive,
-                      onChanged: (value) {
-                        setState(() {
-                          isActive = value;
-                        });
-                      },
-                    ),
-                  ],
+                  ),
                 ),
                 actions: [
                   TextButton(
@@ -625,16 +660,12 @@ class _ManagerCard extends StatelessWidget {
                       AdminManagersPage._primaryRed,
                     ),
                     onPressed: () async {
-                      final selectedRoleValue =
-                          selectedRole;
-
-                      final selectedActiveValue =
-                          isActive;
+                      final selectedRoleValue = selectedRole;
+                      final selectedActiveValue = isActive;
 
                       Navigator.pop(dialogContext);
 
-                      final success =
-                      await provider.updateManager(
+                      final success = await provider.updateManager(
                         userId: manager.id,
                         adminRole: selectedRoleValue,
                         isActive: selectedActiveValue,
@@ -643,16 +674,17 @@ class _ManagerCard extends StatelessWidget {
                       if (!context.mounted) return;
 
                       ScaffoldMessenger.of(context)
-                          .showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            success
-                                ? 'تغییرات ذخیره شد.'
-                                : provider.errorMessage ??
-                                'خطایی رخ داد.',
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'تغییرات ذخیره شد.'
+                                  : provider.errorMessage ??
+                                  'خطایی رخ داد.',
+                            ),
                           ),
-                        ),
-                      );
+                        );
                     },
                     child: const Text('ذخیره'),
                   ),
@@ -669,11 +701,9 @@ class _ManagerCard extends StatelessWidget {
       BuildContext context,
       AdminManagerEntity manager,
       ) async {
-    final provider =
-    context.read<AdminManagersProvider>();
+    final provider = context.read<AdminManagersProvider>();
 
-    final success =
-    await provider.updateManagerStatus(
+    final success = await provider.updateManagerStatus(
       userId: manager.id,
       isActive: !manager.isActive,
     );
@@ -689,8 +719,7 @@ class _ManagerCard extends StatelessWidget {
                 ? manager.isActive
                 ? 'مدیر غیرفعال شد.'
                 : 'مدیر فعال شد.'
-                : provider.errorMessage ??
-                'خطایی رخ داد.',
+                : provider.errorMessage ?? 'خطایی رخ داد.',
           ),
         ),
       );
@@ -706,9 +735,7 @@ class _ManagerCard extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: AlertDialog(
-            title: const Text(
-              'حذف دسترسی مدیریتی',
-            ),
+            title: const Text('حذف دسترسی مدیریتی'),
             content: const Text(
               'آیا مطمئن هستید که دسترسی مدیریتی '
                   'این کاربر حذف شود؟',
@@ -744,11 +771,9 @@ class _ManagerCard extends StatelessWidget {
 
     if (confirmed != true) return;
 
-    final provider =
-    context.read<AdminManagersProvider>();
+    final provider = context.read<AdminManagersProvider>();
 
-    final success =
-    await provider.removeManager(
+    final success = await provider.removeManager(
       userId: manager.id,
     );
 
@@ -761,13 +786,26 @@ class _ManagerCard extends StatelessWidget {
           content: Text(
             success
                 ? 'دسترسی مدیریتی حذف شد.'
-                : provider.errorMessage ??
-                'خطایی رخ داد.',
+                : provider.errorMessage ?? 'خطایی رخ داد.',
           ),
         ),
       );
   }
+
+  String _validRole(String role) {
+    const roles = [
+      'super_admin',
+      'order_manager',
+      'product_manager',
+    ];
+
+    return roles.contains(role) ? role : 'order_manager';
+  }
 }
+
+// ================================================================
+// ROLE BADGE
+// ================================================================
 
 class _RoleBadge extends StatelessWidget {
   const _RoleBadge({
@@ -795,18 +833,18 @@ class _RoleBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: Colors.blue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
           color: Colors.blue.shade700,
         ),
@@ -814,6 +852,10 @@ class _RoleBadge extends StatelessWidget {
     );
   }
 }
+
+// ================================================================
+// STATUS BADGE
+// ================================================================
 
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({
@@ -825,20 +867,20 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: isActive
             ? Colors.green.withValues(alpha: 0.08)
             : Colors.red.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         isActive ? 'فعال' : 'غیرفعال',
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
           color: isActive
               ? Colors.green.shade700
@@ -848,6 +890,10 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 }
+
+// ================================================================
+// INFO ROW
+// ================================================================
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
@@ -868,7 +914,7 @@ class _InfoRow extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             value,

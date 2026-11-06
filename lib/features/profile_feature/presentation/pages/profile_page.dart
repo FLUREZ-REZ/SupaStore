@@ -93,13 +93,7 @@ class _ProfileView extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7F8),
         appBar: AppBar(
-          title: Text(
-            'پروفایل',
-            style: TextStyle(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+
           centerTitle: true,
           backgroundColor: AppColors.profile_page_redi,
           foregroundColor: Colors.white,

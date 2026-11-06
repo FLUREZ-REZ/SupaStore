@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/features/notification_feature/domain/entities/announcement_entity.dart';
 import 'package:supastore/features/notification_feature/domain/entities/notification_entity.dart';
 import 'package:supastore/features/notification_feature/presentation/providers/notifications_provider.dart';
@@ -68,20 +70,14 @@ class NotificationsPage extends StatelessWidget {
                   notifications: provider.notifications,
                   onRefresh: provider.loadNotifications,
                   onNotificationTap: (notification) {
-                    _openPersonalNotification(
-                      context,
-                      notification,
-                    );
+                    _openPersonalNotification(context, notification);
                   },
                 ),
                 _AnnouncementsTab(
                   announcements: provider.announcements,
                   onRefresh: provider.loadNotifications,
                   onAnnouncementTap: (announcement) {
-                    _openAnnouncement(
-                      context,
-                      announcement,
-                    );
+                    _openAnnouncement(context, announcement);
                   },
                 ),
               ],
@@ -138,62 +134,90 @@ class NotificationsPage extends StatelessWidget {
         required String body,
         required DateTime date,
       }) async {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    final dialogWidth = screenWidth >= 1000
+        ? 560.0
+        : screenWidth >= 600
+        ? 480.0
+        : screenWidth - 40;
+
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return Directionality(
           textDirection: TextDirection.rtl,
-          child: AlertDialog(
+          child: Dialog(
             backgroundColor: Colors.white,
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 24,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-            title: Text(
-              title,
-              style: const TextStyle(
-                color: _textColor,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: dialogWidth,
+                maxHeight: MediaQuery.sizeOf(context).height * 0.8,
               ),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    body,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      height: 1.9,
-                      color: _textColor,
+              child: Padding(
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: _textColor,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _formatDate(date),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: _secondaryTextColor,
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Text(
+                          body,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            height: 1.9,
+                            color: _textColor,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                },
-                child: const Text(
-                  'بستن',
-                  style: TextStyle(
-                    color: _primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _formatDate(date),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: _secondaryTextColor,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          child: const Text(
+                            'بستن',
+                            style: TextStyle(
+                              color: _primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -214,46 +238,25 @@ class _PersonalNotificationsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (notifications.isEmpty) {
-      return RefreshIndicator(
-        color: NotificationsPage._primaryColor,
-        onRefresh: onRefresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 150),
-            _EmptyState(
-              icon: Icons.notifications_none_rounded,
-              title: 'اعلانی وجود ندارد',
-              description:
-              'وقتی وضعیت سفارش شما تغییر کند، اعلان آن اینجا نمایش داده می‌شود.',
-            ),
-          ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      color: NotificationsPage._primaryColor,
+    return _ResponsiveNotificationList(
+      itemCount: notifications.length,
       onRefresh: onRefresh,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        itemCount: notifications.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
+      emptyIcon: Icons.notifications_none_rounded,
+      emptyTitle: 'اعلانی وجود ندارد',
+      emptyDescription:
+      'وقتی وضعیت سفارش شما تغییر کند، اعلان آن اینجا نمایش داده می‌شود.',
+      itemBuilder: (context, index) {
+        final notification = notifications[index];
 
-          return _NotificationCard(
-            title: notification.title,
-            body: notification.body,
-            date: notification.createdAt,
-            isRead: notification.isRead,
-            icon: Icons.local_shipping_outlined,
-            onTap: () => onNotificationTap(notification),
-          );
-        },
-      ),
+        return _NotificationCard(
+          title: notification.title,
+          body: notification.body,
+          date: notification.createdAt,
+          isRead: notification.isRead,
+          icon: Icons.local_shipping_outlined,
+          onTap: () => onNotificationTap(notification),
+        );
+      },
     );
   }
 }
@@ -271,46 +274,97 @@ class _AnnouncementsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (announcements.isEmpty) {
-      return RefreshIndicator(
-        color: NotificationsPage._primaryColor,
-        onRefresh: onRefresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 150),
-            _EmptyState(
-              icon: Icons.campaign_outlined,
-              title: 'اطلاعیه‌ای منتشر نشده',
-              description:
-              'اطلاعیه‌های جدید فروشگاه در این قسمت نمایش داده می‌شوند.',
-            ),
-          ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      color: NotificationsPage._primaryColor,
+    return _ResponsiveNotificationList(
+      itemCount: announcements.length,
       onRefresh: onRefresh,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        itemCount: announcements.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final announcement = announcements[index];
+      emptyIcon: Icons.campaign_outlined,
+      emptyTitle: 'اطلاعیه‌ای منتشر نشده',
+      emptyDescription:
+      'اطلاعیه‌های جدید فروشگاه در این قسمت نمایش داده می‌شوند.',
+      itemBuilder: (context, index) {
+        final announcement = announcements[index];
 
-          return _NotificationCard(
-            title: announcement.title,
-            body: announcement.body,
-            date: announcement.publishedAt,
-            isRead: announcement.isRead,
-            icon: Icons.campaign_outlined,
-            onTap: () => onAnnouncementTap(announcement),
-          );
-        },
-      ),
+        return _NotificationCard(
+          title: announcement.title,
+          body: announcement.body,
+          date: announcement.publishedAt,
+          isRead: announcement.isRead,
+          icon: Icons.campaign_outlined,
+          onTap: () => onAnnouncementTap(announcement),
+        );
+      },
+    );
+  }
+}
+
+class _ResponsiveNotificationList extends StatelessWidget {
+  final int itemCount;
+  final Future<void> Function() onRefresh;
+  final IconData emptyIcon;
+  final String emptyTitle;
+  final String emptyDescription;
+  final Widget Function(BuildContext, int) itemBuilder;
+
+  const _ResponsiveNotificationList({
+    required this.itemCount,
+    required this.onRefresh,
+    required this.emptyIcon,
+    required this.emptyTitle,
+    required this.emptyDescription,
+    required this.itemBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontalPadding = constraints.maxWidth >= 1000
+            ? 32.0
+            : constraints.maxWidth >= 600
+            ? 24.0
+            : 14.0;
+
+        return RefreshIndicator(
+          color: NotificationsPage._primaryColor,
+          onRefresh: onRefresh,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 20,
+            ),
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: itemCount == 0
+                      ? SizedBox(
+                    height: constraints.maxHeight * 0.65,
+                    child: Center(
+                      child: _EmptyState(
+                        icon: emptyIcon,
+                        title: emptyTitle,
+                        description: emptyDescription,
+                      ),
+                    ),
+                  )
+                      : Column(
+                    children: List.generate(
+                      itemCount,
+                          (index) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == itemCount - 1 ? 0 : 12,
+                        ),
+                        child: itemBuilder(context, index),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -339,15 +393,14 @@ class _NotificationCard extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Material(
-        color: isRead
-            ? Colors.white
-            : const Color(0xFFFFF5F5),
+        color: isRead ? Colors.white : const Color(0xFFFFF5F5),
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -356,97 +409,108 @@ class _NotificationCard extends StatelessWidget {
                     : const Color(0xFFF0C7C9),
               ),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: primaryColor,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrow = constraints.maxWidth < 360;
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: primaryColor,
+                        size: 23,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                height: 1.6,
-                                fontWeight: isRead
-                                    ? FontWeight.w600
-                                    : FontWeight.bold,
-                                color: NotificationsPage._textColor,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  maxLines: isNarrow ? 3 : 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.6,
+                                    fontWeight: isRead
+                                        ? FontWeight.w600
+                                        : FontWeight.bold,
+                                    color: NotificationsPage._textColor,
+                                  ),
+                                ),
                               ),
+                              if (!isRead) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  margin: const EdgeInsets.only(top: 7),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFE21B23),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 7),
+                          Text(
+                            body,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              height: 1.8,
+                              color: Color(0xFF666666),
                             ),
                           ),
-                          if (!isRead) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFE21B23),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        body,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          height: 1.8,
-                          color: Color(0xFF666666),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.access_time_rounded,
-                            size: 13,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              _formatDate(date),
-                              style: const TextStyle(
-                                fontSize: 10,
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.access_time_rounded,
+                                size: 13,
                                 color: Colors.grey,
                               ),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 12,
-                            color: Colors.grey,
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  _formatDate(date),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 12,
+                                color: Colors.grey,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -520,34 +584,37 @@ class _ErrorView extends StatelessWidget {
         textDirection: TextDirection.rtl,
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.error_outline_rounded,
-                color: NotificationsPage._primaryColor,
-                size: 48,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 13,
-                  height: 1.8,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: NotificationsPage._primaryColor,
+                  size: 48,
                 ),
-              ),
-              const SizedBox(height: 18),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('تلاش مجدد'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: NotificationsPage._primaryColor,
-                  foregroundColor: Colors.white,
+                const SizedBox(height: 12),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    height: 1.8,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 18),
+                ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('تلاش مجدد'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: NotificationsPage._primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

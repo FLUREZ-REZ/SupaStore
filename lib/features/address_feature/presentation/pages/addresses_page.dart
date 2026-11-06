@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -53,8 +52,9 @@ class _AddressesView extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
           foregroundColor: Colors.white,
-          title: const Text('آدرس‌های من'),
+
           centerTitle: true,
+          elevation: 0,
         ),
         body: user == null
             ? const Center(
@@ -67,6 +67,8 @@ class _AddressesView extends StatelessWidget {
               : () async {
             await _openAddAddressPage(context);
           },
+          backgroundColor: AppColors.orders_page_redi,
+          foregroundColor: Colors.white,
           icon: const Icon(Icons.add),
           label: const Text('افزودن آدرس'),
         ),
@@ -100,76 +102,164 @@ class _AddressesView extends StatelessWidget {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => provider.refresh(userId: userId),
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          16.w,
-          16.h,
-          16.w,
-          100.h,
-        ),
-        children: [
-          if (provider.error != null)
-            _ErrorBanner(
-              message: provider.error!,
-              onClose: provider.clearError,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final horizontalPadding = width >= 1200
+            ? 32.0
+            : width >= 700
+            ? 24.0
+            : 16.0;
+
+        return RefreshIndicator(
+          onRefresh: () => provider.refresh(userId: userId),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-          if (provider.error != null) SizedBox(height: 10.h),
-          Text(
-            'آدرس‌های شما',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              24,
+              horizontalPadding,
+              110,
             ),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            'آدرس موردنظر خود را برای ارسال سفارش انتخاب کنید.',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          ...provider.addresses.map(
-                (address) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _AddressCard(
-                address: address,
-                isSelected:
-                provider.selectedAddress?.id == address.id,
-                isUpdating: provider.isUpdating,
-                onSelect: () {
-                  provider.selectAddress(address);
-                },
-                onSetDefault: () async {
-                  await _setDefaultAddress(
-                    context,
-                    provider,
-                    address,
-                    userId,
-                  );
-                },
-                onEdit: () async {
-                  await _editAddress(context, address);
-                },
-                onDelete: () async {
-                  await _deleteAddress(
-                    context,
-                    provider,
-                    address,
-                    userId,
-                  );
-                },
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 1100,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (provider.error != null) ...[
+                        _ErrorBanner(
+                          message: provider.error!,
+                          onClose: provider.clearError,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      const Text(
+                        'آدرس‌های شما',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'آدرس موردنظر خود را برای ارسال سفارش انتخاب کنید.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildAddressLayout(
+                        context,
+                        provider,
+                        userId,
+                        width,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAddressLayout(
+      BuildContext context,
+      AddressProvider provider,
+      String userId,
+      double width,
+      ) {
+    // موبایل: کارت‌ها زیر هم
+    if (width < 650) {
+      return Column(
+        children: provider.addresses.map((address) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: _AddressCard(
+              address: address,
+              isSelected: provider.selectedAddress?.id == address.id,
+              isUpdating: provider.isUpdating,
+              onSelect: () {
+                provider.selectAddress(address);
+              },
+              onSetDefault: () async {
+                await _setDefaultAddress(
+                  context,
+                  provider,
+                  address,
+                  userId,
+                );
+              },
+              onEdit: () async {
+                await _editAddress(context, address);
+              },
+              onDelete: () async {
+                await _deleteAddress(
+                  context,
+                  provider,
+                  address,
+                  userId,
+                );
+              },
+            ),
+          );
+        }).toList(),
+      );
+    }
+
+    // تبلت و دسکتاپ: نمایش شبکه‌ای
+    final crossAxisCount = width >= 1100 ? 2 : 1;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: provider.addresses.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 18,
+        mainAxisSpacing: 18,
+        mainAxisExtent: 330,
       ),
+      itemBuilder: (context, index) {
+        final address = provider.addresses[index];
+
+        return _AddressCard(
+          address: address,
+          isSelected: provider.selectedAddress?.id == address.id,
+          isUpdating: provider.isUpdating,
+          onSelect: () {
+            provider.selectAddress(address);
+          },
+          onSetDefault: () async {
+            await _setDefaultAddress(
+              context,
+              provider,
+              address,
+              userId,
+            );
+          },
+          onEdit: () async {
+            await _editAddress(context, address);
+          },
+          onDelete: () async {
+            await _deleteAddress(
+              context,
+              provider,
+              address,
+              userId,
+            );
+          },
+        );
+      },
     );
   }
 
@@ -327,37 +417,86 @@ class _AddressesShimmerState extends State<_AddressesShimmer>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ListView(
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            16.h,
-            16.w,
-            100.h,
-          ),
-          children: [
-            _ShimmerBox(
-              controller: _controller,
-              width: 115.w,
-              height: 19.h,
-              radius: 5.r,
-            ),
-            SizedBox(height: 10.h),
-            _ShimmerBox(
-              controller: _controller,
-              width: 240.w,
-              height: 12.h,
-              radius: 5.r,
-            ),
-            SizedBox(height: 22.h),
-            for (int i = 0; i < 3; i++) ...[
-              _AddressCardShimmer(controller: _controller),
-              SizedBox(height: 12.h),
-            ],
-          ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final horizontalPadding = width >= 1200
+            ? 32.0
+            : width >= 700
+            ? 24.0
+            : 16.0;
+
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                24,
+                horizontalPadding,
+                100,
+              ),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 1100,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _ShimmerBox(
+                          controller: _controller,
+                          width: 120,
+                          height: 20,
+                          radius: 5,
+                        ),
+                        const SizedBox(height: 12),
+                        _ShimmerBox(
+                          controller: _controller,
+                          width: 260,
+                          height: 13,
+                          radius: 5,
+                        ),
+                        const SizedBox(height: 26),
+                        if (width >= 1100)
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics:
+                            const NeverScrollableScrollPhysics(),
+                            itemCount: 4,
+                            gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 18,
+                              mainAxisSpacing: 18,
+                              mainAxisExtent: 330,
+                            ),
+                            itemBuilder: (context, index) {
+                              return _AddressCardShimmer(
+                                controller: _controller,
+                              );
+                            },
+                          )
+                        else
+                          ...List.generate(
+                            3,
+                                (index) => Padding(
+                              padding:
+                              const EdgeInsets.only(bottom: 14),
+                              child: _AddressCardShimmer(
+                                controller: _controller,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -378,10 +517,10 @@ class _AddressCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
@@ -391,66 +530,66 @@ class _AddressCardShimmer extends StatelessWidget {
             children: [
               _ShimmerBox(
                 controller: controller,
-                width: 42.w,
-                height: 42.w,
-                radius: 30.r,
+                width: 42,
+                height: 42,
+                radius: 30,
               ),
-              SizedBox(width: 12.w),
+              const SizedBox(width: 12),
               Expanded(
                 child: _ShimmerBox(
                   controller: controller,
-                  width: 120.w,
-                  height: 15.h,
-                  radius: 5.r,
+                  width: 120,
+                  height: 15,
+                  radius: 5,
                 ),
               ),
               _ShimmerBox(
                 controller: controller,
-                width: 55.w,
-                height: 25.h,
-                radius: 8.r,
+                width: 55,
+                height: 25,
+                radius: 8,
               ),
             ],
           ),
-          SizedBox(height: 18.h),
-          _ShimmerInfoRow(controller: controller, width: 145.w),
-          SizedBox(height: 12.h),
-          _ShimmerInfoRow(controller: controller, width: 115.w),
-          SizedBox(height: 12.h),
-          _ShimmerInfoRow(controller: controller, width: 170.w),
-          SizedBox(height: 12.h),
-          _ShimmerInfoRow(controller: controller, width: 220.w),
-          SizedBox(height: 18.h),
+          const SizedBox(height: 18),
+          _ShimmerInfoRow(controller: controller, width: 145),
+          const SizedBox(height: 12),
+          _ShimmerInfoRow(controller: controller, width: 115),
+          const SizedBox(height: 12),
+          _ShimmerInfoRow(controller: controller, width: 170),
+          const SizedBox(height: 12),
+          _ShimmerInfoRow(controller: controller, width: 220),
+          const SizedBox(height: 18),
           Divider(height: 1, color: Colors.grey.shade200),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12),
           Row(
             children: [
               _ShimmerBox(
                 controller: controller,
-                width: 90.w,
-                height: 30.h,
-                radius: 8.r,
+                width: 90,
+                height: 30,
+                radius: 8,
               ),
               const Spacer(),
               _ShimmerBox(
                 controller: controller,
-                width: 32.w,
-                height: 32.w,
-                radius: 8.r,
+                width: 32,
+                height: 32,
+                radius: 8,
               ),
-              SizedBox(width: 8.w),
+              const SizedBox(width: 8),
               _ShimmerBox(
                 controller: controller,
-                width: 32.w,
-                height: 32.w,
-                radius: 8.r,
+                width: 32,
+                height: 32,
+                radius: 8,
               ),
-              SizedBox(width: 8.w),
+              const SizedBox(width: 8),
               _ShimmerBox(
                 controller: controller,
-                width: 32.w,
-                height: 32.w,
-                radius: 8.r,
+                width: 32,
+                height: 32,
+                radius: 8,
               ),
             ],
           ),
@@ -475,16 +614,16 @@ class _ShimmerInfoRow extends StatelessWidget {
       children: [
         _ShimmerBox(
           controller: controller,
-          width: 18.w,
-          height: 18.w,
-          radius: 5.r,
+          width: 18,
+          height: 18,
+          radius: 5,
         ),
-        SizedBox(width: 9.w),
+        const SizedBox(width: 9),
         _ShimmerBox(
           controller: controller,
           width: width,
-          height: 12.h,
-          radius: 5.r,
+          height: 12,
+          radius: 5,
         ),
       ],
     );
@@ -567,17 +706,19 @@ class _AddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    final width = MediaQuery.sizeOf(context).width;
+    final compact = width < 400;
 
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(18.r),
+      borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: isUpdating ? null : onSelect,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         child: Container(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(compact ? 13 : 18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18.r),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isSelected ? primary : Colors.grey.shade200,
               width: isSelected ? 1.5 : 1,
@@ -585,12 +726,13 @@ class _AddressCard extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 42.w,
-                    height: 42.w,
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
                       color: primary.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
@@ -598,35 +740,35 @@ class _AddressCard extends StatelessWidget {
                     child: Icon(
                       Iconsax.location_copy,
                       color: primary,
-                      size: 23.sp,
+                      size: 22,
                     ),
                   ),
-                  SizedBox(width: 12.w),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       address.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15.sp,
+                      style: const TextStyle(
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   if (address.isDefault)
                     Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 5.h,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8.r),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
+                      child: const Text(
                         'پیش‌فرض',
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: Colors.green,
                         ),
@@ -634,36 +776,36 @@ class _AddressCard extends StatelessWidget {
                     ),
                 ],
               ),
-              SizedBox(height: 14.h),
+              const SizedBox(height: 16),
               _InfoRow(
                 icon: Iconsax.user_copy,
                 text: address.receiverName,
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 10),
               _InfoRow(
                 icon: Iconsax.call_copy,
                 text: address.phone,
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 10),
               _InfoRow(
                 icon: Iconsax.house_copy,
                 text: '${address.province}، ${address.city}',
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 10),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     Iconsax.house_2_copy,
-                    size: 18.sp,
+                    size: 18,
                     color: Colors.grey.shade500,
                   ),
-                  SizedBox(width: 8.w),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       address.address,
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 12,
                         height: 1.7,
                         color: Colors.grey.shade700,
                       ),
@@ -673,31 +815,45 @@ class _AddressCard extends StatelessWidget {
               ),
               if (address.postalCode != null &&
                   address.postalCode!.isNotEmpty) ...[
-                SizedBox(height: 8.h),
+                const SizedBox(height: 10),
                 _InfoRow(
                   icon: Iconsax.code_copy,
                   text: 'کد پستی: ${address.postalCode}',
                 ),
               ],
-              SizedBox(height: 14.h),
+              const SizedBox(height: 14),
               Divider(height: 1, color: Colors.grey.shade200),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 8),
+              _buildActions(context, compact),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActions(BuildContext context, bool compact) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 340) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextButton.icon(
+                onPressed: isUpdating ? null : onSelect,
+                icon: Icon(
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 18,
+                ),
+                label: Text(
+                  isSelected ? 'انتخاب شده' : 'انتخاب آدرس',
+                ),
+              ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: TextButton.icon(
-                      onPressed: isUpdating ? null : onSelect,
-                      icon: Icon(
-                        isSelected
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        size: 18.sp,
-                      ),
-                      label: Text(
-                        isSelected ? 'انتخاب شده' : 'انتخاب',
-                      ),
-                    ),
-                  ),
                   IconButton(
                     onPressed: isUpdating ? null : onEdit,
                     tooltip: 'ویرایش',
@@ -711,37 +867,76 @@ class _AddressCard extends StatelessWidget {
                       color: Colors.red.shade400,
                     ),
                   ),
-                  PopupMenuButton<String>(
-                    enabled: !isUpdating,
-                    onSelected: (value) {
-                      if (value == 'default') {
-                        onSetDefault();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem<String>(
-                        value: 'default',
-                        enabled: !address.isDefault,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.check_circle_outline),
-                            SizedBox(width: 8.w),
-                            Text(
-                              address.isDefault
-                                  ? 'آدرس پیش‌فرض'
-                                  : 'تعیین به عنوان پیش‌فرض',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  _defaultMenu(),
                 ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: TextButton.icon(
+                onPressed: isUpdating ? null : onSelect,
+                icon: Icon(
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 18,
+                ),
+                label: Text(
+                  isSelected ? 'انتخاب شده' : 'انتخاب',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: isUpdating ? null : onEdit,
+              tooltip: 'ویرایش',
+              icon: const Icon(Iconsax.edit_copy),
+            ),
+            IconButton(
+              onPressed: isUpdating ? null : onDelete,
+              tooltip: 'حذف',
+              icon: Icon(
+                Iconsax.trash_copy,
+                color: Colors.red.shade400,
+              ),
+            ),
+            _defaultMenu(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _defaultMenu() {
+    return PopupMenuButton<String>(
+      enabled: !isUpdating,
+      onSelected: (value) {
+        if (value == 'default') {
+          onSetDefault();
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          value: 'default',
+          enabled: !address.isDefault,
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_outline),
+              const SizedBox(width: 8),
+              Text(
+                address.isDefault
+                    ? 'آدرس پیش‌فرض'
+                    : 'تعیین به عنوان پیش‌فرض',
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -766,17 +961,17 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 18.sp,
+          size: 18,
           color: Colors.grey.shade500,
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 12,
               color: Colors.grey.shade700,
               height: 1.5,
             ),
@@ -802,62 +997,80 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 90.w,
-              height: 90.w,
-              decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Iconsax.location_copy,
-                size: 45.sp,
-                color: primary,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-            SizedBox(height: 20.h),
-            Text(
-              'هنوز آدرسی ثبت نکرده‌اید',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'برای ثبت سفارش ابتدا یک آدرس برای ارسال محصولات اضافه کنید.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
-                height: 1.7,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            ElevatedButton.icon(
-              onPressed: onAddAddress,
-              icon: const Icon(Icons.add),
-              label: const Text('افزودن آدرس'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 22.w,
-                  vertical: 12.h,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          color: primary.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Iconsax.location_copy,
+                          size: 45,
+                          color: primary,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'هنوز آدرسی ثبت نکرده‌اید',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'برای ثبت سفارش ابتدا یک آدرس برای ارسال محصولات اضافه کنید.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.7,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: onAddAddress,
+                        icon: const Icon(Icons.add),
+                        label: const Text('افزودن آدرس'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 22,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -877,42 +1090,61 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Iconsax.information_copy,
-              size: 50.sp,
-              color: Colors.red.shade400,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-            SizedBox(height: 14.h),
-            Text(
-              'خطا در دریافت آدرس‌ها',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 450),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Iconsax.information_copy,
+                        size: 50,
+                        color: Colors.red.shade400,
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'خطا در دریافت آدرس‌ها',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.6,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      ElevatedButton(
+                        onPressed: onRetry,
+                        child: const Text('تلاش مجدد'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 18.h),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('تلاش مجدد'),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -933,24 +1165,25 @@ class _ErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
           Icon(
             Iconsax.information_copy,
             color: Colors.red.shade600,
-            size: 20.sp,
+            size: 20,
           ),
-          SizedBox(width: 8.w),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
-                fontSize: 11.sp,
+                fontSize: 12,
+                height: 1.5,
                 color: Colors.red.shade700,
               ),
             ),
@@ -958,7 +1191,7 @@ class _ErrorBanner extends StatelessWidget {
           IconButton(
             onPressed: onClose,
             icon: const Icon(Iconsax.close_circle_copy),
-            iconSize: 18.sp,
+            iconSize: 18,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),

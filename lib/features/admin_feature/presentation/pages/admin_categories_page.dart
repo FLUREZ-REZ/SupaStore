@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -167,40 +166,40 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: BorderRadius.circular(20),
             ),
             icon: Container(
-              width: 64.w,
-              height: 64.w,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
                 color: _primaryRed.withOpacity(0.10),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Iconsax.trash_copy,
                 color: _primaryRed,
-                size: 32.sp,
+                size: 32,
               ),
             ),
-            title: Text(
+            title: const Text(
               'حذف دسته‌بندی',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18.sp,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF222222),
+                color: Color(0xFF222222),
               ),
             ),
             content: Text(
               'آیا از حذف دسته‌بندی «${category.name}» مطمئن هستید؟',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
+              style: const TextStyle(
+                fontSize: 14,
                 height: 1.8,
-                color: const Color(0xFF555555),
+                color: Color(0xFF555555),
               ),
             ),
-            actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             actions: [
               Row(
                 children: [
@@ -212,21 +211,21 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _primaryRed,
                         side: const BorderSide(color: _primaryRed),
-                        minimumSize: Size(double.infinity, 46.h),
+                        minimumSize: const Size(double.infinity, 46),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'انصراف',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 10.w),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: FilledButton(
                       onPressed: () {
@@ -235,16 +234,16 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                       style: FilledButton.styleFrom(
                         backgroundColor: _primaryRed,
                         foregroundColor: Colors.white,
-                        minimumSize: Size(double.infinity, 46.h),
+                        minimumSize: const Size(double.infinity, 46),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'حذف',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -270,35 +269,35 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: BorderRadius.circular(20),
             ),
             icon: Container(
-              width: 68.w,
-              height: 68.w,
+              width: 68,
+              height: 68,
               decoration: BoxDecoration(
                 color: _primaryRed.withOpacity(0.10),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Iconsax.warning_2_copy,
                 color: _primaryRed,
-                size: 36.sp,
+                size: 36,
               ),
             ),
-            title: Text(
+            title: const Text(
               'امکان حذف وجود ندارد',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18.sp,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: _primaryRed,
               ),
             ),
             content: Container(
-              padding: EdgeInsets.all(14.w),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF5F5),
-                borderRadius: BorderRadius.circular(12.r),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _primaryRed.withOpacity(0.15),
                 ),
@@ -306,15 +305,15 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: const TextStyle(
+                  fontSize: 13,
                   height: 1.9,
-                  color: const Color(0xFF444444),
+                  color: Color(0xFF444444),
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             actions: [
               SizedBox(
                 width: double.infinity,
@@ -325,16 +324,16 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
                   style: FilledButton.styleFrom(
                     backgroundColor: _primaryRed,
                     foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48.h),
+                    minimumSize: const Size(double.infinity, 48),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'متوجه شدم',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -372,32 +371,32 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
         SnackBar(
           backgroundColor: _primaryRed,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(16.w),
+          margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12),
           ),
           content: Row(
             children: [
               Container(
-                width: 30.w,
-                height: 30.w,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.18),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.check_rounded,
                   color: Colors.white,
-                  size: 18.sp,
+                  size: 18,
                 ),
               ),
-              SizedBox(width: 10.w),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   message,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 13.sp,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -450,7 +449,6 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
         backgroundColor: _backgroundColor,
         body: Consumer<AdminCategoryProvider>(
           builder: (context, provider, child) {
-            // شیمر فقط در بارگذاری اولیه نمایش داده می‌شود.
             if (provider.isLoading && provider.categories.isEmpty) {
               return const _CategoriesShimmer();
             }
@@ -473,53 +471,118 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
             return RefreshIndicator(
               color: _primaryRed,
               onRefresh: _refresh,
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        16.w,
-                        16.h,
-                        16.w,
-                        8.h,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+
+                  final isDesktop = width >= 1100;
+                  final isTablet = width >= 700 && width < 1100;
+
+                  final horizontalPadding = isDesktop ? 28.0 : 16.0;
+
+                  final crossAxisCount = isDesktop
+                      ? 2
+                      : isTablet
+                      ? 2
+                      : 1;
+
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 1500,
                       ),
-                      child: _buildSearchAndAddRow(),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(
-                      16.w,
-                      8.h,
-                      16.w,
-                      100.h,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                          if (index >= provider.categories.length) {
-                            return _buildLoadingMore(provider);
-                          }
-
-                          final category = provider.categories[index];
-
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: _CategoryCard(
-                              category: category,
-                              imageUrl: _getImageUrl(category.imageUrl),
-                              onEdit: () => _openEditCategory(category),
-                              onDelete: () => _deleteCategory(category),
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalPadding,
+                                20,
+                                horizontalPadding,
+                                10,
+                              ),
+                              child: _buildSearchAndAddRow(width),
                             ),
-                          );
-                        },
-                        childCount: provider.categories.length +
-                            (provider.isLoadingMore ? 1 : 0),
+                          ),
+                          SliverPadding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              8,
+                              horizontalPadding,
+                              100,
+                            ),
+                            sliver: crossAxisCount == 1
+                                ? SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                  if (index >=
+                                      provider.categories.length) {
+                                    return _buildLoadingMore(provider);
+                                  }
+
+                                  final category =
+                                  provider.categories[index];
+
+                                  return Padding(
+                                    padding:
+                                    const EdgeInsets.only(bottom: 10),
+                                    child: _CategoryCard(
+                                      category: category,
+                                      imageUrl:
+                                      _getImageUrl(category.imageUrl),
+                                      onEdit: () =>
+                                          _openEditCategory(category),
+                                      onDelete: () =>
+                                          _deleteCategory(category),
+                                    ),
+                                  );
+                                },
+                                childCount:
+                                provider.categories.length +
+                                    (provider.isLoadingMore ? 1 : 0),
+                              ),
+                            )
+                                : SliverGrid(
+                              delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                  if (index >=
+                                      provider.categories.length) {
+                                    return const _CategoryCardShimmer();
+                                  }
+
+                                  final category =
+                                  provider.categories[index];
+
+                                  return _CategoryCard(
+                                    category: category,
+                                    imageUrl:
+                                    _getImageUrl(category.imageUrl),
+                                    onEdit: () =>
+                                        _openEditCategory(category),
+                                    onDelete: () =>
+                                        _deleteCategory(category),
+                                  );
+                                },
+                                childCount:
+                                provider.categories.length +
+                                    (provider.isLoadingMore ? 1 : 0),
+                              ),
+                              gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 12,
+                                mainAxisExtent: isDesktop ? 145 : 140,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             );
           },
@@ -532,27 +595,45 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
   // Search + Add Button
   // ---------------------------------------------------------------------------
 
-  Widget _buildSearchAndAddRow() {
+  Widget _buildSearchAndAddRow(double screenWidth) {
+    final isNarrow = screenWidth < 480;
+
+    if (isNarrow) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildAddCategoryButton(),
+          const SizedBox(height: 10),
+          _buildSearchField(),
+        ],
+      );
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildAddCategoryButton(),
-        SizedBox(width: 10.w),
-        Expanded(child: _buildSearchField()),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildSearchField(),
+        ),
       ],
     );
   }
 
   Widget _buildAddCategoryButton() {
     return SizedBox(
-      height: 52.h,
+      height: 48,
       child: FilledButton.icon(
         onPressed: _openAddCategory,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(
+        icon: const Icon(
+          Icons.add_rounded,
+          size: 20,
+        ),
+        label: const Text(
           'دسته‌بندی جدید',
           style: TextStyle(
-            fontSize: 12.5.sp,
+            fontSize: 13,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -560,9 +641,9 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
           backgroundColor: const Color(0xFF0096C7),
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: EdgeInsets.symmetric(horizontal: 14.w),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
@@ -575,19 +656,23 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
 
   Widget _buildSearchField() {
     return SizedBox(
-      height: 52.h,
+      height: 48,
       child: TextField(
         controller: _searchController,
         onChanged: _onSearchChanged,
         textDirection: TextDirection.rtl,
         textInputAction: TextInputAction.search,
+        style: const TextStyle(fontSize: 13),
         decoration: InputDecoration(
           hintText: 'جستجوی دسته‌بندی',
-          hintStyle: TextStyle(
-            fontSize: 13.sp,
+          hintStyle: const TextStyle(
+            fontSize: 13,
             color: Colors.black45,
           ),
-          prefixIcon: const Icon(Icons.search_rounded),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            size: 21,
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
             onPressed: _clearSearch,
@@ -596,20 +681,20 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
               : null,
           filled: true,
           fillColor: Colors.white,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 16.w,
-            vertical: 14.h,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
               color: _primaryRed,
               width: 1.2,
@@ -632,10 +717,14 @@ class _AdminCategoriesPageState extends State<AdminCategoriesPage> {
       onRefresh: _refresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 100.h),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
         children: [
-          _buildSearchAndAddRow(),
-          SizedBox(height: 70.h),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return _buildSearchAndAddRow(constraints.maxWidth);
+            },
+          ),
+          const SizedBox(height: 70),
           _EmptyState(
             hasSearch: hasSearch,
             onAdd: _openAddCategory,
@@ -666,42 +755,92 @@ class _CategoriesShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 24.h),
-      child: _ShimmerEffect(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                _SkeletonBox(
-                  width: 132.w,
-                  height: 52.h,
-                  radius: 14.r,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final isNarrow = width < 480;
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1500),
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+              child: _ShimmerEffect(
+                child: Column(
+                  children: [
+                    if (isNarrow)
+                      Column(
+                        children: [
+                          const _SkeletonBox(
+                            width: double.infinity,
+                            height: 48,
+                            radius: 12,
+                          ),
+                          const SizedBox(height: 10),
+                          const _SkeletonBox(
+                            width: double.infinity,
+                            height: 48,
+                            radius: 12,
+                          ),
+                        ],
+                      )
+                    else
+                      const Row(
+                        children: [
+                          _SkeletonBox(
+                            width: 150,
+                            height: 48,
+                            radius: 12,
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: _SkeletonBox(
+                              width: double.infinity,
+                              height: 48,
+                              radius: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 18),
+                    if (width >= 700)
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 6,
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: 145,
+                        ),
+                        itemBuilder: (context, index) {
+                          return const _CategoryCardSkeleton();
+                        },
+                      )
+                    else
+                      const Column(
+                        children: [
+                          _CategoryCardSkeleton(),
+                          SizedBox(height: 10),
+                          _CategoryCardSkeleton(),
+                          SizedBox(height: 10),
+                          _CategoryCardSkeleton(),
+                          SizedBox(height: 10),
+                          _CategoryCardSkeleton(),
+                          SizedBox(height: 10),
+                          _CategoryCardSkeleton(),
+                        ],
+                      ),
+                  ],
                 ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: _SkeletonBox(
-                    width: double.infinity,
-                    height: 52.h,
-                    radius: 14.r,
-                  ),
-                ),
-              ],
+              ),
             ),
-            SizedBox(height: 18.h),
-            const _CategoryCardSkeleton(),
-            SizedBox(height: 10),
-            const _CategoryCardSkeleton(),
-            SizedBox(height: 10),
-            const _CategoryCardSkeleton(),
-            SizedBox(height: 10),
-            const _CategoryCardSkeleton(),
-            SizedBox(height: 10),
-            const _CategoryCardSkeleton(),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -715,8 +854,8 @@ class _CategoryCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ShimmerEffect(
-      child: const _CategoryCardSkeleton(),
+    return const _ShimmerEffect(
+      child: _CategoryCardSkeleton(),
     );
   }
 }
@@ -824,68 +963,68 @@ class _CategoryCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFEAEAEA)),
       ),
       child: Row(
         children: [
-          _SkeletonBox(
-            width: 82.w,
-            height: 82.w,
-            radius: 14.r,
+          const _SkeletonBox(
+            width: 76,
+            height: 76,
+            radius: 12,
           ),
-          SizedBox(width: 14.w),
-          Expanded(
+          const SizedBox(width: 12),
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _SkeletonBox(
-                  width: 125.w,
-                  height: 14.h,
-                  radius: 5.r,
+                  width: 125,
+                  height: 14,
+                  radius: 5,
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 10),
                 _SkeletonBox(
-                  width: 95.w,
-                  height: 10.h,
-                  radius: 5.r,
+                  width: 95,
+                  height: 10,
+                  radius: 5,
                 ),
-                SizedBox(height: 13.h),
+                SizedBox(height: 13),
                 Wrap(
-                  spacing: 6.w,
-                  runSpacing: 5.h,
+                  spacing: 6,
+                  runSpacing: 5,
                   children: [
                     _SkeletonBox(
-                      width: 72.w,
-                      height: 23.h,
-                      radius: 7.r,
+                      width: 72,
+                      height: 23,
+                      radius: 7,
                     ),
                     _SkeletonBox(
-                      width: 58.w,
-                      height: 23.h,
-                      radius: 7.r,
+                      width: 58,
+                      height: 23,
+                      radius: 7,
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          SizedBox(width: 10.w),
-          Column(
+          const SizedBox(width: 10),
+          const Column(
             children: [
               _SkeletonBox(
-                width: 38.w,
-                height: 38.w,
-                radius: 10.r,
+                width: 36,
+                height: 36,
+                radius: 9,
               ),
-              SizedBox(height: 7.h),
+              SizedBox(height: 7),
               _SkeletonBox(
-                width: 38.w,
-                height: 38.w,
-                radius: 10.r,
+                width: 36,
+                height: 36,
+                radius: 9,
               ),
             ],
           ),
@@ -916,94 +1055,111 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: const Color(0xFFEAEAEA)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.035),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          _CategoryImage(imageUrl: imageUrl),
-          SizedBox(width: 14.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF222222),
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Text(
-                    category.slug,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.black45,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 9.h),
-                Wrap(
-                  spacing: 6.w,
-                  runSpacing: 5.h,
-                  children: [
-                    _CategoryBadge(
-                      icon: Icons.sort_rounded,
-                      text: 'ترتیب ${category.sortOrder}',
-                    ),
-                    _CategoryBadge(
-                      icon: category.isActive
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.block_rounded,
-                      text: category.isActive ? 'فعال' : 'غیرفعال',
-                      color: category.isActive
-                          ? Colors.green
-                          : _primaryRed,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 10.w),
-          Column(
-            children: [
-              _ActionButton(
-                icon: Icons.edit_outlined,
-                tooltip: 'ویرایش',
-                onPressed: onEdit,
-              ),
-              SizedBox(height: 7.h),
-              _ActionButton(
-                icon: Iconsax.trash_copy,
-                tooltip: 'حذف',
-                color: _primaryRed,
-                onPressed: onDelete,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final isCompact = width < 350;
+
+        final imageSize = isCompact ? 64.0 : 76.0;
+        final titleSize = isCompact ? 13.0 : 14.0;
+
+        return Container(
+          padding: EdgeInsets.all(isCompact ? 10 : 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFEAEAEA)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.035),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              _CategoryImage(
+                imageUrl: imageUrl,
+                size: imageSize,
+              ),
+              SizedBox(width: isCompact ? 10 : 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      category.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF222222),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        category.slug,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black45,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 9),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 5,
+                      children: [
+                        _CategoryBadge(
+                          icon: Icons.sort_rounded,
+                          text: 'ترتیب ${category.sortOrder}',
+                        ),
+                        _CategoryBadge(
+                          icon: category.isActive
+                              ? Icons.check_circle_outline_rounded
+                              : Icons.block_rounded,
+                          text: category.isActive ? 'فعال' : 'غیرفعال',
+                          color: category.isActive
+                              ? Colors.green
+                              : _primaryRed,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: isCompact ? 7 : 10),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ActionButton(
+                    icon: Icons.edit_outlined,
+                    tooltip: 'ویرایش',
+                    onPressed: onEdit,
+                    compact: isCompact,
+                  ),
+                  const SizedBox(height: 7),
+                  _ActionButton(
+                    icon: Iconsax.trash_copy,
+                    tooltip: 'حذف',
+                    color: _primaryRed,
+                    onPressed: onDelete,
+                    compact: isCompact,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -1015,18 +1171,20 @@ class _CategoryCard extends StatelessWidget {
 class _CategoryImage extends StatelessWidget {
   const _CategoryImage({
     required this.imageUrl,
+    required this.size,
   });
 
   final String? imageUrl;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 82.w,
-      height: 82.w,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: const Color(0xFFF4F4F5),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
       ),
       clipBehavior: Clip.antiAlias,
       child: imageUrl == null
@@ -1072,31 +1230,34 @@ class _ActionButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.color,
+    this.compact = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
   final Color? color;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final buttonColor = color ?? const Color(0xFF555555);
+    final size = compact ? 34.0 : 38.0;
 
     return Tooltip(
       message: tooltip,
       child: Material(
         color: buttonColor.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(10),
           child: SizedBox(
-            width: 38.w,
-            height: 38.w,
+            width: size,
+            height: size,
             child: Icon(
               icon,
-              size: 20.sp,
+              size: compact ? 18 : 20,
               color: buttonColor,
             ),
           ),
@@ -1126,27 +1287,27 @@ class _CategoryBadge extends StatelessWidget {
     final badgeColor = color ?? const Color(0xFF777777);
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 7.w,
-        vertical: 4.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 7,
+        vertical: 4,
       ),
       decoration: BoxDecoration(
         color: badgeColor.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(7.r),
+        borderRadius: BorderRadius.circular(7),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
-            size: 13.sp,
+            size: 13,
             color: badgeColor,
           ),
-          SizedBox(width: 4.w),
+          const SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               color: badgeColor,
             ),
@@ -1174,68 +1335,74 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 100.w,
-          height: 100.w,
-          decoration: BoxDecoration(
-            color: _primaryRed.withOpacity(0.08),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            hasSearch
-                ? Icons.search_off_rounded
-                : Iconsax.category_copy,
-            size: 48.sp,
-            color: _primaryRed,
-          ),
-        ),
-        SizedBox(height: 20.h),
-        Text(
-          hasSearch
-              ? 'دسته‌بندی‌ای پیدا نشد'
-              : 'هنوز دسته‌بندی‌ای ثبت نشده است',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF222222),
-          ),
-        ),
-        SizedBox(height: 8.h),
-        Text(
-          hasSearch
-              ? 'عبارت جستجو را تغییر دهید.'
-              : 'اولین دسته‌بندی فروشگاه خود را ایجاد کنید.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13.sp,
-            color: Colors.black45,
-            height: 1.7,
-          ),
-        ),
-        if (!hasSearch) ...[
-          SizedBox(height: 24.h),
-          FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('ایجاد دسته‌بندی'),
-            style: FilledButton.styleFrom(
-              backgroundColor: _primaryRed,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: EdgeInsets.symmetric(
-                horizontal: 20.w,
-                vertical: 12.h,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final iconSize = constraints.maxWidth < 400 ? 85.0 : 100.0;
+
+        return Column(
+          children: [
+            Container(
+              width: iconSize,
+              height: iconSize,
+              decoration: BoxDecoration(
+                color: _primaryRed.withOpacity(0.08),
+                shape: BoxShape.circle,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+              child: Icon(
+                hasSearch
+                    ? Icons.search_off_rounded
+                    : Iconsax.category_copy,
+                size: iconSize * 0.48,
+                color: _primaryRed,
               ),
             ),
-          ),
-        ],
-      ],
+            const SizedBox(height: 20),
+            Text(
+              hasSearch
+                  ? 'دسته‌بندی‌ای پیدا نشد'
+                  : 'هنوز دسته‌بندی‌ای ثبت نشده است',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF222222),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              hasSearch
+                  ? 'عبارت جستجو را تغییر دهید.'
+                  : 'اولین دسته‌بندی فروشگاه خود را ایجاد کنید.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black45,
+                height: 1.7,
+              ),
+            ),
+            if (!hasSearch) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('ایجاد دسته‌بندی'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _primaryRed,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -1259,56 +1426,59 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80.w,
-              height: 80.w,
-              decoration: BoxDecoration(
-                color: _primaryRed.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Iconsax.warning_2_copy,
-                color: _primaryRed,
-                size: 42.sp,
-              ),
-            ),
-            SizedBox(height: 18.h),
-            Text(
-              'خطایی رخ داد',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF222222),
-              ),
-            ),
-            SizedBox(height: 10.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: Colors.black54,
-                height: 1.8,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            FilledButton(
-              onPressed: onRetry,
-              style: FilledButton.styleFrom(
-                backgroundColor: _primaryRed,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: _primaryRed.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Iconsax.warning_2_copy,
+                  color: _primaryRed,
+                  size: 42,
                 ),
               ),
-              child: const Text('تلاش مجدد'),
-            ),
-          ],
+              const SizedBox(height: 18),
+              const Text(
+                'خطایی رخ داد',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF222222),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.black54,
+                  height: 1.8,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: onRetry,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _primaryRed,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('تلاش مجدد'),
+              ),
+            ],
+          ),
         ),
       ),
     );

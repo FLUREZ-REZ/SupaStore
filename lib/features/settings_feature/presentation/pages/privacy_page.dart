@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supastore/core/theme/app_colors.dart';
 
@@ -10,252 +10,197 @@ class PrivacyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor =
-        Theme.of(context)
-            .colorScheme
-            .primary;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor:
-        Colors.grey.shade50,
-
-        // ==========================================
-        // APP BAR
-        // ==========================================
-
+        backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          title: const Text(
-            'حریم خصوصی',
-          ),
           centerTitle: true,
-          backgroundColor:
-          AppColors.privacy_page_redi ,
+          backgroundColor: AppColors.privacy_page_redi,
+          foregroundColor: Colors.white,
           elevation: 0,
         ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
 
-        // ==========================================
-        // BODY
-        // ==========================================
+            final horizontalPadding = width < 600
+                ? 20.0
+                : width < 1000
+                ? 32.0
+                : 40.0;
 
-        body: SingleChildScrollView(
-          physics:
-          const BouncingScrollPhysics(),
+            final contentMaxWidth = width >= 1000 ? 850.0 : double.infinity;
 
-          padding: EdgeInsets.all(20.w),
+            final bodyFontSize = width < 600 ? 13.0 : 14.0;
+            final cardPadding = width < 600 ? 18.0 : 24.0;
 
-          child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-            children: [
-              // ======================================
-              // HEADER
-              // ======================================
-
-              Container(
-                width: double.infinity,
-                padding:
-                EdgeInsets.all(20.w),
-
-                decoration: BoxDecoration(
-                  color: primaryColor
-                      .withValues(
-                    alpha: 0.08,
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: width < 600 ? 20 : 30,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: contentMaxWidth,
                   ),
-                  borderRadius:
-                  BorderRadius.circular(
-                    18.r,
-                  ),
-                ),
-
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52.w,
-                      height: 52.w,
-
-                      decoration:
-                      BoxDecoration(
-                        color: primaryColor
-                            .withValues(
-                          alpha: 0.12,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // HEADER
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(cardPadding),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                        shape:
-                        BoxShape.circle,
-                      ),
-
-                      child: Icon(
-                        Iconsax.security_copy,
-                        size: 28.sp,
-                        color:
-                        primaryColor,
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: 14.w,
-                    ),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
-                        children: [
-                          Text(
-                            'حریم خصوصی',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight:
-                              FontWeight.bold,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: width < 600 ? 52 : 60,
+                              height: width < 600 ? 52 : 60,
+                              decoration: BoxDecoration(
+                                color: primaryColor.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Iconsax.security_copy,
+                                size: width < 600 ? 28 : 32,
+                                color: primaryColor,
+                              ),
                             ),
-                          ),
 
-                          SizedBox(
-                            height: 5.h,
-                          ),
+                            const SizedBox(width: 14),
 
-                          Text(
-                            'محافظت از اطلاعات شما برای ما اهمیت دارد.',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors
-                                  .grey
-                                  .shade600,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'حریم خصوصی',
+                                    style: TextStyle(
+                                      fontSize: width < 600 ? 18 : 21,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 5),
+
+                                  Text(
+                                    'محافظت از اطلاعات شما برای ما اهمیت دارد.',
+                                    style: TextStyle(
+                                      fontSize: width < 600 ? 12 : 14,
+                                      color: Colors.grey.shade600,
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
 
-              SizedBox(
-                height: 24.h,
-              ),
+                      const SizedBox(height: 24),
 
-              // ======================================
-              // INTRO
-              // ======================================
+                      // INTRO
+                      _PrivacySection(
+                        title: 'اطلاعاتی که دریافت می‌کنیم',
+                        icon: Iconsax.user_copy,
+                        iconColor: Colors.blue,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'برای استفاده از برخی امکانات Supastore ممکن است اطلاعاتی مانند شماره همراه، نام و اطلاعات مربوط به حساب کاربری شما دریافت شود.',
+                        ),
+                      ),
 
-              _PrivacySection(
-                title:
-                'اطلاعاتی که دریافت می‌کنیم',
-                icon:
-                Iconsax.user_copy,
-                iconColor:
-                Colors.blue,
-                child: const Text(
-                  'برای استفاده از برخی امکانات Supastore ممکن است اطلاعاتی مانند شماره همراه، نام و اطلاعات مربوط به حساب کاربری شما دریافت شود.',
-                ),
-              ),
+                      // PROFILE
+                      _PrivacySection(
+                        title: 'اطلاعات حساب کاربری',
+                        icon: Iconsax.profile_circle_copy,
+                        iconColor: Colors.green,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'اطلاعات حساب کاربری شما برای شناسایی حساب، نمایش اطلاعات پروفایل و ارائه خدمات فروشگاه استفاده می‌شود.',
+                        ),
+                      ),
 
-              // ======================================
-              // PROFILE
-              // ======================================
+                      // ORDERS
+                      _PrivacySection(
+                        title: 'اطلاعات سفارش‌ها',
+                        icon: Iconsax.receipt_copy,
+                        iconColor: Colors.orange,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'اطلاعات مربوط به سبد خرید و سفارش‌های شما برای ثبت، پردازش و پیگیری سفارش‌ها استفاده می‌شود.',
+                        ),
+                      ),
 
-              _PrivacySection(
-                title:
-                'اطلاعات حساب کاربری',
-                icon:
-                Iconsax.profile_circle_copy,
-                iconColor:
-                Colors.green,
-                child: const Text(
-                  'اطلاعات حساب کاربری شما برای شناسایی حساب، نمایش اطلاعات پروفایل و ارائه خدمات فروشگاه استفاده می‌شود.',
-                ),
-              ),
+                      // SECURITY
+                      _PrivacySection(
+                        title: 'امنیت اطلاعات',
+                        icon: Iconsax.lock_1_copy,
+                        iconColor: Colors.red,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'ما تلاش می‌کنیم اطلاعات کاربران به شکل مناسب نگهداری و محافظت شود و دسترسی به اطلاعات فقط در محدوده مورد نیاز برنامه انجام شود.',
+                        ),
+                      ),
 
-              // ======================================
-              // ORDERS
-              // ======================================
+                      // DATA SHARING
+                      _PrivacySection(
+                        title: 'اشتراک‌گذاری اطلاعات',
+                        icon: Iconsax.share_copy,
+                        iconColor: Colors.purple,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'اطلاعات شخصی کاربران بدون مجوز قانونی یا رضایت کاربر، در اختیار اشخاص و مجموعه‌های غیرمرتبط قرار نخواهد گرفت.',
+                        ),
+                      ),
 
-              _PrivacySection(
-                title:
-                'اطلاعات سفارش‌ها',
-                icon:
-                Iconsax.receipt_copy,
-                iconColor:
-                Colors.orange,
-                child: const Text(
-                  'اطلاعات مربوط به سبد خرید و سفارش‌های شما برای ثبت، پردازش و پیگیری سفارش‌ها استفاده می‌شود.',
-                ),
-              ),
+                      // USER CONTROL
+                      _PrivacySection(
+                        title: 'کنترل اطلاعات',
+                        icon: Iconsax.information_copy,
+                        iconColor: Colors.teal,
+                        bodyFontSize: bodyFontSize,
+                        cardPadding: cardPadding,
+                        child: const Text(
+                          'شما می‌توانید اطلاعات پروفایل خود مانند نام و تصویر پروفایل را از طریق بخش ویرایش پروفایل تغییر دهید.',
+                        ),
+                      ),
 
-              // ======================================
-              // SECURITY
-              // ======================================
+                      const SizedBox(height: 10),
 
-              _PrivacySection(
-                title:
-                'امنیت اطلاعات',
-                icon:
-                Iconsax.lock_1_copy,
-                iconColor:
-                Colors.red,
-                child: const Text(
-                  'ما تلاش می‌کنیم اطلاعات کاربران به شکل مناسب نگهداری و محافظت شود و دسترسی به اطلاعات فقط در محدوده مورد نیاز برنامه انجام شود.',
-                ),
-              ),
+                      // LAST UPDATE
+                      Center(
+                        child: Text(
+                          'آخرین بروزرسانی: 2026',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
 
-              // ======================================
-              // DATA SHARING
-              // ======================================
-
-              _PrivacySection(
-                title:
-                'اشتراک‌گذاری اطلاعات',
-                icon:
-                Iconsax.share_copy,
-                iconColor:
-                Colors.purple,
-                child: const Text(
-                  'اطلاعات شخصی کاربران بدون مجوز قانونی یا رضایت کاربر، در اختیار اشخاص و مجموعه‌های غیرمرتبط قرار نخواهد گرفت.',
-                ),
-              ),
-
-              // ======================================
-              // USER CONTROL
-              // ======================================
-
-              _PrivacySection(
-                title:
-                'کنترل اطلاعات',
-                icon:
-                Iconsax.information_copy,
-                iconColor:
-                Colors.teal,
-                child: const Text(
-                  'شما می‌توانید اطلاعات پروفایل خود مانند نام و تصویر پروفایل را از طریق بخش ویرایش پروفایل تغییر دهید.',
-                ),
-              ),
-
-              SizedBox(
-                height: 10.h,
-              ),
-
-              // ======================================
-              // LAST UPDATE
-              // ======================================
-
-              Center(
-                child: Text(
-                  'آخرین بروزرسانی: 2026',
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color:
-                    Colors.grey.shade400,
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),
-
-              SizedBox(
-                height: 20.h,
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -272,95 +217,72 @@ class _PrivacySection extends StatelessWidget {
     required this.icon,
     required this.iconColor,
     required this.child,
+    required this.bodyFontSize,
+    required this.cardPadding,
   });
 
   final String title;
   final IconData icon;
   final Color iconColor;
   final Widget child;
+  final double bodyFontSize;
+  final double cardPadding;
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
+  Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
+
     return Container(
       width: double.infinity,
-
-      margin: EdgeInsets.only(
-        bottom: 14.h,
-      ),
-
-      padding: EdgeInsets.all(18.w),
-
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(
-          16.r,
-        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-          Colors.grey.shade200,
+          color: Colors.grey.shade200,
         ),
       ),
-
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
-
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 38.w,
-                height: 38.w,
-
-                decoration:
-                BoxDecoration(
-                  color: iconColor
-                      .withValues(
-                    alpha: 0.10,
-                  ),
-                  borderRadius:
-                  BorderRadius.circular(
-                    10.r,
-                  ),
+                width: isCompact ? 38 : 44,
+                height: isCompact ? 38 : 44,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-
                 child: Icon(
                   icon,
-                  size: 21.sp,
+                  size: isCompact ? 21 : 24,
                   color: iconColor,
                 ),
               ),
 
-              SizedBox(
-                width: 10.w,
-              ),
+              const SizedBox(width: 10),
 
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight:
-                    FontWeight.bold,
+                    fontSize: isCompact ? 15 : 17,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
 
-          SizedBox(
-            height: 12.h,
-          ),
+          const SizedBox(height: 12),
 
           DefaultTextStyle(
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: bodyFontSize,
               height: 1.9,
-              color:
-              Colors.grey.shade700,
+              color: Colors.grey.shade700,
             ),
             child: child,
           ),

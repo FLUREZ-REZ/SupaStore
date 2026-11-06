@@ -1,6 +1,6 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:supastore/core/di/injector.dart';
 
@@ -34,6 +34,9 @@ class _AdminUserDetailsPageState
   bool _showAllOrders = false;
   bool _showAllReviews = false;
 
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+
   @override
   void initState() {
     super.initState();
@@ -45,9 +48,7 @@ class _AdminUserDetailsPageState
   Future<List<OrderEntity>> _loadOrders() async {
     final repository = getIt<OrderRepository>();
 
-    return repository.getUserOrders(
-      widget.user.id,
-    );
+    return repository.getUserOrders(widget.user.id);
   }
 
   Future<List<AdminReviewEntity>> _loadReviews() async {
@@ -67,9 +68,7 @@ class _AdminUserDetailsPageState
     );
 
     return reviews
-        .where(
-          (review) => review.userId == widget.user.id,
-    )
+        .where((review) => review.userId == widget.user.id)
         .toList();
   }
 
@@ -133,18 +132,14 @@ class _AdminUserDetailsPageState
 
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(24),
         child: CachedNetworkImage(
           imageUrl: avatarUrl,
-          width: 96.w,
-          height: 96.w,
+          width: 96,
+          height: 96,
           fit: BoxFit.cover,
-          placeholder: (context, url) {
-            return _defaultAvatar();
-          },
-          errorWidget: (context, url, error) {
-            return _defaultAvatar();
-          },
+          placeholder: (context, url) => _defaultAvatar(),
+          errorWidget: (context, url, error) => _defaultAvatar(),
         ),
       );
     }
@@ -154,15 +149,15 @@ class _AdminUserDetailsPageState
 
   Widget _defaultAvatar() {
     return Container(
-      width: 96.w,
-      height: 96.w,
+      width: 96,
+      height: 96,
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Icon(
         Icons.person_outline_rounded,
-        size: 48.sp,
+        size: 48,
         color: Colors.grey.shade500,
       ),
     );
@@ -170,15 +165,15 @@ class _AdminUserDetailsPageState
 
   Widget _buildRoleBadge() {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 6.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: widget.user.isAdmin
-            ? Color(0xFFade8f4).withValues(alpha: 0.88)
+            ? const Color(0xFFADE8F4).withValues(alpha: 0.88)
             : Colors.grey.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -187,21 +182,19 @@ class _AdminUserDetailsPageState
             widget.user.isAdmin
                 ? Icons.admin_panel_settings_outlined
                 : Icons.person_outline_rounded,
-            size: 17.sp,
+            size: 17,
             color: widget.user.isAdmin
-                ? Color(0xFF03045e)
+                ? _primaryColor
                 : Colors.grey.shade700,
           ),
-          SizedBox(width: 6.w),
+          const SizedBox(width: 6),
           Text(
-            widget.user.isAdmin
-                ? 'مدیر'
-                : 'کاربر عادی',
+            widget.user.isAdmin ? 'مدیر' : 'کاربر عادی',
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: widget.user.isAdmin
-                  ? Color(0xFF03045e)
+                  ? _primaryColor
                   : Colors.grey.shade700,
             ),
           ),
@@ -213,18 +206,18 @@ class _AdminUserDetailsPageState
   Widget _buildInfoCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 8.r,
-            offset: Offset(0, 3.h),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -248,9 +241,7 @@ class _AdminUserDetailsPageState
           _buildInfoRow(
             icon: Icons.badge_outlined,
             title: 'نقش',
-            value: widget.user.isAdmin
-                ? 'مدیر'
-                : 'کاربر عادی',
+            value: widget.user.isAdmin ? 'مدیر' : 'کاربر عادی',
           ),
           _buildDivider(),
           _buildInfoRow(
@@ -280,19 +271,19 @@ class _AdminUserDetailsPageState
     return Row(
       children: [
         Container(
-          width: 38.w,
-          height: 38.w,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(11.r),
+            borderRadius: BorderRadius.circular(11),
           ),
           child: Icon(
             icon,
-            size: 19.sp,
+            size: 19,
             color: Colors.grey.shade700,
           ),
         ),
-        SizedBox(width: 12.w),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,11 +291,11 @@ class _AdminUserDetailsPageState
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 11.sp,
+                  fontSize: 11,
                   color: Colors.grey.shade500,
                 ),
               ),
-              SizedBox(height: 3.h),
+              const SizedBox(height: 3),
               Directionality(
                 textDirection:
                 isLtr ? TextDirection.ltr : TextDirection.rtl,
@@ -312,8 +303,8 @@ class _AdminUserDetailsPageState
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.sp,
+                  style: const TextStyle(
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
@@ -328,9 +319,7 @@ class _AdminUserDetailsPageState
 
   Widget _buildDivider() {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 13.h,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 13),
       child: Divider(
         height: 1,
         color: Colors.grey.shade200,
@@ -346,27 +335,27 @@ class _AdminUserDetailsPageState
       children: [
         Text(
           title,
-          style: TextStyle(
-            fontSize: 16.sp,
+          style: const TextStyle(
+            fontSize: 16,
             fontWeight: FontWeight.w800,
             color: Colors.black87,
           ),
         ),
         if (count != null) ...[
-          SizedBox(width: 8.w),
+          const SizedBox(width: 8),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8.w,
-              vertical: 3.h,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 3,
             ),
             decoration: BoxDecoration(
               color: Colors.red.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '$count',
-              style: TextStyle(
-                fontSize: 11.sp,
+              style: const TextStyle(
+                fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: Colors.red,
               ),
@@ -386,9 +375,9 @@ class _AdminUserDetailsPageState
       child: TextButton(
         onPressed: onTap,
         style: TextButton.styleFrom(
-          padding: EdgeInsets.symmetric(
-            horizontal: 4.w,
-            vertical: 4.h,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 4,
+            vertical: 4,
           ),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -398,19 +387,19 @@ class _AdminUserDetailsPageState
           children: [
             Text(
               expanded ? 'نمایش کمتر' : 'مشاهده همه',
-              style: TextStyle(
-                fontSize: 12.sp,
+              style: const TextStyle(
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF03045e),
+                color: _primaryColor,
               ),
             ),
-            SizedBox(width: 5.w),
+            const SizedBox(width: 5),
             Icon(
               expanded
                   ? Icons.keyboard_arrow_up_rounded
                   : Icons.arrow_back_ios_new_rounded,
-              size: expanded ? 18.sp : 12.sp,
-              color: Color(0xFF03045e),
+              size: expanded ? 18 : 12,
+              color: _primaryColor,
             ),
           ],
         ),
@@ -422,13 +411,12 @@ class _AdminUserDetailsPageState
     return FutureBuilder<List<OrderEntity>>(
       future: _ordersFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState ==
-            ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('سفارش‌ها'),
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
               _buildLoadingCard(),
             ],
           );
@@ -439,7 +427,7 @@ class _AdminUserDetailsPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('سفارش‌ها'),
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
               _buildErrorCard(
                 title: 'خطا در دریافت سفارش‌ها',
                 onRetry: () {
@@ -465,20 +453,17 @@ class _AdminUserDetailsPageState
               'سفارش‌ها',
               count: orders.length,
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             if (orders.isEmpty)
               _buildEmptyCard(
                 icon: Icons.shopping_bag_outlined,
                 title: 'هنوز سفارشی ثبت نشده',
-                description:
-                'این کاربر تاکنون سفارشی ثبت نکرده است.',
+                description: 'این کاربر تاکنون سفارشی ثبت نکرده است.',
               )
             else ...[
               ...visibleOrders.map(
                     (order) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: 10.h,
-                  ),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: _buildOrderCard(order),
                 ),
               ),
@@ -498,43 +483,38 @@ class _AdminUserDetailsPageState
     );
   }
 
-  Widget _buildOrderCard(
-      OrderEntity order,
-      ) {
-    final status = _getOrderStatusConfig(
-      order.status,
-    );
+  Widget _buildOrderCard(OrderEntity order) {
+    final status = _getOrderStatusConfig(order.status);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => AdminOrderDetailsPage(
                 order: order,
                 provider: getIt<AdminOrderProvider>(),
-                getAddressByIdUseCase:
-                getIt<GetAddressByIdUseCase>(),
+                getAddressByIdUseCase: getIt<GetAddressByIdUseCase>(),
               ),
             ),
           );
         },
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.all(15.w),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: Colors.grey.shade200,
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.025),
-                blurRadius: 7.r,
-                offset: Offset(0, 2.h),
+                blurRadius: 7,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -543,44 +523,41 @@ class _AdminUserDetailsPageState
               Row(
                 children: [
                   Container(
-                    width: 42.w,
-                    height: 42.w,
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
                       color: Colors.red.withValues(alpha: 0.07),
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.receipt_long_outlined,
                       color: Colors.red,
-                      size: 21.sp,
+                      size: 21,
                     ),
                   ),
-                  SizedBox(width: 11.w),
+                  const SizedBox(width: 11),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Directionality(
                           textDirection: TextDirection.ltr,
                           child: Text(
                             'سفارش #${order.id.substring(0, 8)}',
-                            style: TextStyle(
-                              fontSize: 14.sp,
+                            style: const TextStyle(
+                              fontSize: 14,
                               fontWeight: FontWeight.w800,
                               color: Colors.black87,
                             ),
                           ),
                         ),
-                        SizedBox(height: 4.h),
+                        const SizedBox(height: 4),
                         Directionality(
                           textDirection: TextDirection.ltr,
                           child: Text(
-                            _formatDateTime(
-                              order.createdAt,
-                            ),
+                            _formatDateTime(order.createdAt),
                             style: TextStyle(
-                              fontSize: 11.sp,
+                              fontSize: 11,
                               color: Colors.grey.shade500,
                             ),
                           ),
@@ -588,15 +565,16 @@ class _AdminUserDetailsPageState
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   _buildOrderStatusBadge(status),
                 ],
               ),
-              SizedBox(height: 13.h),
+              const SizedBox(height: 13),
               Divider(
                 height: 1,
                 color: Colors.grey.shade200,
               ),
-              SizedBox(height: 13.h),
+              const SizedBox(height: 13),
               Row(
                 children: [
                   Expanded(
@@ -606,19 +584,17 @@ class _AdminUserDetailsPageState
                       value: '${order.items.length} کالا',
                     ),
                   ),
-                  SizedBox(width: 8.w),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: _buildOrderInfo(
                       icon: Icons.payment_outlined,
                       title: 'پرداخت',
-                      value: _paymentStatusTitle(
-                        order.paymentStatus,
-                      ),
+                      value: _paymentStatusTitle(order.paymentStatus),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 13.h),
+              const SizedBox(height: 13),
               Row(
                 children: [
                   Expanded(
@@ -626,40 +602,46 @@ class _AdminUserDetailsPageState
                       'مبلغ نهایی',
                       textAlign: TextAlign.right,
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 12,
                         color: Colors.grey.shade600,
                       ),
                     ),
                   ),
-                  Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: Text(
-                      '${_formatPrice(order.totalPrice)} تومان',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.red,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        '${_formatPrice(order.totalPrice)} تومان',
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.red,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     'مشاهده جزئیات',
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Colors.grey.shade600,
                     ),
                   ),
-                  SizedBox(width: 4.w),
+                  const SizedBox(width: 4),
                   Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    size: 12.sp,
+                    size: 12,
                     color: Colors.grey.shade500,
                   ),
                 ],
@@ -677,19 +659,19 @@ class _AdminUserDetailsPageState
     required String value,
   }) {
     return Container(
-      padding: EdgeInsets.all(10.w),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(11.r),
+        borderRadius: BorderRadius.circular(11),
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            size: 17.sp,
+            size: 17,
             color: Colors.grey.shade600,
           ),
-          SizedBox(width: 7.w),
+          const SizedBox(width: 7),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -697,17 +679,17 @@ class _AdminUserDetailsPageState
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: 10,
                     color: Colors.grey.shade500,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                const SizedBox(height: 2),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11.sp,
+                  style: const TextStyle(
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
@@ -720,34 +702,32 @@ class _AdminUserDetailsPageState
     );
   }
 
-  Widget _buildOrderStatusBadge(
-      _OrderStatusConfig config,
-      ) {
+  Widget _buildOrderStatusBadge(_OrderStatusConfig config) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: config.color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(9.r),
+        borderRadius: BorderRadius.circular(9),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6.w,
-            height: 6.w,
+            width: 6,
+            height: 6,
             decoration: BoxDecoration(
               color: config.color,
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 5.w),
+          const SizedBox(width: 5),
           Text(
             config.title,
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               color: config.color,
             ),
@@ -757,64 +737,33 @@ class _AdminUserDetailsPageState
     );
   }
 
-  _OrderStatusConfig _getOrderStatusConfig(
-      String status,
-      ) {
+  _OrderStatusConfig _getOrderStatusConfig(String status) {
     switch (status) {
       case 'pending':
-        return _OrderStatusConfig(
-          'در انتظار',
-          Colors.orange,
-        );
-
+        return _OrderStatusConfig('در انتظار', Colors.orange);
       case 'processing':
-        return _OrderStatusConfig(
-          'در حال پردازش',
-          Colors.blue,
-        );
-
+        return _OrderStatusConfig('در حال پردازش', Colors.blue);
       case 'shipped':
-        return _OrderStatusConfig(
-          'ارسال شده',
-          Colors.indigo,
-        );
-
+        return _OrderStatusConfig('ارسال شده', Colors.indigo);
       case 'delivered':
-        return _OrderStatusConfig(
-          'تحویل شده',
-          Colors.green,
-        );
-
+        return _OrderStatusConfig('تحویل شده', Colors.green);
       case 'canceled':
-        return _OrderStatusConfig(
-          'لغو شده',
-          Colors.red,
-        );
-
+        return _OrderStatusConfig('لغو شده', Colors.red);
       default:
-        return _OrderStatusConfig(
-          status,
-          Colors.grey,
-        );
+        return _OrderStatusConfig(status, Colors.grey);
     }
   }
 
-  String _paymentStatusTitle(
-      String status,
-      ) {
+  String _paymentStatusTitle(String status) {
     switch (status) {
       case 'paid':
         return 'پرداخت شده';
-
       case 'pending':
         return 'در انتظار';
-
       case 'failed':
         return 'ناموفق';
-
       case 'refunded':
         return 'بازگشت وجه';
-
       default:
         return status.isEmpty ? 'نامشخص' : status;
     }
@@ -824,13 +773,12 @@ class _AdminUserDetailsPageState
     return FutureBuilder<List<AdminReviewEntity>>(
       future: _reviewsFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState ==
-            ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('نظرات'),
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
               _buildLoadingCard(),
             ],
           );
@@ -841,7 +789,7 @@ class _AdminUserDetailsPageState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionTitle('نظرات'),
-              SizedBox(height: 10.h),
+              const SizedBox(height: 10),
               _buildErrorCard(
                 title: 'خطا در دریافت نظرات',
                 onRetry: () {
@@ -867,7 +815,7 @@ class _AdminUserDetailsPageState
               'نظرات',
               count: reviews.length,
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             if (reviews.isEmpty)
               _buildEmptyCard(
                 icon: Icons.rate_review_outlined,
@@ -878,9 +826,7 @@ class _AdminUserDetailsPageState
             else ...[
               ...visibleReviews.map(
                     (review) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: 10.h,
-                  ),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: _buildReviewCard(review),
                 ),
               ),
@@ -900,23 +846,21 @@ class _AdminUserDetailsPageState
     );
   }
 
-  Widget _buildReviewCard(
-      AdminReviewEntity review,
-      ) {
+  Widget _buildReviewCard(AdminReviewEntity review) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.w),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 7.r,
-            offset: Offset(0, 2.h),
+            blurRadius: 7,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -926,11 +870,10 @@ class _AdminUserDetailsPageState
           Row(
             children: [
               _buildReviewProductImage(review),
-              SizedBox(width: 11.w),
+              const SizedBox(width: 11),
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       review.productTitle?.trim().isNotEmpty == true
@@ -938,21 +881,19 @@ class _AdminUserDetailsPageState
                           : 'محصول نامشخص',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13.sp,
+                      style: const TextStyle(
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 5.h),
+                    const SizedBox(height: 5),
                     Directionality(
                       textDirection: TextDirection.ltr,
                       child: Text(
-                        _formatDateTime(
-                          review.createdAt,
-                        ),
+                        _formatDateTime(review.createdAt),
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 10,
                           color: Colors.grey.shade500,
                         ),
                       ),
@@ -960,76 +901,80 @@ class _AdminUserDetailsPageState
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
               _buildReviewStatus(review),
             ],
           ),
-          SizedBox(height: 13.h),
-          Row(
+          const SizedBox(height: 13),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
             children: [
-              ...List.generate(
-                5,
-                    (index) => Icon(
-                  index < review.rating
-                      ? Icons.star_rounded
-                      : Icons.star_border_rounded,
-                  size: 18.sp,
-                  color: Colors.amber.shade600,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  5,
+                      (index) => Icon(
+                    index < review.rating
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    size: 18,
+                    color: Colors.amber.shade600,
+                  ),
                 ),
               ),
-              SizedBox(width: 6.w),
               Directionality(
                 textDirection: TextDirection.ltr,
                 child: Text(
                   '${review.rating}/5',
                   style: TextStyle(
-                    fontSize: 11.sp,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey.shade600,
                   ),
                 ),
               ),
-              if (review.isVerifiedPurchase) ...[
-                SizedBox(width: 8.w),
+              if (review.isVerifiedPurchase)
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 7.w,
-                    vertical: 3.h,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.green.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(7.r),
+                    borderRadius: BorderRadius.circular(7),
                   ),
                   child: Text(
                     'خرید تأیید شده',
                     style: TextStyle(
-                      fontSize: 9.sp,
+                      fontSize: 9,
                       fontWeight: FontWeight.w700,
                       color: Colors.green.shade700,
                     ),
                   ),
                 ),
-              ],
             ],
           ),
           if (review.title?.trim().isNotEmpty == true) ...[
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             Text(
               review.title!,
               textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 13.sp,
+              style: const TextStyle(
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: Colors.black87,
               ),
             ),
           ],
           if (review.comment.trim().isNotEmpty) ...[
-            SizedBox(height: 6.h),
+            const SizedBox(height: 6),
             Text(
               review.comment,
               textAlign: TextAlign.right,
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: 12,
                 height: 1.7,
                 color: Colors.grey.shade700,
               ),
@@ -1040,36 +985,36 @@ class _AdminUserDetailsPageState
     );
   }
 
-  Widget _buildReviewProductImage(
-      AdminReviewEntity review,
-      ) {
+  Widget _buildReviewProductImage(AdminReviewEntity review) {
     final imageUrl = review.productThumbnail?.trim();
 
     if (imageUrl == null || imageUrl.isEmpty) {
       return Container(
-        width: 58.w,
-        height: 58.w,
+        width: 58,
+        height: 58,
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           Icons.image_outlined,
           color: Colors.grey.shade400,
-          size: 24.sp,
+          size: 24,
         ),
       );
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
-        width: 58.w,
-        height: 58.w,
+        width: 58,
+        height: 58,
         fit: BoxFit.cover,
         placeholder: (context, url) {
           return Container(
+            width: 58,
+            height: 58,
             color: Colors.grey.shade100,
             child: Icon(
               Icons.image_outlined,
@@ -1079,6 +1024,8 @@ class _AdminUserDetailsPageState
         },
         errorWidget: (context, url, error) {
           return Container(
+            width: 58,
+            height: 58,
             color: Colors.grey.shade100,
             child: Icon(
               Icons.image_outlined,
@@ -1090,28 +1037,23 @@ class _AdminUserDetailsPageState
     );
   }
 
-  Widget _buildReviewStatus(
-      AdminReviewEntity review,
-      ) {
-    final color =
-    review.isApproved ? Colors.green : Colors.orange;
-
-    final title =
-    review.isApproved ? 'تأیید شده' : 'در انتظار';
+  Widget _buildReviewStatus(AdminReviewEntity review) {
+    final color = review.isApproved ? Colors.green : Colors.orange;
+    final title = review.isApproved ? 'تأیید شده' : 'در انتظار';
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8.w,
-        vertical: 4.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: 9.sp,
+          fontSize: 9,
           fontWeight: FontWeight.w700,
           color: color,
         ),
@@ -1122,30 +1064,28 @@ class _AdminUserDetailsPageState
   Widget _buildLoadingCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        vertical: 28.h,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 28),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
       ),
       child: Column(
         children: [
-          SizedBox(
-            width: 24.w,
-            height: 24.w,
-            child: const CircularProgressIndicator(
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
               strokeWidth: 2.5,
             ),
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
           Text(
             'در حال دریافت اطلاعات...',
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 12,
               color: Colors.grey.shade600,
             ),
           ),
@@ -1161,10 +1101,10 @@ class _AdminUserDetailsPageState
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -1172,33 +1112,34 @@ class _AdminUserDetailsPageState
       child: Column(
         children: [
           Container(
-            width: 50.w,
-            height: 50.w,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              size: 25.sp,
+              size: 25,
               color: Colors.grey.shade500,
             ),
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 13.sp,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w800,
               color: Colors.black87,
             ),
           ),
-          SizedBox(height: 5.h),
+          const SizedBox(height: 5),
           Text(
             description,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: 11,
               color: Colors.grey.shade600,
             ),
           ),
@@ -1213,39 +1154,36 @@ class _AdminUserDetailsPageState
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.red.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.error_outline_rounded,
             color: Colors.red,
-            size: 30.sp,
+            size: 30,
           ),
-          SizedBox(height: 8.h),
+          const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 13.sp,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
           OutlinedButton.icon(
             onPressed: onRetry,
-            icon: const Icon(
-              Icons.refresh_rounded,
-            ),
-            label: const Text(
-              'تلاش مجدد',
-            ),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('تلاش مجدد'),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
             ),
@@ -1255,109 +1193,135 @@ class _AdminUserDetailsPageState
     );
   }
 
+  Future<void> _refreshData() async {
+    setState(() {
+      _ordersFuture = _loadOrders();
+      _reviewsFuture = _loadReviews();
+
+      _showAllOrders = false;
+      _showAllReviews = false;
+    });
+
+    await Future.wait([
+      _ordersFuture,
+      _reviewsFuture,
+    ]);
+  }
+
+  Widget _buildProfileHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildAvatar(),
+          const SizedBox(height: 12),
+          Text(
+            _displayName(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 6),
+          if (widget.user.phone != null &&
+              widget.user.phone!.trim().isNotEmpty)
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(
+                widget.user.phone!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
+          _buildRoleBadge(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPageContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          16,
+          20,
+          16,
+          30,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 1180,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProfileHeader(),
+                const SizedBox(height: 20),
+                _buildSectionTitle('اطلاعات حساب'),
+                const SizedBox(height: 10),
+                _buildInfoCard(),
+                const SizedBox(height: 22),
+                _buildOrdersSection(),
+                const SizedBox(height: 12),
+                _buildReviewsSection(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor: _backgroundColor,
         appBar: AppBar(
-          backgroundColor: Color(0xFF03045e),
+          backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-          title: Text(
-            'جزئیات کاربر',
-            style: TextStyle(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            setState(() {
-              _ordersFuture = _loadOrders();
-              _reviewsFuture = _loadReviews();
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final horizontalPadding =
+            constraints.maxWidth >= 900 ? 32.0 : 16.0;
 
-              _showAllOrders = false;
-              _showAllReviews = false;
-            });
-
-            await Future.wait([
-              _ordersFuture,
-              _reviewsFuture,
-            ]);
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding > 16
+                    ? horizontalPadding - 16
+                    : 0,
+              ),
+              child: _buildPageContent(),
+            );
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              16.w,
-              20.h,
-              16.w,
-              30.h,
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(20.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.035),
-                        blurRadius: 8.r,
-                        offset: Offset(0, 3.h),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _buildAvatar(),
-                      SizedBox(height: 12.h),
-                      Text(
-                        _displayName(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 19.sp,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 6.h),
-                      if (widget.user.phone != null &&
-                          widget.user.phone!.trim().isNotEmpty)
-                        Directionality(
-                          textDirection: TextDirection.ltr,
-                          child: Text(
-                            widget.user.phone!,
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                      SizedBox(height: 12.h),
-                      _buildRoleBadge(),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                _buildSectionTitle('اطلاعات حساب'),
-                SizedBox(height: 10.h),
-                _buildInfoCard(),
-                SizedBox(height: 22.h),
-                _buildOrdersSection(),
-                SizedBox(height: 12.h),
-                _buildReviewsSection(),
-              ],
-            ),
-          ),
         ),
       ),
     );

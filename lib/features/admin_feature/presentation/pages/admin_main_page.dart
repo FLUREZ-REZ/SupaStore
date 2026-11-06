@@ -303,6 +303,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
       return const Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
+
           backgroundColor: _backgroundColor,
           body: Center(
             child: Padding(
@@ -359,6 +360,7 @@ class _AdminMainViewState extends State<_AdminMainView> {
                 _menuItems[_selectedIndex].title,
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  color: Colors.white,
                   fontSize: isMobile ? 17.sp : 18,
                   fontWeight: FontWeight.w700,
                 ),

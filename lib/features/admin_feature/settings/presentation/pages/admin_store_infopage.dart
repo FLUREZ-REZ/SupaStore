@@ -1,7 +1,7 @@
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +12,7 @@ import 'package:supastore/features/admin_feature/settings/domain/entities/admin_
 import 'package:supastore/features/admin_feature/settings/presentation/provider/admin_store_settings_provider.dart';
 
 class AdminStoreInfoPage extends StatelessWidget {
-  const AdminStoreInfoPage({
-    super.key,
-  });
+  const AdminStoreInfoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +32,13 @@ class _AdminStoreInfoView extends StatefulWidget {
       _AdminStoreInfoViewState();
 }
 
-class _AdminStoreInfoViewState
-    extends State<_AdminStoreInfoView> {
+class _AdminStoreInfoViewState extends State<_AdminStoreInfoView> {
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _secondaryColor = Color(0xFF023E8A);
+  static const Color _accentColor = Color(0xFF0077B6);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+  static const Color _dangerColor = Color(0xFFE21B23);
+
   final _formKey = GlobalKey<FormState>();
 
   final _storeNameController = TextEditingController();
@@ -79,36 +82,27 @@ class _AdminStoreInfoViewState
     super.dispose();
   }
 
-  void _fillControllers(
-      AdminStoreSettingsEntity settings,
-      ) {
+  void _fillControllers(AdminStoreSettingsEntity settings) {
     if (_controllersInitialized) {
       return;
     }
 
     _storeNameController.text = settings.storeName;
     _taglineController.text = settings.tagline ?? '';
-    _descriptionController.text =
-        settings.description ?? '';
+    _descriptionController.text = settings.description ?? '';
 
     _phoneController.text = settings.phone ?? '';
     _emailController.text = settings.email ?? '';
 
     _addressController.text = settings.address ?? '';
-    _postalCodeController.text =
-        settings.postalCode ?? '';
+    _postalCodeController.text = settings.postalCode ?? '';
 
-    _instagramController.text =
-        settings.instagram ?? '';
-    _telegramController.text =
-        settings.telegram ?? '';
-    _websiteController.text =
-        settings.website ?? '';
+    _instagramController.text = settings.instagram ?? '';
+    _telegramController.text = settings.telegram ?? '';
+    _websiteController.text = settings.website ?? '';
 
-    _legalNameController.text =
-        settings.legalName ?? '';
-    _nationalIdController.text =
-        settings.nationalId ?? '';
+    _legalNameController.text = settings.legalName ?? '';
+    _nationalIdController.text = settings.nationalId ?? '';
 
     _controllersInitialized = true;
   }
@@ -134,8 +128,7 @@ class _AdminStoreInfoViewState
       tagline: _taglineController.text.trim().isEmpty
           ? null
           : _taglineController.text.trim(),
-      description:
-      _descriptionController.text.trim().isEmpty
+      description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
       phone: _phoneController.text.trim().isEmpty
@@ -147,28 +140,22 @@ class _AdminStoreInfoViewState
       address: _addressController.text.trim().isEmpty
           ? null
           : _addressController.text.trim(),
-      postalCode:
-      _postalCodeController.text.trim().isEmpty
+      postalCode: _postalCodeController.text.trim().isEmpty
           ? null
           : _postalCodeController.text.trim(),
-      instagram:
-      _instagramController.text.trim().isEmpty
+      instagram: _instagramController.text.trim().isEmpty
           ? null
           : _instagramController.text.trim(),
-      telegram:
-      _telegramController.text.trim().isEmpty
+      telegram: _telegramController.text.trim().isEmpty
           ? null
           : _telegramController.text.trim(),
-      website:
-      _websiteController.text.trim().isEmpty
+      website: _websiteController.text.trim().isEmpty
           ? null
           : _websiteController.text.trim(),
-      legalName:
-      _legalNameController.text.trim().isEmpty
+      legalName: _legalNameController.text.trim().isEmpty
           ? null
           : _legalNameController.text.trim(),
-      nationalId:
-      _nationalIdController.text.trim().isEmpty
+      nationalId: _nationalIdController.text.trim().isEmpty
           ? null
           : _nationalIdController.text.trim(),
       createdAt: currentSettings.createdAt,
@@ -184,21 +171,12 @@ class _AdminStoreInfoViewState
     }
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'اطلاعات فروشگاه با موفقیت ذخیره شد.',
-          ),
-        ),
+      _showMessage(
+        context,
+        'اطلاعات فروشگاه با موفقیت ذخیره شد.',
       );
     } else if (provider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            provider.error!,
-          ),
-        ),
-      );
+      _showMessage(context, provider.error!);
     }
   }
 
@@ -230,24 +208,16 @@ class _AdminStoreInfoViewState
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'حجم لوگو نباید بیشتر از 5 مگابایت باشد.',
-          ),
-        ),
+      _showMessage(
+        context,
+        'حجم لوگو نباید بیشتر از 5 مگابایت باشد.',
       );
 
       return;
     }
 
-    final extension = _getImageExtension(
-      file.path,
-    );
-
-    final contentType = _getContentType(
-      extension,
-    );
+    final extension = _getImageExtension(file.path);
+    final contentType = _getContentType(extension);
 
     final success = await provider.updateLogo(
       bytes: Uint8List.fromList(bytes),
@@ -260,21 +230,12 @@ class _AdminStoreInfoViewState
     }
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'لوگوی فروشگاه با موفقیت تغییر کرد.',
-          ),
-        ),
+      _showMessage(
+        context,
+        'لوگوی فروشگاه با موفقیت تغییر کرد.',
       );
     } else if (provider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            provider.error!,
-          ),
-        ),
-      );
+      _showMessage(context, provider.error!);
     }
   }
 
@@ -290,9 +251,7 @@ class _AdminStoreInfoViewState
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text(
-            'حذف لوگو',
-          ),
+          title: const Text('حذف لوگو'),
           content: const Text(
             'آیا مطمئن هستید که می‌خواهید لوگوی فروشگاه حذف شود؟',
           ),
@@ -301,21 +260,17 @@ class _AdminStoreInfoViewState
               onPressed: () {
                 Navigator.of(dialogContext).pop(false);
               },
-              child: const Text(
-                'انصراف',
-              ),
+              child: const Text('انصراف'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: _dangerColor,
                 foregroundColor: Colors.white,
               ),
-              child: const Text(
-                'حذف',
-              ),
+              child: const Text('حذف'),
             ),
           ],
         );
@@ -334,22 +289,21 @@ class _AdminStoreInfoViewState
     }
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'لوگوی فروشگاه حذف شد.',
-          ),
-        ),
-      );
+      _showMessage(context, 'لوگوی فروشگاه حذف شد.');
     } else if (provider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      _showMessage(context, provider.error!);
+    }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
         SnackBar(
-          content: Text(
-            provider.error!,
-          ),
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
         ),
       );
-    }
   }
 
   String _getImageExtension(String path) {
@@ -363,8 +317,7 @@ class _AdminStoreInfoViewState
       return 'webp';
     }
 
-    if (value.endsWith('.jpg') ||
-        value.endsWith('.jpeg')) {
+    if (value.endsWith('.jpg') || value.endsWith('.jpeg')) {
       return 'jpg';
     }
 
@@ -375,14 +328,11 @@ class _AdminStoreInfoViewState
     switch (extension) {
       case 'png':
         return 'image/png';
-
       case 'webp':
         return 'image/webp';
-
       case 'jpg':
       case 'jpeg':
         return 'image/jpeg';
-
       default:
         return 'image/jpeg';
     }
@@ -400,35 +350,31 @@ class _AdminStoreInfoViewState
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor: _backgroundColor,
         appBar: AppBar(
-          backgroundColor: Color(0xFF03045e),
+          backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-          title: Text(
+          title: const Text(
             'اطلاعات فروشگاه',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
           ),
         ),
         body: Consumer<AdminStoreSettingsProvider>(
-          builder: (
-              context,
-              provider,
-              child,
-              ) {
-            if (provider.isLoading &&
-                provider.settings == null) {
+          builder: (context, provider, child) {
+            if (provider.isLoading && provider.settings == null) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: _primaryColor,
+                ),
               );
             }
 
-            if (provider.error != null &&
-                provider.settings == null) {
+            if (provider.error != null && provider.settings == null) {
               return _buildErrorState(provider);
             }
 
@@ -441,89 +387,64 @@ class _AdminStoreInfoViewState
             _fillControllers(settings);
 
             return RefreshIndicator(
+              color: _primaryColor,
               onRefresh: () => _refresh(provider),
               child: Form(
                 key: _formKey,
-                child: SingleChildScrollView(
-                  physics:
-                  const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  padding: EdgeInsets.fromLTRB(
-                    16.w,
-                    18.h,
-                    16.w,
-                    32.h,
-                  ),
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-                      _buildPageHeader(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth;
 
-                      SizedBox(height: 22.h),
+                    final horizontalPadding = width >= 1200
+                        ? 32.0
+                        : width >= 700
+                        ? 24.0
+                        : 16.0;
 
-                      _buildSectionTitle(
-                        'لوگوی فروشگاه',
+                    return SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
-                      SizedBox(height: 10.h),
-                      _buildLogoCard(
-                        settings,
-                        provider,
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        24,
+                        horizontalPadding,
+                        36,
                       ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 1280,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildPageHeader(width),
 
-                      SizedBox(height: 22.h),
+                              const SizedBox(height: 24),
 
-                      _buildSectionTitle(
-                        'اطلاعات اصلی',
+                              _buildSectionTitle('لوگوی فروشگاه'),
+                              const SizedBox(height: 12),
+
+                              _buildLogoCard(settings, provider),
+
+                              const SizedBox(height: 28),
+
+                              _buildResponsiveSections(width),
+
+                              const SizedBox(height: 30),
+
+                              _buildSaveButton(context, provider),
+
+                              const SizedBox(height: 16),
+
+                              _buildInfoText(),
+                            ],
+                          ),
+                        ),
                       ),
-                      SizedBox(height: 10.h),
-                      _buildMainInfoCard(),
-
-                      SizedBox(height: 22.h),
-
-                      _buildSectionTitle(
-                        'اطلاعات تماس',
-                      ),
-                      SizedBox(height: 10.h),
-                      _buildContactCard(),
-
-                      SizedBox(height: 22.h),
-
-                      _buildSectionTitle(
-                        'آدرس فروشگاه',
-                      ),
-                      SizedBox(height: 10.h),
-                      _buildAddressCard(),
-
-                      SizedBox(height: 22.h),
-
-                      _buildSectionTitle(
-                        'شبکه‌های اجتماعی و وب‌سایت',
-                      ),
-                      SizedBox(height: 10.h),
-                      _buildSocialCard(),
-
-                      SizedBox(height: 22.h),
-
-                      _buildSectionTitle(
-                        'اطلاعات حقوقی',
-                      ),
-                      SizedBox(height: 10.h),
-                      _buildLegalCard(),
-
-                      SizedBox(height: 28.h),
-
-                      _buildSaveButton(
-                        context,
-                        provider,
-                      ),
-
-                      SizedBox(height: 14.h),
-
-                      _buildInfoText(),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             );
@@ -533,64 +454,124 @@ class _AdminStoreInfoViewState
     );
   }
 
-  Widget _buildPageHeader() {
+  // ---------------------------------------------------------------------------
+  // Responsive sections
+  // ---------------------------------------------------------------------------
+
+  Widget _buildResponsiveSections(double width) {
+    final isWide = width >= 760;
+
+    final sections = [
+      _buildSection(
+        'اطلاعات اصلی',
+        _buildMainInfoCard(),
+      ),
+      _buildSection(
+        'اطلاعات تماس',
+        _buildContactCard(),
+      ),
+      _buildSection(
+        'آدرس فروشگاه',
+        _buildAddressCard(),
+      ),
+      _buildSection(
+        'شبکه‌های اجتماعی و وب‌سایت',
+        _buildSocialCard(),
+      ),
+      _buildSection(
+        'اطلاعات حقوقی',
+        _buildLegalCard(),
+      ),
+    ];
+
+    if (!isWide) {
+      return Column(
+        children: [
+          for (int i = 0; i < sections.length; i++) ...[
+            sections[i],
+            if (i != sections.length - 1)
+              const SizedBox(height: 22),
+          ],
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 20.0;
+        final itemWidth = (constraints.maxWidth - spacing) / 2;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: 22,
+          children: sections.map((section) {
+            return SizedBox(
+              width: itemWidth,
+              child: section,
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildSection(String title, Widget card) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(title),
+        const SizedBox(height: 12),
+        card,
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Header
+  // ---------------------------------------------------------------------------
+
+  Widget _buildPageHeader(double width) {
+    final isMobile = width < 500;
+
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.035,
-            ),
-            blurRadius: 10.r,
-            offset: Offset(0, 3.h),
-          ),
-        ],
-      ),
+      padding: EdgeInsets.all(isMobile ? 16 : 22),
+      decoration: _cardDecoration(radius: 20),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 52.w,
-            height: 52.w,
+            width: isMobile ? 48 : 58,
+            height: isMobile ? 48 : 58,
             decoration: BoxDecoration(
-              color: Color(0xFF0077b6).withValues(
-                alpha: 0.08,
-              ),
-              borderRadius:
-              BorderRadius.circular(15.r),
+              color: _accentColor.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
+            child: const Icon(
               Iconsax.shop_copy,
-              color: Color(0xFF03045e),
-              size: 27.sp,
+              color: _primaryColor,
+              size: 28,
             ),
           ),
-          SizedBox(width: 13.w),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'اطلاعات فروشگاه',
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: isMobile ? 15 : 18,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 5.h),
+                const SizedBox(height: 6),
                 Text(
                   'اطلاعاتی که در بخش‌های مختلف فروشگاه به کاربران نمایش داده می‌شود.',
                   style: TextStyle(
-                    fontSize: 11.sp,
-                    height: 1.6,
+                    fontSize: isMobile ? 11 : 13,
+                    height: 1.8,
                     color: Colors.grey.shade600,
                   ),
                 ),
@@ -605,114 +586,102 @@ class _AdminStoreInfoViewState
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: TextStyle(
-        fontSize: 15.sp,
+      style: const TextStyle(
+        fontSize: 15,
         fontWeight: FontWeight.w800,
         color: Colors.black87,
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Logo
+  // ---------------------------------------------------------------------------
+
   Widget _buildLogoCard(
       AdminStoreSettingsEntity settings,
       AdminStoreSettingsProvider provider,
       ) {
-    final hasLogo =
-        settings.logoUrl?.trim().isNotEmpty == true;
+    final hasLogo = settings.logoUrl?.trim().isNotEmpty == true;
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
-      child: Column(
-        children: [
-          Stack(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 600;
+
+          final logoPreview = Stack(
             alignment: Alignment.topRight,
             children: [
               Container(
-                width: 110.w,
-                height: 110.w,
+                width: 112,
+                height: 112,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
-                  borderRadius:
-                  BorderRadius.circular(22.r),
+                  borderRadius: BorderRadius.circular(22),
                   border: Border.all(
                     color: Colors.grey.shade200,
                   ),
                 ),
                 child: hasLogo
                     ? ClipRRect(
-                  borderRadius:
-                  BorderRadius.circular(22.r),
+                  borderRadius: BorderRadius.circular(22),
                   child: Image.network(
                     settings.logoUrl!,
-                    width: 110.w,
-                    height: 110.w,
+                    width: 112,
+                    height: 112,
                     fit: BoxFit.cover,
-                    errorBuilder:
-                        (
-                        context,
-                        error,
-                        stackTrace,
-                        ) {
+                    errorBuilder: (context, error, stackTrace) {
                       return Icon(
                         Iconsax.shop_copy,
-                        size: 50.sp,
-                        color:
-                        Colors.grey.shade400,
+                        size: 50,
+                        color: Colors.grey.shade400,
                       );
                     },
                   ),
                 )
                     : Icon(
                   Iconsax.shop_copy,
-                  size: 50.sp,
+                  size: 50,
                   color: Colors.grey.shade400,
                 ),
               ),
               if (hasLogo)
                 Positioned(
-                  top: -4.h,
-                  right: -4.w,
+                  top: -4,
+                  right: -4,
                   child: Material(
                     color: Colors.white,
                     shape: const CircleBorder(),
                     child: InkWell(
                       onTap: provider.isLogoBusy
                           ? null
-                          : () => _removeLogo(
-                        context,
-                        provider,
-                      ),
-                      customBorder:
-                      const CircleBorder(),
+                          : () => _removeLogo(context, provider),
+                      customBorder: const CircleBorder(),
                       child: Container(
-                        width: 30.w,
-                        height: 30.w,
+                        width: 30,
+                        height: 30,
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: _dangerColor,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: Colors.white,
                             width: 2,
                           ),
                         ),
-                        child:
-                        provider.isRemovingLogo
-                            ? Padding(
-                          padding:
-                          EdgeInsets.all(
-                            7.w,
-                          ),
-                          child:
-                          const CircularProgressIndicator(
+                        child: provider.isRemovingLogo
+                            ? const Padding(
+                          padding: EdgeInsets.all(7),
+                          child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),
                         )
-                            : Icon(
+                            : const Icon(
                           Icons.close_rounded,
-                          size: 16.sp,
+                          size: 16,
                           color: Colors.white,
                         ),
                       ),
@@ -720,75 +689,99 @@ class _AdminStoreInfoViewState
                   ),
                 ),
             ],
-          ),
-          SizedBox(height: 14.h),
-          Text(
-            hasLogo
-                ? 'لوگوی فعلی فروشگاه'
-                : 'لوگوی فروشگاه هنوز انتخاب نشده است',
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-            ),
-          ),
-          SizedBox(height: 5.h),
-          Text(
-            'فرمت‌های پیشنهادی: PNG, JPG, WEBP',
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: Colors.grey.shade500,
-            ),
-          ),
-          SizedBox(height: 14.h),
-          SizedBox(
-            height: 44.h,
-            child: OutlinedButton.icon(
-              onPressed: provider.isLogoBusy
-                  ? null
-                  : () => _pickLogo(
-                context,
-                provider,
-              ),
-              icon: provider.isUploadingLogo
-                  ? SizedBox(
-                width: 18.w,
-                height: 18.w,
-                child:
-                const CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.red,
+          );
+
+          final details = Column(
+            crossAxisAlignment: isWide
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              Text(
+                hasLogo
+                    ? 'لوگوی فعلی فروشگاه'
+                    : 'لوگوی فروشگاه هنوز انتخاب نشده است',
+                textAlign: isWide ? TextAlign.right : TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
                 ),
-              )
-                  : const Icon(
-                Iconsax.document_upload_copy,
               ),
-              label: Text(
-                provider.isUploadingLogo
-                    ? 'در حال آپلود...'
-                    : hasLogo
-                    ? 'تغییر لوگو'
-                    : 'انتخاب لوگو',
+              const SizedBox(height: 7),
+              Text(
+                'فرمت‌های پیشنهادی: PNG, JPG, WEBP',
+                textAlign: isWide ? TextAlign.right : TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade500,
+                ),
               ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: BorderSide(
-                  color: Colors.red.withValues(
-                    alpha: 0.4,
+              const SizedBox(height: 15),
+              SizedBox(
+                height: 44,
+                child: OutlinedButton.icon(
+                  onPressed: provider.isLogoBusy
+                      ? null
+                      : () => _pickLogo(context, provider),
+                  icon: provider.isUploadingLogo
+                      ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _dangerColor,
+                    ),
+                  )
+                      : const Icon(
+                    Iconsax.document_upload_copy,
+                    size: 19,
+                  ),
+                  label: Text(
+                    provider.isUploadingLogo
+                        ? 'در حال آپلود...'
+                        : hasLogo
+                        ? 'تغییر لوگو'
+                        : 'انتخاب لوگو',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _dangerColor,
+                    side: BorderSide(
+                      color: _dangerColor.withValues(alpha: 0.4),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
-                shape:
-                RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(12.r),
-                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+
+          if (isWide) {
+            return Row(
+              children: [
+                logoPreview,
+                const SizedBox(width: 24),
+                Expanded(child: details),
+              ],
+            );
+          }
+
+          return Column(
+            children: [
+              logoPreview,
+              const SizedBox(height: 14),
+              details,
+            ],
+          );
+        },
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Main information
+  // ---------------------------------------------------------------------------
 
   Widget _buildMainInfoCard() {
     return _buildCard(
@@ -800,14 +793,14 @@ class _AdminStoreInfoViewState
           icon: Iconsax.shop_copy,
           requiredField: true,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _taglineController,
           label: 'شعار فروشگاه',
           hint: 'مثلاً خرید سریع و مطمئن',
           icon: Iconsax.cloud_lightning_copy,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _descriptionController,
           label: 'توضیحات فروشگاه',
@@ -818,6 +811,10 @@ class _AdminStoreInfoViewState
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Contact
+  // ---------------------------------------------------------------------------
 
   Widget _buildContactCard() {
     return _buildCard(
@@ -830,19 +827,22 @@ class _AdminStoreInfoViewState
           keyboardType: TextInputType.phone,
           textDirection: TextDirection.ltr,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _emailController,
           label: 'ایمیل',
           hint: 'info@example.com',
           icon: Iconsax.message_2_copy,
-          keyboardType:
-          TextInputType.emailAddress,
+          keyboardType: TextInputType.emailAddress,
           textDirection: TextDirection.ltr,
         ),
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Address
+  // ---------------------------------------------------------------------------
 
   Widget _buildAddressCard() {
     return _buildCard(
@@ -854,7 +854,7 @@ class _AdminStoreInfoViewState
           icon: Iconsax.location_copy,
           maxLines: 4,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _postalCodeController,
           label: 'کد پستی',
@@ -867,6 +867,10 @@ class _AdminStoreInfoViewState
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Social
+  // ---------------------------------------------------------------------------
+
   Widget _buildSocialCard() {
     return _buildCard(
       children: [
@@ -877,7 +881,7 @@ class _AdminStoreInfoViewState
           icon: Iconsax.instagram_copy,
           textDirection: TextDirection.ltr,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _telegramController,
           label: 'تلگرام',
@@ -885,7 +889,7 @@ class _AdminStoreInfoViewState
           icon: Iconsax.send_1_copy,
           textDirection: TextDirection.ltr,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _websiteController,
           label: 'وب‌سایت',
@@ -898,6 +902,10 @@ class _AdminStoreInfoViewState
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Legal
+  // ---------------------------------------------------------------------------
+
   Widget _buildLegalCard() {
     return _buildCard(
       children: [
@@ -907,7 +915,7 @@ class _AdminStoreInfoViewState
           hint: 'نام رسمی مجموعه',
           icon: Iconsax.house_2_copy,
         ),
-        SizedBox(height: 15.h),
+        const SizedBox(height: 16),
         _buildTextField(
           controller: _nationalIdController,
           label: 'شناسه ملی / کد اقتصادی',
@@ -919,6 +927,10 @@ class _AdminStoreInfoViewState
       ],
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Text fields
+  // ---------------------------------------------------------------------------
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -935,8 +947,8 @@ class _AdminStoreInfoViewState
       keyboardType: keyboardType,
       maxLines: maxLines,
       textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: 13.sp,
+      style: const TextStyle(
+        fontSize: 13,
         fontWeight: FontWeight.w600,
         color: Colors.black87,
       ),
@@ -945,66 +957,59 @@ class _AdminStoreInfoViewState
         hintText: hint,
         prefixIcon: Icon(
           icon,
-          size: 21.sp,
+          size: 21,
           color: Colors.grey.shade500,
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 14.w,
-          vertical: 14.h,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 15,
         ),
         border: OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+          borderRadius: BorderRadius.circular(13),
           borderSide: BorderSide(
             color: Colors.grey.shade200,
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+          borderRadius: BorderRadius.circular(13),
           borderSide: BorderSide(
             color: Colors.grey.shade200,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
-            color: Color(0xFF03045e),
+            color: _primaryColor,
             width: 1.4,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
             color: Colors.red,
           ),
         ),
-        focusedErrorBorder:
-        OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
             color: Colors.red,
             width: 1.4,
           ),
         ),
         labelStyle: TextStyle(
-          fontSize: 12.sp,
+          fontSize: 12,
           color: Colors.grey.shade600,
         ),
         hintStyle: TextStyle(
-          fontSize: 12.sp,
+          fontSize: 12,
           color: Colors.grey.shade400,
         ),
       ),
       validator: requiredField
           ? (value) {
-        if (value == null ||
-            value.trim().isEmpty) {
+        if (value == null || value.trim().isEmpty) {
           return 'این فیلد الزامی است';
         }
 
@@ -1023,89 +1028,105 @@ class _AdminStoreInfoViewState
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Card decoration
+  // ---------------------------------------------------------------------------
+
   Widget _buildCard({
     required List<Widget> children,
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(18),
       decoration: _cardDecoration(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: children,
       ),
     );
   }
 
-  BoxDecoration _cardDecoration() {
+  BoxDecoration _cardDecoration({
+    double radius = 18,
+  }) {
     return BoxDecoration(
       color: Colors.white,
-      borderRadius:
-      BorderRadius.circular(18.r),
+      borderRadius: BorderRadius.circular(radius),
       border: Border.all(
         color: Colors.grey.shade200,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(
-            alpha: 0.025,
-          ),
-          blurRadius: 8.r,
-          offset: Offset(0, 2.h),
+          color: Colors.black.withValues(alpha: 0.025),
+          blurRadius: 10,
+          offset: const Offset(0, 3),
         ),
       ],
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Save button
+  // ---------------------------------------------------------------------------
+
   Widget _buildSaveButton(
       BuildContext context,
       AdminStoreSettingsProvider provider,
       ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52.h,
-      child: ElevatedButton.icon(
-        onPressed: provider.isSaving
-            ? null
-            : () => _save(
-          context,
-          provider,
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 420,
         ),
-        icon: provider.isSaving
-            ? SizedBox(
-          width: 20.w,
-          height: 20.w,
-          child:
-          const CircularProgressIndicator(
-            strokeWidth: 2.2,
-            color: Colors.white,
-          ),
-        )
-            : const Icon(
-          Icons.save_outlined,
-        ),
-        label: Text(
-          provider.isSaving
-              ? 'در حال ذخیره...'
-              : 'ذخیره اطلاعات',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor:
-          Colors.red.withValues(alpha: 0.5),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.circular(14.r),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: provider.isSaving
+                ? null
+                : () => _save(context, provider),
+            icon: provider.isSaving
+                ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                color: Colors.white,
+              ),
+            )
+                : const Icon(
+              Icons.save_outlined,
+              size: 21,
+            ),
+            label: Text(
+              provider.isSaving
+                  ? 'در حال ذخیره...'
+                  : 'ذخیره اطلاعات',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _secondaryColor,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor:
+              _secondaryColor.withValues(alpha: 0.5),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
           ),
         ),
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Footer
+  // ---------------------------------------------------------------------------
 
   Widget _buildInfoText() {
     return Center(
@@ -1113,92 +1134,95 @@ class _AdminStoreInfoViewState
         'اطلاعات این بخش در قسمت‌های مختلف فروشگاه استفاده خواهد شد.',
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 10.sp,
-          height: 1.6,
+          fontSize: 11,
+          height: 1.8,
           color: Colors.grey.shade500,
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Error state
+  // ---------------------------------------------------------------------------
+
   Widget _buildErrorState(
       AdminStoreSettingsProvider provider,
       ) {
     return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 50.sp,
-              color: Colors.red,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              provider.error ??
-                  'خطا در دریافت اطلاعات فروشگاه',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: Colors.grey.shade700,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 440,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline_rounded,
+                size: 54,
+                color: Colors.red,
               ),
-            ),
-            SizedBox(height: 14.h),
-            OutlinedButton.icon(
-              onPressed: provider.loadSettings,
-              icon: const Icon(
-                Icons.refresh_rounded,
+              const SizedBox(height: 14),
+              Text(
+                provider.error ?? 'خطا در دریافت اطلاعات فروشگاه',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.7,
+                  color: Colors.grey.shade700,
+                ),
               ),
-              label: const Text(
-                'تلاش مجدد',
+              const SizedBox(height: 18),
+              OutlinedButton.icon(
+                onPressed: provider.loadSettings,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('تلاش مجدد'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _secondaryColor,
+                ),
               ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Empty state
+  // ---------------------------------------------------------------------------
+
   Widget _buildEmptyState(
       AdminStoreSettingsProvider provider,
       ) {
     return Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.w),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.store_outlined,
-              size: 50.sp,
+              size: 54,
               color: Colors.grey.shade400,
             ),
-            SizedBox(height: 12.h),
-            Text(
+            const SizedBox(height: 14),
+            const Text(
               'اطلاعات فروشگاه پیدا نشد.',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 18),
             OutlinedButton.icon(
               onPressed: provider.loadSettings,
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
-              label: const Text(
-                'تلاش مجدد',
-              ),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('تلاش مجدد'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
+                foregroundColor: _secondaryColor,
               ),
             ),
           ],

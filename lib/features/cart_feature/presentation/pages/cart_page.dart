@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,6 +82,10 @@ class _CartPageState extends State<CartPage> {
   }
 }
 
+// ============================================================
+// CART VIEW
+// ============================================================
+
 class _CartView extends StatelessWidget {
   final bool minimumLoadingFinished;
 
@@ -90,123 +93,287 @@ class _CartView extends StatelessWidget {
     required this.minimumLoadingFinished,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+  static const Color _backgroundColor = Color(0xFFF7F7F7);
+  static const Color _desktopBackground = Color(0xFFF7F7F8);
+  static const double _desktopBreakpoint = 1000;
+  static const double _maxContentWidth = 1450;
 
-      appBar: AppBar(
-        backgroundColor: AppColors.cart_page_redi,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'سبد خرید',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
-            color: AppColors.cart_page_white,
-          ),
+  void _goToCheckout(
+      BuildContext context,
+      CartProvider provider,
+      ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckoutPage(
+          cartItems: provider.items,
         ),
       ),
+    );
+  }
 
-      body: Consumer<CartProvider>(
-        builder: (context, provider, child) {
-          final showShimmer =
-              provider.isLoading || !minimumLoadingFinished;
+  Widget _buildCartItems(
+      BuildContext context,
+      CartProvider provider,
+      bool isDesktop,
+      ) {
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(
+        top: 8,
+        bottom: isDesktop ? 20 : 20,
+        left: isDesktop ? 12 : 0,
+        right: isDesktop ? 12 : 0,
+      ),
+      itemCount: provider.items.length,
+      itemBuilder: (context, index) {
+        final item = provider.items[index];
 
-          if (showShimmer) {
-            return const _CartShimmerList();
-          }
+        return CartItem(
+          item: item,
+          onIncrease: () {
+            provider.increaseQuantity(item);
+          },
+          onDecrease: () {
+            provider.decreaseQuantity(item);
+          },
+          onRemove: () {
+            provider.removeFromCart(item.id);
+          },
+        );
+      },
+    );
+  }
 
-          if (provider.error != null && provider.items.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Text(
-                  provider.error!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: Colors.grey.shade700,
+  Widget _buildDesktopLayout(
+      BuildContext context,
+      CartProvider provider,
+      BoxConstraints constraints,
+      ) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: _maxContentWidth,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 20,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // محصولات سبد خرید - سمت راست
+              Expanded(
+                flex: 7,
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 40,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFEFEFEF),
+                    ),
+                  ),
+                  child: _buildCartItems(
+                    context,
+                    provider,
+                    true,
                   ),
                 ),
               ),
-            );
-          }
 
-          if (provider.items.isEmpty) {
-            return const _EmptyCart();
-          }
+              const SizedBox(width: 20),
 
-          return ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(
-              top: 8.h,
-              bottom: 20.h,
-            ),
-            itemCount: provider.items.length,
-            itemBuilder: (context, index) {
-              final item = provider.items[index];
-
-              return CartItem(
-                item: item,
-                onIncrease: () {
-                  provider.increaseQuantity(item);
-                },
-                onDecrease: () {
-                  provider.decreaseQuantity(item);
-                },
-                onRemove: () {
-                  provider.removeFromCart(item.id);
-                },
-              );
-            },
-          );
-        },
-      ),
-
-      bottomNavigationBar: Consumer<CartProvider>(
-        builder: (context, provider, child) {
-          final showShimmer =
-              provider.isLoading || !minimumLoadingFinished;
-
-          if (showShimmer) {
-            return const _CartSummaryShimmer();
-          }
-
-          if (provider.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          return CartSummary(
-            onCheckout: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CheckoutPage(
-                    cartItems: provider.items,
+              // خلاصه سفارش - سمت چپ
+              SizedBox(
+                width: constraints.maxWidth >= 1250 ? 340 : 300,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFEFEFEF),
+                    ),
+                  ),
+                  child: CartSummary(
+                    onCheckout: () {
+                      _goToCheckout(context, provider);
+                    },
                   ),
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(
+      BuildContext context,
+      CartProvider provider,
+      ) {
+    return Column(
+      children: [
+        Expanded(
+          child: _buildCartItems(
+            context,
+            provider,
+            false,
+          ),
+        ),
+        CartSummary(
+          onCheckout: () {
+            _goToCheckout(context, provider);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabletLayout(
+      BuildContext context,
+      CartProvider provider,
+      ) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 850,
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: _buildCartItems(
+                context,
+                provider,
+                false,
+              ),
+            ),
+            CartSummary(
+              onCheckout: () {
+                _goToCheckout(context, provider);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(
+      BuildContext context,
+      CartProvider provider,
+      BoxConstraints constraints,
+      ) {
+    final width = constraints.maxWidth;
+
+    final bool isDesktop = width >= _desktopBreakpoint;
+    final bool isTablet = width >= 600 && width < _desktopBreakpoint;
+
+    final showShimmer =
+        provider.isLoading || !minimumLoadingFinished;
+
+    if (showShimmer) {
+      return Column(
+        children: [
+          const Expanded(
+            child: _CartShimmerList(),
+          ),
+          const _CartSummaryShimmer(),
+        ],
+      );
+    }
+
+    if (provider.error != null && provider.items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
+            child: Text(
+              provider.error!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (provider.items.isEmpty) {
+      return const _EmptyCart();
+    }
+
+    if (isDesktop) {
+      return _buildDesktopLayout(
+        context,
+        provider,
+        constraints,
+      );
+    }
+
+    if (isTablet) {
+      return _buildTabletLayout(
+        context,
+        provider,
+      );
+    }
+
+    return _buildMobileLayout(
+      context,
+      provider,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: _backgroundColor,
+        appBar: AppBar(
+          backgroundColor: AppColors.cart_page_redi,
+          surfaceTintColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+
+        ),
+        body: Consumer<CartProvider>(
+          builder: (context, provider, child) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return _buildBody(
+                  context,
+                  provider,
+                  constraints,
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-// --------------------------------------------------
-// Cart list shimmer
-// --------------------------------------------------
+// ============================================================
+// CART LIST SHIMMER
+// ============================================================
 
 class _CartShimmerList extends StatefulWidget {
   const _CartShimmerList();
 
   @override
-  State<_CartShimmerList> createState() => _CartShimmerListState();
+  State<_CartShimmerList> createState() =>
+      _CartShimmerListState();
 }
 
 class _CartShimmerListState extends State<_CartShimmerList>
@@ -234,23 +401,36 @@ class _CartShimmerListState extends State<_CartShimmerList>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return ListView(
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.only(
-            top: 8.h,
-            bottom: 20.h,
-          ),
-          children: List.generate(
-            4,
-                (index) => _CartShimmerCard(
-              progress: _controller.value,
-            ),
-          ),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isDesktop = constraints.maxWidth >= 1000;
+            final horizontalPadding = isDesktop ? 24.0 : 12.0;
+
+            return ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.only(
+                top: 8,
+                bottom: 20,
+                left: horizontalPadding,
+                right: horizontalPadding,
+              ),
+              children: List.generate(
+                isDesktop ? 5 : 4,
+                    (index) => _CartShimmerCard(
+                  progress: _controller.value,
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
 }
+
+// ============================================================
+// CART SHIMMER CARD
+// ============================================================
 
 class _CartShimmerCard extends StatelessWidget {
   final double progress;
@@ -261,113 +441,106 @@ class _CartShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 6.h,
-      ),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: const Color(0xFFF0F0F0),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _ShimmerBlock(
-            progress: progress,
-            width: 100.w,
-            height: 112.h,
-            radius: 10.r,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 380;
+
+        final imageSize = isNarrow ? 82.0 : 100.0;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(
+            horizontal: 0,
+            vertical: 6,
           ),
-
-          SizedBox(width: 12.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 3.h),
-
-                _ShimmerBlock(
-                  progress: progress,
-                  width: double.infinity,
-                  height: 13.h,
-                  radius: 5.r,
-                ),
-
-                SizedBox(height: 9.h),
-
-                _ShimmerBlock(
-                  progress: progress,
-                  width: 125.w,
-                  height: 11.h,
-                  radius: 5.r,
-                ),
-
-                SizedBox(height: 17.h),
-
-                _ShimmerBlock(
-                  progress: progress,
-                  width: 90.w,
-                  height: 14.h,
-                  radius: 5.r,
-                ),
-
-                SizedBox(height: 15.h),
-
-                Row(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: const Color(0xFFF0F0F0),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ShimmerBlock(
+                progress: progress,
+                width: imageSize,
+                height: imageSize + 12,
+                radius: 10,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 3),
                     _ShimmerBlock(
                       progress: progress,
-                      width: 27.w,
-                      height: 27.w,
-                      radius: 7.r,
+                      width: double.infinity,
+                      height: 13,
+                      radius: 5,
                     ),
-
-                    SizedBox(width: 8.w),
-
+                    const SizedBox(height: 9),
                     _ShimmerBlock(
                       progress: progress,
-                      width: 20.w,
-                      height: 13.h,
-                      radius: 4.r,
+                      width: 125,
+                      height: 11,
+                      radius: 5,
                     ),
-
-                    SizedBox(width: 8.w),
-
+                    const SizedBox(height: 17),
                     _ShimmerBlock(
                       progress: progress,
-                      width: 27.w,
-                      height: 27.w,
-                      radius: 7.r,
+                      width: 90,
+                      height: 14,
+                      radius: 5,
                     ),
-
-                    const Spacer(),
-
-                    _ShimmerBlock(
-                      progress: progress,
-                      width: 25.w,
-                      height: 25.w,
-                      radius: 7.r,
+                    const SizedBox(height: 15),
+                    Row(
+                      children: [
+                        _ShimmerBlock(
+                          progress: progress,
+                          width: 27,
+                          height: 27,
+                          radius: 7,
+                        ),
+                        const SizedBox(width: 8),
+                        _ShimmerBlock(
+                          progress: progress,
+                          width: 20,
+                          height: 13,
+                          radius: 4,
+                        ),
+                        const SizedBox(width: 8),
+                        _ShimmerBlock(
+                          progress: progress,
+                          width: 27,
+                          height: 27,
+                          radius: 7,
+                        ),
+                        const Spacer(),
+                        _ShimmerBlock(
+                          progress: progress,
+                          width: 25,
+                          height: 25,
+                          radius: 7,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-// --------------------------------------------------
-// Cart summary shimmer
-// --------------------------------------------------
+// ============================================================
+// CART SUMMARY SHIMMER
+// ============================================================
 
 class _CartSummaryShimmer extends StatefulWidget {
   const _CartSummaryShimmer();
@@ -377,7 +550,8 @@ class _CartSummaryShimmer extends StatefulWidget {
       _CartSummaryShimmerState();
 }
 
-class _CartSummaryShimmerState extends State<_CartSummaryShimmer>
+class _CartSummaryShimmerState
+    extends State<_CartSummaryShimmer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
@@ -403,22 +577,26 @@ class _CartSummaryShimmerState extends State<_CartSummaryShimmer>
       animation: _controller,
       builder: (context, child) {
         return Container(
-          padding: EdgeInsets.fromLTRB(
-            16.w,
-            16.h,
-            16.w,
-            20.h,
+          width: double.infinity,
+          constraints: const BoxConstraints(
+            maxWidth: 500,
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            20,
           ),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(18.r),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(18),
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.04),
-                blurRadius: 12.r,
-                offset: Offset(0, -3.h),
+                blurRadius: 12,
+                offset: const Offset(0, -3),
               ),
             ],
           ),
@@ -429,47 +607,43 @@ class _CartSummaryShimmerState extends State<_CartSummaryShimmer>
                 children: [
                   _ShimmerBlock(
                     progress: _controller.value,
-                    width: 95.w,
-                    height: 13.h,
-                    radius: 5.r,
+                    width: 95,
+                    height: 13,
+                    radius: 5,
                   ),
                   const Spacer(),
                   _ShimmerBlock(
                     progress: _controller.value,
-                    width: 105.w,
-                    height: 13.h,
-                    radius: 5.r,
+                    width: 105,
+                    height: 13,
+                    radius: 5,
                   ),
                 ],
               ),
-
-              SizedBox(height: 12.h),
-
+              const SizedBox(height: 12),
               Row(
                 children: [
                   _ShimmerBlock(
                     progress: _controller.value,
-                    width: 75.w,
-                    height: 12.h,
-                    radius: 5.r,
+                    width: 75,
+                    height: 12,
+                    radius: 5,
                   ),
                   const Spacer(),
                   _ShimmerBlock(
                     progress: _controller.value,
-                    width: 85.w,
-                    height: 12.h,
-                    radius: 5.r,
+                    width: 85,
+                    height: 12,
+                    radius: 5,
                   ),
                 ],
               ),
-
-              SizedBox(height: 16.h),
-
+              const SizedBox(height: 16),
               _ShimmerBlock(
                 progress: _controller.value,
                 width: double.infinity,
-                height: 48.h,
-                radius: 12.r,
+                height: 48,
+                radius: 12,
               ),
             ],
           ),
@@ -479,9 +653,9 @@ class _CartSummaryShimmerState extends State<_CartSummaryShimmer>
   }
 }
 
-// --------------------------------------------------
-// Reusable shimmer block
-// --------------------------------------------------
+// ============================================================
+// REUSABLE SHIMMER BLOCK
+// ============================================================
 
 class _ShimmerBlock extends StatelessWidget {
   final double progress;
@@ -527,9 +701,9 @@ class _ShimmerBlock extends StatelessWidget {
   }
 }
 
-// --------------------------------------------------
-// Empty cart
-// --------------------------------------------------
+// ============================================================
+// EMPTY CART
+// ============================================================
 
 class _EmptyCart extends StatelessWidget {
   const _EmptyCart();
@@ -538,50 +712,54 @@ class _EmptyCart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 90.w,
-              height: 90.w,
-              decoration: BoxDecoration(
-                color: AppColors.cart_page_redi,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.grey.shade200,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 32,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 420,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: AppColors.cart_page_redi,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                  ),
+                ),
+                child: Icon(
+                  Iconsax.shopping_cart_copy,
+                  size: 42,
+                  color: AppColors.cart_page_white,
                 ),
               ),
-              child: Icon(
-                Iconsax.shopping_cart_copy,
-                size: 42.sp,
-                color: AppColors.cart_page_white,
+              const SizedBox(height: 20),
+              const Text(
+                'سبد خرید شما خالی است',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-
-            SizedBox(height: 20.h),
-
-            Text(
-              'سبد خرید شما خالی است',
-              style: TextStyle(
-                fontSize: 17.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
+              const SizedBox(height: 8),
+              Text(
+                'محصولات موردنظر خود را به سبد خرید اضافه کنید.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: Colors.grey.shade600,
+                  height: 1.6,
+                ),
               ),
-            ),
-
-            SizedBox(height: 8.h),
-
-            Text(
-              'محصولات موردنظر خود را به سبد خرید اضافه کنید.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12.5.sp,
-                color: Colors.grey.shade600,
-                height: 1.6,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

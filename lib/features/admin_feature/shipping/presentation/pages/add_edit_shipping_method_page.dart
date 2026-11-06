@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +34,11 @@ class _AddEditShippingMethodPageState
 
   bool _isActive = true;
 
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _secondaryColor = Color(0xFF023E8A);
+  static const Color _accentColor = Color(0xFF0096C7);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+
   @override
   void initState() {
     super.initState();
@@ -52,15 +57,13 @@ class _AddEditShippingMethodPageState
       text: method?.cost.toString() ?? '',
     );
 
-    _estimatedDaysController =
-        TextEditingController(
-          text: method?.estimatedDays ?? '',
-        );
+    _estimatedDaysController = TextEditingController(
+      text: method?.estimatedDays ?? '',
+    );
 
-    _sortOrderController =
-        TextEditingController(
-          text: method?.sortOrder.toString() ?? '0',
-        );
+    _sortOrderController = TextEditingController(
+      text: method?.sortOrder.toString() ?? '0',
+    );
 
     _isActive = method?.isActive ?? true;
   }
@@ -83,48 +86,65 @@ class _AddEditShippingMethodPageState
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor: _backgroundColor,
         appBar: AppBar(
-          backgroundColor: Color(0xFF03045e),
+          backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-          title: Text(
-            isEditing
-                ? 'ویرایش روش ارسال'
-                : 'افزودن روش ارسال',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+
         ),
-        body: Consumer<AdminShippingProvider>(
-          builder: (context, provider, child) {
-            return Form(
-              key: _formKey,
-              child: ListView(
-                physics:
-                const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  16.w,
-                  18.h,
-                  16.w,
-                  30.h,
-                ),
-                children: [
-                  _buildHeader(isEditing),
-                  SizedBox(height: 18.h),
-                  _buildFormCard(provider),
-                  SizedBox(height: 18.h),
-                  _buildActiveCard(),
-                  SizedBox(height: 24.h),
-                  _buildSaveButton(
-                    provider,
-                    isEditing,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+
+            final isDesktop = width >= 1100;
+            final horizontalPadding = width < 600
+                ? 16.0
+                : width < 1100
+                ? 28.0
+                : 36.0;
+
+            return Consumer<AdminShippingProvider>(
+              builder: (context, provider, child) {
+                return Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      24,
+                      horizontalPadding,
+                      36,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 1050,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildHeader(isEditing),
+                            const SizedBox(height: 22),
+
+                            if (isDesktop)
+                              _buildDesktopContent(
+                                provider,
+                                isEditing,
+                              )
+                            else
+                              _buildMobileContent(
+                                provider,
+                                isEditing,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         ),
@@ -132,70 +152,104 @@ class _AddEditShippingMethodPageState
     );
   }
 
+  Widget _buildDesktopContent(
+      AdminShippingProvider provider,
+      bool isEditing,
+      ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 7,
+          child: _buildFormCard(provider),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          flex: 4,
+          child: Column(
+            children: [
+              _buildActiveCard(),
+              const SizedBox(height: 20),
+              _buildSaveButton(provider, isEditing),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileContent(
+      AdminShippingProvider provider,
+      bool isEditing,
+      ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildFormCard(provider),
+        const SizedBox(height: 18),
+        _buildActiveCard(),
+        const SizedBox(height: 24),
+        _buildSaveButton(provider, isEditing),
+      ],
+    );
+  }
+
   Widget _buildHeader(bool isEditing) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.025,
-            ),
-            blurRadius: 8.r,
-            offset: Offset(0, 2.h),
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 52.w,
-            height: 52.w,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: Colors.indigo.withValues(
-                alpha: 0.08,
-              ),
-              borderRadius:
-              BorderRadius.circular(15.r),
+              color: _accentColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(15),
             ),
             child: Icon(
               isEditing
                   ? Icons.edit_location_alt_outlined
                   : Iconsax.truck_fast_copy,
-              color: Colors.indigo,
-              size: 27.sp,
+              color: _secondaryColor,
+              size: 27,
             ),
           ),
-          SizedBox(width: 13.w),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isEditing
-                      ? 'ویرایش روش ارسال'
-                      : 'روش ارسال جدید',
-                  style: TextStyle(
-                    fontSize: 16.sp,
+                  isEditing ? 'ویرایش روش ارسال' : 'روش ارسال جدید',
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 5.h),
+                const SizedBox(height: 6),
                 Text(
                   isEditing
                       ? 'اطلاعات روش ارسال را ویرایش کنید.'
                       : 'اطلاعات روش ارسال جدید را وارد کنید.',
                   style: TextStyle(
-                    fontSize: 10.5.sp,
-                    height: 1.5,
+                    fontSize: 12,
+                    height: 1.6,
                     color: Colors.grey.shade600,
                   ),
                 ),
@@ -207,83 +261,74 @@ class _AddEditShippingMethodPageState
     );
   }
 
-  Widget _buildFormCard(
-      AdminShippingProvider provider,
-      ) {
+  Widget _buildFormCard(AdminShippingProvider provider) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle(
-            'اطلاعات روش ارسال',
-          ),
-          SizedBox(height: 16.h),
+          _buildSectionTitle('اطلاعات روش ارسال'),
+          const SizedBox(height: 20),
 
           _buildTextField(
             controller: _titleController,
             label: 'عنوان روش ارسال',
             hint: 'مثلاً پست پیشتاز',
             icon: Iconsax.truck_copy,
-            textInputAction:
-            TextInputAction.next,
+            textInputAction: TextInputAction.next,
             validator: (value) {
-              if (value == null ||
-                  value.trim().isEmpty) {
+              if (value == null || value.trim().isEmpty) {
                 return 'عنوان روش ارسال را وارد کنید.';
               }
-
               return null;
             },
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 16),
 
           _buildTextField(
-            controller:
-            _descriptionController,
+            controller: _descriptionController,
             label: 'توضیحات',
-            hint:
-            'مثلاً ارسال با پست پیشتاز',
+            hint: 'مثلاً ارسال با پست پیشتاز',
             icon: Iconsax.message_copy,
             maxLines: 3,
-            textInputAction:
-            TextInputAction.newline,
+            textInputAction: TextInputAction.newline,
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 16),
 
           _buildTextField(
             controller: _costController,
             label: 'هزینه ارسال',
             hint: 'مثلاً 70000',
             icon: Iconsax.card_copy,
-            keyboardType:
-            TextInputType.number,
+            keyboardType: TextInputType.number,
             inputFormatters: [
-              FilteringTextInputFormatter
-                  .digitsOnly,
+              FilteringTextInputFormatter.digitsOnly,
             ],
-            textInputAction:
-            TextInputAction.next,
+            textInputAction: TextInputAction.next,
             suffixText: 'تومان',
             validator: (value) {
-              if (value == null ||
-                  value.trim().isEmpty) {
+              if (value == null || value.trim().isEmpty) {
                 return 'هزینه ارسال را وارد کنید.';
               }
 
-              final cost =
-              int.tryParse(value.trim());
+              final cost = int.tryParse(value.trim());
 
               if (cost == null) {
                 return 'هزینه واردشده معتبر نیست.';
@@ -297,43 +342,34 @@ class _AddEditShippingMethodPageState
             },
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 16),
 
           _buildTextField(
-            controller:
-            _estimatedDaysController,
+            controller: _estimatedDaysController,
             label: 'زمان تقریبی ارسال',
-            hint:
-            'مثلاً 2 تا 4 روز کاری',
+            hint: 'مثلاً 2 تا 4 روز کاری',
             icon: Iconsax.clock_copy,
-            textInputAction:
-            TextInputAction.next,
+            textInputAction: TextInputAction.next,
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 16),
 
           _buildTextField(
-            controller:
-            _sortOrderController,
+            controller: _sortOrderController,
             label: 'ترتیب نمایش',
             hint: 'مثلاً 1',
             icon: Iconsax.sort_copy,
-            keyboardType:
-            TextInputType.number,
+            keyboardType: TextInputType.number,
             inputFormatters: [
-              FilteringTextInputFormatter
-                  .digitsOnly,
+              FilteringTextInputFormatter.digitsOnly,
             ],
-            textInputAction:
-            TextInputAction.done,
+            textInputAction: TextInputAction.done,
             validator: (value) {
-              if (value == null ||
-                  value.trim().isEmpty) {
+              if (value == null || value.trim().isEmpty) {
                 return 'ترتیب نمایش را وارد کنید.';
               }
 
-              final sortOrder =
-              int.tryParse(value.trim());
+              final sortOrder = int.tryParse(value.trim());
 
               if (sortOrder == null) {
                 return 'ترتیب واردشده معتبر نیست.';
@@ -344,10 +380,8 @@ class _AddEditShippingMethodPageState
           ),
 
           if (provider.error != null) ...[
-            SizedBox(height: 14.h),
-            _buildErrorMessage(
-              provider.error!,
-            ),
+            const SizedBox(height: 16),
+            _buildErrorMessage(provider.error!),
           ],
         ],
       ),
@@ -359,7 +393,7 @@ class _AddEditShippingMethodPageState
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -372,42 +406,31 @@ class _AddEditShippingMethodPageState
           });
         },
         activeThumbColor: Colors.green,
-        activeTrackColor:
-        Colors.green.withValues(
-          alpha: 0.25,
-        ),
-        contentPadding:
-        EdgeInsets.symmetric(
-          horizontal: 15.w,
-          vertical: 4.h,
+        activeTrackColor: Colors.green.withValues(alpha: 0.25),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
         ),
         secondary: Container(
-          width: 42.w,
-          height: 42.w,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             color: _isActive
-                ? Colors.green.withValues(
-              alpha: 0.08,
-            )
-                : Colors.grey.withValues(
-              alpha: 0.08,
-            ),
-            borderRadius:
-            BorderRadius.circular(12.r),
+                ? Colors.green.withValues(alpha: 0.08)
+                : Colors.grey.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             _isActive
                 ? Iconsax.eye_copy
                 : Iconsax.eye_slash_copy,
-            color: _isActive
-                ? Colors.green
-                : Colors.grey,
+            color: _isActive ? Colors.green : Colors.grey,
           ),
         ),
-        title: Text(
+        title: const Text(
           'وضعیت روش ارسال',
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: 13,
             fontWeight: FontWeight.w800,
             color: Colors.black87,
           ),
@@ -417,8 +440,8 @@ class _AddEditShippingMethodPageState
               ? 'این روش در Checkout به کاربران نمایش داده می‌شود.'
               : 'این روش در Checkout نمایش داده نمی‌شود.',
           style: TextStyle(
-            fontSize: 10.sp,
-            height: 1.5,
+            fontSize: 11,
+            height: 1.6,
             color: Colors.grey.shade600,
           ),
         ),
@@ -432,54 +455,46 @@ class _AddEditShippingMethodPageState
       ) {
     return SizedBox(
       width: double.infinity,
-      height: 52.h,
+      height: 54,
       child: ElevatedButton(
         onPressed: provider.isSaving
             ? null
-            : () => _submit(
-          provider,
-          isEditing,
-        ),
+            : () => _submit(provider, isEditing),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
+          backgroundColor: _secondaryColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor:
-          Colors.red.withValues(
-            alpha: 0.45,
-          ),
+          _secondaryColor.withValues(alpha: 0.45),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: provider.isSaving
-            ? SizedBox(
-          width: 22.w,
-          height: 22.w,
-          child:
-          const CircularProgressIndicator(
+            ? const SizedBox(
+          width: 23,
+          height: 23,
+          child: CircularProgressIndicator(
             strokeWidth: 2.5,
             color: Colors.white,
           ),
         )
             : Row(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               isEditing
                   ? Icons.check_circle_outline
                   : Icons.add_rounded,
-              size: 21.sp,
+              size: 22,
             ),
-            SizedBox(width: 8.w),
+            const SizedBox(width: 9),
             Text(
               isEditing
                   ? 'ذخیره تغییرات'
                   : 'افزودن روش ارسال',
-              style: TextStyle(
-                fontSize: 13.sp,
+              style: const TextStyle(
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -508,8 +523,8 @@ class _AddEditShippingMethodPageState
       textInputAction: textInputAction,
       maxLines: maxLines,
       validator: validator,
-      style: TextStyle(
-        fontSize: 12.sp,
+      style: const TextStyle(
+        fontSize: 13,
         fontWeight: FontWeight.w600,
       ),
       decoration: InputDecoration(
@@ -517,69 +532,59 @@ class _AddEditShippingMethodPageState
         hintText: hint,
         prefixIcon: Icon(
           icon,
-          size: 21.sp,
+          size: 21,
           color: Colors.grey.shade500,
         ),
         suffixText: suffixText,
         suffixStyle: TextStyle(
-          fontSize: 10.sp,
+          fontSize: 11,
           color: Colors.grey.shade600,
           fontWeight: FontWeight.w600,
         ),
         labelStyle: TextStyle(
-          fontSize: 11.sp,
+          fontSize: 12,
           color: Colors.grey.shade600,
         ),
         hintStyle: TextStyle(
-          fontSize: 10.5.sp,
+          fontSize: 12,
           color: Colors.grey.shade400,
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding:
-        EdgeInsets.symmetric(
-          horizontal: 14.w,
-          vertical: 14.h,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 16,
         ),
         border: OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+          borderRadius: BorderRadius.circular(13),
           borderSide: BorderSide(
             color: Colors.grey.shade200,
           ),
         ),
-        enabledBorder:
-        OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
           borderSide: BorderSide(
             color: Colors.grey.shade200,
           ),
         ),
-        focusedBorder:
-        OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
-            color: Colors.red,
-            width: 1.3,
+            color: _accentColor,
+            width: 1.4,
           ),
         ),
-        errorBorder:
-        OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
             color: Colors.red,
           ),
         ),
-        focusedErrorBorder:
-        OutlineInputBorder(
-          borderRadius:
-          BorderRadius.circular(13.r),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
           borderSide: const BorderSide(
             color: Colors.red,
-            width: 1.3,
+            width: 1.4,
           ),
         ),
       ),
@@ -589,8 +594,8 @@ class _AddEditShippingMethodPageState
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: TextStyle(
-        fontSize: 14.sp,
+      style: const TextStyle(
+        fontSize: 15,
         fontWeight: FontWeight.w800,
         color: Colors.black87,
       ),
@@ -600,35 +605,29 @@ class _AddEditShippingMethodPageState
   Widget _buildErrorMessage(String message) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12.w),
+      padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(
-          alpha: 0.06,
-        ),
-        borderRadius:
-        BorderRadius.circular(12.r),
+        color: Colors.red.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.red.withValues(
-            alpha: 0.15,
-          ),
+          color: Colors.red.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Iconsax.warning_2_copy,
             color: Colors.red.shade600,
-            size: 20.sp,
+            size: 21,
           ),
-          SizedBox(width: 8.w),
+          const SizedBox(width: 9),
           Expanded(
             child: Text(
               message,
               style: TextStyle(
-                fontSize: 10.5.sp,
-                height: 1.5,
+                fontSize: 12,
+                height: 1.6,
                 color: Colors.red.shade700,
               ),
             ),
@@ -648,46 +647,29 @@ class _AddEditShippingMethodPageState
       return;
     }
 
-    final title =
-    _titleController.text.trim();
-
-    final description =
-    _descriptionController.text.trim();
-
-    final cost =
-    int.parse(_costController.text.trim());
-
-    final estimatedDays =
-    _estimatedDaysController.text.trim();
-
-    final sortOrder =
-    int.parse(_sortOrderController.text.trim());
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+    final cost = int.parse(_costController.text.trim());
+    final estimatedDays = _estimatedDaysController.text.trim();
+    final sortOrder = int.parse(_sortOrderController.text.trim());
 
     final success = isEditing
         ? await provider.updateShippingMethod(
       id: widget.shippingMethod!.id,
       title: title,
-      description: description.isEmpty
-          ? null
-          : description,
+      description: description.isEmpty ? null : description,
       cost: cost,
       estimatedDays:
-      estimatedDays.isEmpty
-          ? null
-          : estimatedDays,
+      estimatedDays.isEmpty ? null : estimatedDays,
       isActive: _isActive,
       sortOrder: sortOrder,
     )
         : await provider.createShippingMethod(
       title: title,
-      description: description.isEmpty
-          ? null
-          : description,
+      description: description.isEmpty ? null : description,
       cost: cost,
       estimatedDays:
-      estimatedDays.isEmpty
-          ? null
-          : estimatedDays,
+      estimatedDays.isEmpty ? null : estimatedDays,
       isActive: _isActive,
       sortOrder: sortOrder,
     );
@@ -705,12 +687,10 @@ class _AddEditShippingMethodPageState
               isEditing
                   ? 'تغییرات با موفقیت ذخیره شد.'
                   : 'روش ارسال با موفقیت اضافه شد.',
-              textDirection:
-              TextDirection.rtl,
+              textDirection: TextDirection.rtl,
             ),
             backgroundColor: Colors.green,
-            behavior:
-            SnackBarBehavior.floating,
+            behavior: SnackBarBehavior.floating,
           ),
         );
 

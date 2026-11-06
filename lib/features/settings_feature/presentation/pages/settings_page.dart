@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -21,10 +21,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SettingsProvider>(
-      create: (_) =>
-      getIt<SettingsProvider>()
-        ..loadSettings(),
-
+      create: (_) => getIt<SettingsProvider>()..loadSettings(),
       child: const _SettingsView(),
     );
   }
@@ -35,240 +32,174 @@ class _SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsProvider =
     context.watch<SettingsProvider>();
 
     return Directionality(
       textDirection: TextDirection.rtl,
-
       child: Scaffold(
-        backgroundColor:
-        Colors.grey.shade50,
+        backgroundColor: Colors.grey.shade50,
 
-        // ==========================================
         // APP BAR
-        // ==========================================
-
         appBar: AppBar(
-          title: const Text(
-            'تنظیمات',
-          ),
-
+          title: const Text('تنظیمات'),
           centerTitle: true,
-
-          backgroundColor:
-          Colors.white,
-
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
 
-        // ==========================================
         // BODY
-        // ==========================================
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
 
-        body: ListView(
-          physics:
-          const BouncingScrollPhysics(),
+            final horizontalPadding = width < 600
+                ? 16.0
+                : width < 1000
+                ? 28.0
+                : 40.0;
 
-          padding: EdgeInsets.only(
-            top: 16.h,
-            bottom: 30.h,
-          ),
+            final contentMaxWidth =
+            width >= 1000 ? 850.0 : double.infinity;
 
-          children: [
-            // ======================================
-            // APP SETTINGS
-            // ======================================
+            final isMobile = width < 600;
 
-            const _SectionTitle(
-              title: 'تنظیمات برنامه',
-            ),
-
-            Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 16.w,
+            return ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.only(
+                top: isMobile ? 16 : 24,
+                bottom: 30,
+                left: horizontalPadding,
+                right: horizontalPadding,
               ),
-
-              decoration: BoxDecoration(
-                color: Colors.white,
-
-                borderRadius:
-                BorderRadius.circular(
-                  16.r,
-                ),
-
-                border: Border.all(
-                  color:
-                  Colors.grey.shade200,
-                ),
-              ),
-
-              child: Column(
-                children: [
-
-                  // ==================================
-                  // SUPPORT
-                  // ==================================
-
-                  SettingsMenuItem(
-                    icon:
-                    Icons.support_agent_outlined,
-
-                    title: 'پشتیبانی',
-
-                    iconColor:
-                    Colors.blue,
-
-                    onTap: () {
-                      Navigator.of(
-                        context,
-                      ).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                          const SupportPage(),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: contentMaxWidth,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // APP SETTINGS
+                        const _SectionTitle(
+                          title: 'تنظیمات برنامه',
                         ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
 
-            SizedBox(
-              height: 20.h,
-            ),
-
-            // ======================================
-            // INFORMATION
-            // ======================================
-
-            const _SectionTitle(
-              title: 'اطلاعات',
-            ),
-
-            Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 16.w,
-              ),
-
-              decoration: BoxDecoration(
-                color: Colors.white,
-
-                borderRadius:
-                BorderRadius.circular(
-                  16.r,
-                ),
-
-                border: Border.all(
-                  color:
-                  Colors.grey.shade200,
-                ),
-              ),
-
-              child: Column(
-                children: [
-                  // ==================================
-                  // PRIVACY
-                  // ==================================
-
-                  SettingsMenuItem(
-                    icon:
-                    Iconsax.lock_copy,
-
-                    title: 'حریم خصوصی',
-
-                    iconColor:
-                    Colors.green,
-
-                    onTap: () {
-                      Navigator.of(
-                        context,
-                      ).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                          const PrivacyPage(),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey.shade200,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              // SUPPORT
+                              SettingsMenuItem(
+                                icon: Icons.support_agent_outlined,
+                                title: 'پشتیبانی',
+                                iconColor: Colors.blue,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const SupportPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
 
-                  const Divider(
-                    height: 1,
-                  ),
+                        const SizedBox(height: 24),
 
-                  // ==================================
-                  // ABOUT
-                  // ==================================
-
-                  SettingsMenuItem(
-                    icon:
-                    Iconsax.information_copy,
-
-                    title: 'درباره ما',
-
-                    iconColor:
-                    Colors.orange,
-
-                    onTap: () {
-                      Navigator.of(
-                        context,
-                      ).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                          const AboutPage(),
+                        // INFORMATION
+                        const _SectionTitle(
+                          title: 'اطلاعات',
                         ),
-                      );
-                    },
+
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey.shade200,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              // PRIVACY
+                              SettingsMenuItem(
+                                icon: Iconsax.lock_copy,
+                                title: 'حریم خصوصی',
+                                iconColor: Colors.green,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const PrivacyPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              Divider(
+                                height: 1,
+                                color: Colors.grey.shade200,
+                              ),
+
+                              // ABOUT
+                              SettingsMenuItem(
+                                icon: Iconsax.information_copy,
+                                title: 'درباره ما',
+                                iconColor: Colors.orange,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const AboutPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // APP NAME
+                        Center(
+                          child: Text(
+                            'Supastore',
+                            style: TextStyle(
+                              fontSize: isMobile ? 13 : 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // VERSION
+                        Center(
+                          child: Text(
+                            'نسخه 1.0.0',
+                            style: TextStyle(
+                              fontSize: isMobile ? 11 : 13,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-
-            SizedBox(
-              height: 35.h,
-            ),
-
-            // ======================================
-            // APP NAME
-            // ======================================
-
-            Center(
-              child: Text(
-                'Supastore',
-
-                style: TextStyle(
-                  fontSize: 13.sp,
-
-                  fontWeight:
-                  FontWeight.bold,
-
-                  color:
-                  Colors.grey.shade500,
                 ),
-              ),
-            ),
-
-            SizedBox(
-              height: 5.h,
-            ),
-
-            // ======================================
-            // VERSION
-            // ======================================
-
-            Center(
-              child: Text(
-                'نسخه 1.0.0',
-
-                style: TextStyle(
-                  fontSize: 11.sp,
-
-                  color:
-                  Colors.grey.shade400,
-                ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
@@ -279,8 +210,7 @@ class _SettingsView extends StatelessWidget {
 // SECTION TITLE
 // ====================================================
 
-class _SectionTitle
-    extends StatelessWidget {
+class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
     required this.title,
   });
@@ -288,26 +218,20 @@ class _SectionTitle
   final String title;
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 600;
+
     return Padding(
       padding: EdgeInsets.only(
-        right: 20.w,
-        bottom: 8.h,
+        right: 4,
+        bottom: 8,
       ),
-
       child: Text(
         title,
-
         style: TextStyle(
-          fontSize: 14.sp,
-
-          fontWeight:
-          FontWeight.bold,
-
-          color:
-          Colors.grey.shade700,
+          fontSize: isMobile ? 14 : 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade700,
         ),
       ),
     );

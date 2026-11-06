@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
@@ -14,8 +14,7 @@ class AdminPaymentSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AdminPaymentSettingsProvider>(
-      create: (_) =>
-      getIt<AdminPaymentSettingsProvider>()..loadSettings(),
+      create: (_) => getIt<AdminPaymentSettingsProvider>()..loadSettings(),
       child: const _AdminPaymentSettingsView(),
     );
   }
@@ -38,6 +37,9 @@ class _AdminPaymentSettingsViewState
 
   bool _initialized = false;
 
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _backgroundColor = Color(0xFFF7F7F8);
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AdminPaymentSettingsProvider>(
@@ -49,41 +51,31 @@ class _AdminPaymentSettingsViewState
         }
 
         if (provider.error != null && provider.settings == null) {
-          return _buildErrorState(
-            context,
-            provider,
-          );
+          return _buildErrorState(context, provider);
         }
 
         final settings = provider.settings;
 
         if (settings == null) {
-          return _buildEmptyState(
-            context,
-            provider,
-          );
+          return _buildEmptyState(context, provider);
         }
 
         if (!_initialized) {
-          _onlinePaymentEnabled =
-              settings.onlinePaymentEnabled;
-          _zarinpalEnabled =
-              settings.zarinpalEnabled;
-          _sepEnabled =
-              settings.sepEnabled;
-          _defaultGateway =
-              settings.defaultGateway;
-
+          _onlinePaymentEnabled = settings.onlinePaymentEnabled;
+          _zarinpalEnabled = settings.zarinpalEnabled;
+          _sepEnabled = settings.sepEnabled;
+          _defaultGateway = settings.defaultGateway;
           _initialized = true;
         }
 
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            backgroundColor: Colors.grey.shade100,
+            backgroundColor: _backgroundColor,
             appBar: AppBar(
-              backgroundColor: Color(0xFF03045e),
+              backgroundColor: _primaryColor,
               foregroundColor: Colors.white,
+              elevation: 0,
               title: Text(
                 'تنظیمات پرداخت',
                 style: AppTextStyles.titleMedium.copyWith(
@@ -98,30 +90,96 @@ class _AdminPaymentSettingsViewState
                 _initialized = false;
                 await provider.loadSettings();
               },
-              child: ListView(
-                padding: EdgeInsets.all(16.w),
-                children: [
-                  _buildOnlinePaymentCard(
-                    context,
-                    provider,
-                  ),
-                  SizedBox(height: 16.h),
-                  _buildGatewaysCard(
-                    context,
-                    provider,
-                  ),
-                  SizedBox(height: 16.h),
-                  _buildDefaultGatewayCard(
-                    context,
-                    provider,
-                  ),
-                  SizedBox(height: 24.h),
-                  _buildSaveButton(
-                    context,
-                    provider,
-                  ),
-                  SizedBox(height: 30.h),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+
+                  final isDesktop = width >= 1000;
+                  final horizontalPadding = width >= 1200
+                      ? 32.0
+                      : width >= 650
+                      ? 24.0
+                      : 16.0;
+
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 24,
+                    ),
+                    children: [
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 1100,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (isDesktop) ...[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: _buildOnlinePaymentCard(
+                                        context,
+                                        provider,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: _buildGatewaysCard(
+                                        context,
+                                        provider,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                _buildDefaultGatewayCard(
+                                  context,
+                                  provider,
+                                ),
+                              ] else ...[
+                                _buildOnlinePaymentCard(
+                                  context,
+                                  provider,
+                                ),
+                                const SizedBox(height: 16),
+                                _buildGatewaysCard(
+                                  context,
+                                  provider,
+                                ),
+                                const SizedBox(height: 16),
+                                _buildDefaultGatewayCard(
+                                  context,
+                                  provider,
+                                ),
+                              ],
+                              const SizedBox(height: 24),
+                              Align(
+                                alignment: Alignment.center,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: isDesktop ? 420 : double.infinity,
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: _buildSaveButton(
+                                      context,
+                                      provider,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -154,7 +212,7 @@ class _AdminPaymentSettingsViewState
           ),
         ),
         value: _onlinePaymentEnabled,
-        activeColor: Color(0xFF03045e),
+        activeColor: _primaryColor,
         onChanged: provider.isSaving
             ? null
             : (value) {
@@ -190,7 +248,7 @@ class _AdminPaymentSettingsViewState
               ),
             ),
             value: _zarinpalEnabled,
-            activeColor: Color(0xFF03045e),
+            activeColor: _primaryColor,
             onChanged: provider.isSaving
                 ? null
                 : (value) {
@@ -205,7 +263,7 @@ class _AdminPaymentSettingsViewState
               });
             },
           ),
-          Divider(height: 1.h),
+          const Divider(height: 1),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
@@ -221,7 +279,7 @@ class _AdminPaymentSettingsViewState
               ),
             ),
             value: _sepEnabled,
-            activeColor: Color(0xFF03045e),
+            activeColor: _primaryColor,
             onChanged: provider.isSaving
                 ? null
                 : (value) {
@@ -255,15 +313,13 @@ class _AdminPaymentSettingsViewState
       gateways['sep'] = 'سامان (SEP)';
     }
 
-    final selectedGateway =
-    gateways.containsKey(_defaultGateway)
+    final selectedGateway = gateways.containsKey(_defaultGateway)
         ? _defaultGateway
-        : gateways.keys.isNotEmpty
+        : gateways.isNotEmpty
         ? gateways.keys.first
         : null;
 
-    if (selectedGateway != null &&
-        selectedGateway != _defaultGateway) {
+    if (selectedGateway != null && selectedGateway != _defaultGateway) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
@@ -276,7 +332,6 @@ class _AdminPaymentSettingsViewState
     return _buildSectionCard(
       title: 'درگاه پیش‌فرض',
       icon: Icons.star_rounded,
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -286,14 +341,14 @@ class _AdminPaymentSettingsViewState
               color: Colors.grey.shade600,
             ),
           ),
-          SizedBox(height: 12.h),
+          const SizedBox(height: 12),
           if (gateways.isEmpty)
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(12.w),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: Colors.orange.shade200,
                 ),
@@ -309,14 +364,14 @@ class _AdminPaymentSettingsViewState
           else
             DropdownButtonFormField<String>(
               value: selectedGateway,
+              isExpanded: true,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius:
-                  BorderRadius.circular(10.r),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 12.h,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
                 ),
               ),
               items: gateways.entries.map((entry) {
@@ -347,26 +402,24 @@ class _AdminPaymentSettingsViewState
     final canSave = _zarinpalEnabled || _sepEnabled;
 
     return SizedBox(
-      height: 52.h,
+      height: 52,
       child: ElevatedButton(
-        onPressed:
-        provider.isSaving || !canSave
+        onPressed: provider.isSaving || !canSave
             ? null
             : () => _save(context, provider),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-          Colors.grey.shade300,
+          disabledBackgroundColor: Colors.grey.shade300,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: provider.isSaving
-            ? SizedBox(
-          width: 22.w,
-          height: 22.w,
-          child: const CircularProgressIndicator(
+            ? const SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
             strokeWidth: 2,
             color: Colors.white,
           ),
@@ -432,32 +485,37 @@ class _AdminPaymentSettingsViewState
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: const EdgeInsets.all(18),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Icon(
                   icon,
                   color: AppColors.primary,
-                  size: 22.sp,
+                  size: 22,
                 ),
-                SizedBox(width: 8.w),
-                Text(
-                  title,
-                  style: AppTextStyles.titleMedium.copyWith(
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 12.h),
+            const SizedBox(height: 14),
             child,
           ],
         ),
@@ -473,22 +531,22 @@ class _AdminPaymentSettingsViewState
       textDirection: TextDirection.rtl,
       child: Center(
         child: Padding(
-          padding: EdgeInsets.all(24.w),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.error_outline_rounded,
-                size: 52.sp,
+                size: 52,
                 color: Colors.red,
               ),
-              SizedBox(height: 12.h),
+              const SizedBox(height: 12),
               Text(
                 provider.error ?? 'خطایی رخ داد.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.body,
               ),
-              SizedBox(height: 16.h),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: provider.isLoading
                     ? null
@@ -514,21 +572,21 @@ class _AdminPaymentSettingsViewState
       textDirection: TextDirection.rtl,
       child: Center(
         child: Padding(
-          padding: EdgeInsets.all(24.w),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.settings_outlined,
-                size: 52.sp,
-                color: Colors.grey,
+                size: 52,
+                color: Colors.grey.shade500,
               ),
-              SizedBox(height: 12.h),
+              const SizedBox(height: 12),
               Text(
                 'تنظیمات پرداخت پیدا نشد.',
                 style: AppTextStyles.body,
               ),
-              SizedBox(height: 16.h),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: provider.loadSettings,
                 style: ElevatedButton.styleFrom(
@@ -554,8 +612,7 @@ class _AdminPaymentSettingsViewState
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor:
-          isError ? Colors.red : Colors.green,
+          backgroundColor: isError ? Colors.red : Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
       );

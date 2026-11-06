@@ -1,17 +1,15 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+
 import 'package:supastore/features/admin_feature/Users/domain/entities/admin_user.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/pages/admin_user_details_page.dart';
 import 'package:supastore/features/admin_feature/Users/presentation/providers/admin_user_provider.dart';
 
-
 class AdminUsersPage extends StatefulWidget {
-  AdminUsersPage({
-    super.key,
-  });
+  const AdminUsersPage({super.key});
 
   @override
   State<AdminUsersPage> createState() => _AdminUsersPageState();
@@ -20,6 +18,10 @@ class AdminUsersPage extends StatefulWidget {
 class _AdminUsersPageState extends State<AdminUsersPage> {
   late final TextEditingController _searchController;
   late final ScrollController _scrollController;
+
+  static const Color _primaryColor = Color(0xFF03045E);
+  static const Color _secondaryColor = Color(0xFF0077B6);
+  static const Color _dangerColor = Color(0xFFE21B23);
 
   @override
   void initState() {
@@ -31,9 +33,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       context.read<AdminUserProvider>().initialize();
     });
@@ -49,9 +49,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
   }
 
   void _onScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
+    if (!_scrollController.hasClients) return;
 
     final position = _scrollController.position;
 
@@ -89,11 +87,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
   void _openUserDetails(AdminUser user) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) {
-          return AdminUserDetailsPage(
-            user: user,
-          );
-        },
+        builder: (_) => AdminUserDetailsPage(user: user),
       ),
     );
   }
@@ -103,20 +97,12 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Consumer<AdminUserProvider>(
-        builder: (
-            context,
-            provider,
-            child,
-            ) {
+        builder: (context, provider, child) {
           return Column(
             children: [
-              _buildHeader(
-                provider,
-              ),
+              _buildHeader(provider),
               Expanded(
-                child: _buildBody(
-                  provider,
-                ),
+                child: _buildBody(provider),
               ),
             ],
           );
@@ -125,147 +111,160 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
-  Widget _buildHeader(
-      AdminUserProvider provider,
-      ) {
+  // ---------------------------------------------------------------------------
+  // HEADER
+  // ---------------------------------------------------------------------------
+
+  Widget _buildHeader(AdminUserProvider provider) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16.w,
-        16.h,
-        16.w,
-        12.h,
-      ),
+      width: double.infinity,
       color: Colors.white,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _searchController,
-                  textDirection: TextDirection.rtl,
-                  textInputAction: TextInputAction.search,
-                  onChanged: _onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: 'جستجوی نام یا شماره موبایل...',
-                    hintStyle: TextStyle(
-                      fontSize: 13.sp,
-                      color: Colors.grey.shade500,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding =
+          constraints.maxWidth >= 900 ? 24.0 : 0.0;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1100,
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            textDirection: TextDirection.rtl,
+                            textInputAction: TextInputAction.search,
+                            onChanged: _onSearchChanged,
+                            decoration: InputDecoration(
+                              hintText:
+                              'جستجوی نام یا شماره موبایل...',
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade500,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                size: 22,
+                                color: Colors.grey.shade600,
+                              ),
+                              suffixIcon:
+                              _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                onPressed: _clearSearch,
+                                icon: Icon(
+                                  Icons.close,
+                                  size: 20,
+                                  color: Colors.grey.shade600,
+                                ),
+                              )
+                                  : null,
+                              filled: true,
+                              fillColor: Colors.grey.shade100,
+                              contentPadding:
+                              const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 13,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: _dangerColor,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        _buildRefreshButton(provider),
+                      ],
                     ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: 22.sp,
-                      color: Colors.grey.shade600,
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                      onPressed: _clearSearch,
-                      icon: Icon(
-                        Icons.close,
-                        size: 20.sp,
-                        color: Colors.grey.shade600,
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '${provider.users.length} کاربر',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
-                    )
-                        : null,
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 14.w,
-                      vertical: 13.h,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide(
-                        color: Color(0xFFE21B23),
-                        width: 1.w,
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ),
-              SizedBox(width: 10.w),
-              _buildRefreshButton(
-                provider,
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              '${provider.users.length} کاربر',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.grey.shade600,
-              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildRefreshButton(
-      AdminUserProvider provider,
-      ) {
-    final isLoading =
-        provider.isLoading ||
-            provider.isLoadingMore;
+  Widget _buildRefreshButton(AdminUserProvider provider) {
+    final isLoading = provider.isLoading || provider.isLoadingMore;
 
     return Material(
-      color: Color(0xFF0077b6),
-      borderRadius: BorderRadius.circular(12.r),
+      color: _secondaryColor,
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12),
         onTap: isLoading ? null : _refresh,
-        child: Container(
-          width: 48.w,
-          height: 48.w,
-          alignment: Alignment.center,
-          child: isLoading
-              ? SizedBox(
-            width: 20.w,
-            height: 20.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.w,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+                : const Icon(
+              Iconsax.refresh_copy,
               color: Colors.white,
+              size: 23,
             ),
-          )
-              : Icon(
-            Iconsax.refresh_copy,
-            color: Colors.white,
-            size: 23.sp,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBody(
-      AdminUserProvider provider,
-      ) {
-    if (provider.isLoading &&
-        provider.users.isEmpty) {
-      return Center(
+  // ---------------------------------------------------------------------------
+  // BODY
+  // ---------------------------------------------------------------------------
+
+  Widget _buildBody(AdminUserProvider provider) {
+    if (provider.isLoading && provider.users.isEmpty) {
+      return const Center(
         child: CircularProgressIndicator(
-          color: Color(0xFF023e8a),
+          color: Color(0xFF023E8A),
         ),
       );
     }
 
-    if (provider.error != null &&
-        provider.users.isEmpty) {
-      return _buildErrorState(
-        provider,
-      );
+    if (provider.error != null && provider.users.isEmpty) {
+      return _buildErrorState(provider);
     }
 
     if (provider.users.isEmpty) {
@@ -273,35 +272,42 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     }
 
     return RefreshIndicator(
-      color: Color(0xFF023e8a),
+      color: const Color(0xFF023E8A),
       onRefresh: _refresh,
-      child: ListView.builder(
-        controller: _scrollController,
-        physics: AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          16.w,
-          12.h,
-          16.w,
-          24.h,
-        ),
-        itemCount: provider.users.length +
-            (provider.isLoadingMore ? 1 : 0),
-        itemBuilder: (
-            context,
-            index,
-            ) {
-          if (index >= provider.users.length) {
-            return _buildLoadingMore();
-          }
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding =
+          constraints.maxWidth >= 900 ? 24.0 : 16.0;
 
-          final user = provider.users[index];
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1100,
+              ),
+              child: ListView.builder(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  12,
+                  horizontalPadding,
+                  24,
+                ),
+                itemCount: provider.users.length +
+                    (provider.isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= provider.users.length) {
+                    return _buildLoadingMore();
+                  }
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: 10.h,
-            ),
-            child: _buildUserCard(
-              user,
+                  final user = provider.users[index];
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _buildUserCard(user),
+                  );
+                },
+              ),
             ),
           );
         },
@@ -309,24 +315,22 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
-  Widget _buildUserCard(
-      AdminUser user,
-      ) {
+  // ---------------------------------------------------------------------------
+  // USER CARD
+  // ---------------------------------------------------------------------------
+
+  Widget _buildUserCard(AdminUser user) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16.r),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16.r),
-        onTap: () {
-          _openUserDetails(
-            user,
-          );
-        },
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openUserDetails(user),
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.all(12.w),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: Colors.grey.shade200,
               width: 1,
@@ -334,19 +338,15 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           ),
           child: Row(
             children: [
-              _buildAvatar(
-                user,
-              ),
-              SizedBox(width: 12.w),
+              _buildAvatar(user),
+              const SizedBox(width: 12),
               Expanded(
-                child: _buildUserInfo(
-                  user,
-                ),
+                child: _buildUserInfo(user),
               ),
-              SizedBox(width: 8.w),
+              const SizedBox(width: 8),
               Icon(
                 Icons.chevron_left,
-                size: 24.sp,
+                size: 24,
                 color: Colors.grey.shade400,
               ),
             ],
@@ -356,54 +356,42 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
-  Widget _buildAvatar(
-      AdminUser user,
-      ) {
+  Widget _buildAvatar(AdminUser user) {
     final avatarUrl = user.avatarUrl;
 
-    if (avatarUrl != null &&
-        avatarUrl.trim().isNotEmpty) {
+    if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
       return Container(
-        width: 58.w,
-        height: 58.w,
+        width: 58,
+        height: 58,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
             color: user.isAdmin
-                ? Color(0xFF0077b6)
+                ? _secondaryColor
                 : Colors.grey.shade300,
-            width: 2.w,
+            width: 2,
           ),
         ),
         child: ClipOval(
           child: CachedNetworkImage(
             imageUrl: avatarUrl,
             fit: BoxFit.cover,
-            placeholder: (
-                context,
-                url,
-                ) {
+            placeholder: (context, url) {
               return Container(
                 color: Colors.grey.shade100,
                 alignment: Alignment.center,
-                child: SizedBox(
-                  width: 20.w,
-                  height: 20.w,
+                child: const SizedBox(
+                  width: 20,
+                  height: 20,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2.w,
-                    color: Color(0xFFE21B23),
+                    strokeWidth: 2,
+                    color: _dangerColor,
                   ),
                 ),
               );
             },
-            errorWidget: (
-                context,
-                url,
-                error,
-                ) {
-              return _buildDefaultAvatar(
-                user,
-              );
+            errorWidget: (context, url, error) {
+              return _buildDefaultAvatar(user);
             },
           ),
         ),
@@ -411,70 +399,59 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     }
 
     return Container(
-      width: 58.w,
-      height: 58.w,
+      width: 58,
+      height: 58,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: user.isAdmin
-            ? Color(0xFF03045e).withValues(
-          alpha: 0.08,
-        )
+            ? _primaryColor.withValues(alpha: 0.08)
             : Colors.grey.shade100,
         border: Border.all(
           color: user.isAdmin
-              ? Color(0xFF0077b6)
+              ? _secondaryColor
               : Colors.grey.shade300,
-          width: 2.w,
+          width: 2,
         ),
       ),
-      child: _buildDefaultAvatar(
-        user,
-      ),
+      child: _buildDefaultAvatar(user),
     );
   }
 
-  Widget _buildDefaultAvatar(
-      AdminUser user,
-      ) {
+  Widget _buildDefaultAvatar(AdminUser user) {
     return Icon(
       user.isAdmin
           ? Iconsax.shield_tick_copy
           : Iconsax.user_copy,
-      size: 30.sp,
+      size: 30,
       color: user.isAdmin
-          ? Color(0xFF03045e)
+          ? _primaryColor
           : Colors.grey.shade500,
     );
   }
 
-  Widget _buildUserInfo(
-      AdminUser user,
-      ) {
+  Widget _buildUserInfo(AdminUser user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _getDisplayName(
-            user,
-          ),
+          _getDisplayName(user),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 15.sp,
+          style: const TextStyle(
+            fontSize: 15,
             fontWeight: FontWeight.bold,
             color: Color(0xFF222222),
           ),
         ),
-        SizedBox(height: 5.h),
-        if (user.phone != null &&
-            user.phone!.trim().isNotEmpty)
+        const SizedBox(height: 5),
+        if (user.phone != null && user.phone!.trim().isNotEmpty)
           Text(
             user.phone!,
             textDirection: TextDirection.ltr,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 12,
               color: Colors.grey.shade600,
             ),
           )
@@ -482,35 +459,29 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
           Text(
             'شماره موبایل ثبت نشده',
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 12,
               color: Colors.grey.shade500,
             ),
           ),
-        SizedBox(height: 8.h),
-        _buildRoleBadge(
-          user,
-        ),
+        const SizedBox(height: 8),
+        _buildRoleBadge(user),
       ],
     );
   }
 
-  Widget _buildRoleBadge(
-      AdminUser user,
-      ) {
+  Widget _buildRoleBadge(AdminUser user) {
     final isAdmin = user.isAdmin;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 5.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: isAdmin
-            ? Color(0xFFade8f4).withValues(
-          alpha: 0.88,
-        )
+            ? const Color(0xFFADE8F4).withValues(alpha: 0.88)
             : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -519,21 +490,19 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             isAdmin
                 ? Iconsax.shield_tick_copy
                 : Iconsax.user_copy,
-            size: 15.sp,
+            size: 15,
             color: isAdmin
-                ? Color(0xFF03045e)
+                ? _primaryColor
                 : Colors.grey.shade600,
           ),
-          SizedBox(width: 5.w),
+          const SizedBox(width: 5),
           Text(
-            isAdmin
-                ? 'مدیر'
-                : 'کاربر',
+            isAdmin ? 'مدیر' : 'کاربر',
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
               color: isAdmin
-                  ? Color(0xFF03045e)
+                  ? _primaryColor
                   : Colors.grey.shade600,
             ),
           ),
@@ -542,198 +511,196 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // LOADING MORE
+  // ---------------------------------------------------------------------------
+
   Widget _buildLoadingMore() {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 18.h,
-      ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 18),
       child: Center(
         child: SizedBox(
-          width: 24.w,
-          height: 24.w,
+          width: 24,
+          height: 24,
           child: CircularProgressIndicator(
-            strokeWidth: 2.w,
-            color: Color(0xFF03045e),
+            strokeWidth: 2,
+            color: _primaryColor,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildErrorState(
-      AdminUserProvider provider,
-      ) {
+  // ---------------------------------------------------------------------------
+  // ERROR STATE
+  // ---------------------------------------------------------------------------
+
+  Widget _buildErrorState(AdminUserProvider provider) {
     return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30.w,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 72.w,
-              height: 72.w,
-              decoration: BoxDecoration(
-                color: Color(0xFFE21B23).withValues(
-                  alpha: 0.08,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: _dangerColor.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
                 ),
-                shape: BoxShape.circle,
+                child: const Icon(
+                  Icons.wifi_off_rounded,
+                  size: 36,
+                  color: _dangerColor,
+                ),
               ),
-              child: Icon(
-                Icons.wifi_off_rounded,
-                size: 36.sp,
-                color: Color(0xFFE21B23),
+              const SizedBox(height: 16),
+              const Text(
+                'دریافت کاربران با مشکل مواجه شد',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF222222),
+                ),
               ),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              'دریافت کاربران با مشکل مواجه شد',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF222222),
+              const SizedBox(height: 8),
+              Text(
+                _cleanErrorMessage(provider.error),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.6,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              _cleanErrorMessage(
-                provider.error,
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.sp,
-                height: 1.6,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            SizedBox(height: 18.h),
-            SizedBox(
-              height: 44.h,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  provider.loadUsers(
-                    refresh: true,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFE21B23),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
+              const SizedBox(height: 18),
+              SizedBox(
+                height: 44,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    provider.loadUsers(refresh: true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _dangerColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.r),
+                  icon: const Icon(
+                    Iconsax.refresh_copy,
+                    size: 19,
                   ),
-                ),
-                icon: Icon(
-                  Iconsax.refresh_copy,
-                  size: 19.sp,
-                ),
-                label: Text(
-                  'تلاش مجدد',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
+                  label: const Text(
+                    'تلاش مجدد',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // EMPTY STATE
+  // ---------------------------------------------------------------------------
 
   Widget _buildEmptyState() {
-    final hasSearch =
-        _searchController.text.trim().isNotEmpty;
+    final hasSearch = _searchController.text.trim().isNotEmpty;
 
     return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30.w,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80.w,
-              height: 80.w,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                shape: BoxShape.circle,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  hasSearch
+                      ? Icons.search_off
+                      : Iconsax.people_copy,
+                  size: 40,
+                  color: Colors.grey.shade500,
+                ),
               ),
-              child: Icon(
+              const SizedBox(height: 16),
+              Text(
                 hasSearch
-                    ? Icons.search_off
-                    : Iconsax.people_copy,
-                size: 40.sp,
-                color: Colors.grey.shade500,
+                    ? 'کاربری پیدا نشد'
+                    : 'هنوز کاربری وجود ندارد',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF333333),
+                ),
               ),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              hasSearch
-                  ? 'کاربری پیدا نشد'
-                  : 'هنوز کاربری وجود ندارد',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333333),
+              const SizedBox(height: 8),
+              Text(
+                hasSearch
+                    ? 'برای جستجوی خود عبارت دیگری را امتحان کنید.'
+                    : 'کاربران ثبت‌نام‌شده در این بخش نمایش داده می‌شوند.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.6,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              hasSearch
-                  ? 'برای جستجوی خود عبارت دیگری را امتحان کنید.'
-                  : 'کاربران ثبت‌نام‌شده در این بخش نمایش داده می‌شوند.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.sp,
-                height: 1.6,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  String _getDisplayName(
-      AdminUser user,
-      ) {
-    if (user.fullName != null &&
-        user.fullName!.trim().isNotEmpty) {
+  // ---------------------------------------------------------------------------
+  // HELPERS
+  // ---------------------------------------------------------------------------
+
+  String _getDisplayName(AdminUser user) {
+    if (user.fullName != null && user.fullName!.trim().isNotEmpty) {
       return user.fullName!.trim();
     }
 
-    if (user.phone != null &&
-        user.phone!.trim().isNotEmpty) {
+    if (user.phone != null && user.phone!.trim().isNotEmpty) {
       return user.phone!.trim();
     }
 
     return 'کاربر بدون نام';
   }
 
-  String _cleanErrorMessage(
-      String? error,
-      ) {
-    if (error == null ||
-        error.trim().isEmpty) {
+  String _cleanErrorMessage(String? error) {
+    if (error == null || error.trim().isEmpty) {
       return 'لطفاً اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.';
     }
 
     var message = error.trim();
 
     if (message.startsWith('Exception:')) {
-      message = message.substring(
-        'Exception:'.length,
-      ).trim();
+      message = message.substring('Exception:'.length).trim();
     }
 
     return message;

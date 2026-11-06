@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,30 +31,122 @@ class OrderDetailsPage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: AppColors.orders_page_redi,
           foregroundColor: Colors.white,
-          title: const Text('جزئیات سفارش'),
           centerTitle: true,
         ),
-        body: ListView(
-          padding: EdgeInsets.only(
-            top: 12.h,
-            bottom: 24.h,
-          ),
-          children: [
-            _OrderHeader(order: order),
-            SizedBox(height: 12.h),
-            const _SectionTitle(title: 'محصولات سفارش'),
-            _OrderItemsSection(order: order),
-            SizedBox(height: 12.h),
-            const _SectionTitle(title: 'آدرس ارسال'),
-            _ShippingAddressCard(address: order.shippingAddress),
-            SizedBox(height: 12.h),
-            const _SectionTitle(title: 'اطلاعات ارسال و پرداخت'),
-            _ShippingPaymentCard(order: order),
-            SizedBox(height: 12.h),
-            const _SectionTitle(title: 'خلاصه سفارش'),
-            _OrderSummary(order: order),
-            SizedBox(height: 24.h),
-          ],
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final isDesktop = width >= 1100;
+            final isTablet = width >= 650 && width < 1100;
+
+            final maxWidth = isDesktop
+                ? 1100.0
+                : isTablet
+                ? 850.0
+                : double.infinity;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                top: 16,
+                bottom: 32,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: maxWidth,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isDesktop
+                          ? 24
+                          : isTablet
+                          ? 20
+                          : 12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _OrderHeader(
+                          order: order,
+                          isDesktop: isDesktop,
+                        ),
+                        const SizedBox(height: 16),
+
+                        const _SectionTitle(
+                          title: 'محصولات سفارش',
+                        ),
+                        _OrderItemsSection(
+                          order: order,
+                          isDesktop: isDesktop,
+                        ),
+                        const SizedBox(height: 16),
+
+                        if (isDesktop) ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
+                                  children: [
+                                    const _SectionTitle(
+                                      title: 'آدرس ارسال',
+                                    ),
+                                    _ShippingAddressCard(
+                                      address: order.shippingAddress,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
+                                  children: [
+                                    const _SectionTitle(
+                                      title: 'اطلاعات ارسال و پرداخت',
+                                    ),
+                                    _ShippingPaymentCard(
+                                      order: order,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          const _SectionTitle(
+                            title: 'آدرس ارسال',
+                          ),
+                          _ShippingAddressCard(
+                            address: order.shippingAddress,
+                          ),
+                          const SizedBox(height: 16),
+                          const _SectionTitle(
+                            title: 'اطلاعات ارسال و پرداخت',
+                          ),
+                          _ShippingPaymentCard(
+                            order: order,
+                          ),
+                        ],
+
+                        const SizedBox(height: 16),
+                        const _SectionTitle(
+                          title: 'خلاصه سفارش',
+                        ),
+                        _OrderSummary(
+                          order: order,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -69,38 +160,41 @@ class OrderDetailsPage extends StatelessWidget {
 class _OrderHeader extends StatelessWidget {
   const _OrderHeader({
     required this.order,
+    required this.isDesktop,
   });
 
   final OrderEntity order;
+  final bool isDesktop;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(isDesktop ? 22 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 48.w,
-                height: 48.w,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Iconsax.receipt_copy,
                   color: AppColors.primary,
-                  size: 25.sp,
+                  size: 25,
                 ),
               ),
-              SizedBox(width: 12.w),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,41 +202,50 @@ class _OrderHeader extends StatelessWidget {
                     Text(
                       'سفارش',
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: 13,
                         color: Colors.grey.shade600,
                       ),
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
+                    const SizedBox(height: 4),
+                    SelectableText(
                       _shortOrderId(order.id),
-                      style: TextStyle(
-                        fontSize: 15.sp,
+                      style: const TextStyle(
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ),
-              _StatusBadge(status: order.status),
+              const SizedBox(width: 8),
+              _StatusBadge(
+                status: order.status,
+              ),
             ],
           ),
-          SizedBox(height: 16.h),
-          Divider(height: 1, color: Colors.grey.shade200),
-          SizedBox(height: 14.h),
-          Row(
+          const SizedBox(height: 16),
+          Divider(
+            height: 1,
+            color: Colors.grey.shade200,
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 8,
+            spacing: 12,
             children: [
               Text(
                 'تاریخ ثبت سفارش',
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: 13,
                   color: Colors.grey.shade600,
                 ),
               ),
-              const Spacer(),
               Text(
                 _formatDate(order.createdAt),
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: const TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -179,14 +282,14 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8.h,
+      padding: const EdgeInsets.only(
+        bottom: 10,
+        top: 4,
       ),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 16.sp,
+        style: const TextStyle(
+          fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -201,27 +304,58 @@ class _SectionTitle extends StatelessWidget {
 class _OrderItemsSection extends StatelessWidget {
   const _OrderItemsSection({
     required this.order,
+    required this.isDesktop,
   });
 
   final OrderEntity order;
+  final bool isDesktop;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        children: order.items.map((item) {
-          return _OrderItemRow(item: item);
-        }).toList(),
+    if (order.items.isEmpty) {
+      return _whiteCard(
+        const Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(
+            child: Text(
+              'محصولی برای این سفارش ثبت نشده است.',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return _whiteCard(
+      Padding(
+        padding: EdgeInsets.all(isDesktop ? 18 : 12),
+        child: Column(
+          children: order.items.map((item) {
+            return _OrderItemRow(
+              item: item,
+              isDesktop: isDesktop,
+            );
+          }).toList(),
+        ),
       ),
     );
   }
+}
+
+Widget _whiteCard(Widget child) {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: Colors.grey.shade200,
+      ),
+    ),
+    child: child,
+  );
 }
 
 // =============================================================
@@ -231,9 +365,11 @@ class _OrderItemsSection extends StatelessWidget {
 class _OrderItemRow extends StatelessWidget {
   const _OrderItemRow({
     required this.item,
+    required this.isDesktop,
   });
 
   final dynamic item;
+  final bool isDesktop;
 
   @override
   Widget build(BuildContext context) {
@@ -246,25 +382,25 @@ class _OrderItemRow extends StatelessWidget {
         .from('assets')
         .getPublicUrl(thumbnail);
 
+    final imageSize = isDesktop ? 76.0 : 65.0;
+
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(10),
             child: SizedBox(
-              width: 65.w,
-              height: 65.w,
+              width: imageSize,
+              height: imageSize,
               child: imageUrl == null
-                  ? _buildImagePlaceholder()
+                  ? _buildImagePlaceholder(imageSize)
                   : Image.network(
                 imageUrl,
-                width: 65.w,
-                height: 65.w,
+                width: imageSize,
+                height: imageSize,
                 fit: BoxFit.cover,
-
-                // SHIMMER WHILE IMAGE LOADS
                 loadingBuilder: (
                     context,
                     child,
@@ -274,17 +410,23 @@ class _OrderItemRow extends StatelessWidget {
                     return child;
                   }
 
-                  return const _OrderImageShimmer();
+                  return ShimmerBox(
+                    width: imageSize,
+                    height: imageSize,
+                    radius: 0,
+                  );
                 },
-
-                // IMAGE ERROR
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildImagePlaceholder();
+                errorBuilder: (
+                    context,
+                    error,
+                    stackTrace,
+                    ) {
+                  return _buildImagePlaceholder(imageSize);
                 },
               ),
             ),
           ),
-          SizedBox(width: 12.w),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,37 +436,44 @@ class _OrderItemRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: isDesktop ? 14 : 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                const SizedBox(height: 6),
                 Text(
                   '${item.quantity} عدد',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     color: Colors.grey.shade600,
                   ),
                 ),
-                SizedBox(height: 5.h),
+                const SizedBox(height: 5),
                 Text(
                   PriceFormatter.format(item.unitPrice),
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     color: Colors.grey.shade700,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 8.w),
-          Text(
-            PriceFormatter.format(item.totalPrice),
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.bold,
-              color: AppColors.price,
+          const SizedBox(width: 10),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 125,
+            ),
+            child: Text(
+              PriceFormatter.format(item.totalPrice),
+              textAlign: TextAlign.left,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: isDesktop ? 14 : 13,
+                fontWeight: FontWeight.bold,
+                color: AppColors.price,
+              ),
             ),
           ),
         ],
@@ -332,33 +481,16 @@ class _OrderItemRow extends StatelessWidget {
     );
   }
 
-  Widget _buildImagePlaceholder() {
+  Widget _buildImagePlaceholder(double size) {
     return Container(
-      width: 65.w,
-      height: 65.w,
+      width: size,
+      height: size,
       color: Colors.grey.shade100,
-      child: Icon(
+      child: const Icon(
         Iconsax.image_copy,
-        color: Colors.grey.shade400,
-        size: 24.sp,
+        color: Colors.grey,
+        size: 24,
       ),
-    );
-  }
-}
-
-// =============================================================
-// ORDER IMAGE SHIMMER
-// =============================================================
-
-class _OrderImageShimmer extends StatelessWidget {
-  const _OrderImageShimmer();
-
-  @override
-  Widget build(BuildContext context) {
-    return const ShimmerBox(
-      width: double.infinity,
-      height: double.infinity,
-      radius: 0,
     );
   }
 }
@@ -397,8 +529,10 @@ class _ShippingAddressCard extends StatelessWidget {
         final phone = decoded['phone']?.toString().trim();
         final province = decoded['province']?.toString().trim();
         final city = decoded['city']?.toString().trim();
-        final actualAddress = decoded['address']?.toString().trim();
-        final postalCode = decoded['postal_code']?.toString().trim();
+        final actualAddress =
+        decoded['address']?.toString().trim();
+        final postalCode =
+        decoded['postal_code']?.toString().trim();
 
         return _buildCard(
           Column(
@@ -411,7 +545,7 @@ class _ShippingAddressCard extends StatelessWidget {
                   value: receiverName,
                 ),
               if (phone != null && phone.isNotEmpty) ...[
-                SizedBox(height: 12.h),
+                const SizedBox(height: 12),
                 _AddressInfoRow(
                   icon: Iconsax.call_copy,
                   title: 'شماره تماس',
@@ -420,7 +554,7 @@ class _ShippingAddressCard extends StatelessWidget {
               ],
               if ((province != null && province.isNotEmpty) ||
                   (city != null && city.isNotEmpty)) ...[
-                SizedBox(height: 12.h),
+                const SizedBox(height: 12),
                 _AddressInfoRow(
                   icon: Iconsax.house_copy,
                   title: 'استان / شهر',
@@ -431,8 +565,9 @@ class _ShippingAddressCard extends StatelessWidget {
                   ].join(' - '),
                 ),
               ],
-              if (actualAddress != null && actualAddress.isNotEmpty) ...[
-                SizedBox(height: 12.h),
+              if (actualAddress != null &&
+                  actualAddress.isNotEmpty) ...[
+                const SizedBox(height: 12),
                 _AddressInfoRow(
                   icon: Iconsax.house_2_copy,
                   title: 'آدرس',
@@ -440,7 +575,7 @@ class _ShippingAddressCard extends StatelessWidget {
                 ),
               ],
               if (postalCode != null && postalCode.isNotEmpty) ...[
-                SizedBox(height: 12.h),
+                const SizedBox(height: 12),
                 _AddressInfoRow(
                   icon: Iconsax.code_copy,
                   title: 'کد پستی',
@@ -472,22 +607,23 @@ class _ShippingAddressCard extends StatelessWidget {
 
   Widget _buildCard(Widget child) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Iconsax.location_copy,
             color: AppColors.primary,
-            size: 24.sp,
+            size: 24,
           ),
-          SizedBox(width: 10.w),
+          const SizedBox(width: 10),
           Expanded(child: child),
         ],
       ),
@@ -517,24 +653,24 @@ class _AddressInfoRow extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 19.sp,
+          size: 19,
           color: AppColors.primary,
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8),
         Text(
           '$title:',
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 12,
             color: Colors.grey.shade600,
           ),
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 13.sp,
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
               height: 1.5,
@@ -563,12 +699,13 @@ class _ShippingPaymentCard extends StatelessWidget {
     final hasTrackingCode = trackingCode.isNotEmpty;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         children: [
@@ -577,47 +714,48 @@ class _ShippingPaymentCard extends StatelessWidget {
             title: 'روش ارسال',
             value: 'ارسال معمولی',
           ),
-          SizedBox(height: 14.h),
-
-          // TRACKING CODE
+          const SizedBox(height: 14),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
+              const Icon(
                 Iconsax.receipt_copy,
-                size: 21.sp,
+                size: 21,
                 color: AppColors.primary,
               ),
-              SizedBox(width: 10.w),
+              const SizedBox(width: 10),
               Text(
                 'کد رهگیری',
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: 13,
                   color: Colors.grey.shade600,
                 ),
               ),
-              SizedBox(width: 12.w),
+              const SizedBox(width: 12),
               Expanded(
                 child: hasTrackingCode
                     ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.end,
                   children: [
                     SelectableText(
                       trackingCode,
                       textDirection: TextDirection.ltr,
                       textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 13.sp,
+                      style: const TextStyle(
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    const SizedBox(height: 4),
                     TextButton.icon(
                       onPressed: () async {
                         await Clipboard.setData(
-                          ClipboardData(text: trackingCode),
+                          ClipboardData(
+                            text: trackingCode,
+                          ),
                         );
 
                         if (!context.mounted) return;
@@ -626,20 +764,23 @@ class _ShippingPaymentCard extends StatelessWidget {
                           ..hideCurrentSnackBar()
                           ..showSnackBar(
                             const SnackBar(
-                              content: Text('کد رهگیری کپی شد.'),
+                              content: Text(
+                                'کد رهگیری کپی شد.',
+                              ),
                               duration: Duration(seconds: 2),
                             ),
                           );
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Iconsax.copy_copy,
-                        size: 16.sp,
+                        size: 16,
                       ),
                       label: const Text('کپی کد'),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
+                        visualDensity:
+                        VisualDensity.compact,
                       ),
                     ),
                   ],
@@ -648,7 +789,7 @@ class _ShippingPaymentCard extends StatelessWidget {
                   'هنوز ثبت نشده است',
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     color: Colors.grey.shade600,
                   ),
                 ),
@@ -656,13 +797,13 @@ class _ShippingPaymentCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
           _InfoRow(
             icon: Iconsax.card_copy,
             title: 'روش پرداخت',
             value: _paymentText(order.paymentMethod ?? ''),
           ),
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
           _InfoRow(
             icon: Iconsax.wallet_3_copy,
             title: 'وضعیت پرداخت',
@@ -714,12 +855,13 @@ class _OrderSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Column(
         children: [
@@ -727,18 +869,18 @@ class _OrderSummary extends StatelessWidget {
             title: 'جمع کالاها',
             value: order.subtotal,
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
           _SummaryRow(
             title: 'تخفیف',
             value: order.discount,
             isDiscount: true,
           ),
-          SizedBox(height: 10.h),
+          const SizedBox(height: 10),
           _SummaryRow(
             title: 'هزینه ارسال',
             value: order.shippingCost,
           ),
-          Divider(height: 24.h),
+          const Divider(height: 24),
           _SummaryRow(
             title: 'مبلغ کل',
             value: order.totalPrice,
@@ -774,23 +916,26 @@ class _SummaryRow extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: isTotal ? 15.sp : 13.sp,
+            fontSize: isTotal ? 15 : 13,
             fontWeight:
             isTotal ? FontWeight.bold : FontWeight.normal,
             color: isDiscount ? Colors.green : Colors.black87,
           ),
         ),
         const Spacer(),
-        Text(
-          PriceFormatter.format(value),
-          style: TextStyle(
-            fontSize: isTotal ? 16.sp : 13.sp,
-            fontWeight: FontWeight.bold,
-            color: isDiscount
-                ? Colors.green
-                : isTotal
-                ? AppColors.price
-                : Colors.black87,
+        Flexible(
+          child: Text(
+            PriceFormatter.format(value),
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: isTotal ? 16 : 13,
+              fontWeight: FontWeight.bold,
+              color: isDiscount
+                  ? Colors.green
+                  : isTotal
+                  ? AppColors.price
+                  : Colors.black87,
+            ),
           ),
         ),
       ],
@@ -819,24 +964,27 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 21.sp,
+          size: 21,
           color: AppColors.primary,
         ),
-        SizedBox(width: 10.w),
+        const SizedBox(width: 10),
         Text(
           title,
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: 13,
             color: Colors.grey.shade600,
           ),
         ),
+        const SizedBox(width: 8),
         const Spacer(),
         Flexible(
           child: Text(
             value,
             textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 13.sp,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -862,18 +1010,18 @@ class _StatusBadge extends StatelessWidget {
     final color = _statusColor(status);
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 10.w,
-        vertical: 6.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         _statusText(status),
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: 11,
           fontWeight: FontWeight.bold,
           color: color,
         ),
@@ -918,7 +1066,6 @@ class _StatusBadge extends StatelessWidget {
 
 // =============================================================
 // REUSABLE SHIMMER BOX
-// No additional package required
 // =============================================================
 
 class ShimmerBox extends StatefulWidget {
@@ -983,7 +1130,11 @@ class _ShimmerBoxState extends State<ShimmerBox>
                     Colors.grey.shade100,
                     Colors.grey.shade300,
                   ],
-                  stops: const [0.25, 0.5, 0.75],
+                  stops: const [
+                    0.25,
+                    0.5,
+                    0.75,
+                  ],
                 ),
               ),
             ),

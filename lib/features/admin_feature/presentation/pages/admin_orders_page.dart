@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 import 'package:supastore/core/di/injector.dart';
@@ -9,6 +8,15 @@ import 'package:supastore/features/address_feature/domain/usecases/get_address_b
 import 'package:supastore/features/order_feature/domain/entities/order_entity.dart';
 import 'package:supastore/features/order_feature/presentation/pages/admin_order_details_page.dart';
 import 'package:supastore/features/order_feature/presentation/providers/admin_order_provider.dart';
+
+// ============================================================
+// COLORS
+// ============================================================
+
+const Color _primaryColor = Color(0xFFE21B23);
+const Color _backgroundColor = Color(0xFFF7F7F8);
+const Color _textColor = Color(0xFF222222);
+const Color _secondaryTextColor = Color(0xFF777777);
 
 // ============================================================
 // ORDERS SHIMMER
@@ -43,60 +51,73 @@ class _OrdersShimmerState extends State<_OrdersShimmer>
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(12.w),
-        children: [
-          SizedBox(height: 8.h),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = width >= 1200
+            ? 3
+            : width >= 700
+            ? 2
+            : 1;
 
-          _ShimmerBox(
-            animation: _controller,
-            width: 165.w,
-            height: 22.h,
-          ),
-
-          SizedBox(height: 18.h),
-
-          Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14.r),
-            ),
-            child: Row(
-              children: [
-                _ShimmerBox(
-                  animation: _controller,
-                  width: 22.w,
-                  height: 22.w,
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: _ShimmerBox(
-                    animation: _controller,
-                    width: double.infinity,
-                    height: 17.h,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 16.h),
-
-          ...List.generate(
-            4,
-                (index) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _OrderCardShimmer(
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.all(width < 600 ? 12 : 20),
+            children: [
+              const SizedBox(height: 8),
+              _ShimmerBox(
                 animation: _controller,
+                width: 165,
+                height: 22,
               ),
-            ),
+              const SizedBox(height: 18),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    _ShimmerBox(
+                      animation: _controller,
+                      width: 22,
+                      height: 22,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _ShimmerBox(
+                        animation: _controller,
+                        width: double.infinity,
+                        height: 17,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: columns * 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: 340,
+                ),
+                itemBuilder: (context, index) {
+                  return _OrderCardShimmer(
+                    animation: _controller,
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -111,10 +132,10 @@ class _OrderCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(14.w),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -133,86 +154,80 @@ class _OrderCardShimmer extends StatelessWidget {
             children: [
               _ShimmerBox(
                 animation: animation,
-                width: 42.w,
-                height: 42.w,
-                radius: 12.r,
+                width: 42,
+                height: 42,
+                radius: 12,
               ),
-              SizedBox(width: 10.w),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _ShimmerBox(
                       animation: animation,
-                      width: 115.w,
-                      height: 14.h,
+                      width: 115,
+                      height: 14,
                     ),
-                    SizedBox(height: 7.h),
+                    const SizedBox(height: 7),
                     _ShimmerBox(
                       animation: animation,
-                      width: 145.w,
-                      height: 10.h,
+                      width: 145,
+                      height: 10,
                     ),
                   ],
                 ),
               ),
               _ShimmerBox(
                 animation: animation,
-                width: 65.w,
-                height: 27.h,
-                radius: 20.r,
+                width: 65,
+                height: 27,
+                radius: 20,
               ),
             ],
           ),
-
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
           Divider(height: 1, color: Colors.grey.shade200),
-          SizedBox(height: 14.h),
-
+          const SizedBox(height: 14),
           ...List.generate(
             4,
                 (index) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
                   _ShimmerBox(
                     animation: animation,
-                    width: 17.w,
-                    height: 17.w,
+                    width: 17,
+                    height: 17,
                   ),
-                  SizedBox(width: 8.w),
+                  const SizedBox(width: 8),
                   _ShimmerBox(
                     animation: animation,
-                    width: 75.w,
-                    height: 12.h,
+                    width: 75,
+                    height: 12,
                   ),
                   const Spacer(),
                   _ShimmerBox(
                     animation: animation,
-                    width: index == 1 ? 100.w : 75.w,
-                    height: 12.h,
+                    width: index == 1 ? 100 : 75,
+                    height: 12,
                   ),
                 ],
               ),
             ),
           ),
-
-          SizedBox(height: 2.h),
-
+          const Spacer(),
           _ShimmerBox(
             animation: animation,
             width: double.infinity,
-            height: 43.h,
-            radius: 10.r,
+            height: 43,
+            radius: 10,
           ),
-
-          SizedBox(height: 12.h),
-
+          const SizedBox(height: 12),
           _ShimmerBox(
             animation: animation,
             width: double.infinity,
-            height: 38.h,
-            radius: 10.r,
+            height: 38,
+            radius: 10,
           ),
         ],
       ),
@@ -287,11 +302,6 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
 
   String _searchQuery = '';
 
-  static const Color _primaryColor = Color(0xFFE21B23);
-  static const Color _backgroundColor = Color(0xFFF7F7F8);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _secondaryTextColor = Color(0xFF777777);
-
   @override
   void initState() {
     super.initState();
@@ -312,9 +322,7 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
   List<OrderEntity> _filterOrders(List<OrderEntity> orders) {
     final query = _searchQuery.trim().toLowerCase();
 
-    if (query.isEmpty) {
-      return orders;
-    }
+    if (query.isEmpty) return orders;
 
     return orders.where((order) {
       final trackingCode = order.trackingCode?.toLowerCase() ?? '';
@@ -333,35 +341,38 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
         builder: (context, provider, child) {
           final orders = _filterOrders(provider.orders);
 
-          return Scaffold(
-            backgroundColor: _backgroundColor,
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              centerTitle: true,
-              title: Text(
-                'مدیریت سفارش‌ها',
-                style: TextStyle(
-                  color: _textColor,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              iconTheme: const IconThemeData(
-                color: _textColor,
-              ),
-            ),
-            body: Column(
-              children: [
-                _buildSearchField(),
-                Expanded(
-                  child: _buildOrdersContent(
-                    context: context,
-                    provider: provider,
-                    orders: orders,
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: Scaffold(
+              backgroundColor: _backgroundColor,
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                centerTitle: true,
+                title: const Text(
+                  'مدیریت سفارش‌ها',
+                  style: TextStyle(
+                    color: _textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
+                iconTheme: const IconThemeData(
+                  color: _textColor,
+                ),
+              ),
+              body: Column(
+                children: [
+                  _buildSearchField(),
+                  Expanded(
+                    child: _buildOrdersContent(
+                      context: context,
+                      provider: provider,
+                      orders: orders,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -369,162 +380,207 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
     );
   }
 
+  // ============================================================
+  // SEARCH
+  // ============================================================
+
   Widget _buildSearchField() {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
-      child: TextField(
-        controller: _searchController,
-        textDirection: TextDirection.ltr,
-        textAlign: TextAlign.left,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-        },
-        decoration: InputDecoration(
-          hintText: 'جست‌وجو با کد رهگیری یا شناسه سفارش',
-          hintTextDirection: TextDirection.rtl,
-          hintStyle: TextStyle(
-            fontSize: 12.sp,
-            color: _secondaryTextColor,
-          ),
-          prefixIcon: const Icon(
-            Icons.search,
-            color: _secondaryTextColor,
-          ),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-            tooltip: 'پاک کردن جست‌وجو',
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              _searchController.clear();
-
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: TextField(
+            controller: _searchController,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.left,
+            onChanged: (value) {
               setState(() {
-                _searchQuery = '';
+                _searchQuery = value;
               });
             },
-          )
-              : null,
-          filled: true,
-          fillColor: _backgroundColor,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 12.w,
-            vertical: 14.h,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
-            borderSide: const BorderSide(
-              color: _primaryColor,
+            decoration: InputDecoration(
+              hintText: 'جست‌وجو با کد رهگیری یا شناسه سفارش',
+              hintTextDirection: TextDirection.rtl,
+              hintStyle: const TextStyle(
+                fontSize: 12,
+                color: _secondaryTextColor,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: _secondaryTextColor,
+              ),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                tooltip: 'پاک کردن جست‌وجو',
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {
+                    _searchQuery = '';
+                  });
+                },
+              )
+                  : null,
+              filled: true,
+              fillColor: _backgroundColor,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: _primaryColor,
+                ),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
+  // ============================================================
+  // CONTENT
+  // ============================================================
 
   Widget _buildOrdersContent({
     required BuildContext context,
     required AdminOrderProvider provider,
     required List<OrderEntity> orders,
   }) {
-    // شیمر فقط هنگام بارگذاری اولیه نمایش داده می‌شود.
-    // هنگام Refresh، اگر سفارش‌های قبلی وجود داشته باشند،
-    // لیست آن‌ها از صفحه حذف نمی‌شود.
     if (provider.isLoading && provider.orders.isEmpty) {
       return const _OrdersShimmer();
     }
 
     if (provider.error != null && provider.orders.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: _primaryColor,
-                size: 42.sp,
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                provider.error!,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13.sp),
-              ),
-              SizedBox(height: 16.h),
-              ElevatedButton.icon(
-                onPressed: () => provider.loadOrders(),
-                icon: const Icon(Icons.refresh),
-                label: const Text('تلاش مجدد'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryColor,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildErrorState(provider);
     }
 
     if (orders.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(24.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                _searchQuery.isNotEmpty
-                    ? Icons.search_off
-                    : Icons.shopping_bag_outlined,
-                size: 48.sp,
-                color: Colors.grey.shade400,
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                _searchQuery.isNotEmpty
-                    ? 'سفارشی با این کد یا شناسه پیدا نشد.'
-                    : 'هنوز سفارشی ثبت نشده است.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: _secondaryTextColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildEmptyState();
     }
 
-    return RefreshIndicator(
-      color: _primaryColor,
-      onRefresh: () => provider.loadOrders(),
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(12.w),
-        itemCount: orders.length,
-        itemBuilder: (context, index) {
-          final order = orders[index];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
 
-          return _AdminOrderCard(
-            order: order,
-            provider: provider,
-          );
-        },
+        final columns = width >= 1250
+            ? 3
+            : width >= 750
+            ? 2
+            : 1;
+
+        final horizontalPadding = width < 600 ? 12.0 : 20.0;
+
+        return RefreshIndicator(
+          color: _primaryColor,
+          onRefresh: () => provider.loadOrders(),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1500),
+              child: GridView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  16,
+                  horizontalPadding,
+                  24,
+                ),
+                itemCount: orders.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  mainAxisExtent: 390,
+                ),
+                itemBuilder: (context, index) {
+                  return _AdminOrderCard(
+                    order: orders[index],
+                    provider: provider,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorState(AdminOrderProvider provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: _primaryColor,
+              size: 42,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              provider.error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => provider.loadOrders(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تلاش مجدد'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _searchQuery.isNotEmpty
+                  ? Icons.search_off
+                  : Icons.shopping_bag_outlined,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _searchQuery.isNotEmpty
+                  ? 'سفارشی با این کد یا شناسه پیدا نشد.'
+                  : 'هنوز سفارشی ثبت نشده است.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: _secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -543,10 +599,6 @@ class _AdminOrderCard extends StatelessWidget {
     required this.provider,
   });
 
-  static const Color _primaryColor = Color(0xFFE21B23);
-  static const Color _textColor = Color(0xFF222222);
-  static const Color _secondaryTextColor = Color(0xFF777777);
-
   String get _trackingCode {
     final code = order.trackingCode?.trim();
 
@@ -560,10 +612,9 @@ class _AdminOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
@@ -576,47 +627,47 @@ class _AdminOrderCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(14.w),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildHeader(context),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 14),
             Divider(
               height: 1,
               color: Colors.grey.shade200,
             ),
-            SizedBox(height: 12.h),
+            const SizedBox(height: 12),
             _buildInfoRow(
               icon: Icons.receipt_long_outlined,
               title: 'شناسه سفارش',
               value: _shortOrderId(order.id),
               direction: TextDirection.ltr,
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             _buildInfoRow(
               icon: Icons.local_shipping_outlined,
               title: 'کد رهگیری',
               value: _trackingCode,
               direction: TextDirection.ltr,
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             _buildInfoRow(
               icon: Icons.shopping_bag_outlined,
               title: 'تعداد اقلام',
               value: '${order.items.length} مورد',
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             _buildInfoRow(
               icon: Icons.payment_outlined,
               title: 'وضعیت پرداخت',
               value: _paymentStatusLabel(order.paymentStatus),
             ),
-            SizedBox(height: 14.h),
+            const SizedBox(height: 14),
             _buildTotal(),
-            SizedBox(height: 12.h),
+            const Spacer(),
             _buildDetailsHint(context),
-            SizedBox(height: 12.h),
+            const SizedBox(height: 10),
             _buildStatusButton(context),
           ],
         ),
@@ -628,19 +679,19 @@ class _AdminOrderCard extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 42.w,
-          height: 42.w,
+          width: 42,
+          height: 42,
           decoration: BoxDecoration(
             color: _primaryColor.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.shopping_bag_outlined,
             color: _primaryColor,
-            size: 22.sp,
+            size: 22,
           ),
         ),
-        SizedBox(width: 10.w),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,28 +699,37 @@ class _AdminOrderCard extends StatelessWidget {
               Text(
                 'سفارش ${_shortOrderId(order.id)}',
                 textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontSize: 14.sp,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: _textColor,
                 ),
               ),
-              SizedBox(height: 5.h),
+              const SizedBox(height: 5),
               Text(
                 _trackingCode,
                 textDirection: TextDirection.ltr,
-                style: TextStyle(
-                  fontSize: 11.sp,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
                   color: _secondaryTextColor,
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(width: 8.w),
+        const SizedBox(width: 4),
         IconButton(
           tooltip: 'کپی کد رهگیری',
           visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(
+            minWidth: 34,
+            minHeight: 34,
+          ),
+          padding: EdgeInsets.zero,
           onPressed: order.trackingCode == null ||
               order.trackingCode!.trim().isEmpty
               ? null
@@ -694,8 +754,10 @@ class _AdminOrderCard extends StatelessWidget {
           icon: const Icon(
             Icons.copy_outlined,
             color: _primaryColor,
+            size: 19,
           ),
         ),
+        const SizedBox(width: 4),
         _StatusBadge(status: order.status),
       ],
     );
@@ -711,14 +773,14 @@ class _AdminOrderCard extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 17.sp,
+          size: 17,
           color: _secondaryTextColor,
         ),
-        SizedBox(width: 7.w),
+        const SizedBox(width: 7),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 12.sp,
+          style: const TextStyle(
+            fontSize: 12,
             color: _secondaryTextColor,
           ),
         ),
@@ -728,8 +790,10 @@ class _AdminOrderCard extends StatelessWidget {
             value,
             textDirection: direction,
             textAlign: TextAlign.end,
-            style: TextStyle(
-              fontSize: 12.sp,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: _textColor,
             ),
@@ -741,31 +805,36 @@ class _AdminOrderCard extends StatelessWidget {
 
   Widget _buildTotal() {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 12.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 12,
       ),
       decoration: BoxDecoration(
         color: const Color(0xFFF8F8F8),
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Text(
+          const Text(
             'مبلغ کل',
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: 13,
               color: _secondaryTextColor,
             ),
           ),
           const Spacer(),
-          Text(
-            '${_formatPrice(order.totalPrice)} تومان',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              color: _primaryColor,
+          Flexible(
+            child: Text(
+              '${_formatPrice(order.totalPrice)} تومان',
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: _primaryColor,
+              ),
             ),
           ),
         ],
@@ -775,10 +844,10 @@ class _AdminOrderCard extends StatelessWidget {
 
   Widget _buildDetailsHint(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: BorderRadius.circular(8),
       onTap: () => _openDetails(context),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.h),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -786,14 +855,14 @@ class _AdminOrderCard extends StatelessWidget {
               'مشاهده جزئیات سفارش',
               style: TextStyle(
                 color: _primaryColor,
-                fontSize: 12.sp,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(width: 5.w),
+            SizedBox(width: 5),
             Icon(
               Icons.arrow_back_ios_new,
-              size: 13.sp,
+              size: 13,
               color: _primaryColor,
             ),
           ],
@@ -819,19 +888,23 @@ class _AdminOrderCard extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => _showStatusDialog(context),
-        icon: const Icon(Icons.edit_outlined),
+        icon: const Icon(Icons.edit_outlined, size: 18),
         label: const Text('تغییر وضعیت سفارش'),
         style: OutlinedButton.styleFrom(
           foregroundColor: _primaryColor,
           side: const BorderSide(color: _primaryColor),
-          padding: EdgeInsets.symmetric(vertical: 11.h),
+          padding: const EdgeInsets.symmetric(vertical: 11),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),
     );
   }
+
+  // ============================================================
+  // STATUS DIALOG
+  // ============================================================
 
   Future<void> _showStatusDialog(BuildContext context) async {
     const statuses = <String, String>{
@@ -848,54 +921,59 @@ class _AdminOrderCard extends StatelessWidget {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text(
-                'تغییر وضعیت سفارش',
-                textAlign: TextAlign.right,
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: statuses.entries.map((entry) {
-                  return RadioListTile<String>(
-                    value: entry.key,
-                    groupValue: selectedStatus,
-                    title: Text(
-                      entry.value,
-                      textAlign: TextAlign.right,
-                    ),
-                    activeColor: _primaryColor,
-                    contentPadding: EdgeInsets.zero,
-                    onChanged: (value) {
-                      if (value == null) return;
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                title: const Text(
+                  'تغییر وضعیت سفارش',
+                  textAlign: TextAlign.right,
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: statuses.entries.map((entry) {
+                      return RadioListTile<String>(
+                        value: entry.key,
+                        groupValue: selectedStatus,
+                        title: Text(
+                          entry.value,
+                          textAlign: TextAlign.right,
+                        ),
+                        activeColor: _primaryColor,
+                        contentPadding: EdgeInsets.zero,
+                        onChanged: (value) {
+                          if (value == null) return;
 
-                      setDialogState(() {
-                        selectedStatus = value;
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('انصراف'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
-                    foregroundColor: Colors.white,
+                          setDialogState(() {
+                            selectedStatus = value;
+                          });
+                        },
+                      );
+                    }).toList(),
                   ),
-                  onPressed: () => Navigator.pop(
-                    dialogContext,
-                    selectedStatus,
-                  ),
-                  child: const Text('ثبت وضعیت'),
                 ),
-              ],
-            );
-          },
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('انصراف'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () => Navigator.pop(
+                      dialogContext,
+                      selectedStatus,
+                    ),
+                    child: const Text('ثبت وضعیت'),
+                  ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -921,6 +999,10 @@ class _AdminOrderCard extends StatelessWidget {
         ),
       );
   }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
 
   String _shortOrderId(String id) {
     if (id.length <= 8) return id;
@@ -970,19 +1052,20 @@ class _StatusBadge extends StatelessWidget {
     final config = _getConfig(status);
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9.w,
-        vertical: 6.h,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: config.backgroundColor,
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         config.label,
+        maxLines: 1,
         style: TextStyle(
           color: config.textColor,
-          fontSize: 10.sp,
+          fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
       ),

@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -120,6 +119,10 @@ class _OrdersPageState extends State<OrdersPage> {
     });
   }
 
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -127,7 +130,6 @@ class _OrdersPageState extends State<OrdersPage> {
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          title: const Text('سفارش‌های من'),
           centerTitle: true,
           elevation: 0,
           backgroundColor: AppColors.orders_page_redi,
@@ -139,7 +141,39 @@ class _OrdersPageState extends State<OrdersPage> {
             ),
           ],
         ),
-        body: _buildBody(),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+
+            final isDesktop = width >= 1100;
+            final isTablet = width >= 650 && width < 1100;
+
+            final horizontalPadding = isDesktop
+                ? 32.0
+                : isTablet
+                ? 24.0
+                : 12.0;
+
+            final maxContentWidth = isDesktop ? 1100.0 : 850.0;
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: maxContentWidth,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                  ),
+                  child: _buildBody(
+                    isDesktop: isDesktop,
+                    isTablet: isTablet,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -148,9 +182,15 @@ class _OrdersPageState extends State<OrdersPage> {
   // BODY
   // ============================================================
 
-  Widget _buildBody() {
+  Widget _buildBody({
+    required bool isDesktop,
+    required bool isTablet,
+  }) {
     if (_isLoading) {
-      return const _OrdersShimmer();
+      return _OrdersShimmer(
+        isDesktop: isDesktop,
+        isTablet: isTablet,
+      );
     }
 
     if (_error != null) {
@@ -162,7 +202,11 @@ class _OrdersPageState extends State<OrdersPage> {
 
     return Column(
       children: [
-        _buildFilterBar(),
+        _buildFilterBar(
+          isDesktop: isDesktop,
+          isTablet: isTablet,
+        ),
+
         Expanded(
           child: _filteredOrders.isEmpty
               ? const _EmptyOrdersView()
@@ -172,9 +216,9 @@ class _OrdersPageState extends State<OrdersPage> {
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
-              padding: EdgeInsets.only(
-                top: 12.h,
-                bottom: 30.h,
+              padding: const EdgeInsets.only(
+                top: 12,
+                bottom: 30,
               ),
               itemCount: _filteredOrders.length,
               itemBuilder: (context, index) {
@@ -182,6 +226,8 @@ class _OrdersPageState extends State<OrdersPage> {
 
                 return _OrderCard(
                   order: order,
+                  isDesktop: isDesktop,
+                  isTablet: isTablet,
                   onDetails: () {
                     _openOrderDetails(order);
                   },
@@ -198,13 +244,18 @@ class _OrdersPageState extends State<OrdersPage> {
   // FILTER BAR
   // ============================================================
 
-  Widget _buildFilterBar() {
+  Widget _buildFilterBar({
+    required bool isDesktop,
+    required bool isTablet,
+  }) {
+    final verticalPadding = isDesktop ? 16.0 : 12.0;
+
     return Container(
       width: double.infinity,
       color: Colors.white,
       padding: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 12.h,
+        horizontal: 4,
+        vertical: verticalPadding,
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -215,41 +266,57 @@ class _OrdersPageState extends State<OrdersPage> {
               title: 'همه',
               selected: _selectedStatus == null,
               onTap: () => _changeFilter(null),
+              isDesktop: isDesktop,
             ),
-            SizedBox(width: 8.w),
+
+            const SizedBox(width: 8),
+
             _FilterChip(
               title: 'در انتظار',
               selected: _selectedStatus == 'pending',
               color: Colors.orange,
               onTap: () => _changeFilter('pending'),
+              isDesktop: isDesktop,
             ),
-            SizedBox(width: 8.w),
+
+            const SizedBox(width: 8),
+
             _FilterChip(
               title: 'در حال پردازش',
               selected: _selectedStatus == 'processing',
               color: Colors.blue,
               onTap: () => _changeFilter('processing'),
+              isDesktop: isDesktop,
             ),
-            SizedBox(width: 8.w),
+
+            const SizedBox(width: 8),
+
             _FilterChip(
               title: 'ارسال شده',
               selected: _selectedStatus == 'shipped',
               color: Colors.indigo,
               onTap: () => _changeFilter('shipped'),
+              isDesktop: isDesktop,
             ),
-            SizedBox(width: 8.w),
+
+            const SizedBox(width: 8),
+
             _FilterChip(
               title: 'تحویل شده',
               selected: _selectedStatus == 'delivered',
               color: Colors.green,
               onTap: () => _changeFilter('delivered'),
+              isDesktop: isDesktop,
             ),
-            SizedBox(width: 8.w),
+
+            const SizedBox(width: 8),
+
             _FilterChip(
               title: 'لغو شده',
               selected: _selectedStatus == 'canceled',
               color: Colors.red,
               onTap: () => _changeFilter('canceled'),
+              isDesktop: isDesktop,
             ),
           ],
         ),
@@ -263,7 +330,13 @@ class _OrdersPageState extends State<OrdersPage> {
 // ==================================================================
 
 class _OrdersShimmer extends StatefulWidget {
-  const _OrdersShimmer();
+  const _OrdersShimmer({
+    required this.isDesktop,
+    required this.isTablet,
+  });
+
+  final bool isDesktop;
+  final bool isTablet;
 
   @override
   State<_OrdersShimmer> createState() => _OrdersShimmerState();
@@ -297,41 +370,48 @@ class _OrdersShimmerState extends State<_OrdersShimmer>
         return Column(
           children: [
             // فیلترهای نمایشی هنگام بارگذاری
+
             Container(
               width: double.infinity,
               color: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: 12.w,
-                vertical: 12.h,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 12,
               ),
               child: Row(
                 children: [
                   _ShimmerBox(
                     controller: _controller,
-                    width: 58.w,
-                    height: 34.h,
-                    radius: 20.r,
+                    width: 58,
+                    height: 34,
+                    radius: 20,
                   ),
-                  SizedBox(width: 8.w),
+
+                  const SizedBox(width: 8),
+
                   _ShimmerBox(
                     controller: _controller,
-                    width: 82.w,
-                    height: 34.h,
-                    radius: 20.r,
+                    width: 82,
+                    height: 34,
+                    radius: 20,
                   ),
-                  SizedBox(width: 8.w),
+
+                  const SizedBox(width: 8),
+
                   _ShimmerBox(
                     controller: _controller,
-                    width: 105.w,
-                    height: 34.h,
-                    radius: 20.r,
+                    width: 105,
+                    height: 34,
+                    radius: 20,
                   ),
-                  SizedBox(width: 8.w),
+
+                  const SizedBox(width: 8),
+
                   _ShimmerBox(
                     controller: _controller,
-                    width: 78.w,
-                    height: 34.h,
-                    radius: 20.r,
+                    width: 78,
+                    height: 34,
+                    radius: 20,
                   ),
                 ],
               ),
@@ -340,14 +420,15 @@ class _OrdersShimmerState extends State<_OrdersShimmer>
             Expanded(
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.only(
-                  top: 12.h,
-                  bottom: 30.h,
+                padding: const EdgeInsets.only(
+                  top: 12,
+                  bottom: 30,
                 ),
-                itemCount: 4,
+                itemCount: widget.isDesktop ? 5 : 4,
                 itemBuilder: (context, index) {
                   return _OrderCardShimmer(
                     controller: _controller,
+                    isDesktop: widget.isDesktop,
                   );
                 },
               ),
@@ -366,29 +447,31 @@ class _OrdersShimmerState extends State<_OrdersShimmer>
 class _OrderCardShimmer extends StatelessWidget {
   const _OrderCardShimmer({
     required this.controller,
+    required this.isDesktop,
   });
 
   final AnimationController controller;
+  final bool isDesktop;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 7.h,
+        horizontal: isDesktop ? 8 : 4,
+        vertical: 7,
       ),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(isDesktop ? 22 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
-            blurRadius: 8.r,
-            offset: Offset(0, 3.h),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -398,48 +481,53 @@ class _OrderCardShimmer extends StatelessWidget {
             children: [
               _ShimmerBox(
                 controller: controller,
-                width: 44.w,
-                height: 44.w,
-                radius: 12.r,
+                width: 44,
+                height: 44,
+                radius: 12,
               ),
-              SizedBox(width: 12.w),
+
+              const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _ShimmerBox(
                       controller: controller,
-                      width: 45.w,
-                      height: 10.h,
-                      radius: 5.r,
+                      width: 45,
+                      height: 10,
+                      radius: 5,
                     ),
-                    SizedBox(height: 8.h),
+
+                    const SizedBox(height: 8),
+
                     _ShimmerBox(
                       controller: controller,
-                      width: 115.w,
-                      height: 14.h,
-                      radius: 5.r,
+                      width: 115,
+                      height: 14,
+                      radius: 5,
                     ),
                   ],
                 ),
               ),
+
               _ShimmerBox(
                 controller: controller,
-                width: 78.w,
-                height: 28.h,
-                radius: 20.r,
+                width: 78,
+                height: 28,
+                radius: 20,
               ),
             ],
           ),
 
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16),
 
           Divider(
             height: 1,
             color: Colors.grey.shade200,
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
 
           Row(
             children: [
@@ -448,7 +536,9 @@ class _OrderCardShimmer extends StatelessWidget {
                   controller: controller,
                 ),
               ),
-              SizedBox(width: 12.w),
+
+              const SizedBox(width: 12),
+
               Expanded(
                 child: _ShimmerInfoItem(
                   controller: controller,
@@ -457,46 +547,54 @@ class _OrderCardShimmer extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16),
 
           Row(
             children: [
               _ShimmerBox(
                 controller: controller,
-                width: 16.w,
-                height: 16.w,
-                radius: 4.r,
+                width: 16,
+                height: 16,
+                radius: 4,
               ),
-              SizedBox(width: 8.w),
+
+              const SizedBox(width: 8),
+
               _ShimmerBox(
                 controller: controller,
-                width: 85.w,
-                height: 11.h,
-                radius: 5.r,
+                width: 85,
+                height: 11,
+                radius: 5,
               ),
+
               const Spacer(),
+
               _ShimmerBox(
                 controller: controller,
-                width: 75.w,
-                height: 11.h,
-                radius: 5.r,
+                width: 75,
+                height: 11,
+                radius: 5,
               ),
             ],
           ),
 
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16),
 
           _ShimmerBox(
             controller: controller,
             width: double.infinity,
-            height: 46.h,
-            radius: 12.r,
+            height: 46,
+            radius: 12,
           ),
         ],
       ),
     );
   }
 }
+
+// ==================================================================
+// SHIMMER INFO ITEM
+// ==================================================================
 
 class _ShimmerInfoItem extends StatelessWidget {
   const _ShimmerInfoItem({
@@ -511,27 +609,31 @@ class _ShimmerInfoItem extends StatelessWidget {
       children: [
         _ShimmerBox(
           controller: controller,
-          width: 20.w,
-          height: 20.w,
-          radius: 5.r,
+          width: 20,
+          height: 20,
+          radius: 5,
         ),
-        SizedBox(width: 8.w),
+
+        const SizedBox(width: 8),
+
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ShimmerBox(
                 controller: controller,
-                width: 55.w,
-                height: 10.h,
-                radius: 4.r,
+                width: 55,
+                height: 10,
+                radius: 4,
               ),
-              SizedBox(height: 7.h),
+
+              const SizedBox(height: 7),
+
               _ShimmerBox(
                 controller: controller,
-                width: 75.w,
-                height: 12.h,
-                radius: 4.r,
+                width: 75,
+                height: 12,
+                radius: 4,
               ),
             ],
           ),
@@ -600,12 +702,14 @@ class _FilterChip extends StatelessWidget {
     required this.title,
     required this.selected,
     required this.onTap,
+    required this.isDesktop,
     this.color,
   });
 
   final String title;
   final bool selected;
   final VoidCallback onTap;
+  final bool isDesktop;
   final Color? color;
 
   @override
@@ -614,16 +718,16 @@ class _FilterChip extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(
-          horizontal: 14.w,
-          vertical: 9.h,
+          horizontal: isDesktop ? 17 : 14,
+          vertical: 9,
         ),
         decoration: BoxDecoration(
           color: selected ? chipColor : Colors.white,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected ? chipColor : Colors.grey.shade300,
           ),
@@ -631,7 +735,7 @@ class _FilterChip extends StatelessWidget {
         child: Text(
           title,
           style: TextStyle(
-            fontSize: 11.sp,
+            fontSize: isDesktop ? 13 : 12,
             fontWeight: FontWeight.w600,
             color: selected ? Colors.white : Colors.grey.shade700,
           ),
@@ -649,51 +753,64 @@ class _OrderCard extends StatelessWidget {
   const _OrderCard({
     required this.order,
     required this.onDetails,
+    required this.isDesktop,
+    required this.isTablet,
   });
 
   final OrderEntity order;
   final VoidCallback onDetails;
+  final bool isDesktop;
+  final bool isTablet;
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding = isDesktop ? 22.0 : 16.0;
+    final iconSize = isDesktop ? 48.0 : 44.0;
+    final titleFontSize = isDesktop ? 15.0 : 14.0;
+    final infoFontSize = isDesktop ? 13.0 : 12.0;
+
     return Container(
       margin: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 7.h,
+        horizontal: isDesktop ? 8 : 4,
+        vertical: 7,
       ),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(horizontalPadding),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.grey.shade200,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8.r,
-            offset: Offset(0, 3.h),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         children: [
+          // HEADER
+
           Row(
             children: [
               Container(
-                width: 44.w,
-                height: 44.w,
+                width: iconSize,
+                height: iconSize,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Iconsax.receipt_copy,
                   color: AppColors.primary,
-                  size: 24.sp,
+                  size: 24,
                 ),
               ),
-              SizedBox(width: 12.w),
+
+              const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,35 +818,45 @@ class _OrderCard extends StatelessWidget {
                     Text(
                       'سفارش',
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 12,
                         color: Colors.grey.shade600,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+
+                    const SizedBox(height: 4),
+
                     Text(
                       _shortOrderId(order.id),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: titleFontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ),
-              _StatusBadge(status: order.status),
+
+              const SizedBox(width: 8),
+
+              _StatusBadge(
+                status: order.status,
+                isDesktop: isDesktop,
+              ),
             ],
           ),
 
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16),
 
           Divider(
             height: 1,
             color: Colors.grey.shade200,
           ),
 
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
+
+          // ORDER INFORMATION
 
           Row(
             children: [
@@ -738,64 +865,86 @@ class _OrderCard extends StatelessWidget {
                   icon: Iconsax.shopping_bag_copy,
                   title: 'تعداد کالا',
                   value: '${_totalItems(order)} کالا',
+                  fontSize: infoFontSize,
                 ),
               ),
+
+              const SizedBox(width: 12),
+
               Expanded(
                 child: _InfoItem(
                   icon: Icons.payments_outlined,
                   title: 'مبلغ سفارش',
                   value: PriceFormatter.format(order.totalPrice),
+                  fontSize: infoFontSize,
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 12.h),
+          const SizedBox(height: 14),
 
-          Row(
+          // DATE AND PAYMENT
+
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 10,
             children: [
-              Icon(
-                Iconsax.calendar_1_copy,
-                size: 15.sp,
-                color: Colors.grey.shade500,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Iconsax.calendar_1_copy,
+                    size: 15,
+                    color: Colors.grey.shade500,
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  Text(
+                    _formatDate(order.createdAt),
+                    style: TextStyle(
+                      fontSize: infoFontSize,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 6.w),
-              Text(
-                _formatDate(order.createdAt),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const Spacer(),
+
               Text(
                 _paymentMethodText(order.paymentMethod ?? 'نامشخص'),
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: infoFontSize,
                   color: Colors.grey.shade600,
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 16.h),
+          const SizedBox(height: 16),
+
+          // DETAILS BUTTON
 
           SizedBox(
             width: double.infinity,
-            height: 46.h,
+            height: isDesktop ? 48 : 46,
             child: OutlinedButton(
               onPressed: onDetails,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
-                side: BorderSide(color: AppColors.primary),
+                side: BorderSide(
+                  color: AppColors.primary,
+                ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
                 'مشاهده جزئیات',
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: infoFontSize + 1,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -849,11 +998,13 @@ class _InfoItem extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.value,
+    required this.fontSize,
   });
 
   final IconData icon;
   final String title;
   final String value;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -861,10 +1012,12 @@ class _InfoItem extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 20.sp,
+          size: 20,
           color: Colors.grey.shade500,
         ),
-        SizedBox(width: 8.w),
+
+        const SizedBox(width: 8),
+
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -872,17 +1025,19 @@ class _InfoItem extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 11.sp,
+                  fontSize: fontSize - 1,
                   color: Colors.grey.shade500,
                 ),
               ),
-              SizedBox(height: 3.h),
+
+              const SizedBox(height: 3),
+
               Text(
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -901,9 +1056,11 @@ class _InfoItem extends StatelessWidget {
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({
     required this.status,
+    required this.isDesktop,
   });
 
   final String status;
+  final bool isDesktop;
 
   @override
   Widget build(BuildContext context) {
@@ -911,17 +1068,17 @@ class _StatusBadge extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 10.w,
-        vertical: 6.h,
+        horizontal: isDesktop ? 13 : 10,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         _statusText(status),
         style: TextStyle(
-          fontSize: 11.sp,
+          fontSize: isDesktop ? 12 : 11,
           fontWeight: FontWeight.bold,
           color: color,
         ),
@@ -975,37 +1132,41 @@ class _EmptyOrdersView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30.w),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 110.w,
-              height: 110.w,
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Iconsax.receipt_copy,
-                size: 55.sp,
+                size: 55,
                 color: Colors.grey.shade400,
               ),
             ),
-            SizedBox(height: 20.h),
-            Text(
+
+            const SizedBox(height: 20),
+
+            const Text(
               'هنوز سفارشی ندارید',
               style: TextStyle(
-                fontSize: 18.sp,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8.h),
+
+            const SizedBox(height: 8),
+
             Text(
               'سفارش‌هایی که ثبت می‌کنید در این بخش نمایش داده می‌شوند.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 13,
                 color: Colors.grey.shade600,
               ),
             ),
@@ -1033,38 +1194,44 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30.w),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.error_outline,
-              size: 70.sp,
+              size: 70,
               color: Colors.red.shade300,
             ),
-            SizedBox(height: 16.h),
-            Text(
+
+            const SizedBox(height: 16),
+
+            const Text(
               'دریافت سفارش‌ها ناموفق بود',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 17.sp,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8.h),
+
+            const SizedBox(height: 8),
+
             Text(
               message,
               textAlign: TextAlign.center,
               maxLines: 4,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12.sp,
+                fontSize: 12,
                 color: Colors.grey.shade600,
               ),
             ),
-            SizedBox(height: 20.h),
+
+            const SizedBox(height: 20),
+
             SizedBox(
-              height: 46.h,
+              height: 46,
               child: ElevatedButton(
                 onPressed: onRetry,
                 style: ElevatedButton.styleFrom(
@@ -1072,7 +1239,7 @@ class _ErrorView extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Text('تلاش مجدد'),

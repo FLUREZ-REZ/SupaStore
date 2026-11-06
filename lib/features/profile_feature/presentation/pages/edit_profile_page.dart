@@ -1,5 +1,5 @@
+
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,17 +8,13 @@ import 'package:supastore/core/theme/app_colors.dart';
 import 'package:supastore/features/profile_feature/presentation/providers/profile_provider.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({
-    super.key,
-  });
+  const EditProfilePage({super.key});
 
   @override
-  State<EditProfilePage> createState() =>
-      _EditProfilePageState();
+  State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState
-    extends State<EditProfilePage> {
+class _EditProfilePageState extends State<EditProfilePage> {
   // ============================================================
   // AVATARS
   // ============================================================
@@ -37,7 +33,6 @@ class _EditProfilePageState
   // ============================================================
 
   late final TextEditingController _fullNameController;
-
   late final TextEditingController _phoneController;
 
   // ============================================================
@@ -45,7 +40,6 @@ class _EditProfilePageState
   // ============================================================
 
   String? _selectedAvatar;
-
   bool _initialized = false;
 
   // ============================================================
@@ -56,11 +50,8 @@ class _EditProfilePageState
   void initState() {
     super.initState();
 
-    _fullNameController =
-        TextEditingController();
-
-    _phoneController =
-        TextEditingController();
+    _fullNameController = TextEditingController();
+    _phoneController = TextEditingController();
   }
 
   // ============================================================
@@ -70,9 +61,7 @@ class _EditProfilePageState
   @override
   void dispose() {
     _fullNameController.dispose();
-
     _phoneController.dispose();
-
     super.dispose();
   }
 
@@ -80,35 +69,18 @@ class _EditProfilePageState
   // INITIALIZE DATA
   // ============================================================
 
-  void _initializeData(
-      ProfileProvider provider,
-      ) {
-    if (_initialized) {
-      return;
-    }
+  void _initializeData(ProfileProvider provider) {
+    if (_initialized) return;
 
     final profile = provider.profile;
 
-    if (profile == null) {
-      return;
-    }
+    if (profile == null) return;
 
-    // Full name
+    _fullNameController.text = profile.fullName ?? '';
+    _phoneController.text = profile.phone ?? '';
 
-    _fullNameController.text =
-        profile.fullName ?? '';
-
-    // Phone
-
-    _phoneController.text =
-        profile.phone ?? '';
-
-    // Avatar
-
-    if (profile.avatarUrl != null &&
-        profile.avatarUrl!.isNotEmpty) {
-      _selectedAvatar =
-          profile.avatarUrl;
+    if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
+      _selectedAvatar = profile.avatarUrl;
     }
 
     _initialized = true;
@@ -118,14 +90,8 @@ class _EditProfilePageState
   // SELECT AVATAR
   // ============================================================
 
-  void _selectAvatar(
-      String avatar,
-      ) {
-    if (context
-        .read<ProfileProvider>()
-        .isUpdating) {
-      return;
-    }
+  void _selectAvatar(String avatar) {
+    if (context.read<ProfileProvider>().isUpdating) return;
 
     setState(() {
       _selectedAvatar = avatar;
@@ -137,64 +103,41 @@ class _EditProfilePageState
   // ============================================================
 
   Future<void> _saveProfile() async {
-    final user =
-        Supabase.instance.client.auth.currentUser;
+    final user = Supabase.instance.client.auth.currentUser;
 
     if (user == null) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'لطفاً ابتدا وارد حساب کاربری شوید.',
-          ),
+          content: Text('لطفاً ابتدا وارد حساب کاربری شوید.'),
         ),
       );
 
       return;
     }
 
-    final provider =
-    context.read<ProfileProvider>();
+    final provider = context.read<ProfileProvider>();
 
-    if (provider.isUpdating) {
-      return;
-    }
-
-    // اگر کاربر هیچ آواتاری انتخاب نکرده
-    // همان قبلی را نگه می‌داریم.
+    if (provider.isUpdating) return;
 
     final avatarUrl =
-        _selectedAvatar ??
-            provider.profile?.avatarUrl;
+        _selectedAvatar ?? provider.profile?.avatarUrl;
 
-    final success =
-    await provider.updateProfile(
+    final success = await provider.updateProfile(
       userId: user.id,
-
-      phone:
-      _phoneController.text.trim(),
-
-      fullName:
-      _fullNameController.text.trim(),
-
+      phone: _phoneController.text.trim(),
+      fullName: _fullNameController.text.trim(),
       avatarUrl: avatarUrl,
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (!success) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            provider.error ??
-                'خطا در ذخیره اطلاعات پروفایل',
+            provider.error ?? 'خطا در ذخیره اطلاعات پروفایل',
           ),
         ),
       );
@@ -202,12 +145,9 @@ class _EditProfilePageState
       return;
     }
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'پروفایل با موفقیت ذخیره شد',
-        ),
+        content: Text('پروفایل با موفقیت ذخیره شد'),
       ),
     );
 
@@ -215,156 +155,7 @@ class _EditProfilePageState
   }
 
   // ============================================================
-  // AVATAR SELECTOR
-  // ============================================================
-
-  Widget _buildAvatarSelector(
-      ProfileProvider provider,
-      ) {
-    return Column(
-      children: [
-        Text(
-          'عکس پروفایل',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        SizedBox(height: 8.h),
-
-        Text(
-          'یکی از آواتارهای زیر را انتخاب کنید',
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: Colors.grey.shade600,
-          ),
-        ),
-
-        SizedBox(height: 20.h),
-
-        GridView.builder(
-          shrinkWrap: true,
-
-          physics:
-          const NeverScrollableScrollPhysics(),
-
-          itemCount: _avatars.length,
-
-          gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-
-            crossAxisSpacing: 14.w,
-
-            mainAxisSpacing: 14.h,
-
-            childAspectRatio: 1,
-          ),
-
-          itemBuilder: (
-              context,
-              index,
-              ) {
-            final avatar =
-            _avatars[index];
-
-            final isSelected =
-                _selectedAvatar == avatar;
-
-            return GestureDetector(
-              onTap: provider.isUpdating
-                  ? null
-                  : () {
-                _selectAvatar(
-                  avatar,
-                );
-              },
-
-              child: AnimatedContainer(
-                duration:
-                const Duration(
-                  milliseconds: 200,
-                ),
-
-                padding:
-                EdgeInsets.all(
-                  isSelected ? 3.w : 0,
-                ),
-
-                decoration:
-                BoxDecoration(
-                  shape: BoxShape.circle,
-
-                  border: Border.all(
-                    color: isSelected
-                        ? AppColors.primary
-                        : Colors.transparent,
-                    width: 3.w,
-                  ),
-                ),
-
-                child: Stack(
-                  children: [
-                    // Avatar
-
-                    ClipOval(
-                      child: Image.asset(
-                        avatar,
-
-                        width: double.infinity,
-
-                        height: double.infinity,
-
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-
-                    // Selected icon
-
-                    if (isSelected)
-                      Positioned(
-                        right: 2.w,
-                        bottom: 2.h,
-                        child: Container(
-                          width: 25.w,
-                          height: 25.w,
-
-                          decoration:
-                          BoxDecoration(
-                            color:
-                            AppColors.primary,
-                            shape:
-                            BoxShape.circle,
-
-                            border:
-                            Border.all(
-                              color:
-                              Colors.white,
-                              width: 2,
-                            ),
-                          ),
-
-                          child: Icon(
-                            Icons.check,
-                            size: 15.sp,
-                            color:
-                            Colors.white,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  // ============================================================
-  // TEXT FIELD
+  // INPUT DECORATION
   // ============================================================
 
   InputDecoration _inputDecoration({
@@ -373,33 +164,242 @@ class _EditProfilePageState
   }) {
     return InputDecoration(
       hintText: hint,
-
       prefixIcon: Icon(icon),
-
-      border: OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14.r),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 17,
       ),
-
-      enabledBorder:
-      OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14.r),
-
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(
           color: Colors.grey.shade300,
         ),
       ),
-
-      focusedBorder:
-      OutlineInputBorder(
-        borderRadius:
-        BorderRadius.circular(14.r),
-
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(
           color: AppColors.primary,
-
           width: 1.5,
+        ),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: Colors.grey.shade200,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // AVATAR SELECTOR
+  // ============================================================
+
+  Widget _buildAvatarSelector(
+      ProfileProvider provider, {
+        required double avatarSize,
+        required double spacing,
+        required double titleSize,
+        required double descriptionSize,
+      }) {
+    return Column(
+      children: [
+        Text(
+          'عکس پروفایل',
+          style: TextStyle(
+            fontSize: titleSize,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Text(
+          'یکی از آواتارهای زیر را انتخاب کنید',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: descriptionSize,
+            color: Colors.grey.shade600,
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _avatars.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: spacing,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              final avatar = _avatars[index];
+              final isSelected = _selectedAvatar == avatar;
+
+              return Center(
+                child: SizedBox(
+                  width: avatarSize,
+                  height: avatarSize,
+                  child: GestureDetector(
+                    onTap: provider.isUpdating
+                        ? null
+                        : () => _selectAvatar(avatar),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.all(
+                        isSelected ? 3 : 0,
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.primary
+                              : Colors.transparent,
+                          width: 3,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: ClipOval(
+                              child: Image.asset(
+                                avatar,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+
+                          if (isSelected)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                width: 25,
+                                height: 25,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.check,
+                                  size: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // FORM FIELD
+  // ============================================================
+
+  Widget _buildFormField({
+    required String title,
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+    required bool enabled,
+    required double fontSize,
+    TextInputType keyboardType = TextInputType.text,
+    TextDirection textDirection = TextDirection.rtl,
+    TextInputAction textInputAction = TextInputAction.next,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 9),
+
+        TextField(
+          controller: controller,
+          enabled: enabled,
+          keyboardType: keyboardType,
+          textDirection: textDirection,
+          textInputAction: textInputAction,
+          style: TextStyle(
+            fontSize: fontSize,
+          ),
+          decoration: _inputDecoration(
+            hint: hint,
+            icon: icon,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // SAVE BUTTON
+  // ============================================================
+
+  Widget _buildSaveButton(
+      ProfileProvider provider, {
+        required double height,
+        required double fontSize,
+      }) {
+    return SizedBox(
+      width: double.infinity,
+      height: height,
+      child: ElevatedButton(
+        onPressed: provider.isUpdating ? null : _saveProfile,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey.shade300,
+          disabledForegroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: provider.isUpdating
+            ? const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: Colors.white,
+          ),
+        )
+            : Text(
+          'ذخیره تغییرات',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -412,243 +412,162 @@ class _EditProfilePageState
   @override
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
-      builder: (
-          context,
-          provider,
-          child,
-          ) {
+      builder: (context, provider, child) {
         _initializeData(provider);
 
-        // ========================================================
-        // LOADING
-        // ========================================================
-
-        if (provider.isLoading &&
-            provider.profile == null) {
+        if (provider.isLoading && provider.profile == null) {
           return const Scaffold(
             body: Center(
-              child:
-              CircularProgressIndicator(),
+              child: CircularProgressIndicator(),
             ),
           );
         }
 
-        // ========================================================
-        // PAGE
-        // ========================================================
-
         return Directionality(
-          textDirection:
-          TextDirection.rtl,
-
+          textDirection: TextDirection.rtl,
           child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Color(0xFFd90429),
-              foregroundColor: Colors.white,
-              title: const Text(
-                'ویرایش پروفایل',
-              ),
+            backgroundColor: const Color(0xFFF7F7F8),
 
+            appBar: AppBar(
+              backgroundColor: const Color(0xFFd90429),
+              foregroundColor: Colors.white,
               centerTitle: true,
+              elevation: 0,
             ),
 
             body: SafeArea(
-              child:
-              SingleChildScrollView(
-                physics:
-                const BouncingScrollPhysics(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
 
-                padding:
-                EdgeInsets.all(20.w),
+                  final isDesktop = width >= 1100;
+                  final isTablet = width >= 650 && width < 1100;
 
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.stretch,
+                  final horizontalPadding = isDesktop
+                      ? 32.0
+                      : isTablet
+                      ? 24.0
+                      : 16.0;
 
-                  children: [
-                    // ==================================================
-                    // AVATAR SELECTOR
-                    // ==================================================
+                  final maxContentWidth = isDesktop ? 720.0 : 560.0;
 
-                    _buildAvatarSelector(
-                      provider,
+                  final avatarSize = isDesktop
+                      ? 92.0
+                      : isTablet
+                      ? 82.0
+                      : 76.0;
+
+                  final avatarSpacing = isDesktop
+                      ? 24.0
+                      : isTablet
+                      ? 18.0
+                      : 14.0;
+
+                  final titleSize = isDesktop
+                      ? 19.0
+                      : isTablet
+                      ? 18.0
+                      : 16.0;
+
+                  final descriptionSize = isDesktop ? 14.0 : 12.0;
+
+                  final fieldFontSize = isDesktop
+                      ? 15.0
+                      : isTablet
+                      ? 14.0
+                      : 13.0;
+
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: isDesktop ? 32 : 20,
                     ),
-
-                    SizedBox(
-                      height: 35.h,
-                    ),
-
-                    // ==================================================
-                    // FULL NAME
-                    // ==================================================
-
-                    Text(
-                      'نام و نام خانوادگی',
-
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight:
-                        FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 8.h,
-                    ),
-
-                    TextField(
-                      controller:
-                      _fullNameController,
-
-                      enabled:
-                      !provider.isUpdating,
-
-                      textDirection:
-                      TextDirection.rtl,
-
-                      textInputAction:
-                      TextInputAction.next,
-
-                      decoration:
-                      _inputDecoration(
-                        hint:
-                        'نام و نام خانوادگی',
-
-                        icon:
-                        Iconsax.user_copy,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 20.h,
-                    ),
-
-                    // ==================================================
-                    // PHONE
-                    // ==================================================
-
-                    Text(
-                      'شماره موبایل',
-
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight:
-                        FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 8.h,
-                    ),
-
-                    TextField(
-                      controller:
-                      _phoneController,
-
-                      enabled:
-                      !provider.isUpdating,
-
-                      keyboardType:
-                      TextInputType.phone,
-
-                      textDirection:
-                      TextDirection.ltr,
-
-                      textInputAction:
-                      TextInputAction.done,
-
-                      decoration:
-                      _inputDecoration(
-                        hint:
-                        'شماره موبایل',
-
-                        icon:
-                        Iconsax.call_copy,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 35.h,
-                    ),
-
-                    // ==================================================
-                    // SAVE BUTTON
-                    // ==================================================
-
-                    SizedBox(
-                      height: 52.h,
-
-                      child:
-                      ElevatedButton(
-                        onPressed:
-                        provider.isUpdating
-                            ? null
-                            : _saveProfile,
-
-                        style:
-                        ElevatedButton
-                            .styleFrom(
-                          backgroundColor:
-                          AppColors.primary,
-
-                          foregroundColor:
-                          Colors.white,
-
-                          disabledBackgroundColor:
-                          Colors.grey
-                              .shade300,
-
-                          elevation: 0,
-
-                          shape:
-                          RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius
-                                .circular(
-                              14.r,
-                            ),
-                          ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: maxContentWidth,
                         ),
-
-                        child:
-                        provider.isUpdating
-                            ? SizedBox(
-                          width:
-                          24.w,
-
-                          height:
-                          24.w,
-
-                          child:
-                          const CircularProgressIndicator(
-                            strokeWidth:
-                            2.5,
-
-                            color:
-                            Colors.white,
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(
+                            isDesktop ? 32 : isTablet ? 26 : 20,
                           ),
-                        )
-                            : Text(
-                          'ذخیره تغییرات',
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 20,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // AVATAR
 
-                          style:
-                          TextStyle(
-                            fontSize:
-                            14.sp,
+                              _buildAvatarSelector(
+                                provider,
+                                avatarSize: avatarSize,
+                                spacing: avatarSpacing,
+                                titleSize: titleSize,
+                                descriptionSize: descriptionSize,
+                              ),
 
-                            fontWeight:
-                            FontWeight
-                                .bold,
+                              SizedBox(
+                                height: isDesktop ? 40 : 32,
+                              ),
+
+                              // FULL NAME
+
+                              _buildFormField(
+                                title: 'نام و نام خانوادگی',
+                                hint: 'نام و نام خانوادگی',
+                                icon: Iconsax.user_copy,
+                                controller: _fullNameController,
+                                enabled: !provider.isUpdating,
+                                fontSize: fieldFontSize,
+                              ),
+
+                              SizedBox(
+                                height: isDesktop ? 26 : 20,
+                              ),
+
+                              // PHONE
+
+                              _buildFormField(
+                                title: 'شماره موبایل',
+                                hint: 'شماره موبایل',
+                                icon: Iconsax.call_copy,
+                                controller: _phoneController,
+                                enabled: !provider.isUpdating,
+                                fontSize: fieldFontSize,
+                                keyboardType: TextInputType.phone,
+                                textDirection: TextDirection.ltr,
+                                textInputAction: TextInputAction.done,
+                              ),
+
+                              SizedBox(
+                                height: isDesktop ? 36 : 30,
+                              ),
+
+                              // SAVE BUTTON
+
+                              _buildSaveButton(
+                                provider,
+                                height: isDesktop ? 56 : 52,
+                                fontSize: fieldFontSize + 1,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-
-                    SizedBox(
-                      height: 20.h,
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
