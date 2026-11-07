@@ -36,6 +36,16 @@ class _OtpPageState extends State<OtpPage> {
       final provider = context.read<OtpProvider>();
 
       provider.setPhone(widget.phoneNumber);
+
+// تشخیص حساب‌های دمو
+      final isDemoAccount =
+          widget.phoneNumber == '+989120000001' ||
+              widget.phoneNumber == '+989120000002';
+
+      if (isDemoAccount) {
+        provider.setDemoOtp();
+      }
+
       provider.startTimer();
     });
   }

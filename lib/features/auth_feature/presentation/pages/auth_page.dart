@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +30,6 @@ class AuthPage extends StatelessWidget {
 
                   final bool isMobile = width < 600;
                   final bool isTablet = width >= 600 && width < 1024;
-                  final bool isDesktop = width >= 1024;
 
                   final double contentMaxWidth = isMobile
                       ? 480
@@ -56,11 +56,8 @@ class AuthPage extends StatelessWidget {
                       : 56;
 
                   final double sectionSpacing = isMobile ? 24 : 28;
-
                   final double titleSpacing = isMobile ? 8 : 12;
-
                   final double fieldSpacing = isMobile ? 20 : 24;
-
                   final double bottomSpacing = isMobile ? 20 : 24;
 
                   return Center(
@@ -81,7 +78,8 @@ class AuthPage extends StatelessWidget {
                               ),
                               child: IntrinsicHeight(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.center,
                                   children: [
                                     SizedBox(height: topSpacing),
 
@@ -142,9 +140,75 @@ class AuthPage extends StatelessWidget {
                                       onChanged: provider.phoneChanged,
                                     ),
 
+                                    const SizedBox(height: 22),
+
+                                    // DEMO ACCOUNTS TITLE
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Divider(
+                                            color: AppColors.auth_continue
+                                                .withValues(alpha: 0.2),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          child: Text(
+                                            'ورود سریع دمو',
+                                            style: AppTextStyles.auth_rules
+                                                .copyWith(
+                                              color: AppColors.auth_continue,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Divider(
+                                            color: AppColors.auth_continue
+                                                .withValues(alpha: 0.2),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    // DEMO ACCOUNT CARDS
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _DemoAccountCard(
+                                            title: 'حساب مدیر',
+                                            phone: '9120000001',
+                                            icon: Icons.admin_panel_settings,
+                                            color: const Color(0xFF023E8A),
+                                            onTap: () {
+                                              provider.selectDemoAccount('9120000001');
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _DemoAccountCard(
+                                            title: 'حساب مشتری',
+                                            phone: '9120000002',
+                                            icon: Icons.person_outline,
+                                            color: const Color(0xFF0096C7),
+                                            onTap: () {
+                                              provider.selectDemoAccount('9120000002');
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
                                     const Spacer(),
 
-                                    SizedBox(height: isMobile ? 40 : 56),
+                                    SizedBox(
+                                      height: isMobile ? 36 : 44,
+                                    ),
 
                                     // CONTINUE BUTTON
                                     AuthButton(
@@ -157,10 +221,13 @@ class AuthPage extends StatelessWidget {
                                         if (!context.mounted) return;
 
                                         if (success) {
+                                          final phone = provider
+                                              .phoneController.text
+                                              .replaceAll(' ', '');
+
                                           context.push(
                                             '/otp',
-                                            extra:
-                                            '+98${provider.phoneController.text.replaceAll(' ', '')}',
+                                            extra: '+98$phone',
                                           );
                                         }
                                       },
@@ -194,6 +261,82 @@ class AuthPage extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _DemoAccountCard extends StatelessWidget {
+  const _DemoAccountCard({
+    required this.title,
+    required this.phone,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String title;
+  final String phone;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 14,
+          ),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: color.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: color,
+                size: 25,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                phone,
+                textDirection: TextDirection.ltr,
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.8),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'انتخاب حساب',
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.7),
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
