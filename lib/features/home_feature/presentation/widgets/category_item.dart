@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +23,7 @@ class CategoryItem extends StatelessWidget {
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
 
     final double itemWidth = isMobile
-        ? 82
+        ? 88
         : isTablet
         ? 84
         : 88;
@@ -35,13 +34,8 @@ class CategoryItem extends StatelessWidget {
         ? 60
         : 64;
 
-    final double fontSize = isMobile
-        ? 12
-        : isTablet
-        ? 11
-        : 12;
-
-    final double spacing = isMobile ? 8 : 7;
+    final double fontSize = isMobile ? 11 : 12;
+    const double spacing = 7;
 
     return SizedBox(
       width: itemWidth,
@@ -71,11 +65,11 @@ class CategoryItem extends StatelessWidget {
                       height: imageSize,
                       fit: BoxFit.cover,
                       placeholder: (context, url) {
-                        return Center(
+                        return const Center(
                           child: SizedBox(
                             width: 18,
                             height: 18,
-                            child: const CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               strokeWidth: 2,
                             ),
                           ),
@@ -92,16 +86,25 @@ class CategoryItem extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: spacing),
+                const SizedBox(height: spacing),
 
-                Text(
-                  category.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.category.copyWith(
-                    color: AppColors.black,
-                    fontSize: fontSize,
+                SizedBox(
+                  width: itemWidth - 8,
+                  height: 34,
+                  child: Center(
+                    child: Text(
+                      category.name,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.rtl,
+                      style: AppTextStyles.category.copyWith(
+                        color: AppColors.black,
+                        fontSize: fontSize,
+                        height: 1.2,
+                      ),
+                    ),
                   ),
                 ),
               ],

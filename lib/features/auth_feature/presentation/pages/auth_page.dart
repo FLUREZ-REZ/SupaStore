@@ -1,18 +1,22 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:supastore/features/auth_feature/presentation/widgets/phone_textfield.dart';
-
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_button.dart';
+import 'package:supastore/features/auth_feature/presentation/widgets/phone_textfield.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
+
+  static const Color _primary = Color(0xFF03045E);
+  static const Color _blue = Color(0xFF0077B6);
+  static const Color _lightBlue = Color(0xFFEAF6FC);
+  static const Color _background = Color(0xFFF5F7FB);
+  static const Color _textDark = Color(0xFF202438);
+  static const Color _textGrey = Color(0xFF8992A5);
+  static const Color _border = Color(0xFFE9EDF3);
 
   @override
   Widget build(BuildContext context) {
@@ -21,44 +25,17 @@ class AuthPage extends StatelessWidget {
       child: Consumer<AuthProvider>(
         builder: (context, provider, child) {
           return Scaffold(
-            backgroundColor: AppColors.auth_background,
+            backgroundColor: _background,
             body: SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final width = constraints.maxWidth;
                   final height = constraints.maxHeight;
 
-                  final bool isMobile = width < 600;
-                  final bool isTablet = width >= 600 && width < 1024;
+                  final isMobile = width < 600;
+                  final isTablet = width >= 600 && width < 1024;
 
-                  final double contentMaxWidth = isMobile
-                      ? 480
-                      : isTablet
-                      ? 460
-                      : 480;
-
-                  final double horizontalPadding = isMobile
-                      ? 24
-                      : isTablet
-                      ? 32
-                      : 40;
-
-                  final double logoSize = isMobile
-                      ? 120
-                      : isTablet
-                      ? 135
-                      : 145;
-
-                  final double topSpacing = isMobile
-                      ? (height * 0.08).clamp(24.0, 64.0)
-                      : isTablet
-                      ? 48
-                      : 56;
-
-                  final double sectionSpacing = isMobile ? 24 : 28;
-                  final double titleSpacing = isMobile ? 8 : 12;
-                  final double fieldSpacing = isMobile ? 20 : 24;
-                  final double bottomSpacing = isMobile ? 20 : 24;
+                  final contentWidth = isMobile ? width : 460.0;
 
                   return Center(
                     child: SingleChildScrollView(
@@ -67,186 +44,298 @@ class AuthPage extends StatelessWidget {
                         constraints: BoxConstraints(
                           minHeight: height,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: horizontalPadding,
-                          ),
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: contentMaxWidth,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: contentWidth,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isMobile ? 20 : 28,
+                                vertical: isMobile ? 24 : 36,
                               ),
-                              child: IntrinsicHeight(
+                              child: Directionality(
+                                textDirection: TextDirection.rtl,
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment:
-                                  CrossAxisAlignment.center,
+                                  CrossAxisAlignment.stretch,
                                   children: [
-                                    SizedBox(height: topSpacing),
+                                    // BRAND NAME (WITHOUT LOGO)
+                                    const SizedBox(height: 12),
 
-                                    // LOGO
-                                    SvgPicture.asset(
-                                      'assets/logo/logo.svg',
-                                      width: logoSize,
-                                      height: logoSize,
-                                      colorFilter: ColorFilter.mode(
-                                        AppColors.intro_description,
-                                        BlendMode.srcIn,
+                                    const Text(
+                                      'SupaStore',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: _primary,
+                                        fontSize: 27,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: -0.8,
                                       ),
-                                      fit: BoxFit.contain,
                                     ),
 
                                     const SizedBox(height: 8),
 
-                                    // APP NAME
                                     Text(
-                                      'SupaStore',
+                                      'تجربه‌ای متفاوت از خرید آنلاین',
                                       textAlign: TextAlign.center,
-                                      style: AppTextStyles.auth_title_text
-                                          .copyWith(
-                                        color: AppColors.auth_title_text,
-                                        fontSize: isMobile
-                                            ? 24
-                                            : isTablet
-                                            ? 27
-                                            : 29,
+                                      style: TextStyle(
+                                        color: _textGrey,
+                                        fontSize: isMobile ? 12 : 13,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
 
-                                    SizedBox(height: sectionSpacing),
-
-                                    // DESCRIPTION
-                                    SizedBox(height: titleSpacing),
-
-                                    Text(
-                                      'برای ادامه شماره موبایل خود را وارد کنید',
-                                      textAlign: TextAlign.center,
-                                      style: AppTextStyles.auth_countinue
-                                          .copyWith(
-                                        color: AppColors.auth_continue,
-                                        fontSize: isMobile
-                                            ? 14
-                                            : isTablet
-                                            ? 16
-                                            : 17,
-                                        height: 1.8,
-                                      ),
+                                    SizedBox(
+                                      height: isMobile ? 28 : 36,
                                     ),
 
-                                    SizedBox(height: fieldSpacing),
+                                    // LOGIN CARD
+                                    Container(
+                                      padding: EdgeInsets.all(
+                                        isMobile ? 22 : 28,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                        BorderRadius.circular(24),
+                                        border: Border.all(
+                                          color: _border,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: _primary.withValues(
+                                              alpha: 0.045,
+                                            ),
+                                            blurRadius: 30,
+                                            offset: const Offset(0, 12),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                        children: [
+                                          // TITLE
+                                          const Text(
+                                            'خوش اومدی!',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.w800,
+                                              color: _textDark,
+                                            ),
+                                          ),
 
-                                    // PHONE FIELD
-                                    PhoneTextField(
-                                      controller: provider.phoneController,
-                                      onChanged: provider.phoneChanged,
+                                          const SizedBox(height: 9),
+
+                                          Text(
+                                            'برای ورود یا ثبت‌نام، شماره موبایلت رو وارد کن',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: isMobile ? 12 : 13,
+                                              height: 1.9,
+                                              color: _textGrey,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 28),
+
+                                          // PHONE LABEL
+                                          const Text(
+                                            'شماره موبایل',
+                                            style: TextStyle(
+                                              color: _textDark,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 10),
+
+                                          // PHONE FIELD
+                                          PhoneTextField(
+                                            controller:
+                                            provider.phoneController,
+                                            onChanged: provider.phoneChanged,
+                                          ),
+
+                                          const SizedBox(height: 25),
+
+                                          // DEMO DIVIDER
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  height: 1,
+                                                  color: _border,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                ),
+                                                child: Row(
+                                                  children: const [
+                                                    Icon(
+                                                      Icons.bolt_rounded,
+                                                      color: _blue,
+                                                      size: 17,
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      'ورود سریع دمو',
+                                                      style: TextStyle(
+                                                        color: _textDark,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                        FontWeight.w700,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Container(
+                                                  height: 1,
+                                                  color: _border,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 16),
+
+                                          // DEMO ACCOUNTS
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: _DemoAccountCard(
+                                                  title: 'حساب مدیر',
+                                                  subtitle: 'مدیریت فروشگاه',
+                                                  phone: '9120000001',
+                                                  icon: Icons
+                                                      .admin_panel_settings_rounded,
+                                                  color: _primary,
+                                                  background: const Color(
+                                                    0xFFF0F1FA,
+                                                  ),
+                                                  selected:
+                                                  provider.phoneController
+                                                      .text
+                                                      .replaceAll(
+                                                    ' ',
+                                                    '',
+                                                  ) ==
+                                                      '9120000001',
+                                                  onTap: () {
+                                                    provider.selectDemoAccount(
+                                                      '9120000001',
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+
+                                              const SizedBox(width: 12),
+
+                                              Expanded(
+                                                child: _DemoAccountCard(
+                                                  title: 'حساب مشتری',
+                                                  subtitle: 'خرید از فروشگاه',
+                                                  phone: '9120000002',
+                                                  icon: Icons.person_rounded,
+                                                  color: _blue,
+                                                  background: _lightBlue,
+                                                  selected:
+                                                  provider.phoneController
+                                                      .text
+                                                      .replaceAll(
+                                                    ' ',
+                                                    '',
+                                                  ) ==
+                                                      '9120000002',
+                                                  onTap: () {
+                                                    provider.selectDemoAccount(
+                                                      '9120000002',
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 28),
+
+                                          // CONTINUE BUTTON
+                                          AuthButton(
+                                            loading: provider.isLoading,
+                                            enabled: provider.isValidPhone,
+                                            onTap: () async {
+                                              final success =
+                                              await provider.sendOtp();
+
+                                              if (!context.mounted) return;
+
+                                              if (success) {
+                                                final phone = provider
+                                                    .phoneController.text
+                                                    .replaceAll(' ', '');
+
+                                                context.push(
+                                                  '/otp',
+                                                  extra: '+98$phone',
+                                                );
+                                              }
+                                            },
+                                          ),
+
+                                          const SizedBox(height: 18),
+
+                                          // SECURITY MESSAGE
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.lock_outline_rounded,
+                                                size: 14,
+                                                color: _textGrey.withValues(
+                                                  alpha: 0.8,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  'اطلاعات شما محفوظ و امن خواهد بود',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: _textGrey,
+                                                    fontSize:
+                                                    isMobile ? 10 : 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
 
                                     const SizedBox(height: 22),
 
-                                    // DEMO ACCOUNTS TITLE
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Divider(
-                                            color: AppColors.auth_continue
-                                                .withValues(alpha: 0.2),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                          ),
-                                          child: Text(
-                                            'ورود سریع دمو',
-                                            style: AppTextStyles.auth_rules
-                                                .copyWith(
-                                              color: AppColors.auth_continue,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Divider(
-                                            color: AppColors.auth_continue
-                                                .withValues(alpha: 0.2),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 14),
-
-                                    // DEMO ACCOUNT CARDS
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _DemoAccountCard(
-                                            title: 'حساب مدیر',
-                                            phone: '9120000001',
-                                            icon: Icons.admin_panel_settings,
-                                            color: const Color(0xFF023E8A),
-                                            onTap: () {
-                                              provider.selectDemoAccount('9120000001');
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: _DemoAccountCard(
-                                            title: 'حساب مشتری',
-                                            phone: '9120000002',
-                                            icon: Icons.person_outline,
-                                            color: const Color(0xFF0096C7),
-                                            onTap: () {
-                                              provider.selectDemoAccount('9120000002');
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const Spacer(),
-
-                                    SizedBox(
-                                      height: isMobile ? 36 : 44,
-                                    ),
-
-                                    // CONTINUE BUTTON
-                                    AuthButton(
-                                      loading: provider.isLoading,
-                                      enabled: provider.isValidPhone,
-                                      onTap: () async {
-                                        final success =
-                                        await provider.sendOtp();
-
-                                        if (!context.mounted) return;
-
-                                        if (success) {
-                                          final phone = provider
-                                              .phoneController.text
-                                              .replaceAll(' ', '');
-
-                                          context.push(
-                                            '/otp',
-                                            extra: '+98$phone',
-                                          );
-                                        }
-                                      },
-                                    ),
-
-                                    SizedBox(height: bottomSpacing),
-
-                                    // TERMS
+                                    // FOOTER
                                     Text(
-                                      'با ورود، قوانین و حریم خصوصی را می‌پذیرید',
+                                      'با ورود به سوپاستور، قوانین و حریم خصوصی را می‌پذیرید.',
                                       textAlign: TextAlign.center,
-                                      style: AppTextStyles.auth_rules.copyWith(
-                                        color: AppColors.auth_rules,
-                                        fontSize: isMobile ? 11 : 12,
+                                      style: TextStyle(
+                                        color: _textGrey,
+                                        fontSize: isMobile ? 10 : 11,
                                         height: 1.8,
                                       ),
                                     ),
-
-                                    SizedBox(height: bottomSpacing),
                                   ],
                                 ),
                               ),
@@ -266,19 +355,29 @@ class AuthPage extends StatelessWidget {
   }
 }
 
+// --------------------------------------------------
+// DEMO ACCOUNT CARD
+// --------------------------------------------------
+
 class _DemoAccountCard extends StatelessWidget {
   const _DemoAccountCard({
     required this.title,
+    required this.subtitle,
     required this.phone,
     required this.icon,
     required this.color,
+    required this.background,
+    required this.selected,
     required this.onTap,
   });
 
   final String title;
+  final String subtitle;
   final String phone;
   final IconData icon;
   final Color color;
+  final Color background;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -287,51 +386,100 @@ class _DemoAccountCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
+        borderRadius: BorderRadius.circular(17),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 14,
+            horizontal: 6,
+            vertical: 15,
           ),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(14),
+            color: selected ? background : const Color(0xFFFAFBFD),
+            borderRadius: BorderRadius.circular(17),
             border: Border.all(
-              color: color.withValues(alpha: 0.25),
+              color: selected
+                  ? color.withValues(alpha: 0.65)
+                  : const Color(0xFFE9EDF3),
+              width: selected ? 1.5 : 1,
             ),
           ),
           child: Column(
             children: [
-              Icon(
-                icon,
-                color: color,
-                size: 25,
+              // ICON
+              Container(
+                width: 43,
+                height: 43,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 23,
+                ),
               ),
-              const SizedBox(height: 8),
+
+              const SizedBox(height: 11),
+
+              // TITLE
               Text(
                 title,
                 style: TextStyle(
                   color: color,
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
+
               const SizedBox(height: 5),
+
+              // SUBTITLE
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF8992A5),
+                  fontSize: 10,
+                ),
+              ),
+
+              const SizedBox(height: 9),
+
+              // PHONE
               Text(
                 phone,
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
-                  color: color.withValues(alpha: 0.8),
+                  color: color.withValues(alpha: 0.85),
                   fontSize: 11,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
                 ),
               ),
-              const SizedBox(height: 5),
-              Text(
-                'انتخاب حساب',
-                style: TextStyle(
-                  color: color.withValues(alpha: 0.7),
-                  fontSize: 10,
+
+              const SizedBox(height: 10),
+
+              // SELECTION STATUS
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 11,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? color
+                      : color.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  selected ? 'انتخاب شد' : 'انتخاب حساب',
+                  style: TextStyle(
+                    color: selected ? Colors.white : color,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
