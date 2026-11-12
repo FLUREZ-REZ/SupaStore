@@ -1,27 +1,9 @@
-<<<<<<< HEAD
 <div align="center">
   <img src="https://github.com/user-attachments/assets/1e050133-33a4-472c-97f0-550841363095" width="100%" alt="SupaStore Banner">
 </div>
 
+<div align="center">
+  <p>Ecommerce Flutter app shop </p>
+</div>
 
 
-# SupaStore
-Flutter shop app
-=======
-# supastore
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
->>>>>>> 37ec489 (project created)
