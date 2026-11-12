@@ -1,4 +1,4 @@
-<div align="center">
+<img width="1920" height="1080" alt="thumbnail_16x9" src="https://github.com/user-attachments/assets/ef750701-15eb-4809-8292-40cb319ed419" /><div align="center">
   <img src="https://github.com/user-attachments/assets/1e050133-33a4-472c-97f0-550841363095" width="100%" alt="SupaStore Banner">
 </div>
 
@@ -34,11 +34,12 @@ The project also serves as a portfolio project showcasing the implementation of 
 ### ▶️ Watch Application Demo
 
 
+<img width="1920" height="1080" alt="thumbnail_16x9" src="https://github.com/user-attachments/assets/15b456a3-6e69-4eb2-91ba-cf3c5e67f543" />
 
 
 <p align="center">
   <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Demo.gif">
-    <img src="https://github.com/user-attachments/assets/0c0d8ff5-6bd2-4171-8f67-c07ec3f0d7ef" width="6![Uploading thumbnail_16x9.jpg…]()
+    <img width="60%"  alt="thumbnail_16x9" src="https://github.com/user-attachments/assets/15b456a3-6e69-4eb2-91ba-cf3c5e67f543" />
 0%" alt="Watch SupaStore Demo">
   </a>
 </p>
