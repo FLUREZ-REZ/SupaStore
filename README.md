@@ -88,22 +88,111 @@ The project also serves as a portfolio project showcasing the implementation of 
 
 ---
 
-### 📥 Download & Try SupaStore
+
+
+<h3 align="center">📥 Download & Try SupaStore</h3>
 
 <p align="center">
-  <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/app-release.apk">
-    📱 Download Android APK
-  </a>
-  &nbsp; | &nbsp;
-  <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/SupaStore-Web.zip">
-    💻 Download Web Version
-  </a>
+  Get the Android APK or download the Web version and explore SupaStore locally.
 </p>
+
+<table align="center" width="70%">
+  <tr>
+    <td align="center" width="50%">
+      <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/app-release.apk">
+        <img
+          src="https://raw.githubusercontent.com/FLUREZ-REZ/SupaStore/master/assets/readme/android-download.svg"
+          width="100%"
+          alt="Download Android APK"
+        />
+      </a>
+    </td>
+    <td align="center" width="50%">
+      <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/SupaStore-Web.zip">
+        <img
+          src="https://raw.githubusercontent.com/FLUREZ-REZ/SupaStore/master/assets/readme/web-download.svg"
+          width="100%"
+          alt="Download Web Version"
+        />
+      </a>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
-  <sub>Download the latest release and explore SupaStore locally.</sub>
+  <sub>
+    Android APK · Web Application (ZIP)
+  </sub>
 </p>
 
+
+
+
+
+## 🛠️ Tech Stack & Architecture
+
+SupaStore is built using Flutter and Dart, following a modular and maintainable architecture with a focus on scalability, code reusability, and responsive user interfaces.
+
+### 💻 Core Technologies
+
+| Technology | Purpose |
+|---|---|
+| Flutter & Dart | Cross-platform application development |
+| Supabase | Backend, authentication, database, and storage |
+| Git | Version control and source code management |
+
+### 🏗️ Architecture & State Management
+
+| Technology | Purpose |
+|---|---|
+| Clean Architecture | Separation of presentation, domain, and data layers |
+| Provider | State management |
+| GetIt | Dependency injection |
+| GoRouter | Declarative navigation and routing |
+| Responsive Design Patterns | Adaptive layouts for mobile, tablet, and desktop |
+
+### 📦 Packages & Libraries
+
+**Networking & Backend**
+- `http` – HTTP requests and API communication
+- `supabase_flutter` – Supabase integration
+- `connectivity_plus` – Network connectivity monitoring
+- `app_links` – Deep linking and app link handling
+
+**UI & User Experience**
+- `flutter_screenutil` – Responsive sizing and screen adaptation
+- `cached_network_image` – Network image caching
+- `shimmer` – Loading placeholders and skeleton effects
+- `carousel_slider` – Image and content carousels
+- `smooth_page_indicator` – Carousel page indicators
+- `flutter_rating_bar` – Product rating components
+- `flutter_svg` – SVG rendering
+- `iconsax_flutter` – Icon library
+- `pinput` – OTP input fields
+
+**Storage & Utilities**
+- `shared_preferences` – Local key-value storage
+- `flutter_dotenv` – Environment variable configuration
+- `intl` – Date, number, and localization formatting
+- `persian_number_utility` – Persian number and date utilities
+
+**Media & External Integrations**
+- `image_picker` – Image selection
+- `flutter_image_compress` – Image compression
+- `url_launcher` – Opening external URLs
+
+**Data Visualization**
+- `fl_chart` – Charts and dashboard analytics
+
+### 📐 Design & Development Principles
+
+- Clean and modular code organization
+- Separation of concerns
+- Reusable UI components
+- Responsive layouts for different screen sizes
+- Dependency injection
+- Centralized state management
+- Scalable feature-based project structure
 
 
 
