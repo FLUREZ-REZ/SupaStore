@@ -29,6 +29,59 @@ SupaStore was developed as a practical project to demonstrate Flutter developmen
 
 The project also serves as a portfolio project showcasing the implementation of a real-world e-commerce application.
 
+## 📸 Preview & Demo
+
+
+### 🎬 Project Demo
+
+<p align="center">
+  <video src="docs/videos/supastore-demo.mp4" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
+
+### 🖼️ Application Screenshots
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/images/mobile/home.png" width="100%" alt="Mobile Home Screen">
+    </td>
+    <td width="50%">
+      <img src="docs/images/mobile/products.png" width="100%" alt="Product Listing">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="docs/images/mobile/product-details.png" width="100%" alt="Product Details">
+    </td>
+    <td width="50%">
+      <img src="docs/images/mobile/cart.png" width="100%" alt="Shopping Cart">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="docs/images/desktop/home.png" width="100%" alt="Desktop Home Screen">
+    </td>
+    <td width="50%">
+      <img src="docs/images/admin/dashboard.png" width="100%" alt="Admin Dashboard">
+    </td>
+  </tr>
+</table>
+
+---
+
+## 📥 Download & Installation
+
+### 📱 Android Application
+
+[**Download APK**](../../releases/latest)
+
+### 💻 Web Application
+
+[**Download Web Build (ZIP)**](../../releases/latest)
+
+> **Note:** The Web version is provided as a local build. Extract the ZIP file and run it using a local web server. No hosted demo is currently available.
 
 
 
