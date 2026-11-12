@@ -1,14 +1,7 @@
-
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="68" viewBox="0 0 320 68">
-  <rect width="320" height="68" rx="14" fill="#0077B6"/>
-
-  <g transform="translate(24 19)" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round">
-    <circle cx="14" cy="14" r="12"/>
-    <path d="M2 14h24 M14 2c-7 7-7 17 0 24 M14 2c7 7 7 17 0 24"/>
-  </g>
-
-  <g fill="#FFFFFF" font-family="Arial, sans-serif">
-    <text x="165" y="29" font-size="12" text-anchor="middle" font-weight="400" opacity=".9">DOWNLOAD</text>
-    <text x="165" y="49" font-size="17" text-anchor="middle" font-weight="700">WEB VERSION</text>
-  </g>
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="320" height="68" viewBox="0 0 320 68">
+  <rect x="0" y="0" width="320" height="68" rx="14" fill="#0077B6"/>
+  <circle cx="47" cy="34" r="13" fill="none" stroke="white" stroke-width="2.5"/>
+  <path d="M34 34h26 M47 21c-7 8-7 18 0 26 M47 21c7 8 7 18 0 26" fill="none" stroke="white" stroke-width="2"/>
+  <text x="180" y="28" fill="white" font-family="Arial,sans-serif" font-size="12" text-anchor="middle">DOWNLOAD</text>
+  <text x="180" y="49" fill="white" font-family="Arial,sans-serif" font-size="17" font-weight="bold" text-anchor="middle">WEB VERSION</text>
 </svg>
