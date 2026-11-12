@@ -37,7 +37,7 @@ The project also serves as a portfolio project showcasing the implementation of 
 
 
 <p align="center">
-  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Demo.gif">
+  <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/perfect.mp4">
     <img width="100%" alt="thumbnail_16x9_play" src="https://github.com/user-attachments/assets/3a2a1822-6658-416c-ae33-ef390f5af5f8" />
 
   </a>
@@ -91,11 +91,11 @@ The project also serves as a portfolio project showcasing the implementation of 
 ### 📥 Download & Try SupaStore
 
 <p align="center">
-  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore.apk">
+  <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/app-release.apk">
     📱 Download Android APK
   </a>
   &nbsp; | &nbsp;
-  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Web.zip">
+  <a href="https://github.com/FLUREZ-REZ/SupaStore/releases/download/supabase/SupaStore-Web.zip">
     💻 Download Web Version
   </a>
 </p>
