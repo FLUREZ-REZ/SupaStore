@@ -29,26 +29,31 @@ SupaStore was developed as a practical project to demonstrate Flutter developmen
 
 The project also serves as a portfolio project showcasing the implementation of a real-world e-commerce application.
 
-## 📸 Preview & Demo
+## 🎬 Demo & Preview
 
-
-### 🎬 Project Demo
+### ▶️ Watch Application Demo
 
 <p align="center">
-  <video src="docs/videos/supastore-demo.mp4" width="100%" controls>
-    Your browser does not support the video tag.
-  </video>
+  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Demo.gif">
+    <img src="docs/images/demo-thumbnail.png" width="100%" alt="Watch SupaStore Demo">
+  </a>
 </p>
 
-### 🖼️ Application Screenshots
+<p align="center">
+  <sub>▶ Click the preview to watch the full application demo</sub>
+</p>
+
+---
+
+### 📸 Application Screenshots
 
 <table>
   <tr>
     <td width="50%">
-      <img src="docs/images/mobile/home.png" width="100%" alt="Mobile Home Screen">
+      <img src="docs/images/mobile/home.png" width="100%" alt="Home Screen">
     </td>
     <td width="50%">
-      <img src="docs/images/mobile/products.png" width="100%" alt="Product Listing">
+      <img src="docs/images/mobile/products.png" width="100%" alt="Products Screen">
     </td>
   </tr>
   <tr>
@@ -61,7 +66,7 @@ The project also serves as a portfolio project showcasing the implementation of 
   </tr>
   <tr>
     <td width="50%">
-      <img src="docs/images/desktop/home.png" width="100%" alt="Desktop Home Screen">
+      <img src="docs/images/desktop/home.png" width="100%" alt="Desktop Store">
     </td>
     <td width="50%">
       <img src="docs/images/admin/dashboard.png" width="100%" alt="Admin Dashboard">
@@ -71,17 +76,25 @@ The project also serves as a portfolio project showcasing the implementation of 
 
 ---
 
-## 📥 Download & Installation
+### 📥 Download & Try SupaStore
 
-### 📱 Android Application
+<p align="center">
+  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore.apk">
+    📱 Download Android APK
+  </a>
+  &nbsp; | &nbsp;
+  <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Web.zip">
+    💻 Download Web Version
+  </a>
+</p>
 
-[**Download APK**](../../releases/latest)
+<p align="center">
+  <sub>Download the latest release and explore SupaStore locally.</sub>
+</p>
 
-### 💻 Web Application
 
-[**Download Web Build (ZIP)**](../../releases/latest)
 
-> **Note:** The Web version is provided as a local build. Extract the ZIP file and run it using a local web server. No hosted demo is currently available.
+
 
 
 
