@@ -34,9 +34,12 @@ The project also serves as a portfolio project showcasing the implementation of 
 ### ▶️ Watch Application Demo
 
 
+
+
 <p align="center">
   <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Demo.gif">
-    <img src="https://github.com/user-attachments/assets/bd09a65c-55e3-4965-8131-a30a9ec73b54" width="100%" alt="Watch SupaStore Demo">
+    <img src="https://github.com/user-attachments/assets/0c0d8ff5-6bd2-4171-8f67-c07ec3f0d7ef" width="6![Uploading thumbnail_16x9.jpg…]()
+0%" alt="Watch SupaStore Demo">
   </a>
 </p>
 
