@@ -1,5 +1,4 @@
-<img width="1920" height="1080" alt="thumbnail_16x9" src="https://github.com/user-attachments/assets/ef750701-15eb-4809-8292-40cb319ed419" /><div align="center">
-  <img src="https://github.com/user-attachments/assets/1e050133-33a4-472c-97f0-550841363095" width="100%" alt="SupaStore Banner">
+<img src="https://github.com/user-attachments/assets/1e050133-33a4-472c-97f0-550841363095" width="100%" alt="SupaStore Banner">
 </div>
 
 <div align="center">
@@ -34,9 +33,12 @@ The project also serves as a portfolio project showcasing the implementation of 
 ### ▶️ Watch Application Demo
 
 
+
+
+
 <p align="center">
   <a href="https://github.com/USERNAME/REPOSITORY/releases/latest/download/SupaStore-Demo.gif">
-    <img width="100%"  alt="thumbnail_16x9" src="https://github.com/user-attachments/assets/15b456a3-6e69-4eb2-91ba-cf3c5e67f543" />
+    <img width="100%" alt="thumbnail_16x9_play" src="https://github.com/user-attachments/assets/3a2a1822-6658-416c-ae33-ef390f5af5f8" />
 
   </a>
 </p>
@@ -47,34 +49,42 @@ The project also serves as a portfolio project showcasing the implementation of 
 
 ---
 
+
+
+
+
+
+
 ### 📸 Application Screenshots
+
 
 <table>
   <tr>
-    <td width="50%">
-      <img src="docs/images/mobile/home.png" width="100%" alt="Home Screen">
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/8942087b-1c19-4af1-8930-474ca98757b2" width="70%" alt="Home Screen">
     </td>
-    <td width="50%">
-      <img src="docs/images/mobile/products.png" width="100%" alt="Products Screen">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="docs/images/mobile/product-details.png" width="100%" alt="Product Details">
-    </td>
-    <td width="50%">
-      <img src="docs/images/mobile/cart.png" width="100%" alt="Shopping Cart">
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/78d57ca3-44d5-4015-98a5-e167a4850ee5" width="70%" alt="Products Screen">
     </td>
   </tr>
   <tr>
-    <td width="50%">
-      <img src="docs/images/desktop/home.png" width="100%" alt="Desktop Store">
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/ccbc2942-80aa-4f30-98fc-6a10e01ece22" width="70%" alt="Product Details">
     </td>
-    <td width="50%">
-      <img src="docs/images/admin/dashboard.png" width="100%" alt="Admin Dashboard">
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/afb7ae5c-fa17-4ced-a234-dbd5db80d710" width="70%" alt="Shopping Cart">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/6b5974a0-eee2-4556-967a-567c10bf4f37" width="70%" alt="Desktop Store">
+    </td>
+    <td align="center" width="50%">
+      <img src="https://github.com/user-attachments/assets/b0448fca-4135-4673-9b39-5fd472bb55d6" width="70%" alt="Admin Dashboard">
     </td>
   </tr>
 </table>
+
 
 ---
 
