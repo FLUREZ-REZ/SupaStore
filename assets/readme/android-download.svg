@@ -1,0 +1,16 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="68" viewBox="0 0 320 68">
+  <rect width="320" height="68" rx="14" fill="#E87516"/>
+
+  <g transform="translate(25 19)" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 9 L1 2 M19 9 L23 2"/>
+    <rect x="3" y="9" width="20" height="19" rx="7"/>
+    <path d="M8 15h.1 M18 15h.1" stroke-width="3.5"/>
+    <path d="M0 13v9 M26 13v9 M8 28v5 M18 28v5"/>
+  </g>
+
+  <g fill="#FFFFFF" font-family="Arial, sans-serif">
+    <text x="165" y="29" font-size="12" text-anchor="middle" font-weight="400" opacity=".9">DOWNLOAD</text>
+    <text x="165" y="49" font-size="17" text-anchor="middle" font-weight="700">ANDROID APK</text>
+  </g>
+</svg>
