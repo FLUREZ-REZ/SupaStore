@@ -198,4 +198,156 @@ SupaStore is built using Flutter and Dart, following a modular and maintainable 
 
 
 
+<img src="https://github.com/user-attachments/assets/5dba7376-40ca-4757-9b61-b23761088664" width="100%" alt="SupaStore Banner">
+
+<!-- ================= PAYMENT GATEWAYS ================= -->
+
+<h2 align="center">💳 Payment Gateways</h2>
+
+<p align="center">
+  Integrated payment gateways in SupaStore
+</p>
+
+<p align="center">
+  
+</p>
+
+<p align="center">
+  Secure, reliable and seamless online payment experience
+</p>
+
+<br>
+
+<!-- ZARINPAL -->
+
+<h3 align="center">🟡 ZarinPal Payment Gateway</h3>
+
+<p align="center">
+  
+</p>
+
+<p align="center">
+  Integrated with ZarinPal to provide secure online payments
+  and automated transaction verification.
+</p>
+
+<p align="center">
+  
+</p>
+
+<p align="center">
+  
+</p>
+
+<br>
+
+<hr>
+
+<!-- SEP -->
+
+<h3 align="center">🔵 SEP Payment Gateway</h3>
+
+<p align="center">
+  
+</p>
+
+<p align="center">
+  Integrated with SEP (Saman Electronic Payment) for
+  secure payment processing and transaction verification.
+</p>
+
+<p align="center">
+  
+</p>
+
+<p align="center">
+  
+</p>
+
+<br>
+
+<hr>
+
+<!-- PAYMENT FEATURES -->
+
+<h3 align="center">✨ Payment Features</h3>
+
+<table align="center">
+  <tr>
+    <td align="center" width="33%">
+      🔒<br><b>Secure Payment</b><br>
+      <sub>Secure gateway communication</sub>
+    </td>
+    <td align="center" width="33%">
+      ⚡<br><b>Transaction Verification</b><br>
+      <sub>Payment status validation</sub>
+    </td>
+    <td align="center" width="33%">
+      🔄<br><b>Callback Handling</b><br>
+      <sub>Payment result processing</sub>
+    </td>
+  </tr>
+</table>
+
+<br>
+
+<p align="center">
+  <b>Built with Flutter & Supabase</b>
+</p>
+
+<!-- ================= END PAYMENT GATEWAYS ================= -->
+
+
+
+<!-- ================= COPYRIGHT & LICENSE ================= -->
+
+<hr>
+
+<h2 align="center">🔒 Copyright & License</h2>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Copyright-2026-red?style=for-the-badge">
+  <img src="https://img.shields.io/badge/All%20Rights-Reserved-black?style=for-the-badge">
+  <img src="https://img.shields.io/badge/License-Proprietary-blue?style=for-the-badge">
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <h3>© 2026 Rez (FLUREZ-REZ)</h3>
+      <b>All Rights Reserved.</b>
+      <br><br>
+      This repository and all of its contents, including source code,
+      designs, architecture, UI components, assets, and documentation,
+      are the exclusive intellectual property of the author.
+      <br><br>
+      This project is publicly available for viewing and demonstration
+      purposes only.
+      <br><br>
+      <b>Unauthorized use is strictly prohibited.</b>
+      <br><br>
+      No person or organization is permitted to copy, reproduce,
+      modify, distribute, publish, sublicense, or use any part of
+      this project without prior written permission from the author.
+      <br><br>
+      <b>All Rights Reserved.</b>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <sub>
+    Any unauthorized use, reproduction, or distribution of this
+    project may result in legal action.
+  </sub>
+</p>
+
+<hr>
+
+<!-- ================= END COPYRIGHT ================= -->
+
+
+
+
+
 
